@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NURU FOUNDATION - Empowering Futures</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Fredoka+One&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles/index.css">
+  
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+
+
+<script src="scripts/header.js"></script>
+<div id="headerContainer"></div>
+
+<script>
+    fetch('header.html')
+        .then(response => response.text())
+        .then(data => {
+            document.getElementById('headerContainer').innerHTML = data;
+    
+            if (typeof initHeader === 'function') {
+                setTimeout(initHeader, 100); 
+            }
+        })
+        .catch(error => console.error('Error loading header:', error));
+</script>
+
+
+   
+    <section class="hero-section">
+        <div class="container hero-content">
+            <h1>Unlock Your Potential with NURU FOUNDATION!</h1>
+            <p>Your online school for essential academic, technical, and personal development skills. Learning made easier, engaging, and accessible for everyone.</p>
+            <a href="#courses" class="btn btn-primary">Explore Our Courses</a>
+        </div>
+    </section>
+
+
+
+   <section id="courses" class="courses-section">
+    <div class="container">
+        <h2>Our Exciting Courses</h2>
+        <p style="font-size: 1.15rem; max-width: 900px; margin: 0 auto 3.5rem auto; color: #555;">
+            Dive into a world of knowledge with our carefully designed courses. From foundational computer skills to advanced AI, we have something for everyone!
+        </p>
+        <div class="course-grid">
+
+            <!-- Computer Packages -->
+            <div class="course-card">
+                <img src="https://images.unsplash.com/photo-1547658719-da2b51169166?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80" alt="Computer Packages" class="course-card-image">
+                <div class="course-card-content">
+                    <h3>Computer Packages</h3>
+                    <p class="description">Master essential digital literacy skills in Microsoft Office Suite, Google Tools, file management, cloud storage, and internet safety. Perfect for building practical office and academic computing skills.</p>
+                    <div class="course-info">
+                        <span><i class="far fa-clock"></i> 2½ Months</span>
+                        <span><i class="fas fa-tag"></i> Foundational</span>
+                    </div>
+                    <div class="requirements-dropdown">
+                        <details>
+                            <summary>Course Requirements <i class="fas fa-angle-down"></i></summary>
+                            <ul>
+                                <li>Basic computer familiarity</li>
+                                <li>No prior experience needed</li>
+                                <li>Access to a computer with internet</li>
+                            </ul>
+                        </details>
+                    </div>
+                    <a href="computer-packages.html" class="btn btn-primary view-details-btn">View Full Details</a>
+                </div>
+            </div>
+
+            <!-- Programming with Python -->
+            <div class="course-card">
+                <img src="https://cdn.hashnode.com/res/hashnode/image/upload/v1637422966499/jx6h36yHp.jpeg" alt="Programming with Python" class="course-card-image">
+                <div class="course-card-content">
+                    <h3>Programming with Python</h3>
+                    <p class="description">Learn programming fundamentals, logic building, Python programming (Structured & OOP), data structures, algorithms, and build basic automation projects. Perfect for aspiring coders!</p>
+                    <div class="course-info">
+                        <span><i class="far fa-clock"></i> 6 Months</span>
+                        <span><i class="fas fa-tag"></i> Beginner to Intermediate</span>
+                    </div>
+                    <div class="requirements-dropdown">
+                        <details>
+                            <summary>Course Requirements <i class="fas fa-angle-down"></i></summary>
+                            <ul>
+                                <li>Basic computer literacy</li>
+                                <li>Logical thinking skills</li>
+                                <li>No prior programming experience needed</li>
+                            </ul>
+                        </details>
+                    </div>
+                    <a href="#" class="btn btn-primary view-details-btn">View Full Details</a>
+                </div>
+            </div>
+
+            <!-- Cybersecurity Level 1 - Essentials -->
+            <div class="course-card">
+                <img src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80" alt="Cybersecurity Essentials" class="course-card-image">
+                <div class="course-card-content">
+                    <h3>Cybersecurity - Level 1 (Essentials)</h3>
+                    <p class="description">Get started with cybersecurity fundamentals, networking concepts, operating systems security, malware identification, and ethical security practices. Build your foundation in digital protection.</p>
+                    <div class="course-info">
+                        <span><i class="far fa-clock"></i> 3 Months</span>
+                        <span><i class="fas fa-tag"></i> Beginner</span>
+                    </div>
+                    <div class="requirements-dropdown">
+                        <details>
+                            <summary>Course Requirements <i class="fas fa-angle-down"></i></summary>
+                            <ul>
+                                <li>Basic computer knowledge</li>
+                                <li>Interest in technology security</li>
+                                <li>No prior cybersecurity experience needed</li>
+                            </ul>
+                        </details>
+                    </div>
+                    <a href="#" class="btn btn-primary view-details-btn">View Full Details</a>
+                </div>
+            </div>
+
+            <!-- Cybersecurity Level 2 - Advanced -->
+            <div class="course-card">
+                <img src="https://images.unsplash.com/photo-1563089145-599997674d42?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80" alt="Cybersecurity Advanced" class="course-card-image">
+                <div class="course-card-content">
+                    <h3>Cybersecurity - Level 2 (Advanced)</h3>
+                    <p class="description">Master ethical hacking, penetration testing, network scanning, system exploitation, web application security, and cloud security. Learn to detect, prevent, and respond to cyber threats responsibly.</p>
+                    <div class="course-info">
+                        <span><i class="far fa-clock"></i> 6 Months</span>
+                        <span><i class="fas fa-tag"></i> Advanced</span>
+                    </div>
+                    <div class="requirements-dropdown">
+                        <details>
+                            <summary>Course Requirements <i class="fas fa-angle-down"></i></summary>
+                            <ul>
+                                <li>Completion of Cybersecurity Level 1</li>
+                                <li>Understanding of networking concepts</li>
+                                <li>Basic knowledge of operating systems</li>
+                            </ul>
+                        </details>
+                    </div>
+                    <a href="#" class="btn btn-primary view-details-btn">View Full Details</a>
+                </div>
+            </div>
+
+            <!-- Data Science -->
+            <div class="course-card">
+                <img src="https://analyzing-testing.netzsch.com/_Resources/Persistent/4/d/4/e/4d4ea9e36c3524300b40aa2ee2c37cf85ca4876d/NETZSCH_Data-Science_Big-Data-scaled-1847x1038-1600x899.webp" alt="Data Science" class="course-card-image">
+                <div class="course-card-content">
+                    <h3>Data Science</h3>
+                    <p class="description">Master modern data analysis, visualization, and machine learning skills. From Python for data analysis to Big Data, Cloud Computing, and AI integration. Complete with a hands-on capstone project.</p>
+                    <div class="course-info">
+                        <span><i class="far fa-clock"></i> 12 Months</span>
+                        <span><i class="fas fa-tag"></i> Advanced</span>
+                    </div>
+                    <div class="requirements-dropdown">
+                        <details>
+                            <summary>Course Requirements <i class="fas fa-angle-down"></i></summary>
+                            <ul>
+                                <li>Basic programming knowledge (Python preferred)</li>
+                                <li>Understanding of basic mathematics</li>
+                                <li>Analytical thinking skills</li>
+                            </ul>
+                        </details>
+                    </div>
+                    <a href="#" class="btn btn-primary view-details-btn">View Full Details</a>
+                </div>
+            </div>
+
+            <!-- Data Analysis -->
+            <div class="course-card">
+                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQt8hktHHl2jPlOX-938tKjifIuLuxYDwUSnA&s" alt="Data Analysis" class="course-card-image">
+                <div class="course-card-content">
+                    <h3>Data Analysis (Analytics)</h3>
+                    <p class="description">Build competency in interpreting and presenting data for decision-making. Learn data cleaning, visualization, statistical analysis, and Business Intelligence using Python, Excel, and SQL.</p>
+                    <div class="course-info">
+                        <span><i class="far fa-clock"></i> 6 Months</span>
+                        <span><i class="fas fa-tag"></i> Intermediate</span>
+                    </div>
+                    <div class="requirements-dropdown">
+                        <details>
+                            <summary>Course Requirements <i class="fas fa-angle-down"></i></summary>
+                            <ul>
+                                <li>Basic computer literacy</li>
+                                <li>Foundational math skills</li>
+                                <li>No prior data analysis experience needed</li>
+                            </ul>
+                        </details>
+                    </div>
+                    <a href="#" class="btn btn-primary view-details-btn">View Full Details</a>
+                </div>
+            </div>
+
+            <!-- Data Engineering -->
+            <div class="course-card">
+                <img src="https://cdn.prod.website-files.com/64fef88ee8b22d3d21b715a2/657c2bfd9d07f76a47c70ce8_64c0dfda42c1ee625bb4640c_Blog%2520image%2520(1).webp" alt="Data Engineering" class="course-card-image">
+                <div class="course-card-content">
+                    <h3>Data Engineering</h3>
+                    <p class="description">Learn to build and maintain reliable data infrastructure systems. Covers databases, data modeling, programming for data engineering (Python/SQL), data warehousing, and cloud platforms with a real-world capstone project.</p>
+                    <div class="course-info">
+                        <span><i class="far fa-clock"></i> 12 Months</span>
+                        <span><i class="fas fa-tag"></i> Advanced</span>
+                    </div>
+                    <div class="requirements-dropdown">
+                        <details>
+                            <summary>Course Requirements <i class="fas fa-angle-down"></i></summary>
+                            <ul>
+                                <li>Strong programming fundamentals</li>
+                                <li>Understanding of database concepts</li>
+                                <li>Basic knowledge of data structures</li>
+                            </ul>
+                        </details>
+                    </div>
+                    <a href="#" class="btn btn-primary view-details-btn">View Full Details</a>
+                </div>
+            </div>
+
+            <!-- Web Development Level 1 -->
+            <div class="course-card">
+                <img src="https://images.unsplash.com/photo-1627398242454-45a1465c2479?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80" alt="Web Development Level 1" class="course-card-image">
+                <div class="course-card-content">
+                    <h3>Web Development - Level 1</h3>
+                    <p class="description">Start your web journey with HTML, CSS, and JavaScript basics. Learn responsive design, build your first projects, and create a professional portfolio. Perfect for absolute beginners!</p>
+                    <div class="course-info">
+                        <span><i class="far fa-clock"></i> 2 Months</span>
+                        <span><i class="fas fa-tag"></i> Beginner</span>
+                    </div>
+                    <div class="requirements-dropdown">
+                        <details>
+                            <summary>Course Requirements <i class="fas fa-angle-down"></i></summary>
+                            <ul>
+                                <li>Basic computer usage skills</li>
+                                <li>Creative thinking ability</li>
+                                <li>No prior web development experience needed</li>
+                            </ul>
+                        </details>
+                    </div>
+                    <a href="#" class="btn btn-primary view-details-btn">View Full Details</a>
+                </div>
+            </div>
+
+            <!-- Web Development Level 2 -->
+            <div class="course-card">
+                <img src="https://images.unsplash.com/photo-1627398242454-45a1465c2479?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80" alt="Web Development Level 2" class="course-card-image">
+                <div class="course-card-content">
+                    <h3>Web Development - Level 2</h3>
+                    <p class="description">Advance your skills with JavaScript DOM manipulation, front-end frameworks, back-end basics, databases (SQL & NoSQL), RESTful APIs, and deployment. Build dynamic web applications!</p>
+                    <div class="course-info">
+                        <span><i class="far fa-clock"></i> 4 Months</span>
+                        <span><i class="fas fa-tag"></i> Intermediate</span>
+                    </div>
+                    <div class="requirements-dropdown">
+                        <details>
+                            <summary>Course Requirements <i class="fas fa-angle-down"></i></summary>
+                            <ul>
+                                <li>Completion of Web Development Level 1</li>
+                                <li>Basic understanding of HTML, CSS & JavaScript</li>
+                                <li>Logical problem-solving skills</li>
+                            </ul>
+                        </details>
+                    </div>
+                    <a href="#" class="btn btn-primary view-details-btn">View Full Details</a>
+                </div>
+            </div>
+
+            <!-- Web Development Level 3 -->
+            <div class="course-card">
+                <img src="https://images.unsplash.com/photo-1627398242454-45a1465c2479?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80" alt="Web Development Level 3" class="course-card-image">
+                <div class="course-card-content">
+                    <h3>Web Development - Level 3</h3>
+                    <p class="description">Master full-stack development with advanced React and Node.js. Learn web security, authentication, advanced database integration, and deploy complete full-stack applications. Become job-ready!</p>
+                    <div class="course-info">
+                        <span><i class="far fa-clock"></i> 4 Months</span>
+                        <span><i class="fas fa-tag"></i> Advanced</span>
+                    </div>
+                    <div class="requirements-dropdown">
+                        <details>
+                            <summary>Course Requirements <i class="fas fa-angle-down"></i></summary>
+                            <ul>
+                                <li>Completion of Web Development Level 2</li>
+                                <li>Solid understanding of front-end and back-end basics</li>
+                                <li>Experience with databases and APIs</li>
+                            </ul>
+                        </details>
+                    </div>
+                    <a href="#" class="btn btn-primary view-details-btn">View Full Details</a>
+                </div>
+            </div>
+
+            <!-- AI Essentials -->
+            <div class="course-card">
+                <img src="https://images.unsplash.com/photo-1677442136019-21780ecad995?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80" alt="AI Essentials" class="course-card-image">
+                <div class="course-card-content">
+                    <h3>AI Essentials</h3>
+                    <p class="description">Explore core AI concepts and their real-world applications. Learn prompt engineering and how to use generative AI tools for content creation, coding, and analytics. Perfect for understanding today's AI landscape.</p>
+                    <div class="course-info">
+                        <span><i class="far fa-clock"></i> Introductory</span>
+                        <span><i class="fas fa-tag"></i> Foundational</span>
+                    </div>
+                    <div class="requirements-dropdown">
+                        <details>
+                            <summary>Course Requirements <i class="fas fa-angle-down"></i></summary>
+                            <ul>
+                                <li>Basic computer skills</li>
+                                <li>Curiosity about technology's future</li>
+                                <li>No AI experience required</li>
+                            </ul>
+                        </details>
+                    </div>
+                    <a href="#" class="btn btn-primary view-details-btn">View Full Details</a>
+                </div>
+            </div>
+
+            <!-- Soft Skills -->
+            <div class="course-card">
+                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRQL_poqTGYY2DTlgwxLXLQLKxkDo3l2QXUmw&s" alt="Soft Skills" class="course-card-image">
+                <div class="course-card-content">
+                    <h3>Soft Skills (Orientation)</h3>
+                    <p class="description">Essential for life and career! Covers verbal & non-verbal communication, teamwork, problem-solving, adaptability, work ethic, integrity, and professionalism. Shape yourself into a holistic learner ready for any challenge.</p>
+                    <div class="course-info">
+                        <span><i class="far fa-clock"></i> Part of Orientation</span>
+                        <span><i class="fas fa-tag"></i> Life Skills</span>
+                    </div>
+                    <div class="requirements-dropdown">
+                        <details>
+                            <summary>Course Requirements <i class="fas fa-angle-down"></i></summary>
+                            <ul>
+                                <li>Openness to personal growth</li>
+                                <li>Desire to improve interpersonal skills</li>
+                                <li>Willingness to participate in group activities</li>
+                            </ul>
+                        </details>
+                    </div>
+                    <a href="#" class="btn btn-primary view-details-btn">View Full Details</a>
+                </div>
+            </div>
+
+        </div> 
+    </div>
+</section>
+
+    <section class="testimonials-section">
+        <div class="container">
+            <h2>What Our Learners Say</h2>
+            <div class="testimonial-grid">
+                <div class="testimonial-card">
+                    <p>"NURU FOUNDATION made learning Python so much fun! The instructors are amazing, and I can finally build my own small apps. Highly recommend for young aspiring coders!"</p>
+                    <div class="author">Dan S.</div>
+                    <div class="role">Student, 14 years old</div>
+                </div>
+                <div class="testimonial-card">
+                    <p>"As a guardian, I appreciate how NURU FOUNDATION keeps us informed. My child loves the Cybersecurity course, and I've seen a huge boost in their confidence and digital awareness."</p>
+                    <div class="author">Maria K.</div>
+                    <div class="role">Guardian</div>
+                </div>
+                <div class="testimonial-card">
+                    <p>"The Data Analysis course was incredibly practical. I've gained skills that are directly applicable to my career, and the support from the community is fantastic."</p>
+                    <div class="author">John P.</div>
+                    <div class="role">Adult Learner</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+   
+    <section class="cta-section">
+        <div class="container">
+            <h2>Ready to Start Your Learning Adventure?</h2>
+            <p>Join the NURU FOUNDATION family today and embark on a journey of discovery, skill-building, and personal growth. Your future starts here!</p>
+            <a href="#" class="btn btn-primary">Join Us Now!</a>
+        </div>
+    </section>
+
+    <script>
+       
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+
+
+
+
+<script src="scripts/footer.js"></script>
+<div id="footerContainer"></div>
+
+<script>
+    // Load Footer Content and initialize it
+    document.addEventListener('DOMContentLoaded', function() {
+        fetch('footer.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('footerContainer').innerHTML = data;
+                
+                // 🔥 CRITICAL FIX: Manually call the init function AFTER the HTML is loaded.
+                if (typeof startCourseRotation === 'function') {
+                    startCourseRotation();
+                }
+            })
+            .catch(error => console.error('Error loading footer:', error));
+    });
+</script>
+
+</body>
+</html>

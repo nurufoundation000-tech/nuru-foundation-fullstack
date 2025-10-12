@@ -1,0 +1,87 @@
+<style>
+
+.floating-apply-btn {
+    position: fixed;
+    bottom: 25px;
+    right: 25px;
+    
+    display: flex;
+    flex-direction: column; /* Stack text lines */
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    width: 140px; 
+    height: 140px;
+    
+  
+    background: linear-gradient(145deg, var(--secondary-color), var(--secondary-color) 70%, var(--accent-color-2)); 
+    color: var(--text-dark);
+    
+   
+    border-radius: 50%; 
+    border: 5px solid var(--text-light);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4); 
+    font-weight: 800;
+    text-decoration: none;
+    line-height: 1.2;
+    z-index: 1000;
+    
+    /* Animation Control */
+    transition: all 0.3s ease-in-out;
+    animation: wobble 4s infinite ease-in-out; 
+}
+
+.floating-apply-btn:hover {
+    transform: scale(1.15) rotate(0deg);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.6);
+    animation: none; 
+}
+
+.btn-main-text {
+    font-size: 1.3rem;
+    text-transform: uppercase;
+    text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+.btn-secondary-text {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--primary-color); 
+    margin-top: 3px;
+    padding: 2px 5px;
+    background-color: var(--text-light);
+    border-radius: 5px;
+    white-space: nowrap;
+}
+
+
+@keyframes wobble {
+    0%, 100% { transform: translateY(0) rotate(-1deg); }
+    15% { transform: translateY(-3px) rotate(1deg); }
+    30% { transform: translateY(0) rotate(-1deg); }
+    45% { transform: translateY(-1px) rotate(0.5deg); }
+    60% { transform: translateY(0) rotate(-0.5deg); }
+    75% { transform: translateY(-2px) rotate(1deg); }
+}
+
+
+@media (max-width: 600px) {
+    .floating-apply-btn {
+        width: 120px;
+        height: 120px;
+        bottom: 20px;
+        right: 20px;
+    }
+    .btn-main-text {
+        font-size: 1.1rem;
+    }
+    .btn-secondary-text {
+        font-size: 0.7rem;
+    }
+}
+</style>
+
+<a href="#" class="floating-apply-btn">
+    <span class="btn-main-text"><i class="fas fa-check-circle"></i> Apply Now</span>
+    <span class="btn-secondary-text">January Intakes Ongoing</span>
+</a>

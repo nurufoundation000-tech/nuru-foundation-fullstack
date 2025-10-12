@@ -1,0 +1,41 @@
+{
+  "name": "portal",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "cross-env NODE_ENV=test jest --runInBand --forceExit",
+    "test:maindb": "cross-env NODE_ENV=test jest --runInBand --forceExit --selectProjects auth courses lessons rbac",
+    "test:auth": "cross-env NODE_ENV=test jest tests/auth.test.js --runInBand --verbose",
+    "test:courses": "cross-env NODE_ENV=test jest tests/courses.test.js --runInBand --verbose",
+    "test:lessons": "cross-env NODE_ENV=test jest tests/lessons.test.js --runInBand --verbose",
+    "test:rbac": "cross-env NODE_ENV=test jest tests/rbac.test.js --runInBand --verbose",
+    "test:middleware": "cross-env NODE_ENV=test jest tests/middleware.test.js --runInBand --verbose",
+    "test:simple": "cross-env NODE_ENV=test jest tests/simple.test.js --runInBand --verbose",
+    "test:watch": "cross-env NODE_ENV=test jest --watch --runInBand",
+    "db:reset": "npx prisma migrate reset --force",
+    "dev": "nodemon app.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@prisma/client": "^6.17.0",
+    "bcryptjs": "^3.0.2",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "dotenv-flow": "^4.1.0",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "mysql2": "^3.15.2"
+  },
+  "devDependencies": {
+    "@types/jest": "^30.0.0",
+    "@types/supertest": "^6.0.3",
+    "cross-env": "^10.1.0",
+    "jest": "^30.2.0",
+    "nodemon": "^3.1.10",
+    "prisma": "^6.17.1",
+    "supertest": "^7.1.4"
+  }
+}

@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal Maintenance - NURU Foundation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Fredoka+One&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="styles/root.css">
+    <style>
+        /* Maintenance Page Styles */
+        .maintenance-hero {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #8a2be2 100%);
+            color: var(--text-light);
+            padding: 6rem 0 4rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            min-height: 70vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .maintenance-hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23ffffff' fill-opacity='0.1' fill-rule='evenodd'/%3E%3C/svg%3E");
+            opacity: 0.3;
+        }
+
+        .maintenance-icon {
+            font-size: 6rem;
+            margin-bottom: 2rem;
+            animation: bounce 2s infinite;
+            color: var(--secondary-color);
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
+            40% {transform: translateY(-20px);}
+            60% {transform: translateY(-10px);}
+        }
+
+        .hero-content {
+            z-index: 1;
+            position: relative;
+            max-width: 800px;
+            padding: 0 2rem;
+        }
+
+        .hero-content h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--text-light);
+            text-shadow: 4px 4px 10px rgba(0,0,0,0.6);
+        }
+
+        .hero-content p {
+            font-size: 1.3rem;
+            margin: 0 auto 2rem;
+            opacity: 0.95;
+            color: var(--text-light);
+            line-height: 1.6;
+        }
+
+        /* Explanation Section */
+        .explanation-section {
+            padding: 4rem 0;
+            background: var(--background-light);
+        }
+
+        .explanation-content {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+            padding: 0 2rem;
+        }
+
+        .explanation-content h2 {
+            color: var(--primary-color);
+            margin-bottom: 2rem;
+            font-size: 2.2rem;
+        }
+
+        .explanation-text {
+            font-size: 1.2rem;
+            line-height: 1.8;
+            color: var(--text-dark);
+            margin-bottom: 2rem;
+        }
+
+        .positive-news {
+            background: linear-gradient(135deg, #e8f5e8 0%, #f0f8f0 100%);
+            padding: 2rem;
+            border-radius: var(--border-radius-lg);
+            border-left: 5px solid var(--accent-color-1);
+            margin: 2rem 0;
+        }
+
+        .positive-news h3 {
+            color: var(--accent-color-1);
+            margin-bottom: 1rem;
+        }
+
+        /* Contact Options */
+        .contact-section {
+            padding: 4rem 0;
+            background: #f8f9fa;
+        }
+
+        .contact-grid {
+            display: grid;
+            /* grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); */
+                 grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .contact-card {
+            background: var(--background-light);
+            padding: 2.5rem 2rem;
+            border-radius: var(--border-radius-lg);
+            text-align: center;
+            box-shadow: var(--shadow-md);
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .contact-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--secondary-color);
+        }
+
+        .contact-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--gradient-main);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            color: var(--text-light);
+            font-size: 2rem;
+        }
+
+        .contact-card h3 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            font-size: 1.4rem;
+        }
+
+        .contact-info {
+            font-size: 1.1rem;
+            color: var(--text-dark);
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+
+        .contact-note {
+            font-size: 0.9rem;
+            color: #666;
+            font-style: italic;
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            padding: 4rem 0;
+            background: var(--background-light);
+            text-align: center;
+        }
+
+        .actions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .action-card {
+            background: var(--background-light);
+            padding: 2rem;
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-md);
+            transition: all 0.3s ease;
+        }
+
+        .action-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .action-icon {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        /* CTA Section */
+        .maintenance-cta {
+            padding: 4rem 0;
+            background: linear-gradient(135deg, var(--accent-color-1) 0%, #5ed1cb 100%);
+            color: var(--text-light);
+            text-align: center;
+        }
+
+        .cta-content {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .cta-content h2 {
+            font-size: 2.2rem;
+            margin-bottom: 1rem;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 1rem 2rem;
+            border-radius: var(--border-radius-lg);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-family: var(--font-family-body);
+            margin: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--secondary-color);
+            color: var(--text-dark);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-color);
+            color: var(--text-light);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-light);
+            border: 2px solid var(--text-light);
+        }
+
+        .btn-secondary:hover {
+            background: var(--text-light);
+            color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .maintenance-hero {
+                padding: 4rem 0 2rem;
+                min-height: 60vh;
+            }
+
+            .hero-content h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero-content p {
+                font-size: 1.1rem;
+            }
+
+            .maintenance-icon {
+                font-size: 4rem;
+            }
+
+            .contact-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .actions-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .explanation-content h2 {
+                font-size: 1.8rem;
+            }
+
+            .explanation-text {
+                font-size: 1.1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-content h1 {
+                font-size: 2rem;
+            }
+
+            .contact-card {
+                padding: 2rem 1rem;
+            }
+
+            .btn {
+                width: 100%;
+                max-width: 250px;
+                margin: 0.5rem 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Maintenance Hero Section -->
+    <section class="maintenance-hero">
+        <div class="hero-content">
+            <div class="maintenance-icon">
+                <i class="fas fa-tools"></i>
+            </div>
+            <h1>OOPS! ,We're Making Things Better!</h1>
+            <p>Our  portal is currently under mantainance. We appreciate your patience while we work behind the scenes to create an amazing experience for you.</p>
+            <div style="margin-top: 2rem;">
+                <a href="#contact" class="btn btn-primary">Get in Touch</a>
+                <a href="index.html" class="btn btn-secondary">Back to Home</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Explanation Section -->
+    <!-- <section class="explanation-section">
+        <div class="explanation-content">
+            <h2>What's Happening?</h2>
+            <p class="explanation-text">
+                We know you're excited to join our learning community, and we're just as excited to welcome you! Our team is currently working hard to implement some fantastic new features that will make your learning journey even smoother and more enjoyable.
+            </p>
+            
+            <div class="positive-news">
+                <h3>🎉 Good News Ahead!</h3>
+                <p>While our online portal is being upgraded, <strong>all our courses are still running as scheduled</strong>, and you can still reach us through the contact methods below. We're adding exciting new features like progress tracking, better video quality, and easier payment options!</p>
+            </div>
+
+            <p class="explanation-text">
+                Think of this like when your favorite app gets an update - it might be unavailable for a short while, but when it comes back, it's faster, smarter, and even more helpful! That's exactly what we're doing for you.
+            </p>
+        </div>
+    </section> -->
+
+    <!-- Contact Options -->
+    <section class="contact-section" id="contact">
+        <div class="container">
+            <h2 style="text-align: center; margin-bottom: 3rem; color: var(--primary-color);">Here's How You Can Reach Us</h2>
+            <div class="contact-grid">
+                <!-- Phone Contact -->
+                <div class="contact-card">
+                    <div class="contact-icon">
+                        <i style="color: #5ed1cb;" class="fas fa-phone"></i>
+                    </div>
+                    <h3>Call Us Directly</h3>
+                    <div class="contact-info">
+                        <strong>+254 712 345 678</strong><br>
+                        Available: 8:00 AM - 8:00 PM EAT<br>
+                        Monday to Saturday
+                    </div>
+                    <p class="contact-note">Perfect for urgent inquiries and immediate assistance</p>
+                </div>
+
+                <!-- Email Contact -->
+                <div class="contact-card">
+                    <div class="contact-icon">
+                        <i style="color: #5ed1cb;" class="fas fa-envelope"></i>
+                    </div>
+                    <h3>Send Us an Email</h3>
+                    <div class="contact-info">
+                        <strong style="font-size: smaller;">nurufoundations@gmail.com</strong><br>
+                        We typically respond within 2-4 hours during business days
+                    </div>
+                    <p class="contact-note">Great for detailed questions and course information</p>
+                </div>
+
+                <!-- WhatsApp Contact -->
+                <div class="contact-card">
+                    <div class="contact-icon">
+                        <i style="color: #5ed1cb;" class="fab fa-whatsapp"></i>
+                    </div>
+                    <h3>Message on WhatsApp</h3>
+                    <div class="contact-info">
+                        <strong>+254 712 345 678</strong><br>
+                        Quick responses for casual inquiries and quick questions
+                    </div>
+                    <p class="contact-note">We love hearing from you on WhatsApp too!</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+   
+
+    <!-- CTA Section -->
+    <section class="maintenance-cta">
+        <div class="cta-content">
+            <h2>We Can't Wait to Welcome You!</h2>
+            <p>Our upgraded portal will be ready very soon, and we promise it will be worth the wait. In the meantime, we're here to help you get started on your learning journey.</p>
+            <div style="margin-top: 2rem;">
+                <a href="tel:+254712345678" class="btn btn-primary">
+                    <i class="fas fa-phone"></i> Call Us Now
+                </a>
+                <a href="mailto:nurufoundations@gmail.com" class="btn btn-secondary">
+                    <i class="fas fa-envelope"></i> Send Email
+                </a>
+
+                   <a href="tel:+254712345678" class="btn btn-primary">
+                    <i class="fas fa-whatsapp"></i> whatssap Us Now
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Simple animation for contact cards
+        document.addEventListener('DOMContentLoaded', function() {
+            const contactCards = document.querySelectorAll('.contact-card');
+            
+            contactCards.forEach((card, index) => {
+                // Stagger the animation
+                card.style.animationDelay = `${index * 0.2}s`;
+            });
+        });
+    </script>
+</body>
+</html>

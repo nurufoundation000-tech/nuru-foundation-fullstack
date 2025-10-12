@@ -1,0 +1,38 @@
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --primary-color: #6a0572; 
+            /* --primary-color:#0D4A59;  */
+            --secondary-color: #f7b731;
+            --accent-color-1: #38b2ac; 
+            --accent-color-2: #ef476f; 
+            --text-dark: #333;
+            --text-light: #f9f9f9;
+            --background-light: #ffffff;
+            --background-dark: #2c3e50;
+
+            --font-family-body: 'Poppins', sans-serif;
+            --font-family-heading: 'Fredoka One', cursive;
+
+            --border-radius-lg: 15px;
+            --border-radius-md: 10px;
+            --shadow-md: 0 4px 15px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-family-body);
+            line-height: 1.6;
+            color: var(--text-dark);
+            background-color: var(--background-light);
+            overflow-x: hidden;
+        }

@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Program Calendar - NURU Foundation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Fredoka+One&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="styles/root.css">
+<link rel="stylesheet" href="styles/calender.css">
+</head>
+<body>
+
+    
+
+<script src="scripts/header.js"></script>
+<div id="headerContainer"></div>
+
+<script>
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        fetch('header.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('headerContainer').innerHTML = data;
+                
+                
+                if (typeof initHeader === 'function') {
+                    initHeader();
+                }
+            })
+            .catch(error => console.error('Error loading header:', error));
+    });
+</script>
+    <!-- Calendar Hero Section -->
+    <section class="calendar-hero">
+        <div class="hero-content">
+            <h1>Program Calendar & Cohorts</h1>
+            <p>Plan your learning journey with our structured cohort system. Four intake periods per year to fit your schedule.</p>
+            <div class="cta-buttons">
+                <a href="#current-cohort" class="btn btn-primary">View Current Cohort</a>
+                <a href="#enrollment" class="btn btn-secondary">Enrollment Process</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Current Cohort Banner -->
+    <section id="current-cohort">
+        <div class="current-cohort-banner">
+            <h2 style="margin-bottom: 0.5rem; font-size: 1.8rem;">🎯 Currently Enrolling: Cohort 1 (Jan - April 2026)</h2>
+            <p style="font-size: 1.1rem; margin: 0;">Limited spots available! Registration closes January 25th, 2026</p>
+        </div>
+    </section>
+
+    <!-- Interactive Calendar -->
+    <section class="calendar-section">
+        <div class="calendar-container">
+            <div class="year-navigation">
+                <h2 class="year-title">2026 Program Calendar</h2>
+                <div class="nav-buttons">
+                    <button class="nav-btn">← Previous Year</button>
+                    <button class="nav-btn">Next Year →</button>
+                </div>
+            </div>
+
+            <div class="quarters-grid">
+                <!-- Cohort 1 -->
+                <div class="quarter-card completed">
+                    <div class="quarter-header">
+                        <div class="quarter-badge">Cohort 1</div>
+                        <div class="quarter-status status-completed">Completed</div>
+                    </div>
+                    <h3 style="color: var(--primary-color); margin-bottom: 1rem;">February - April 2026</h3>
+                    <div class="quarter-timeline">
+                        <div class="timeline-bar">
+                            <div class="timeline-progress" style="width: 100%"></div>
+                        </div>
+                        <div class="timeline-dates">
+                            <span>Feb 1</span>
+                            <span>Apr 30</span>
+                        </div>
+                    </div>
+                    <p>Winter/Spring session completed. Students are now working on final projects.</p>
+                    <div class="cohort-courses">
+                        <span class="course-pill">All Courses</span>
+                    </div>
+                </div>
+
+                <!-- Cohort 2 -->
+                <div class="quarter-card active">
+                    <div class="quarter-header">
+                        <div class="quarter-badge">Cohort 2</div>
+                        <div class="quarter-status status-active">Enrolling Now</div>
+                    </div>
+                    <h3 style="color: var(--primary-color); margin-bottom: 1rem;">May - July 2024</h3>
+                    <div class="quarter-timeline">
+                        <div class="timeline-bar">
+                            <div class="timeline-progress" style="width: 0%"></div>
+                        </div>
+                        <div class="timeline-dates">
+                            <span>May 1</span>
+                            <span>Jul 31</span>
+                        </div>
+                    </div>
+                    <p>Summer session starting soon! Perfect time to begin your tech journey.</p>
+                    <div class="cohort-courses">
+                        <span class="course-pill">All Courses</span>
+                        <span class="course-pill">New: AI Essentials</span>
+                    </div>
+                </div>
+
+                <!-- Cohort 3 -->
+                <div class="quarter-card upcoming">
+                    <div class="quarter-header">
+                        <div class="quarter-badge">Cohort 3</div>
+                        <div class="quarter-status status-upcoming">Upcoming</div>
+                    </div>
+                    <h3 style="color: var(--primary-color); margin-bottom: 1rem;">August - October 2024</h3>
+                    <div class="quarter-timeline">
+                        <div class="timeline-bar">
+                            <div class="timeline-progress" style="width: 0%"></div>
+                        </div>
+                        <div class="timeline-dates">
+                            <span>Aug 1</span>
+                            <span>Oct 31</span>
+                        </div>
+                    </div>
+                    <p>Fall session - registration opens June 15th. Plan ahead for your studies!</p>
+                    <div class="cohort-courses">
+                        <span class="course-pill">All Courses</span>
+                    </div>
+                </div>
+
+                <!-- Cohort 4 -->
+                <div class="quarter-card">
+                    <div class="quarter-header">
+                        <div class="quarter-badge">Cohort 4</div>
+                        <div class="quarter-status">Planning</div>
+                    </div>
+                    <h3 style="color: var(--primary-color); margin-bottom: 1rem;">November 2024 - January 2025</h3>
+                    <div class="quarter-timeline">
+                        <div class="timeline-bar">
+                            <div class="timeline-progress" style="width: 0%"></div>
+                        </div>
+                        <div class="timeline-dates">
+                            <span>Nov 1</span>
+                            <span>Jan 31</span>
+                        </div>
+                    </div>
+                    <p>Winter session - perfect for year-end skill development and New Year goals.</p>
+                    <div class="cohort-courses">
+                        <span class="course-pill">All Courses</span>
+                    </div>
+                </div>
+
+
+                <!-- Cohort 5 -->
+<div class="quarter-card premium">
+    <div class="quarter-header">
+        <div class="quarter-badge">Customizable </div>
+        <div class="quarter-status status-premium">Custom Dates</div>
+    </div>
+    <h3 style="color: var(--primary-color); margin-bottom: 1rem;">Flexible Schedule (Inc Tuitions)</h3>
+    <div class="quarter-timeline">
+        <div class="timeline-bar">
+            <div class="timeline-progress" style="width: 100%"></div>
+        </div>
+        <div class="timeline-dates">
+            <span>Open</span>
+            <span>Anytime</span>
+        </div>
+    </div>
+    <p>Personalized learning calendar — start when it suits you! Ideal for busy professionals and self-paced learners,High school and primary school students who need Tuitions in different scool subjects. Premium pricing applies.</p>
+    <div class="cohort-courses">
+        <span class="course-pill">All Courses + School Work</span>
+        <span class="course-pill">Tailored Programs(Like Math)</span>
+    </div>
+</div>
+
+
+
+<!-- Corporate & Group Training -->
+<div class="quarter-card corporate">
+    <div class="quarter-header">
+        <div class="quarter-badge">Group Program</div>
+        <div class="quarter-status status-corporate">Custom Dates</div>
+    </div>
+    <h3 style="color: var(--primary-color); margin-bottom: 1rem;">Corporate & School Groups</h3>
+    <div class="quarter-timeline">
+        <div class="timeline-bar">
+            <div class="timeline-progress" style="width: 100%; background: var(--accent-color-1);"></div>
+        </div>
+        <div class="timeline-dates">
+            <span>Custom Start</span>
+            <span>Custom End</span>
+        </div>
+    </div>
+    <p>Specialized training for organizations, schools, and groups of 5+ students. Custom curriculum available.Premium pricing applies.</p>
+    <div class="cohort-courses">
+        <span class="course-pill">Bulk Discounts</span>
+        <span class="course-pill">Custom Content</span>
+        <span class="course-pill">Dedicated Coach</span>
+    </div>
+    <!-- <div class="cohort-features" style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #eee;">
+        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+            <i class="fas fa-users" style="color: var(--accent-color-1);"></i>
+            <span style="font-size: 0.9rem;">Minimum 5 participants</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <i class="fas fa-graduation-cap" style="color: var(--accent-color-1);"></i>
+            <span style="font-size: 0.9rem;">Customized learning paths</span>
+        </div>
+    </div> -->
+</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Enrollment Timeline -->
+    <section class="enrollment-timeline" id="enrollment">
+        <div class="container">
+            <h2 style="text-align: center; margin-bottom: 3rem; color: var(--primary-color);">Enrollment Timeline</h2>
+            <div class="timeline-container">
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <div class="timeline-date">2 Months Before Cohort Start</div>
+                        <h3>Registration Opens</h3>
+                        <p>Early registration begins with priority placement and course selection</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <div class="timeline-date">3 Weeks Before Start</div>
+                        <h3>Orientation & Placement</h3>
+                        <p>Welcome session, technical setup, and skill assessment for personalized learning paths</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <div class="timeline-date">Cohort Start Date</div>
+                        <h3>Learning Begins</h3>
+                        <p>First live session, meet your instructors and classmates, start your journey</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <div class="timeline-date">Throughout Cohort</div>
+                        <h3>Continuous Support</h3>
+                        <p>Regular check-ins, project guidance, and community activities</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quick Start Guide -->
+    <section class="quick-start">
+        <div class="container">
+            <h2 style="text-align: center; margin-bottom: 3rem; color: var(--primary-color);">Get Started in 3 Easy Steps</h2>
+            <div class="start-steps">
+                <div class="step-card">
+                    <div class="step-number">1</div>
+                    <h3>Choose Your Cohort</h3>
+                    <p>Select the intake period that works best with your schedule and goals</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">2</div>
+                    <h3>Register Online</h3>
+                    <p>Complete our simple registration form and select your preferred courses</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">3</div>
+                    <h3>Start Learning</h3>
+                    <p>Join orientation and begin your transformative learning experience</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+  
+    <section class="calendar-cta">
+        <div class="cta-content">
+            <h2>Ready to Start Your Journey?</h2>
+            <p>Join our next cohort and become part of the NURU Foundation learning community. Transform your future with skills that matter.</p>
+            <div class="cta-buttons">
+                <a href="register.html" class="btn btn-primary">Register for Cohort 2</a>
+                <a href="courses.html" class="btn btn-secondary">Browse All Courses</a>
+                <a href="contact.html" class="btn btn-secondary">Ask Questions</a>
+            </div>
+        </div>
+    </section>
+
+
+
+    <script src="scripts/footer.js"></script>
+<div id="footerContainer"></div>
+
+<script>
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        fetch('footer.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('footerContainer').innerHTML = data;
+                
+                
+                if (typeof startCourseRotation === 'function') {
+                    startCourseRotation();
+                }
+            })
+            .catch(error => console.error('Error loading footer:', error));
+    });
+</script>
+
+    <script>
+      
+        document.addEventListener('DOMContentLoaded', function() {
+           
+            function updateCohortProgress() {
+                const now = new Date();
+                const cohort2Start = new Date('2024-05-01');
+                const cohort2End = new Date('2024-07-31');
+                const totalDuration = cohort2End - cohort2Start;
+                const elapsed = now - cohort2Start;
+                
+                const progress = Math.min(Math.max((elapsed / totalDuration) * 100, 0), 100);
+                document.querySelector('.quarter-card.active .timeline-progress').style.width = progress + '%';
+            }
+
+            updateCohortProgress();
+            setInterval(updateCohortProgress, 86400000);
+
+           
+            const quarterCards = document.querySelectorAll('.quarter-card');
+            quarterCards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    if (!this.classList.contains('active')) {
+                        this.style.transform = 'translateY(-5px)';
+                        this.style.boxShadow = 'var(--shadow-lg)';
+                    }
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    if (!this.classList.contains('active')) {
+                        this.style.transform = 'translateY(0)';
+                        this.style.boxShadow = 'var(--shadow-md)';
+                    }
+                });
+            });
+
+           
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                  
+                    alert('Year navigation would update the calendar view in a full implementation');
+                });
+            });
+
+         
+            const currentCohort = document.querySelector('.quarter-card.active');
+            if (currentCohort) {
+                currentCohort.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        });
+    </script>
+</body>
+</html>

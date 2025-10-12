@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Computer Packages Course - NURU FOUNDATION</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Fredoka+One&display=swap" rel="stylesheet">
+ <link rel="stylesheet" href="styles/Individual-courses.css">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+
+    <script src="scripts/header.js"></script>
+<div id="headerContainer"></div>
+
+<script>
+  
+    document.addEventListener('DOMContentLoaded', function() {
+        fetch('header.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('headerContainer').innerHTML = data;
+                
+               
+                if (typeof initHeader === 'function') {
+                    initHeader();
+                }
+            })
+            .catch(error => console.error('Error loading header:', error));
+    });
+</script>
+
+    <!-- Course Hero Section -->
+    <section class="course-hero">
+        <div class="container hero-content">
+            <h1>Ignite Your Digital Superpowers! <br>Computer Packages Course</h1>
+            <p>Welcome to your adventure into the digital world! Learn how to use essential computer tools like a pro, making school work, online communication, and future tasks a breeze. It's fun, easy, and made for everyone!</p>
+            <a href="#apply-now" class="btn">Ready to Start? Apply Now!</a>
+            <div class="hero-meta">
+                <span><i class="far fa-clock"></i> Quick Pace: 2½ Months</span>
+                <span><i class="fas fa-seedling"></i> Perfect for Beginners</span>
+                <span><i class="fas fa-home"></i> Learn From Home</span>
+            </div>
+        </div>
+    </section>
+
+    
+    <section class="intro-section">
+        <div class="container">
+            <div class="intro-grid">
+                <div class="intro-text">
+                    <h2>Unlock Your Digital Confidence!</h2>
+                    <p>Ever wished you could whip up a perfect report, design a cool presentation, or manage your files without a hitch? This is your chance!</p>
+                    <p>Our **Computer Packages** course transforms you into a digital whiz kid (or adult!). We'll guide you step-by-step through the most useful computer programs, making sure you feel super confident and capable.</p>
+                    <p>No boring lectures here! We focus on hands-on activities and real-world examples that you'll actually use. Get ready to impress your teachers, parents, and even yourself!</p>
+                </div>
+                <div class="intro-image">
+                    <img src="https://images.unsplash.com/photo-1547658719-da2b51169166?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80" alt="Child learning computer packages with colorful icons">
+                </div>
+            </div>
+            <div class="feature-boxes">
+                <div class="feature-box">
+                    <i class="fas fa-rocket"></i>
+                    <h3>Boost Your Skills</h3>
+                    <p>Gain practical skills essential for school, daily life, and future careers.</p>
+                </div>
+                <div class="feature-box">
+                    <i class="fas fa-smile-beam"></i>
+                    <h3>Fun & Engaging</h3>
+                    <p>Interactive lessons and exciting projects make learning enjoyable for all ages.</p>
+                </div>
+                <div class="feature-box">
+                    <i class="fas fa-shield-alt"></i>
+                    <h3>Stay Safe Online</h3>
+                    <p>Learn crucial internet safety tips to protect yourself in the digital world.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    
+    <section class="outline-section">
+        <div class="container">
+            <h2>Your Journey Through Digital Mastery</h2>
+            <div class="outline-grid">
+
+                <div class="outline-card" data-step="1">
+                    <h3>🖥️ Microsoft Office Superpowers</h3>
+                    <p>Become a master of the most popular office tools:</p>
+                    <ul>
+                        <li>**Microsoft Word:** Create awesome reports, stories, and letters with ease.</li>
+                        <li>**Microsoft Excel:** Organize numbers, make cool charts, and solve problems with spreadsheets.</li>
+                        <li>**Microsoft PowerPoint:** Design dazzling presentations that capture everyone's attention.</li>
+                        <li>**Microsoft Publisher:** Create fun cards, flyers, and newsletters.</li>
+                        <li>**Microsoft Access:** Get a peek into how databases work and organize information.</li>
+                    </ul>
+                </div>
+
+                <div class="outline-card" data-step="2">
+                    <h3>☁️ Google Tools & Cloud Adventures</h3>
+                    <p>Explore the amazing world of free online tools for collaboration and creativity:</p>
+                    <ul>
+                        <li>**Google Docs, Sheets, Slides:** Work together on documents, spreadsheets, and presentations from anywhere!</li>
+                        <li>**Gmail:** Learn the ropes of sending emails, attaching files, and staying connected.</li>
+                        <li>**Google Forms:** Create fun quizzes, surveys, and collect information easily.</li>
+                        <li>**Google Drive:** Store all your important files safely in the cloud and access them anytime, anywhere.</li>
+                    </ul>
+                </div>
+
+                <div class="outline-card" data-step="3">
+                    <h3>📁 Digital Detective Skills</h3>
+                    <p>Learn how to manage your digital life like a pro:</p>
+                    <ul>
+                        <li>**File Management:** Organize your folders and files so you can always find what you need.</li>
+                        <li>**Cloud Storage:** Understand how saving to the cloud keeps your work safe and shareable.</li>
+                        <li>**Basic Computer Maintenance:** Simple tricks to keep your computer healthy and fast.</li>
+                        <li>**Troubleshooting:** What to do when things go a little wrong (and how to fix them!).</li>
+                    </ul>
+                </div>
+
+                <div class="outline-card" data-step="4">
+                    <h3>🌐 Internet Safety & Communication Crew</h3>
+                    <p>Navigate the online world smartly and safely:</p>
+                    <ul>
+                        <li>**Internet Safety:** Learn how to stay safe from online dangers and be a smart digital citizen.</li>
+                        <li>**Digital Communication:** Understand how to talk and interact respectfully online.</li>
+                        <li>**Cyber Etiquette:** The golden rules for being polite and professional in digital spaces.</li>
+                        <li>**Recognizing Threats:** Spotting suspicious links or messages to protect your information.</li>
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Course Requirements Section -->
+    <section class="requirements-section">
+        <div class="container">
+            <h2>What You Need to Join the Fun!</h2>
+            <p>Our Computer Packages course is designed for **everyone**! You don't need to be a tech genius to start. Just bring your curiosity!</p>
+            <div class="requirements-grid">
+                <div class="req-card">
+                    <i class="fas fa-desktop"></i>
+                    <h3>Your Digital Partner</h3>
+                    <p>You'll need access to a computer (laptop or desktop) and a stable internet connection. That's your spaceship for this digital adventure!</p>
+                </div>
+                <div class="req-card">
+                    <i class="fas fa-child"></i>
+                    <h3>No Experience? No Problem!</h3>
+                    <p>This course is perfect for beginners! We start from the very beginning, so don't worry if you've never used these programs before.</p>
+                </div>
+                <div class="req-card">
+                    <i class="fas fa-brain"></i>
+                    <h3>A Big Smile & Curiosity</h3>
+                    <p>Your willingness to learn and explore is the most important tool you'll bring! We make learning exciting, so get ready to smile!</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    
+    <section class="impact-section">
+        <div class="container">
+            <h2>Your Awesome Achievement: Digital Confidence!</h2>
+            <p>By the time you complete this course, you won't just know how to use computer programs – you'll truly *understand* them. You'll be able to:</p>
+            <p>
+                "Confidently **create amazing documents**, easily **manage your information**, design **captivating presentations**, communicate **smartly online**, and **navigate the digital world safely**."
+            </p>
+            <p>
+                This isn't just about software; it's about giving you a foundational skillset that empowers you in academics, personal projects, and future career paths. You'll gain a superpower for life!
+            </p>
+        </div>
+    </section>
+
+ 
+    <section id="apply-now" class="cta-apply-section">
+        <div class="container">
+            <h2>Ready to Transform into a Digital Explorer?</h2>
+            <p>The world of computers is waiting for you! Take the first step towards becoming digitally confident and capable with NURU FOUNDATION.</p>
+            <a href="#" class="btn btn-primary">Enroll in Computer Packages Today!</a>
+        </div>
+    </section>
+
+
+
+
+<div id="applyButtonContainer"></div>
+
+<script>
+ 
+  fetch('apply-now-bt.html')
+    .then(response => response.text())
+    .then(data => {
+      document.getElementById('applyButtonContainer').innerHTML = data;
+    })
+    .catch(error => console.error('Error loading apply button:', error));
+</script>
+
+<script src="scripts/footer.js"></script>
+<div id="footerContainer"></div>
+
+<script>
+    // Load Footer Content and initialize it
+    document.addEventListener('DOMContentLoaded', function() {
+        fetch('footer.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('footerContainer').innerHTML = data;
+                
+                // 🔥 CRITICAL FIX: Manually call the init function AFTER the HTML is loaded.
+                if (typeof startCourseRotation === 'function') {
+                    startCourseRotation();
+                }
+            })
+            .catch(error => console.error('Error loading footer:', error));
+    });
+</script>
+
+
+</body>
+</html>

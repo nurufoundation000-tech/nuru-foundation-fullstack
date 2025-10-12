@@ -1,0 +1,525 @@
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --primary-color: #6a0572;
+            --secondary-color: #f7b731;
+            --accent-color-1: #38b2ac;
+            --accent-color-2: #ef476f;
+            --text-dark: #333;
+            --text-light: #f9f9f9;
+            --background-light: #ffffff;
+            --background-dark: #2c3e50;
+
+            --font-family-body: 'Poppins', sans-serif;
+            --font-family-heading: 'Fredoka One', cursive;
+
+            --border-radius-lg: 30px;
+            --border-radius-md: 18px;
+            --shadow-md: 0 10px 25px rgba(0, 0, 0, 0.12);
+            --shadow-lg: 0 20px 50px rgba(0, 0, 0, 0.2);
+            --gradient-main: linear-gradient(135deg, var(--primary-color) 0%, #a40e94 100%);
+            --gradient-accent: linear-gradient(45deg, var(--accent-color-1) 0%, #5ed1cb 100%);
+            --gradient-cta: linear-gradient(90deg, var(--accent-color-2) 0%, #ff6b81 100%);
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-family-body);
+            line-height: 1.8;
+            color: var(--text-dark);
+            background-color: #eaf6ff; /* A cheerful, very light blue */
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: var(--font-family-heading);
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            line-height: 1.3;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.08);
+        }
+
+        p {
+            margin-bottom: 1rem;
+            font-size: 1.15rem;
+            color: #4a4a4a;
+        }
+
+        a {
+            color: var(--accent-color-1);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        a:hover {
+            color: var(--secondary-color);
+            text-decoration: underline;
+            transform: translateY(-2px);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 3rem 1.5rem;
+        }
+
+        .btn {
+            display: inline-block;
+            background-color: var(--secondary-color);
+            color: var(--text-dark);
+            padding: 1.1rem 3.5rem;
+            border-radius: var(--border-radius-lg);
+            text-transform: uppercase;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-md);
+            border: none;
+            cursor: pointer;
+            font-family: var(--font-family-heading);
+            font-size: 1.25rem;
+            letter-spacing: 0.06em;
+            position: relative;
+            z-index: 1;
+        }
+
+        .btn:hover {
+            background-color: var(--primary-color);
+            color: var(--text-light);
+            transform: translateY(-7px) scale(1.04);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: var(--text-light);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--accent-color-1);
+            color: var(--text-light);
+        }
+
+        /* --- Page Specific Styling --- */
+
+        /* Hero Section for About Us */
+        .about-hero {
+            background: var(--gradient-main);
+            color: var(--text-light);
+            padding: 8rem 0 4rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            border-bottom-left-radius: var(--border-radius-lg);
+            border-bottom-right-radius: var(--border-radius-lg);
+            min-height: 60vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .about-hero::before, .about-hero::after {
+            content: '';
+            position: absolute;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 50%;
+            animation: rotateFade 20s infinite linear;
+            z-index: 0;
+        }
+        .about-hero::before {
+            width: 350px; height: 350px;
+            top: -10%; left: -5%;
+            animation-delay: 0s;
+        }
+        .about-hero::after {
+            width: 450px; height: 450px;
+            bottom: -15%; right: -8%;
+            animation-delay: 5s;
+        }
+        @keyframes rotateFade {
+            0% { transform: rotate(0deg) scale(0.9); opacity: 0.7; }
+            50% { transform: rotate(180deg) scale(1.1); opacity: 0.4; }
+            100% { transform: rotate(360deg) scale(0.9); opacity: 0.7; }
+        }
+
+        .hero-content {
+            z-index: 1;
+            position: relative;
+        }
+        .hero-content h1 {
+            font-size: 4.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--text-light);
+            text-shadow: 4px 4px 10px rgba(0,0,0,0.6);
+        }
+        .hero-content p {
+            font-size: 1.6rem;
+            max-width: 900px;
+            margin: 0 auto 3rem;
+            opacity: 0.98;
+            color: var(--text-light);
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+        }
+
+        /* Core Story Section */
+        .story-section {
+            background-color: var(--background-light);
+            padding: 6rem 0;
+            position: relative;
+            z-index: 2; /* Ensure it's above hero animations */
+            margin-top: -30px; /* Overlap slightly with hero for dynamic look */
+            border-top-left-radius: var(--border-radius-lg);
+            border-top-right-radius: var(--border-radius-lg);
+            box-shadow: 0 -10px 30px rgba(0,0,0,0.05); /* Soft shadow for overlap */
+        }
+        .story-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr; /* More space for text, less for image */
+            gap: 4rem;
+            align-items: center;
+        }
+        .story-text h2 {
+            font-size: 3.5rem;
+            margin-bottom: 2rem;
+            color: var(--accent-color-1);
+        }
+        .story-text p {
+            margin-bottom: 1.5rem;
+            font-size: 1.2rem;
+            line-height: 1.9;
+        }
+        .story-image {
+            border-radius: var(--border-radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+            transform: rotate(-5deg); /* Playful tilt */
+            transition: transform 0.4s ease-in-out;
+            border: 5px solid var(--secondary-color); /* Colorful border */
+        }
+        .story-image:hover {
+            transform: rotate(0deg) scale(1.03);
+            border-color: var(--primary-color);
+        }
+        .story-image img {
+            width: 100%;
+            height: 450px;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* Mission & Vision / Values Section */
+        .mvv-section {
+            background: #f0f8ff; /* Light blue background */
+            padding: 6rem 0;
+        }
+        .mvv-heading {
+            text-align: center;
+            font-size: 3.8rem;
+            margin-bottom: 4rem;
+            color: var(--primary-color);
+            position: relative;
+        }
+        .mvv-heading::after {
+            content: '';
+            display: block;
+            width: 120px;
+            height: 5px;
+            background: var(--accent-color-2);
+            margin: 1.5rem auto 0;
+            border-radius: 3px;
+        }
+        .mvv-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 3rem;
+        }
+        .mvv-card {
+            background: var(--background-light);
+            padding: 3.5rem;
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-md);
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            border: 2px solid #eee;
+        }
+        .mvv-card:hover {
+            transform: translateY(-12px) scale(1.02);
+            box-shadow: var(--shadow-lg);
+        }
+        .mvv-card i {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            color: var(--secondary-color);
+            position: relative;
+            z-index: 1;
+        }
+        .mvv-card h3 {
+            font-size: 2.2rem;
+            margin-bottom: 1rem;
+            color: var(--accent-color-1);
+        }
+        .mvv-card p {
+            font-size: 1.1rem;
+            color: #555;
+            line-height: 1.7;
+        }
+        .mvv-card.mission { border-bottom: 8px solid var(--accent-color-1); }
+        .mvv-card.vision { border-bottom: 8px solid var(--secondary-color); }
+        .mvv-card.values { border-bottom: 8px solid var(--primary-color); }
+
+
+        /* Our Approach/Pedagogy Section */
+        .approach-section {
+            background: var(--gradient-accent);
+            color: var(--text-light);
+            padding: 7rem 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .approach-section h2 {
+            font-size: 3.8rem;
+            color: var(--text-light);
+            margin-bottom: 4rem;
+            text-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+        }
+        .approach-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2.5rem;
+        }
+        .approach-card {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(8px);
+            border-radius: var(--border-radius-lg);
+            padding: 3rem;
+            box-shadow: var(--shadow-md);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            transition: transform 0.3s ease, background 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+        .approach-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            background: rgba(255, 255, 255, 0.3);
+        }
+        .approach-card i {
+            font-size: 3.8rem;
+            margin-bottom: 1.5rem;
+            color: var(--secondary-color);
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+        }
+        .approach-card h3 {
+            font-size: 2rem;
+            color: var(--text-light);
+            margin-bottom: 1rem;
+        }
+        .approach-card p {
+            color: rgba(255, 255, 255, 0.95);
+            font-size: 1.05rem;
+            line-height: 1.7;
+        }
+
+        /* Our Team Section (Placeholder) */
+        .team-section {
+            background-color: var(--background-light);
+            padding: 6rem 0;
+            text-align: center;
+        }
+        .team-section h2 {
+            font-size: 3.5rem;
+            margin-bottom: 4rem;
+            color: var(--primary-color);
+        }
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2.5rem;
+        }
+        .team-member-card {
+            background: #ffffff;
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-md);
+            padding: 2.5rem 1.5rem;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border-bottom: 5px solid var(--accent-color-2);
+        }
+        .team-member-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--secondary-color);
+        }
+        .team-member-card img {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 1.5rem;
+            border: 4px solid var(--accent-color-1);
+            box-shadow: 0 0 0 5px rgba(56, 178, 172, 0.2);
+        }
+        .team-member-card h3 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary-color);
+        }
+        .team-member-card p.role {
+            font-size: 1.1rem;
+            color: var(--accent-color-2);
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+        .team-member-card p.bio {
+            font-size: 0.95rem;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        /* Community & Reach Section */
+        .community-section {
+            background: #eaf6ff; /* Match body background */
+            padding: 6rem 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .community-section::before {
+            content: '🌐'; /* Globe emoji */
+            position: absolute;
+            top: 20%; left: -5%;
+            font-size: 10rem;
+            opacity: 0.1;
+            animation: floatLeftRight 12s infinite ease-in-out;
+        }
+        .community-section::after {
+            content: '💖'; /* Heart emoji */
+            position: absolute;
+            bottom: 25%; right: -5%;
+            font-size: 8rem;
+            opacity: 0.1;
+            animation: floatLeftRight 12s infinite reverse ease-in-out;
+            animation-delay: 2s;
+        }
+        @keyframes floatLeftRight {
+            0% { transform: translateX(0); }
+            50% { transform: translateX(20px); }
+            100% { transform: translateX(0); }
+        }
+
+        .community-section h2 {
+            font-size: 3.5rem;
+            color: var(--accent-color-1);
+            margin-bottom: 3.5rem;
+        }
+        .community-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2.5rem;
+        }
+        .community-card {
+            background: var(--background-light);
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-md);
+            padding: 2.5rem;
+            text-align: center;
+            border-bottom: 5px solid var(--secondary-color);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .community-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary-color);
+        }
+        .community-card i {
+            font-size: 3.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--primary-color);
+        }
+        .community-card h3 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: var(--accent-color-2);
+        }
+        .community-card p {
+            font-size: 1.05rem;
+            color: #666;
+        }
+
+        /* CTA Section */
+        .about-cta-section {
+            background: var(--gradient-cta);
+            color: var(--text-light);
+            padding: 7rem 0;
+            text-align: center;
+            border-top-left-radius: var(--border-radius-lg);
+            border-top-right-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-lg);
+            margin-top: 5rem;
+        }
+        .about-cta-section h2 {
+            font-size: 4rem;
+            color: var(--text-light);
+            margin-bottom: 2rem;
+            text-shadow: 3px 3px 8px rgba(0,0,0,0.5);
+        }
+        .about-cta-section p {
+            font-size: 1.6rem;
+            max-width: 900px;
+            margin: 0 auto 3.5rem;
+            color: rgba(255, 255, 255, 0.95);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .hero-content h1 { font-size: 3.5rem; }
+            .hero-content p { font-size: 1.4rem; }
+            .story-grid { grid-template-columns: 1fr; gap: 3rem; }
+            .story-text h2 { text-align: center; font-size: 3rem; }
+            .story-image { transform: rotate(0deg); }
+            .mvv-heading, .approach-section h2, .team-section h2, .community-section h2, .about-cta-section h2 { font-size: 3rem; }
+            .mvv-card, .approach-card, .team-member-card, .community-card { padding: 2.5rem; }
+            .mvv-card h3, .approach-card h3, .team-member-card h3, .community-card h3 { font-size: 1.8rem; }
+            .mvv-card i, .approach-card i, .community-card i { font-size: 3.5rem; }
+            .about-cta-section p { font-size: 1.3rem; }
+        }
+
+        @media (max-width: 768px) {
+            .container { padding: 2.5rem 1rem; }
+            .about-hero { padding: 6rem 0 3rem; }
+            .hero-content h1 { font-size: 2.8rem; }
+            .hero-content p { font-size: 1.2rem; }
+            .btn { padding: 1rem 2.5rem; font-size: 1.1rem; }
+            .story-text h2 { font-size: 2.5rem; }
+            .story-image img { height: 350px; }
+            .mvv-heading, .approach-section h2, .team-section h2, .community-section h2, .about-cta-section h2 { font-size: 2.5rem; }
+            .mvv-card, .approach-card, .team-member-card, .community-card { padding: 2rem 1.5rem; }
+            .mvv-card i, .approach-card i, .community-card i { font-size: 3rem; }
+            .team-member-card img { width: 120px; height: 120px; }
+            .about-cta-section p { font-size: 1.1rem; }
+        }
+
+        @media (max-width: 576px) {
+            .about-hero { padding: 5rem 0 2.5rem; }
+            .hero-content h1 { font-size: 2.2rem; margin-bottom: 1rem; }
+            .hero-content p { font-size: 1rem; margin-bottom: 2rem; }
+            .btn { padding: 0.8rem 2rem; font-size: 1rem; }
+            .story-text h2 { font-size: 2rem; }
+            .story-text p { font-size: 1rem; }
+            .story-image img { height: 280px; }
+            .mvv-heading, .approach-section h2, .team-section h2, .community-section h2, .about-cta-section h2 { font-size: 2rem; }
+            .mvv-card h3, .approach-card h3, .team-member-card h3, .community-card h3 { font-size: 1.6rem; }
+            .mvv-card i, .approach-card i, .community-card i { font-size: 2.5rem; }
+            .team-member-card p.role { font-size: 1rem; }
+            .team-member-card p.bio { font-size: 0.9rem; }
+        }
+    

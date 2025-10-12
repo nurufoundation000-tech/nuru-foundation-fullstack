@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us - NURU FOUNDATION</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Fredoka+One&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles/about.css">
+<link rel="stylesheet" href="styles/root.css">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+<script src="scripts/header.js"></script>
+
+<div id="headerContainer"></div>
+
+<script>
+    // Load Header Content and initialize it
+    document.addEventListener('DOMContentLoaded', function() {
+        fetch('header.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('headerContainer').innerHTML = data;
+                
+                // 🔥 CRITICAL FIX: Manually call the init function AFTER the HTML is loaded.
+                if (typeof initHeader === 'function') {
+                    initHeader();
+                }
+            })
+            .catch(error => console.error('Error loading header:', error));
+    });
+</script>
+
+   
+    <section class="about-hero">
+        <div class="container hero-content">
+            <h1>Our Story: The Heart of NURU FOUNDATION</h1>
+            <p>We are a passionate team igniting young minds and fostering bright futures through accessible, engaging, and skill-focused online education. Discover what makes us special!</p>
+            <a href="#our-mission" class="btn">Explore Our Journey</a>
+        </div>
+    </section>
+
+
+    <section class="story-section">
+        <div class="container">
+            <div class="story-grid">
+                <div class="story-text">
+                    <h2>From a Spark to a Brighter Future!</h2>
+                    <p>NURU FOUNDATION began with a simple yet powerful idea: to make quality learning available to **everyone**, especially the young, energetic minds in our community. We noticed a need for engaging, modern education that goes beyond textbooks, and we decided to light that path.</p>
+                    <p>We are a **youth-driven initiative**, meaning our energy comes from the very people we aim to empower! We believe in nurturing a space where learning is an adventure, where every child and youth feels excited to explore new skills, from the magic of **Mathematics** to the wonders of **AI Essentials**.</p>
+                    <p>Our journey is about building bridges – between students, parents, schools, and communities. We're creating a virtual learning platform that's not just effective, but also a joy to be a part of, making complex subjects understandable and fun for all ages.</p>
+                </div>
+                <div class="story-image">
+                    <img src="poster.jpg" alt="Group of diverse students learning happily">
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <section class="mvv-section">
+        <div class="container">
+            <h2 class="mvv-heading">Our Guiding Stars</h2>
+            <div class="mvv-grid">
+                <div class="mvv-card mission">
+                    <i class="fas fa-bullseye"></i>
+                    <h3>Our Mission</h3>
+                    <p>To empower young people with essential academic, technical, and personal development skills through accessible, engaging, and innovative virtual learning experiences, fostering a generation of confident and capable leaders.</p>
+                </div>
+                <div class="mvv-card vision">
+                    <i class="fas fa-eye"></i>
+                    <h3>Our Vision</h3>
+                    <p>To be a leading beacon of transformative online education, recognized for making quality learning universally accessible and inspiring a lifelong passion for knowledge and growth in every learner we reach.</p>
+                </div>
+                <div class="mvv-card values">
+                    <i class="fas fa-hand-holding-heart"></i>
+                    <h3>Our Values</h3>
+                    <p><strong>Accessibility:</strong> Learning for all, regardless of background. <strong>Engagement:</strong> Making every lesson exciting. <strong>Excellence:</strong> Delivering top-notch education. <strong>Community:</strong> Growing stronger together. <strong>Empowerment:</strong> Equipping skills for life.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    
+    <section class="approach-section">
+        <div class="container">
+            <h2>How We Make Learning Amazing!</h2>
+            <div class="approach-grid">
+                <div class="approach-card">
+                    <i class="fas fa-brain"></i>
+                    <h3>Holistic Development</h3>
+                    <p>We don't just teach subjects; we nurture the whole person! Our programs blend core academics like Mathematics and Physics with crucial **Soft Skills, Ethics, Financial Literacy, and Career Guidance**.</p>
+                </div>
+                <div class="approach-card">
+                    <i class="fas fa-laptop-code"></i>
+                    <h3>Future-Ready Skills</h3>
+                    <p>Dive into **Computer Literacy, Programming, Databases, and AI Essentials**. We prepare our learners for the jobs of tomorrow, today, with practical, in-demand technical skills.</p>
+                </div>
+                <div class="approach-card">
+                    <i class="fas fa-users"></i>
+                    <h3>Community-Centric</h3>
+                    <p>We connect with students, parents, schools, churches, and community groups. Learning is a shared journey, and we keep everyone informed and involved every step of the way.</p>
+                </div>
+                <div class="approach-card">
+                    <i class="fas fa-magic"></i>
+                    <h3>Engaging Virtual Platform</h3>
+                    <p>Our virtual classroom is designed to be interactive, dynamic, and fun! We're constantly exploring new ways to make online learning as effective and exciting as possible, with recorded sessions and an upcoming LMS.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+   
+    <section class="team-section">
+        <div class="container">
+            <h2>Meet the Passionate Tutors Behind NURU Foundation</h2>
+            <p style="max-width: 800px; margin: 0 auto 3.5rem auto;">We are a dedicated team of educators, tech enthusiasts, and community builders, united by our passion for empowering the next generation. Each of us is committed to making your learning journey extraordinary!</p>
+            <div class="team-grid">
+                <div class="team-member-card">
+                    <img src="https://images.unsplash.com/photo-1573496359142-b8d87734b4a1?q=80&w=2876&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Team Member 1">
+                    <h3>Aisha M.</h3>
+                    <p class="role">Lead Educator & Co-Founder</p>
+                    <p class="bio">Passionate about making complex subjects like Math and Physics understandable and exciting for young learners.</p>
+                </div>
+                <div class="team-member-card">
+                    <img src="https://images.unsplash.com/photo-1544717305-27a949666c8b?q=80&w=2787&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Team Member 2">
+                    <h3>David K.</h3>
+                    <p class="role">Tech & Curriculum Developer</p>
+                    <p class="bio">Specializes in Programming and AI. Loves building interactive modules that turn coding into a creative game.</p>
+                </div>
+                <div class="team-member-card">
+                    <img src="https://images.unsplash.com/photo-1629482935212-e8c89c8b74f3?q=80&w=2787&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Team Member 3">
+                    <h3>Grace W.</h3>
+                    <p class="role">Community & Engagement Lead</p>
+                    <p class="bio">Connects with families and ensures every learner feels supported and inspired in their NURU journey.</p>
+                </div>
+
+
+                    <div class="team-member-card">
+                    <img src="https://images.unsplash.com/photo-1629482935212-e8c89c8b74f3?q=80&w=2787&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Team Member 3">
+                    <h3>Grace W.</h3>
+                    <p class="role">Community & Engagement Lead</p>
+                    <p class="bio">Connects with families and ensures every learner feels supported and inspired in their NURU journey.</p>
+                </div>
+
+
+                    <div class="team-member-card">
+                    <img src="https://images.unsplash.com/photo-1629482935212-e8c89c8b74f3?q=80&w=2787&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Team Member 3">
+                    <h3>Grace W.</h3>
+                    <p class="role">Community & Engagement Lead</p>
+                    <p class="bio">Connects with families and ensures every learner feels supported and inspired in their NURU journey.</p>
+                </div>
+
+
+                    <div class="team-member-card">
+                    <img src="https://images.unsplash.com/photo-1629482935212-e8c89c8b74f3?q=80&w=2787&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Team Member 3">
+                    <h3>Grace W.</h3>
+                    <p class="role">Community & Engagement Lead</p>
+                    <p class="bio">Connects with families and ensures every learner feels supported and inspired in their NURU journey.</p>
+                </div>
+
+
+                    <div class="team-member-card">
+                    <img src="https://images.unsplash.com/photo-1629482935212-e8c89c8b74f3?q=80&w=2787&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Team Member 3">
+                    <h3>Grace W.</h3>
+                    <p class="role">Community & Engagement Lead</p>
+                    <p class="bio">Connects with families and ensures every learner feels supported and inspired in their NURU journey.</p>
+                </div>
+                 <div class="team-member-card">
+                    <img src="https://images.unsplash.com/photo-1629482935212-e8c89c8b74f3?q=80&w=2787&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Team Member 3">
+                    <h3>Grace W.</h3>
+                    <p class="role">Community & Engagement Lead</p>
+                    <p class="bio">Connects with families and ensures every learner feels supported and inspired in their NURU journey.</p>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+
+<!-- Community & Global Reach Section -->
+<section class="community-section">
+    <div class="container">
+        <h2>Our Impact & Global Family</h2>
+        <p style="max-width: 800px; margin: 0 auto 3.5rem auto;">NURU FOUNDATION is more than just an online school; it's a growing community. We're proud of the bridges we're building and the positive change we're creating, one empowered learner at a time.</p>
+        <div class="community-grid">
+            <div class="community-card">
+                <i class="fas fa-child"></i>
+                <h3>Empowering Youth</h3>
+                <p>Thousands of young minds are gaining confidence, critical thinking, and career-ready skills through our diverse programs.</p>
+            </div>
+            <div class="community-card">
+                <i class="fas fa-handshake"></i>
+                <h3>Strong Partnerships</h3>
+                <p>We collaborate with schools, churches, and community organizations to extend our reach and impact lives effectively.</p>
+            </div>
+            <div class="community-card">
+                <i class="fas fa-globe-asia"></i>
+                <h3>Expanding Horizons</h3>
+                <p>While rooted locally, our virtual platform allows us to connect with and serve learners from various regions, transcending geographical boundaries.</p>
+            </div>
+            <div class="community-card">
+                <i class="fas fa-comments"></i>
+                <h3>Active Engagement</h3>
+                <p>We foster an environment where students, parents, and educators actively engage, share ideas, and grow together.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Call to Action Section -->
+<section class="about-cta-section">
+    <div class="container">
+        <h2>Ready to Join Our NURU Family?</h2>
+        <p>Whether you're a student eager to learn, a parent looking for quality education, or a partner seeking collaboration, we welcome you!</p>
+        <a href="contact.html" class="btn btn-primary">Get Started Today!</a>
+    </div>
+</section>    
+
+<script src="scripts/footer.js"></script>
+<div id="footerContainer"></div>
+
+<script>
+    // Load Footer Content and initialize it
+    document.addEventListener('DOMContentLoaded', function() {
+        fetch('footer.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('footerContainer').innerHTML = data;
+                
+                // 🔥 CRITICAL FIX: Manually call the init function AFTER the HTML is loaded.
+                if (typeof startCourseRotation === 'function') {
+                    startCourseRotation();
+                }
+            })
+            .catch(error => console.error('Error loading footer:', error));
+    });
+</script>
+
+</body>
+</html>
