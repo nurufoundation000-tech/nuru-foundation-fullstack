@@ -114,4 +114,82 @@ router.post('/:id/enroll', authenticateToken, async (req, res) => {
   }
 });
 
+// Update enrollment progress
+router.put('/:id/progress', authenticateToken, async (req, res) => {
+  const { id } = req.params;
+  const { progress } = req.body;
+
+  try {
+    const enrollment = await prisma.enrollment.findUnique({
+      where: { id: parseInt(id) }
+    });
+
+    if (!enrollment) {
+      return res.status(404).json({ message: 'Enrollment not found' });
+    }
+
+    if (enrollment.studentId !== req.user.userId) {
+      return res.status(403).json({ message: 'Not authorized to update this enrollment progress' });
+    }
+
+    const updatedEnrollment = await prisma.enrollment.update({
+      where: { id: parseInt(id) },
+      data: { progress: parseFloat(progress) }
+    });
+
+    res.json(updatedEnrollment);
+  } catch (error) {
+    console.error('Update progress error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Get user progress across all enrolled courses
+router.get('/progress', authenticateToken, async (req, res) => {
+  try {
+    const enrollments = await prisma.enrollment.findMany({
+      where: { studentId: req.user.userId },
+      include: {
+        course: {
+          select: {
+            id: true,
+            title: true,
+            description: true,
+            thumbnailUrl: true,
+            tutor: { select: { username: true, fullName: true } }
+          },
+          include: {
+            _count: {
+              select: { lessons: true }
+            }
+          }
+        }
+      }
+    });
+
+    // Calculate completed lessons for each enrollment
+    const progressWithDetails = await Promise.all(
+      enrollments.map(async (enrollment) => {
+        const completedLessons = await prisma.lessonProgress.count({
+          where: {
+            enrollmentId: enrollment.id,
+            isCompleted: true
+          }
+        });
+
+        return {
+          ...enrollment,
+          completedLessons,
+          totalLessons: enrollment.course._count.lessons
+        };
+      })
+    );
+
+    res.json(progressWithDetails);
+  } catch (error) {
+    console.error('Get progress error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 module.exports = router;

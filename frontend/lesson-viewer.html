@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lesson Viewer - NURU FOUNDATION</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Fredoka+One&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="styles/root.css">
+    <link rel="stylesheet" href="styles/header.css">
+    <link rel="stylesheet" href="styles/footer.css">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f8f9fa;
+            margin: 0;
+            padding: 0;
+        }
+
+        .lesson-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            display: flex;
+            gap: 30px;
+        }
+
+        .lesson-sidebar {
+            width: 300px;
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 100px;
+            height: fit-content;
+        }
+
+        .lesson-sidebar h3 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+        }
+
+        .lesson-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .lesson-item {
+            padding: 12px 15px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+        }
+
+        .lesson-item:hover {
+            background: #f0f8ff;
+        }
+
+        .lesson-item.active {
+            background: var(--primary-color);
+            color: white;
+            border-left-color: var(--accent-color-1);
+        }
+
+        .lesson-item.completed {
+            border-left-color: var(--accent-color-2);
+            background: #f0fff0;
+        }
+
+        .completed-icon {
+            color: var(--accent-color-2);
+            margin-left: auto;
+        }
+
+        .nav-btn.completed {
+            background: var(--accent-color-2);
+            cursor: default;
+        }
+
+        .lesson-main {
+            flex: 1;
+        }
+
+        .lesson-content {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .lesson-header {
+            margin-bottom: 30px;
+        }
+
+        .lesson-title {
+            color: var(--primary-color);
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .lesson-navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .nav-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .nav-btn:hover:not(:disabled) {
+            background: var(--secondary-color);
+        }
+
+        .nav-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .lesson-video {
+            width: 100%;
+            max-width: 800px;
+            height: 450px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .lesson-text {
+            line-height: 1.6;
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        .assignments-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .assignments-section h4 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+
+        .assignment-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .assignment-item h5 {
+            margin: 0 0 10px 0;
+            color: var(--primary-color);
+        }
+
+        .assignment-status {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-submitted {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .status-graded {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .progress-section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color), var(--accent-color-1));
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            text-align: center;
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .lesson-container {
+                flex-direction: column;
+            }
+
+            .lesson-sidebar {
+                width: 100%;
+                position: static;
+            }
+
+            .lesson-title {
+                font-size: 1.5rem;
+            }
+
+            .lesson-video {
+                height: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <script src="scripts/header.js"></script>
+    <div id="headerContainer"></div>
+
+    <div class="lesson-container">
+        <div class="lesson-sidebar">
+            <h3>Course Lessons</h3>
+            <ul class="lesson-list" id="lessonList">
+                <!-- Lessons will be populated by JavaScript -->
+            </ul>
+        </div>
+
+        <div class="lesson-main">
+            <div class="lesson-content" id="lessonContent">
+                <div class="lesson-header">
+                    <div class="lesson-navigation">
+                        <button class="nav-btn" id="prevBtn" disabled>Previous Lesson</button>
+                        <button class="nav-btn" id="nextBtn" disabled>Next Lesson</button>
+                    </div>
+                    <h1 class="lesson-title" id="lessonTitle">Loading lesson...</h1>
+                </div>
+
+                <div id="lessonBody">
+                    <!-- Lesson content will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <div class="progress-section">
+                <h3>Course Progress</h3>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                </div>
+                <div class="progress-text" id="progressText">0% Complete</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="scripts/footer.js"></script>
+    <div id="footerContainer"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Load header and footer
+            fetch('header.html')
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('headerContainer').innerHTML = data;
+                    if (typeof initHeader === 'function') {
+                        initHeader();
+                    }
+                });
+
+            fetch('footer.html')
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('footerContainer').innerHTML = data;
+                });
+
+            // Get course ID from URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            const courseId = urlParams.get('courseId');
+            const lessonId = urlParams.get('lessonId');
+
+            if (!courseId) {
+                alert('Course ID is required');
+                window.location.href = 'courses.html';
+                return;
+            }
+
+            let lessons = [];
+            let currentLessonIndex = 0;
+
+            try {
+                // Load lessons script
+                await loadScript('scripts/lessons.js');
+                await loadScript('scripts/progress.js');
+
+                // Fetch lessons for this course
+                lessons = await fetchLessons(courseId);
+                displayLessonList(lessons);
+
+                // Load initial lesson
+                if (lessonId) {
+                    const lesson = lessons.find(l => l.id == lessonId);
+                    if (lesson) {
+                        currentLessonIndex = lessons.indexOf(lesson);
+                    }
+                }
+
+                displayLesson(lessons[currentLessonIndex]);
+                updateProgress();
+
+            } catch (error) {
+                console.error('Error loading lesson viewer:', error);
+                document.getElementById('lessonContent').innerHTML = '<p>Error loading lesson. Please try again.</p>';
+            }
+        });
+
+        function loadScript(src) {
+            return new Promise((resolve, reject) => {
+                const script = document.createElement('script');
+                script.src = src;
+                script.onload = resolve;
+                script.onerror = reject;
+                document.head.appendChild(script);
+            });
+        }
+
+        function displayLessonList(lessons) {
+            const lessonList = document.getElementById('lessonList');
+            lessonList.innerHTML = '';
+
+            lessons.forEach((lesson, index) => {
+                const li = document.createElement('li');
+                li.className = `lesson-item ${lesson.isCompleted ? 'completed' : ''}`;
+                li.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span>${index + 1}. ${lesson.title}</span>
+                        ${lesson.isCompleted ? '<i class="fas fa-check-circle completed-icon"></i>' : ''}
+                    </div>
+                `;
+                li.onclick = () => {
+                    currentLessonIndex = index;
+                    displayLesson(lesson);
+                    updateLessonList();
+                };
+                lessonList.appendChild(li);
+            });
+
+            updateLessonList();
+        }
+
+        function updateLessonList() {
+            const items = document.querySelectorAll('.lesson-item');
+            items.forEach((item, index) => {
+                item.classList.remove('active');
+                if (index === currentLessonIndex) {
+                    item.classList.add('active');
+                }
+            });
+        }
+
+        function displayLesson(lesson) {
+            document.getElementById('lessonTitle').textContent = lesson.title;
+
+            const lessonBody = document.getElementById('lessonBody');
+            lessonBody.innerHTML = '';
+
+            // Video content
+            if (lesson.videoUrl) {
+                const videoContainer = document.createElement('div');
+                videoContainer.innerHTML = `
+                    <iframe class="lesson-video"
+                            src="${lesson.videoUrl.replace('watch?v=', 'embed/')}"
+                            frameborder="0"
+                            allowfullscreen>
+                    </iframe>
+                `;
+                lessonBody.appendChild(videoContainer);
+            }
+
+            // Text content
+            if (lesson.content) {
+                const textDiv = document.createElement('div');
+                textDiv.className = 'lesson-text';
+                textDiv.innerHTML = lesson.content;
+                lessonBody.appendChild(textDiv);
+            }
+
+            // Complete lesson button
+            const completeBtn = document.createElement('button');
+            completeBtn.id = 'completeLessonBtn';
+            completeBtn.className = 'nav-btn';
+            completeBtn.textContent = lesson.isCompleted ? 'Completed' : 'Mark as Completed';
+            completeBtn.disabled = lesson.isCompleted;
+            if (lesson.isCompleted) {
+                completeBtn.classList.add('completed');
+            }
+            completeBtn.onclick = async () => {
+                try {
+                    const result = await markLessonCompleted(lesson.id);
+
+                    // Update UI
+                    completeBtn.textContent = 'Completed';
+                    completeBtn.disabled = true;
+                    completeBtn.classList.add('completed');
+
+                    // Update progress bar
+                    updateProgressBar(result.courseProgress);
+
+                    // Show success message
+                    showNotification('Lesson marked as completed!', 'success');
+
+                    // Reload lessons to update progress
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const courseId = urlParams.get('courseId');
+                    if (courseId) {
+                        lessons = await fetchLessons(courseId);
+                        displayLessonList(lessons);
+                    }
+                } catch (error) {
+                    console.error('Error marking lesson as completed:', error);
+                    showNotification('Failed to mark lesson as completed. Please try again.', 'error');
+                }
+            };
+            lessonBody.appendChild(completeBtn);
+
+            // Assignments section
+            if (lesson.assignments && lesson.assignments.length > 0) {
+                const assignmentsDiv = document.createElement('div');
+                assignmentsDiv.className = 'assignments-section';
+                assignmentsDiv.innerHTML = '<h4>Assignments</h4>';
+
+                lesson.assignments.forEach(assignment => {
+                    const assignmentDiv = document.createElement('div');
+                    assignmentDiv.className = 'assignment-item';
+                    assignmentDiv.innerHTML = `
+                        <h5>${assignment.title}</h5>
+                        <p>Max Score: ${assignment.maxScore}</p>
+                        <a href="assignment-submission.html?assignmentId=${assignment.id}" class="nav-btn">View Assignment</a>
+                    `;
+                    assignmentsDiv.appendChild(assignmentDiv);
+                });
+
+                lessonBody.appendChild(assignmentsDiv);
+            }
+
+            // Update navigation buttons
+            updateNavigationButtons();
+        }
+
+        function updateNavigationButtons() {
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+
+            prevBtn.disabled = currentLessonIndex === 0;
+            nextBtn.disabled = currentLessonIndex === lessons.length - 1;
+
+            prevBtn.onclick = () => {
+                if (currentLessonIndex > 0) {
+                    currentLessonIndex--;
+                    displayLesson(lessons[currentLessonIndex]);
+                    updateLessonList();
+                }
+            };
+
+            nextBtn.onclick = () => {
+                if (currentLessonIndex < lessons.length - 1) {
+                    currentLessonIndex++;
+                    displayLesson(lessons[currentLessonIndex]);
+                    updateLessonList();
+                }
+            };
+        }
+
+        async function updateProgress() {
+            try {
+                const progressData = await getUserProgress();
+                const courseProgress = progressData.find(p => p.courseId == courseId);
+
+                if (courseProgress) {
+                    const progressPercent = Math.round(courseProgress.progress * 100);
+                    document.getElementById('progressFill').style.width = `${progressPercent}%`;
+                    document.getElementById('progressText').textContent = `${progressPercent}% Complete`;
+                }
+            } catch (error) {
+                console.error('Error updating progress:', error);
+            }
+        }
+
+        function updateProgressBar(progress) {
+            const progressPercent = Math.round(progress * 100);
+            document.getElementById('progressFill').style.width = `${progressPercent}%`;
+            document.getElementById('progressText').textContent = `${progressPercent}% Complete`;
+        }
+
+        function showNotification(message, type) {
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 15px 20px;
+                border-radius: 8px;
+                color: white;
+                font-weight: 500;
+                z-index: 1000;
+                animation: slideIn 0.3s ease-out;
+            `;
+
+            if (type === 'success') {
+                notification.style.backgroundColor = 'var(--accent-color-2)';
+            } else {
+                notification.style.backgroundColor = '#dc3545';
+            }
+
+            document.body.appendChild(notification);
+
+            // Remove notification after 3 seconds
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease-out';
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

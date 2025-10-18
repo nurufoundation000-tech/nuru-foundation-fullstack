@@ -7,6 +7,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Fredoka+One&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="styles/root.css">
+<link rel="stylesheet" href="styles/header.css">
+<link rel="stylesheet" href="styles/footer.css">
     <style>
         body {
             font-family: 'Poppins', sans-serif;
@@ -116,6 +118,161 @@
         }
 
         .user-detail span {
+            color: #666;
+        }
+
+        .enrolled-courses {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .enrolled-courses h2 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+
+        .courses-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .course-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            border-left: 4px solid var(--primary-color);
+            transition: transform 0.3s ease;
+        }
+
+        .course-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .course-card h3 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        .course-card p {
+            color: #666;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+        }
+
+        .progress-section {
+            margin-bottom: 15px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 5px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color), var(--accent-color-1));
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            font-size: 0.8rem;
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .course-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .course-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .course-btn:hover {
+            background: var(--secondary-color);
+        }
+
+        .course-btn.secondary {
+            background: #6c757d;
+        }
+
+        .course-btn.secondary:hover {
+            background: #5a6268;
+        }
+
+        /* Progress Modal */
+        .progress-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .progress-modal.show {
+            display: flex;
+        }
+
+        .progress-modal-content {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .progress-modal h2 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+
+        .progress-item {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .progress-item h4 {
+            margin: 0 0 10px 0;
+            color: var(--primary-color);
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
             color: #666;
         }
 
@@ -367,17 +524,24 @@
                 </div>
             </div>
 
+            <div class="enrolled-courses" id="enrolledCourses">
+                <h2>My Enrolled Courses</h2>
+                <div id="coursesList" class="courses-grid">
+                    <!-- Enrolled courses will be populated by JavaScript -->
+                </div>
+            </div>
+
             <div class="dashboard-grid">
                 <div class="dashboard-card">
-                    <h3><i class="fas fa-book"></i> My Courses</h3>
-                    <p>Continue learning with your enrolled courses</p>
-                    <button class="btn">View Courses</button>
+                    <h3><i class="fas fa-book"></i> Browse Courses</h3>
+                    <p>Explore and enroll in new courses</p>
+                    <a href="courses.html" class="btn">Browse Courses</a>
                 </div>
 
                 <div class="dashboard-card">
-                    <h3><i class="fas fa-chart-line"></i> Progress</h3>
+                    <h3><i class="fas fa-chart-line"></i> Overall Progress</h3>
                     <p>Track your learning progress and achievements</p>
-                    <button class="btn">View Progress</button>
+                    <button class="btn" onclick="showProgressModal()">View Progress</button>
                 </div>
 
                 <div class="dashboard-card">
@@ -389,7 +553,7 @@
                 <div class="dashboard-card">
                     <h3><i class="fas fa-users"></i> Community</h3>
                     <p>Connect with other learners and instructors</p>
-                    <button class="btn">Join Community</button>
+                    <a href="community.html" class="btn">Join Community</a>
                 </div>
             </div>
 
@@ -429,11 +593,22 @@
         
     </div>
 
+    <!-- Progress Modal -->
+    <div class="progress-modal" id="progressModal">
+        <div class="progress-modal-content">
+            <button class="close-modal" onclick="closeProgressModal()">&times;</button>
+            <h2>Overall Progress</h2>
+            <div id="progressContent">
+                <!-- Progress content will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
     <script src="scripts/footer.js"></script>
     <div id="footerContainer"></div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', async function() {
             fetch('footer.html')
                 .then(response => response.text())
                 .then(data => {
@@ -467,8 +642,115 @@
                         <span>${user.role?.name || 'Student'}</span>
                     </div>
                 `;
+
+                // Load enrolled courses
+                await loadEnrolledCourses();
             } else {
                 userDetails.innerHTML = '<p>Please log in to view your profile.</p>';
+                document.getElementById('enrolledCourses').style.display = 'none';
+            }
+        });
+
+        async function loadEnrolledCourses() {
+            try {
+                // Load progress.js script
+                await loadScript('scripts/progress.js');
+
+                const progress = await getUserProgress();
+                displayEnrolledCourses(progress);
+            } catch (error) {
+                console.error('Error loading enrolled courses:', error);
+                document.getElementById('coursesList').innerHTML = '<p>Error loading courses. Please try again.</p>';
+            }
+        }
+
+        function loadScript(src) {
+            return new Promise((resolve, reject) => {
+                const script = document.createElement('script');
+                script.src = src;
+                script.onload = resolve;
+                script.onerror = reject;
+                document.head.appendChild(script);
+            });
+        }
+
+        function displayEnrolledCourses(progress) {
+            const coursesList = document.getElementById('coursesList');
+
+            if (!progress || progress.length === 0) {
+                coursesList.innerHTML = '<p>You are not enrolled in any courses yet. <a href="courses.html">Browse courses</a> to get started.</p>';
+                return;
+            }
+
+            coursesList.innerHTML = progress.map(enrollment => `
+                <div class="course-card">
+                    <h3>${enrollment.course.title}</h3>
+                    <p>${enrollment.course.description || 'No description available'}</p>
+
+                    <div class="progress-section">
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${enrollment.progress}%"></div>
+                        </div>
+                        <div class="progress-text">${Math.round((enrollment.completedLessons / enrollment.totalLessons) * 100) || 0}% Complete (${enrollment.completedLessons}/${enrollment.totalLessons} lessons)</div>
+                    </div>
+
+                    <div class="course-actions">
+                        <button class="course-btn" onclick="viewLessons(${enrollment.course.id})">
+                            <i class="fas fa-play"></i> Continue Learning
+                        </button>
+                        <button class="course-btn secondary" onclick="viewCourseDetails(${enrollment.course.id})">
+                            <i class="fas fa-info-circle"></i> Details
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function viewLessons(courseId) {
+            window.location.href = `lesson-viewer.html?courseId=${courseId}`;
+        }
+
+        function viewCourseDetails(courseId) {
+            // For now, redirect to courses page. Later can add course detail modal
+            window.location.href = 'courses.html';
+        }
+
+        function showProgressModal() {
+            const modal = document.getElementById('progressModal');
+            const content = document.getElementById('progressContent');
+
+            // Load progress data
+            loadScript('scripts/progress.js').then(() => {
+                getUserProgress().then(progress => {
+                    if (!progress || progress.length === 0) {
+                        content.innerHTML = '<p>No progress data available.</p>';
+                    } else {
+                        content.innerHTML = progress.map(enrollment => `
+                            <div class="progress-item">
+                                <h4>${enrollment.course.title}</h4>
+                                <p>Progress: ${enrollment.progress}%</p>
+                                <p>Lessons Completed: ${enrollment.completedLessons || 0}</p>
+                                <p>Total Lessons: ${enrollment.totalLessons || 0}</p>
+                            </div>
+                        `).join('');
+                    }
+                    modal.classList.add('show');
+                }).catch(error => {
+                    console.error('Error loading progress:', error);
+                    content.innerHTML = '<p>Error loading progress data.</p>';
+                    modal.classList.add('show');
+                });
+            });
+        }
+
+        function closeProgressModal() {
+            document.getElementById('progressModal').classList.remove('show');
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('progressModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeProgressModal();
             }
         });
     </script>

@@ -22,6 +22,7 @@ const userRoutes = require('./routes/users');
 const courseRoutes = require('./routes/courses');
 const lessonRoutes = require('./routes/lessons');
 const assignmentRoutes = require('./routes/assignments');
+const submissionRoutes = require('./routes/submissions');
 const moderationRoutes = require('./routes/moderation');
 const adminRoutes = require('./routes/admin');
 
@@ -30,6 +31,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/courses', courseRoutes);
 app.use('/api/lessons', lessonRoutes);
 app.use('/api/assignments', assignmentRoutes);
+app.use('/api/submissions', submissionRoutes);
 app.use('/api/moderation', moderationRoutes);
 app.use('/api/admin', adminRoutes);
 

@@ -83,6 +83,7 @@ model Lesson {
   updatedAt   DateTime     @updatedAt
   assignments Assignment[]
   course      Course       @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  lessonProgress LessonProgress[]
 
   @@index([courseId, orderIndex])
   @@map("lessons")
@@ -96,6 +97,7 @@ model Enrollment {
   progress   Float    @default(0.0)
   course     Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
   student    User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  lessonProgress LessonProgress[]
 
   @@unique([studentId, courseId])
   @@index([studentId])
@@ -131,6 +133,21 @@ model Submission {
   @@index([assignmentId])
   @@index([studentId])
   @@map("submissions")
+}
+
+model LessonProgress {
+  id           Int        @id @default(autoincrement())
+  enrollmentId Int
+  lessonId     Int
+  isCompleted  Boolean    @default(false)
+  completedAt  DateTime?
+  enrollment   Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  lesson       Lesson     @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@unique([enrollmentId, lessonId])
+  @@index([enrollmentId])
+  @@index([lessonId])
+  @@map("lesson_progress")
 }
 
 model ModerationLog {

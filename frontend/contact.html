@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us - NURU FOUNDATION</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Fredoka+One&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles/root.css">
+    <link rel="stylesheet" href="styles/contact.css">
+    <link rel="stylesheet" href="styles/header.css">
+    <link rel="stylesheet" href="styles/footer.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+
+<script src="scripts/header.js"></script>
+<div id="headerContainer"></div>
+
+<script>
+    // Load Header Content and initialize it
+    document.addEventListener('DOMContentLoaded', function() {
+        fetch('header.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('headerContainer').innerHTML = data;
+
+                // Load auth.js first
+                const authScript = document.createElement('script');
+                authScript.src = 'scripts/auth.js';
+                document.head.appendChild(authScript);
+
+                authScript.onload = () => {
+                    // Then call initHeader since header.js is already loaded via src
+                    if (typeof initHeader === 'function') {
+                        initHeader();
+                    }
+                };
+            })
+            .catch(error => console.error('Error loading header:', error));
+    });
+</script>
+
+<section class="contact-hero">
+    <div class="container">
+        <h1>Contact Us</h1>
+        <p>Get in touch with NURU FOUNDATION. We're here to help you on your learning journey!</p>
+    </div>
+</section>
+
+<section class="contact-section">
+    <div class="container">
+        <div class="contact-grid">
+            <div class="contact-card">
+                <i class="fab fa-whatsapp"></i>
+                <h3>WhatsApp</h3>
+                <p>Chat with us directly on WhatsApp for quick responses.</p>
+                <a href="https://wa.me/1234567890" class="contact-link" target="_blank">Message us on WhatsApp</a>
+            </div>
+            <div class="contact-card">
+                <i class="fas fa-envelope"></i>
+                <h3>Email</h3>
+                <p>Send us an email for detailed inquiries or support.</p>
+                <a href="mailto:nurufoundations@gmail.com" class="contact-link">info@nurufoundation.org</a>
+            </div>
+            <div class="contact-card">
+                <i class="fab fa-facebook"></i>
+                <h3>Facebook</h3>
+                <p>Follow us on Facebook for updates and community discussions.</p>
+                <a href="https://facebook.com/nurufoundation" class="contact-link" target="_blank">Visit our Facebook</a>
+            </div>
+            <div class="contact-card">
+                <i class="fab fa-twitter"></i>
+                <h3>Twitter</h3>
+                <p>Stay updated with our latest tweets and announcements.</p>
+                <a href="https://twitter.com/nurufoundation" class="contact-link" target="_blank">Follow us on Twitter</a>
+            </div>
+            <div class="contact-card">
+                <i class="fab fa-instagram"></i>
+                <h3>Instagram</h3>
+                <p>Check out our visual stories and behind-the-scenes content.</p>
+                <a href="https://instagram.com/nurufoundation" class="contact-link" target="_blank">Follow us on Instagram</a>
+            </div>
+            <div class="contact-card">
+                <i class="fab fa-linkedin"></i>
+                <h3>LinkedIn</h3>
+                <p>Connect with us professionally and explore career opportunities.</p>
+                <a href="https://linkedin.com/company/nurufoundation" class="contact-link" target="_blank">Connect on LinkedIn</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script src="scripts/footer.js"></script>
+<div id="footerContainer"></div>
+
+<script>
+    // Load Footer Content and initialize it
+    document.addEventListener('DOMContentLoaded', function() {
+        fetch('footer.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('footerContainer').innerHTML = data;
+
+                // 🔥 CRITICAL FIX: Manually call the init function AFTER the HTML is loaded.
+                if (typeof startCourseRotation === 'function') {
+                    startCourseRotation();
+                }
+            })
+            .catch(error => console.error('Error loading footer:', error));
+    });
+</script>
+
+</body>
+</html>
