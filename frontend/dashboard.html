@@ -477,13 +477,19 @@
                     </a>
                 </li>
                 <li class="sidebar-item">
-                    <a href="#courses">
+                    <a href="my-courses.html">
                         <i class="fas fa-book"></i>
                         <span>My Courses</span>
                     </a>
                 </li>
+                <li class="sidebar-item" id="adminLink" style="display: none;">
+                    <a href="admin.html">
+                        <i class="fas fa-cogs"></i>
+                        <span>Course Admin</span>
+                    </a>
+                </li>
                 <li class="sidebar-item">
-                    <a href="#progress">
+                    <a href="progress.html">
                         <i class="fas fa-chart-line"></i>
                         <span>Progress</span>
                     </a>
@@ -642,6 +648,11 @@
                         <span>${user.role?.name || 'Student'}</span>
                     </div>
                 `;
+
+                // Show admin link if user is tutor or admin
+                if (user.role?.name === 'tutor' || user.role?.name === 'admin') {
+                    document.getElementById('adminLink').style.display = 'block';
+                }
 
                 // Load enrolled courses
                 await loadEnrolledCourses();

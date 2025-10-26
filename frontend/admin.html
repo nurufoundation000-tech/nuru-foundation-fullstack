@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Nuru Foundation</title>
+    <link rel="stylesheet" href="styles/root.css">
+    <link rel="stylesheet" href="styles/header.css">
+    <link rel="stylesheet" href="styles/footer.css">
+    <style>
+        .admin-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .admin-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .admin-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
+        }
+
+        .courses-list, .enrollment-management {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .course-item {
+            padding: 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .course-item:hover {
+            background-color: #f8f9fa;
+            border-color: #667eea;
+        }
+
+        .course-item.selected {
+            background-color: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .students-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .student-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border: 1px solid #e0e0e0;
+            border-radius: 5px;
+            margin-bottom: 8px;
+        }
+
+        .student-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .student-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #667eea;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background-color: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #5a6fd8;
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+
+        .btn-success {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #218838;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .notes-section {
+            margin-top: 30px;
+        }
+
+        .note-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid #667eea;
+        }
+
+        .note-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .note-title {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .note-date {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .note-content {
+            color: #555;
+            line-height: 1.5;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 20px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: black;
+        }
+
+        .search-container {
+            margin-bottom: 20px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .admin-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="header-placeholder"></div>
+
+    <div class="admin-container">
+        <div class="admin-header">
+            <h1>Course Administration Panel</h1>
+            <p>Manage your courses, enroll students, and communicate with your class</p>
+        </div>
+
+        <div id="message-container"></div>
+
+        <div class="admin-grid">
+            <div class="courses-list">
+                <h2>Your Courses</h2>
+                <div id="courses-container">
+                    <div class="loading">Loading courses...</div>
+                </div>
+            </div>
+
+            <div class="enrollment-management">
+                <div id="enrollment-section" style="display: none;">
+                    <h2 id="selected-course-title">Select a course to manage</h2>
+
+                    <div class="search-container">
+                        <input type="text" id="student-search" class="search-input" placeholder="Search students by name or email...">
+                    </div>
+
+                    <div id="available-students">
+                        <h3>Available Students</h3>
+                        <div id="students-list" class="students-list">
+                            <div class="loading">Select a course to view available students</div>
+                        </div>
+                    </div>
+
+                    <div id="enrolled-students" style="margin-top: 30px;">
+                        <h3>Enrolled Students</h3>
+                        <div id="enrolled-list" class="students-list">
+                            <div class="loading">Select a course to view enrolled students</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="notes-section" class="notes-section" style="display: none;">
+                    <h2>Course Notes & Announcements</h2>
+
+                    <div id="add-note-form">
+                        <h3>Add New Note</h3>
+                        <form id="note-form">
+                            <div class="form-group">
+                                <label for="note-title">Title</label>
+                                <input type="text" id="note-title" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="note-content">Content</label>
+                                <textarea id="note-content" required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Add Note</button>
+                        </form>
+                    </div>
+
+                    <div id="notes-list" style="margin-top: 20px;">
+                        <h3>Existing Notes</h3>
+                        <div id="notes-container">
+                            <div class="loading">Select a course to view notes</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Note Modal -->
+    <div id="edit-note-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="close-edit-modal">&times;</span>
+            <h2>Edit Note</h2>
+            <form id="edit-note-form">
+                <div class="form-group">
+                    <label for="edit-note-title">Title</label>
+                    <input type="text" id="edit-note-title" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit-note-content">Content</label>
+                    <textarea id="edit-note-content" required></textarea>
+                </div>
+                <input type="hidden" id="edit-note-id">
+                <button type="submit" class="btn btn-primary">Update Note</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="footer-placeholder"></div>
+
+    <script src="scripts/auth.js"></script>
+    <script src="scripts/header.js"></script>
+    <script src="scripts/footer.js"></script>
+    <script src="scripts/admin.js"></script>
+</body>
+</html>

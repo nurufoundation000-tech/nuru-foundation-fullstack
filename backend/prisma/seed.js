@@ -157,6 +157,60 @@ async function main() {
 
   console.log('Enrollment created:', enrollment);
 
+  // Create course notes
+  const courseNote1 = await prisma.courseNote.upsert({
+    where: { id: 1 },
+    update: {},
+    create: {
+      courseId: testCourse.id,
+      tutorId: testTutor.id,
+      title: 'Programming Fundamentals Notes',
+      content: 'Key concepts: Variables store data, functions perform actions, loops repeat tasks. Remember to declare variables before use and handle errors gracefully.'
+    }
+  });
+
+  const courseNote2 = await prisma.courseNote.upsert({
+    where: { id: 2 },
+    update: {},
+    create: {
+      courseId: testCourse.id,
+      tutorId: testTutor.id,
+      title: 'Data Types Reference',
+      content: 'Common data types: String (text), Number (integers/floats), Boolean (true/false), Array (list of items), Object (key-value pairs).'
+    }
+  });
+
+  console.log('Course notes created:', { courseNote1, courseNote2 });
+
+  // Create OAuth accounts
+  const oauthAccount1 = await prisma.oauthAccount.create({
+    data: {
+      userId: testStudent.id,
+      provider: 'google',
+      providerAccountId: 'google_123456789',
+      accessToken: 'ya29.a0AfH6SMC...',
+      refreshToken: '1//0g...',
+      expiresAt: Math.floor((Date.now() + 3600000) / 1000), // 1 hour from now in seconds
+      scope: 'openid email profile',
+      tokenType: 'Bearer'
+    }
+  });
+
+  const oauthAccount2 = await prisma.oauthAccount.create({
+    data: {
+      userId: testTutor.id,
+      provider: 'github',
+      providerAccountId: 'github_987654321',
+      accessToken: 'gho_...',
+      refreshToken: 'ghr_...',
+      expiresAt: Math.floor((Date.now() + 7200000) / 1000), // 2 hours from now in seconds
+      scope: 'user:email',
+      tokenType: 'Bearer'
+    }
+  });
+
+  console.log('OAuth accounts created:', { oauthAccount1, oauthAccount2 });
+
   console.log('Database seeded successfully!');
 }
 

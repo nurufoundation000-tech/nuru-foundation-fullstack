@@ -23,6 +23,7 @@ model User {
   adminActions              AdminAction[]   @relation("UserAdminActions")
   courseReviews             CourseReview[]  @relation("UserCourseReviews")
   courses                   Course[]        @relation("TutorCourses")
+  courseNotes               CourseNote[]
   enrollments               Enrollment[]
   forumComments             ForumComment[]
   forumPosts                ForumPost[]
@@ -61,6 +62,7 @@ model Course {
   updatedAt      DateTime        @updatedAt
   courseReviews  CourseReview[]
   courseTags     CourseTag[]
+  courseNotes    CourseNote[]
   tutor          User            @relation("TutorCourses", fields: [tutorId], references: [id], onDelete: Cascade)
   enrollments    Enrollment[]
   forumPosts     ForumPost[]
@@ -308,6 +310,23 @@ model CourseTag {
 
   @@unique([courseId, tagId])
   @@map("course_tags")
+}
+
+/// ** Course Notes for tutors to communicate with students **
+model CourseNote {
+  id        Int      @id @default(autoincrement())
+  courseId  Int
+  tutorId   Int
+  title     String
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  tutor     User     @relation(fields: [tutorId], references: [id], onDelete: Cascade)
+
+  @@index([courseId])
+  @@index([tutorId])
+  @@map("course_notes")
 }
 
 /// ** OAuth / Social login accounts **

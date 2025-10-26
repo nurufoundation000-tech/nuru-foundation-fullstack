@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Progress - NURU FOUNDATION</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Fredoka+One&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="styles/root.css">
+    <link rel="stylesheet" href="styles/header.css">
+    <link rel="stylesheet" href="styles/footer.css">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f8f9fa;
+            margin: 0;
+            padding: 0;
+        }
+
+        .progress-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .progress-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color-1) 100%);
+            color: white;
+            padding: 40px 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .progress-header h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+
+        .progress-header p {
+            margin: 10px 0 0 0;
+            opacity: 0.9;
+        }
+
+        .progress-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .overview-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .overview-number {
+            font-size: 3rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .overview-label {
+            color: #666;
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+        }
+
+        .overview-progress {
+            width: 100%;
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .overview-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color), var(--accent-color-1));
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .progress-details {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .courses-progress {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .courses-progress h2 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+        }
+
+        .course-progress-item {
+            padding: 20px;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .course-progress-item:hover {
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            border-color: var(--primary-color);
+        }
+
+        .course-progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .course-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin: 0;
+        }
+
+        .course-status {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+
+        .status-completed {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-in-progress {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-not-started {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .course-progress-bar {
+            width: 100%;
+            height: 12px;
+            background: #e9ecef;
+            border-radius: 6px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .course-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color), var(--accent-color-1));
+            border-radius: 6px;
+            transition: width 0.3s ease;
+        }
+
+        .course-progress-stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 15px;
+        }
+
+        .course-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .course-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .course-btn.primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .course-btn.primary:hover {
+            background: var(--secondary-color);
+        }
+
+        .course-btn.secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .course-btn.secondary:hover {
+            background: #5a6268;
+        }
+
+        .achievements-sidebar {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            height: fit-content;
+        }
+
+        .achievements-sidebar h2 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+        }
+
+        .achievement-item {
+            display: flex;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .achievement-item:last-child {
+            border-bottom: none;
+        }
+
+        .achievement-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color-1));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            margin-right: 15px;
+            font-size: 1.2rem;
+        }
+
+        .achievement-content h4 {
+            margin: 0 0 5px 0;
+            color: #333;
+            font-size: 1rem;
+        }
+
+        .achievement-content p {
+            margin: 0;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .achievement-locked {
+            opacity: 0.5;
+        }
+
+        .achievement-locked .achievement-icon {
+            background: #ccc;
+        }
+
+        .progress-timeline {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .progress-timeline h2 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+        }
+
+        .timeline-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .timeline-item:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            left: 15px;
+            top: 30px;
+            width: 2px;
+            height: calc(100% - 20px);
+            background: #e9ecef;
+        }
+
+        .timeline-marker {
+            width: 30px;
+            height: 30px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            margin-right: 15px;
+            flex-shrink: 0;
+            z-index: 1;
+        }
+
+        .timeline-content {
+            flex: 1;
+        }
+
+        .timeline-content h4 {
+            margin: 0 0 5px 0;
+            color: #333;
+            font-size: 1rem;
+        }
+
+        .timeline-content p {
+            margin: 0;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .timeline-date {
+            color: #999;
+            font-size: 0.8rem;
+            margin-top: 5px;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+        }
+
+        .no-data i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        @media (max-width: 1024px) {
+            .progress-details {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .progress-header h1 {
+                font-size: 2rem;
+            }
+
+            .progress-overview {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .course-progress-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .course-actions {
+                flex-direction: column;
+            }
+
+            .course-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="header-placeholder"></div>
+
+    <div class="progress-container">
+        <div class="progress-header">
+            <h1>My Progress</h1>
+            <p>Track your learning journey and celebrate your achievements</p>
+        </div>
+
+        <div class="progress-overview" id="progressOverview">
+            <div class="overview-card">
+                <div class="overview-number" id="totalCourses">-</div>
+                <div class="overview-label">Total Courses</div>
+            </div>
+            <div class="overview-card">
+                <div class="overview-number" id="completedCourses">-</div>
+                <div class="overview-label">Completed</div>
+            </div>
+            <div class="overview-card">
+                <div class="overview-number" id="totalLessons">-</div>
+                <div class="overview-label">Lessons Completed</div>
+            </div>
+            <div class="overview-card">
+                <div class="overview-number" id="avgProgress">-</div>
+                <div class="overview-label">Average Progress</div>
+                <div class="overview-progress">
+                    <div class="overview-progress-fill" id="avgProgressBar" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="progress-details">
+            <div class="courses-progress">
+                <h2>Course Progress</h2>
+                <div id="coursesProgressList">
+                    <div class="loading">Loading progress data...</div>
+                </div>
+            </div>
+
+            <div class="achievements-sidebar">
+                <h2>Achievements</h2>
+                <div id="achievementsList">
+                    <div class="achievement-item">
+                        <div class="achievement-icon">
+                            <i class="fas fa-play"></i>
+                        </div>
+                        <div class="achievement-content">
+                            <h4>First Steps</h4>
+                            <p>Complete your first lesson</p>
+                        </div>
+                    </div>
+
+                    <div class="achievement-item achievement-locked">
+                        <div class="achievement-icon">
+                            <i class="fas fa-graduation-cap"></i>
+                        </div>
+                        <div class="achievement-content">
+                            <h4>Course Complete</h4>
+                            <p>Finish your first course</p>
+                        </div>
+                    </div>
+
+                    <div class="achievement-item achievement-locked">
+                        <div class="achievement-icon">
+                            <i class="fas fa-fire"></i>
+                        </div>
+                        <div class="achievement-content">
+                            <h4>Learning Streak</h4>
+                            <p>Study for 7 days in a row</p>
+                        </div>
+                    </div>
+
+                    <div class="achievement-item achievement-locked">
+                        <div class="achievement-icon">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <div class="achievement-content">
+                            <h4>Top Student</h4>
+                            <p>Achieve 100% in a course</p>
+                        </div>
+                    </div>
+
+                    <div class="achievement-item achievement-locked">
+                        <div class="achievement-icon">
+                            <i class="fas fa-trophy"></i>
+                        </div>
+                        <div class="achievement-content">
+                            <h4>Master Learner</h4>
+                            <p>Complete 5 courses</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="progress-timeline">
+            <h2>Learning Timeline</h2>
+            <div id="learningTimeline">
+                <div class="timeline-item">
+                    <div class="timeline-marker">
+                        <i class="fas fa-user-plus"></i>
+                    </div>
+                    <div class="timeline-content">
+                        <h4>Welcome to Nuru Foundation!</h4>
+                        <p>You joined our learning community</p>
+                        <div class="timeline-date" id="joinDate">Loading...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="footer-placeholder"></div>
+
+    <script src="scripts/auth.js"></script>
+    <script src="scripts/header.js"></script>
+    <script src="scripts/footer.js"></script>
+    <script>
+        let progressData = [];
+
+        document.addEventListener('DOMContentLoaded', function() {
+            loadHeaderAndFooter();
+            checkAuthAndLoadProgress();
+        });
+
+        function loadHeaderAndFooter() {
+            // Load header
+            fetch('header.html')
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('headerContainer').innerHTML = data;
+                    if (typeof initHeader === 'function') {
+                        initHeader();
+                    }
+                })
+                .catch(error => console.error('Error loading header:', error));
+
+            // Load footer
+            fetch('footer.html')
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('footerContainer').innerHTML = data;
+                    if (typeof startCourseRotation === 'function') {
+                        startCourseRotation();
+                    }
+                })
+                .catch(error => console.error('Error loading footer:', error));
+        }
+
+        function checkAuthAndLoadProgress() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            loadProgress();
+        }
+
+        async function loadProgress() {
+            try {
+                const token = localStorage.getItem('token');
+
+                // Load progress data
+                const progressResponse = await fetch('http://localhost:5000/api/courses/progress', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!progressResponse.ok) {
+                    if (progressResponse.status === 401) {
+                        window.location.href = 'login.html';
+                        return;
+                    }
+                    throw new Error(`HTTP ${progressResponse.status}: ${progressResponse.statusText}`);
+                }
+
+                progressData = await progressResponse.json();
+
+                // Load user data for join date
+                const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+                updateOverview(progressData, user);
+                displayCoursesProgress(progressData);
+                updateAchievements(progressData);
+                updateTimeline(progressData, user);
+
+            } catch (error) {
+                console.error('Error loading progress:', error);
+                document.getElementById('coursesProgressList').innerHTML = `
+                    <div class="error">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        Error loading progress data. Please try again later.
+                    </div>
+                `;
+            }
+        }
+
+        function updateOverview(progressData, user) {
+            const totalCourses = progressData.length;
+            const completedCourses = progressData.filter(p => p.progress >= 100).length;
+            const totalLessons = progressData.reduce((sum, p) => sum + p.completedLessons, 0);
+            const avgProgress = totalCourses > 0
+                ? Math.round(progressData.reduce((sum, p) => sum + p.progress, 0) / totalCourses)
+                : 0;
+
+            document.getElementById('totalCourses').textContent = totalCourses;
+            document.getElementById('completedCourses').textContent = completedCourses;
+            document.getElementById('totalLessons').textContent = totalLessons;
+            document.getElementById('avgProgress').textContent = `${avgProgress}%`;
+            document.getElementById('avgProgressBar').style.width = `${avgProgress}%`;
+
+            // Update join date
+            if (user.dateJoined) {
+                const joinDate = new Date(user.dateJoined).toLocaleDateString();
+                document.getElementById('joinDate').textContent = joinDate;
+            }
+        }
+
+        function displayCoursesProgress(progressData) {
+            const container = document.getElementById('coursesProgressList');
+
+            if (progressData.length === 0) {
+                container.innerHTML = `
+                    <div class="no-data">
+                        <i class="fas fa-book-open"></i>
+                        <p>You haven't enrolled in any courses yet.</p>
+                        <a href="courses.html" class="course-btn primary" style="display: inline-block; margin-top: 15px;">Browse Courses</a>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = progressData.map(enrollment => {
+                const progressPercent = Math.round(enrollment.progress);
+                const isCompleted = progressPercent >= 100;
+                const statusClass = isCompleted ? 'status-completed' :
+                                  (progressPercent > 0 ? 'status-in-progress' : 'status-not-started');
+                const statusText = isCompleted ? 'Completed' :
+                                 (progressPercent > 0 ? 'In Progress' : 'Not Started');
+
+                return `
+                    <div class="course-progress-item">
+                        <div class="course-progress-header">
+                            <h3 class="course-title">${enrollment.course.title}</h3>
+                            <span class="course-status ${statusClass}">${statusText}</span>
+                        </div>
+
+                        <div class="course-progress-bar">
+                            <div class="course-progress-fill" style="width: ${progressPercent}%"></div>
+                        </div>
+
+                        <div class="course-progress-stats">
+                            <span>${progressPercent}% Complete</span>
+                            <span>${enrollment.completedLessons}/${enrollment.totalLessons} lessons</span>
+                        </div>
+
+                        <div class="course-actions">
+                            <button class="course-btn primary" onclick="continueCourse(${enrollment.course.id})">
+                                ${isCompleted ? 'Review Course' : 'Continue Learning'}
+                            </button>
+                            <button class="course-btn secondary" onclick="viewDetails(${enrollment.course.id})">
+                                View Details
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateAchievements(progressData) {
+            const achievements = document.querySelectorAll('.achievement-item');
+            const completedCourses = progressData.filter(p => p.progress >= 100).length;
+            const totalLessons = progressData.reduce((sum, p) => sum + p.completedLessons, 0);
+            const hasStarted = progressData.some(p => p.completedLessons > 0);
+
+            // First Steps - Complete first lesson
+            if (hasStarted) {
+                achievements[0].classList.remove('achievement-locked');
+            }
+
+            // Course Complete - Finish first course
+            if (completedCourses >= 1) {
+                achievements[1].classList.remove('achievement-locked');
+            }
+
+            // Learning Streak - This would need more complex tracking
+            // For now, just unlock if completed multiple courses
+            if (completedCourses >= 3) {
+                achievements[2].classList.remove('achievement-locked');
+            }
+
+            // Top Student - 100% in a course
+            if (progressData.some(p => p.progress >= 100)) {
+                achievements[3].classList.remove('achievement-locked');
+            }
+
+            // Master Learner - Complete 5 courses
+            if (completedCourses >= 5) {
+                achievements[4].classList.remove('achievement-locked');
+            }
+        }
+
+        function updateTimeline(progressData, user) {
+            const timeline = document.getElementById('learningTimeline');
+            let timelineItems = [];
+
+            // Add join date
+            if (user.dateJoined) {
+                timelineItems.push({
+                    icon: 'fas fa-user-plus',
+                    title: 'Welcome to Nuru Foundation!',
+                    description: 'You joined our learning community',
+                    date: new Date(user.dateJoined)
+                });
+            }
+
+            // Add course enrollments
+            progressData.forEach(enrollment => {
+                timelineItems.push({
+                    icon: 'fas fa-book',
+                    title: `Enrolled in ${enrollment.course.title}`,
+                    description: `Started learning with ${enrollment.course.tutor.fullName || enrollment.course.tutor.username}`,
+                    date: new Date(enrollment.enrolledAt)
+                });
+
+                // Add completion if completed
+                if (enrollment.progress >= 100) {
+                    timelineItems.push({
+                        icon: 'fas fa-graduation-cap',
+                        title: `Completed ${enrollment.course.title}`,
+                        description: `Finished all ${enrollment.totalLessons} lessons`,
+                        date: new Date() // This should ideally come from completion date
+                    });
+                }
+            });
+
+            // Sort by date
+            timelineItems.sort((a, b) => b.date - a.date);
+
+            // Generate HTML
+            const timelineHtml = timelineItems.map(item => `
+                <div class="timeline-item">
+                    <div class="timeline-marker">
+                        <i class="${item.icon}"></i>
+                    </div>
+                    <div class="timeline-content">
+                        <h4>${item.title}</h4>
+                        <p>${item.description}</p>
+                        <div class="timeline-date">${item.date.toLocaleDateString()}</div>
+                    </div>
+                </div>
+            `).join('');
+
+            timeline.innerHTML = timelineHtml || `
+                <div class="no-data">
+                    <i class="fas fa-clock"></i>
+                    <p>Your learning journey starts here!</p>
+                </div>
+            `;
+        }
+
+        function continueCourse(courseId) {
+            window.location.href = `lesson-viewer.html?courseId=${courseId}`;
+        }
+
+        function viewDetails(courseId) {
+            window.location.href = `lesson-viewer.html?courseId=${courseId}`;
+        }
+    </script>
+</body>
+</html>
