@@ -2,7 +2,39 @@
   "version": 2,
   "builds": [
     {
-      "src": "backend/api/index.js",
+      "src": "backend/api/auth/index.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "backend/api/users/index.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "backend/api/courses/index.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "backend/api/lessons/index.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "backend/api/assignments/index.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "backend/api/submissions/index.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "backend/api/moderation/index.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "backend/api/admin/index.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "backend/api/health/index.js",
       "use": "@vercel/node"
     },
     {
@@ -12,8 +44,40 @@
   ],
   "routes": [
     {
-      "src": "/api/(.*)",
-      "dest": "backend/api/index.js"
+      "src": "/api/auth/(.*)",
+      "dest": "backend/api/auth/index.js"
+    },
+    {
+      "src": "/api/users/(.*)",
+      "dest": "backend/api/users/index.js"
+    },
+    {
+      "src": "/api/courses/(.*)",
+      "dest": "backend/api/courses/index.js"
+    },
+    {
+      "src": "/api/lessons/(.*)",
+      "dest": "backend/api/lessons/index.js"
+    },
+    {
+      "src": "/api/assignments/(.*)",
+      "dest": "backend/api/assignments/index.js"
+    },
+    {
+      "src": "/api/submissions/(.*)",
+      "dest": "backend/api/submissions/index.js"
+    },
+    {
+      "src": "/api/moderation/(.*)",
+      "dest": "backend/api/moderation/index.js"
+    },
+    {
+      "src": "/api/admin/(.*)",
+      "dest": "backend/api/admin/index.js"
+    },
+    {
+      "src": "/api/health",
+      "dest": "backend/api/health/index.js"
     },
     {
       "src": "/(.*)",
