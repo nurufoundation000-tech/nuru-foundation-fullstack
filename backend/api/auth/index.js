@@ -40,6 +40,14 @@ module.exports = async (req, res) => {
     const path = req.url;
     const method = req.method;
 
+    if (path === '/' && method === 'GET') {
+      return res.json({ 
+        message: 'Auth API is working',
+        availableEndpoints: ['POST /register', 'POST /login'],
+        timestamp: new Date().toISOString()
+      });
+    }
+
     // REGISTER - POST /register
     if (path === '/register' && method === 'POST') {
       const { username, email, password, fullName, roleId } = body;
