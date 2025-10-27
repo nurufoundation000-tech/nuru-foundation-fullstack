@@ -51,12 +51,13 @@ app.use((req, res) => {
   res.status(404).json({ message: 'Route not found' });
 });
 
-// Only start server if not in test environment
-if (require.main === module) {
+// Export for serverless deployment
+module.exports = app;
+
+// Only start server if not in test environment and not in serverless environment
+if (require.main === module && !process.env.VERCEL) {
   const PORT = process.env.PORT || 5000;
   app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
   });
 }
-
-module.exports = app;
