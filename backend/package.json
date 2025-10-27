@@ -3,17 +3,9 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "cross-env NODE_ENV=test jest --runInBand --forceExit",
-    "test:maindb": "cross-env NODE_ENV=test jest --runInBand --forceExit --selectProjects auth courses lessons rbac",
-    "test:auth": "cross-env NODE_ENV=test jest tests/auth.test.js --runInBand --verbose",
-    "test:courses": "cross-env NODE_ENV=test jest tests/courses.test.js --runInBand --verbose",
-    "test:lessons": "cross-env NODE_ENV=test jest tests/lessons.test.js --runInBand --verbose",
-    "test:rbac": "cross-env NODE_ENV=test jest tests/rbac.test.js --runInBand --verbose",
-    "test:middleware": "cross-env NODE_ENV=test jest tests/middleware.test.js --runInBand --verbose",
-    "test:simple": "cross-env NODE_ENV=test jest tests/simple.test.js --runInBand --verbose",
-    "test:watch": "cross-env NODE_ENV=test jest --watch --runInBand",
     "db:reset": "npx prisma migrate reset --force",
     "db:seed": "node prisma/seed.js",
+    "build": "prisma generate",
     "dev": "nodemon app.js",
     "start": "node app.js"
   },
