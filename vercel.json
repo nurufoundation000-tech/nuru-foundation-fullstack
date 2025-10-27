@@ -22,6 +22,7 @@
   ],
   "buildCommand": "cd backend && npm install && npx prisma generate",
   "env": {
-    "NODE_ENV": "production"
+    "NODE_ENV": "production",
+    "DATABASE_URL": "postgresql://postgres:xlqMhanpHJOXHffmBrPDVJThKrEiJaAc@shinkansen.proxy.rlwy.net:31965/railway"
   }
 }
