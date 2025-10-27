@@ -1,162 +1,183 @@
-const express = require('express');
-const cors = require('cors');
-const helmet = require('helmet');
 const jwt = require('jsonwebtoken');
 const prisma = require('../../lib/prisma');
 
-// Load environment variables
-if (process.env.NODE_ENV !== 'production') {
-  try {
-    require('dotenv-flow').config();
-  } catch (err) {
-    console.warn('dotenv-flow not loaded (production environment):', err.message);
-  }
-}
-
-const app = express();
-
-// Middleware
-app.use(helmet());
-app.use(cors());
-app.use(express.json());
-
-// Auth middleware
-const authenticateToken = async (req, res, next) => {
+// Helper functions
+const authenticateToken = async (req) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
 
   if (!token) {
-    return res.status(401).json({ message: 'Access token required' });
+    throw new Error('Access token required');
   }
 
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback-secret');
+  const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback-secret');
+  const user = await prisma.user.findUnique({
+    where: { id: decoded.userId },
+    include: { role: true }
+  });
 
-    // Verify user still exists and get role info
-    const user = await prisma.user.findUnique({
-      where: { id: decoded.userId },
-      include: { role: true }
-    });
-
-    if (!user || !user.isActive) {
-      return res.status(403).json({ message: 'User not found or inactive' });
-    }
-
-    req.user = {
-      userId: user.id,
-      roleId: user.roleId,
-      roleName: user.role?.name,
-      username: user.username
-    };
-
-    next();
-  } catch (error) {
-    console.error('Token verification error:', error);
-    return res.status(403).json({ message: 'Invalid or expired token' });
+  if (!user || !user.isActive) {
+    throw new Error('User not found or inactive');
   }
-};
 
-// Middleware to check specific roles
-const requireRole = (allowedRoles) => {
-  return async (req, res, next) => {
-    if (!req.user) {
-      return res.status(401).json({ message: 'Authentication required' });
-    }
-
-    if (!allowedRoles.includes(req.user.roleName)) {
-      return res.status(403).json({
-        message: `Access denied. Required roles: ${allowedRoles.join(', ')}`
-      });
-    }
-
-    next();
+  return {
+    userId: user.id,
+    roleId: user.roleId,
+    roleName: user.role?.name,
+    username: user.username
   };
 };
 
-// Get submissions for grading (tutors only)
-app.get('/', authenticateToken, requireRole(['tutor']), async (req, res) => {
+const requireRole = (allowedRoles) => {
+  return async (req) => {
+    const user = await authenticateToken(req);
+    if (!allowedRoles.includes(user.roleName)) {
+      throw new Error(`Access denied. Required roles: ${allowedRoles.join(', ')}`);
+    }
+    return user;
+  };
+};
+
+// Helper function to parse JSON body
+const parseJsonBody = (req) => {
+  return new Promise((resolve, reject) => {
+    let body = '';
+    req.on('data', chunk => {
+      body += chunk.toString();
+    });
+    req.on('end', () => {
+      try {
+        resolve(body ? JSON.parse(body) : {});
+      } catch (error) {
+        reject(new Error('Invalid JSON body'));
+      }
+    });
+  });
+};
+
+// Set CORS headers
+const setCorsHeaders = (res) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+};
+
+// Main serverless function
+module.exports = async (req, res) => {
+  setCorsHeaders(res);
+  
+  // Handle preflight OPTIONS request
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
   try {
-    const submissions = await prisma.submission.findMany({
-      where: {
-        assignment: {
-          lesson: {
-            course: {
-              tutorId: req.user.userId
+    const body = await parseJsonBody(req);
+    const path = req.url;
+    const method = req.method;
+
+    // GET SUBMISSIONS FOR GRADING - GET /
+    if (path === '/' && method === 'GET') {
+      const user = await requireRole(['tutor'])(req);
+
+      const submissions = await prisma.submission.findMany({
+        where: {
+          assignment: {
+            lesson: {
+              course: {
+                tutorId: user.userId
+              }
             }
           }
-        }
-      },
-      include: {
-        assignment: {
-          select: { id: true, title: true, maxScore: true, lesson: { select: { title: true, course: { select: { title: true } } } } }
         },
-        student: {
-          select: { id: true, username: true, fullName: true }
-        }
-      },
-      orderBy: { submittedAt: 'desc' }
-    });
+        include: {
+          assignment: {
+            select: { 
+              id: true, 
+              title: true, 
+              maxScore: true, 
+              lesson: { 
+                select: { 
+                  title: true, 
+                  course: { 
+                    select: { title: true } 
+                  } 
+                } 
+              } 
+            }
+          },
+          student: {
+            select: { id: true, username: true, fullName: true }
+          }
+        },
+        orderBy: { submittedAt: 'desc' }
+      });
 
-    res.json(submissions);
-  } catch (error) {
-    console.error('Get submissions error:', error);
-    res.status(500).json({ message: 'Server error' });
-  }
-});
+      return res.json(submissions);
+    }
 
-// Grade submission
-app.put('/:id/grade', authenticateToken, requireRole(['tutor']), async (req, res) => {
-  const { id } = req.params;
-  const { grade, feedback } = req.body;
+    // GRADE SUBMISSION - PUT /:id/grade
+    if (path.match(/^\/(\d+)\/grade$/) && method === 'PUT') {
+      const user = await requireRole(['tutor'])(req);
+      const match = path.match(/^\/(\d+)\/grade$/);
+      const submissionId = parseInt(match[1]);
+      const { grade, feedback } = body;
 
-  try {
-    const submission = await prisma.submission.findUnique({
-      where: { id: parseInt(id) },
-      include: {
-        assignment: {
-          include: {
-            lesson: {
-              include: {
-                course: true
+      const submission = await prisma.submission.findUnique({
+        where: { id: submissionId },
+        include: {
+          assignment: {
+            include: {
+              lesson: {
+                include: {
+                  course: true
+                }
               }
             }
           }
         }
-      }
-    });
+      });
 
-    if (!submission) {
-      return res.status(404).json({ message: 'Submission not found' });
+      if (!submission) {
+        return res.status(404).json({ message: 'Submission not found' });
+      }
+
+      if (submission.assignment.lesson.course.tutorId !== user.userId) {
+        return res.status(403).json({ message: 'Not authorized to grade this submission' });
+      }
+
+      const updatedSubmission = await prisma.submission.update({
+        where: { id: submissionId },
+        data: {
+          grade: parseInt(grade),
+          feedback
+        }
+      });
+
+      return res.json(updatedSubmission);
     }
 
-    if (submission.assignment.lesson.course.tutorId !== req.user.userId) {
-      return res.status(403).json({ message: 'Not authorized to grade this submission' });
-    }
+    // Route not found
+    return res.status(404).json({ message: 'Route not found' });
 
-    const updatedSubmission = await prisma.submission.update({
-      where: { id: parseInt(id) },
-      data: {
-        grade: parseInt(grade),
-        feedback
-      }
-    });
-
-    res.json(updatedSubmission);
   } catch (error) {
-    console.error('Grade submission error:', error);
-    res.status(500).json({ message: 'Server error' });
+    console.error('Submissions API Error:', error);
+    
+    // Handle specific errors
+    if (error.message.includes('Access token required')) {
+      return res.status(401).json({ message: error.message });
+    }
+    if (error.message.includes('Access denied') || error.message.includes('User not found')) {
+      return res.status(403).json({ message: error.message });
+    }
+    if (error.message.includes('Invalid JSON')) {
+      return res.status(400).json({ message: error.message });
+    }
+    if (error.message.includes('jwt')) {
+      return res.status(403).json({ message: 'Invalid or expired token' });
+    }
+    
+    // Generic server error
+    return res.status(500).json({ message: 'Server error' });
   }
-});
-
-// Error handling middleware
-app.use((error, req, res, next) => {
-  console.error('Error:', error);
-  res.status(500).json({ message: 'Something went wrong!' });
-});
-
-// 404 handler
-app.use((req, res) => {
-  res.status(404).json({ message: 'Route not found' });
-});
-
-module.exports = app;
+};

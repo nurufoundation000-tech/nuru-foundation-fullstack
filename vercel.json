@@ -2,39 +2,39 @@
   "version": 2,
   "builds": [
     {
-      "src": "api/auth/index.js",
+      "src": "backend/api/auth/index.js",
       "use": "@vercel/node"
     },
     {
-      "src": "api/users/index.js",
+      "src": "backend/api/users/index.js",
       "use": "@vercel/node"
     },
     {
-      "src": "api/courses/index.js",
+      "src": "backend/api/courses/index.js",
       "use": "@vercel/node"
     },
     {
-      "src": "api/lessons/index.js",
+      "src": "backend/api/lessons/index.js",
       "use": "@vercel/node"
     },
     {
-      "src": "api/assignments/index.js",
+      "src": "backend/api/assignments/index.js",
       "use": "@vercel/node"
     },
     {
-      "src": "api/submissions/index.js",
+      "src": "backend/api/submissions/index.js",
       "use": "@vercel/node"
     },
     {
-      "src": "api/moderation/index.js",
+      "src": "backend/api/moderation/index.js",
       "use": "@vercel/node"
     },
     {
-      "src": "api/admin/index.js",
+      "src": "backend/api/admin/index.js",
       "use": "@vercel/node"
     },
     {
-      "src": "api/health/index.js",
+      "src": "backend/api/health/index.js",
       "use": "@vercel/node"
     },
     {
@@ -45,48 +45,44 @@
   "routes": [
     {
       "src": "/api/auth/(.*)",
-      "dest": "api/auth/index.js"
+      "dest": "/backend/api/auth/index.js"
     },
     {
       "src": "/api/users/(.*)",
-      "dest": "api/users/index.js"
+      "dest": "/backend/api/users/index.js"
     },
     {
       "src": "/api/courses/(.*)",
-      "dest": "api/courses/index.js"
+      "dest": "/backend/api/courses/index.js"
     },
     {
       "src": "/api/lessons/(.*)",
-      "dest": "api/lessons/index.js"
+      "dest": "/backend/api/lessons/index.js"
     },
     {
       "src": "/api/assignments/(.*)",
-      "dest": "api/assignments/index.js"
+      "dest": "/backend/api/assignments/index.js"
     },
     {
       "src": "/api/submissions/(.*)",
-      "dest": "api/submissions/index.js"
+      "dest": "/backend/api/submissions/index.js"
     },
     {
       "src": "/api/moderation/(.*)",
-      "dest": "api/moderation/index.js"
+      "dest": "/backend/api/moderation/index.js"
     },
     {
       "src": "/api/admin/(.*)",
-      "dest": "api/admin/index.js"
+      "dest": "/backend/api/admin/index.js"
     },
     {
       "src": "/api/health",
-      "dest": "api/health/index.js"
+      "dest": "/backend/api/health/index.js"
     },
     {
       "src": "/(.*)",
-      "dest": "frontend/$1"
+      "dest": "/frontend/$1"
     }
   ],
-  "buildCommand": "cd backend && npm install && npx prisma generate",
-  "env": {
-    "NODE_ENV": "production",
-    "DATABASE_URL": "postgresql://postgres:xlqMhanpHJOXHffmBrPDVJThKrEiJaAc@shinkansen.proxy.rlwy.net:31965/railway"
-  }
+  "buildCommand": "cd backend && npm install && npx prisma generate"
 }

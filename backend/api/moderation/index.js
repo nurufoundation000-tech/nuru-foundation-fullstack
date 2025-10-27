@@ -1,100 +1,92 @@
-const express = require('express');
-const cors = require('cors');
-const helmet = require('helmet');
 const jwt = require('jsonwebtoken');
 const prisma = require('../../lib/prisma');
 
-// Load environment variables
-if (process.env.NODE_ENV !== 'production') {
-  try {
-    require('dotenv-flow').config();
-  } catch (err) {
-    console.warn('dotenv-flow not loaded (production environment):', err.message);
-  }
-}
-
-const app = express();
-
-// Middleware
-app.use(helmet());
-app.use(cors());
-app.use(express.json());
-
-// Auth middleware
-const authenticateToken = async (req, res, next) => {
+// Helper functions
+const authenticateToken = async (req) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
 
   if (!token) {
-    return res.status(401).json({ message: 'Access token required' });
+    throw new Error('Access token required');
   }
 
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback-secret');
+  const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback-secret');
+  const user = await prisma.user.findUnique({
+    where: { id: decoded.userId },
+    include: { role: true }
+  });
 
-    // Verify user still exists and get role info
-    const user = await prisma.user.findUnique({
-      where: { id: decoded.userId },
-      include: { role: true }
-    });
-
-    if (!user || !user.isActive) {
-      return res.status(403).json({ message: 'User not found or inactive' });
-    }
-
-    req.user = {
-      userId: user.id,
-      roleId: user.roleId,
-      roleName: user.role?.name,
-      username: user.username
-    };
-
-    next();
-  } catch (error) {
-    console.error('Token verification error:', error);
-    return res.status(403).json({ message: 'Invalid or expired token' });
+  if (!user || !user.isActive) {
+    throw new Error('User not found or inactive');
   }
-};
 
-// Middleware to check specific roles
-const requireRole = (allowedRoles) => {
-  return async (req, res, next) => {
-    if (!req.user) {
-      return res.status(401).json({ message: 'Authentication required' });
-    }
-
-    if (!allowedRoles.includes(req.user.roleName)) {
-      return res.status(403).json({
-        message: `Access denied. Required roles: ${allowedRoles.join(', ')}`
-      });
-    }
-
-    next();
+  return {
+    userId: user.id,
+    roleId: user.roleId,
+    roleName: user.role?.name,
+    username: user.username
   };
 };
 
-app.get('/logs', authenticateToken, requireRole(['moderator', 'admin']), async (req, res) => {
-  try {
-    const logs = await prisma.moderationLog.findMany({
-      orderBy: { createdAt: 'desc' }
-    });
+const requireRole = (allowedRoles) => {
+  return async (req) => {
+    const user = await authenticateToken(req);
+    if (!allowedRoles.includes(user.roleName)) {
+      throw new Error(`Access denied. Required roles: ${allowedRoles.join(', ')}`);
+    }
+    return user;
+  };
+};
 
-    res.json(logs);
-  } catch (error) {
-    console.error('Get moderation logs error:', error);
-    res.status(500).json({ message: 'Server error' });
+// Set CORS headers
+const setCorsHeaders = (res) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+};
+
+// Main serverless function
+module.exports = async (req, res) => {
+  setCorsHeaders(res);
+  
+  // Handle preflight OPTIONS request
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
   }
-});
 
-// Error handling middleware
-app.use((error, req, res, next) => {
-  console.error('Error:', error);
-  res.status(500).json({ message: 'Something went wrong!' });
-});
+  try {
+    const path = req.url;
+    const method = req.method;
 
-// 404 handler
-app.use((req, res) => {
-  res.status(404).json({ message: 'Route not found' });
-});
+    // GET MODERATION LOGS - GET /logs
+    if (path === '/logs' && method === 'GET') {
+      const user = await requireRole(['moderator', 'admin'])(req);
 
-module.exports = app;
+      const logs = await prisma.moderationLog.findMany({
+        orderBy: { createdAt: 'desc' }
+      });
+
+      return res.json(logs);
+    }
+
+    // Route not found
+    return res.status(404).json({ message: 'Route not found' });
+
+  } catch (error) {
+    console.error('Moderation API Error:', error);
+    
+    // Handle specific errors
+    if (error.message.includes('Access token required')) {
+      return res.status(401).json({ message: error.message });
+    }
+    if (error.message.includes('Access denied') || error.message.includes('User not found')) {
+      return res.status(403).json({ message: error.message });
+    }
+    if (error.message.includes('jwt')) {
+      return res.status(403).json({ message: 'Invalid or expired token' });
+    }
+    
+    // Generic server error
+    return res.status(500).json({ message: 'Server error' });
+  }
+};
