@@ -13,6 +13,7 @@
     "test:simple": "cross-env NODE_ENV=test jest tests/simple.test.js --runInBand --verbose",
     "test:watch": "cross-env NODE_ENV=test jest --watch --runInBand",
     "db:reset": "npx prisma migrate reset --force",
+    "db:seed": "node prisma/seed.js",
     "dev": "nodemon app.js",
     "start": "node app.js"
   },
