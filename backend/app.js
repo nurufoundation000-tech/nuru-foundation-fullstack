@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const helmet = require('helmet');
 
 // Load environment variables FIRST, before any other imports
 // require('dotenv').config();
@@ -7,7 +8,11 @@ require('dotenv-flow').config();
 
 const app = express();
 
+// If running behind a proxy/load balancer (Vercel, Heroku, etc.)
+app.set('trust proxy', 1);
+
 // Middleware
+app.use(helmet());
 app.use(cors());
 app.use(express.json());
 
@@ -47,7 +52,7 @@ app.use((req, res) => {
 });
 
 // Only start server if not in test environment
-if (process.env.NODE_ENV !== 'test') {
+if (require.main === module) {
   const PORT = process.env.PORT || 5000;
   app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
