@@ -143,15 +143,4 @@ app.post('/login', async (req, res) => {
   }
 });
 
-// Error handling middleware
-app.use((error, req, res, next) => {
-  console.error('Error:', error);
-  res.status(500).json({ message: 'Something went wrong!' });
-});
-
-// 404 handler
-app.use((req, res) => {
-  res.status(404).json({ message: 'Route not found' });
-});
-
 module.exports = app;
