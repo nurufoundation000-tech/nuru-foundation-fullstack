@@ -23,7 +23,7 @@ app.use(cors());
 app.use(express.json());
 
 // Auth routes
-app.post('/api/auth/register', async (req, res) => {
+app.post('/register', async (req, res) => {
   try {
     const { username, email, password, fullName, roleId } = req.body;
 
@@ -102,7 +102,7 @@ app.post('/api/auth/register', async (req, res) => {
   }
 });
 
-app.post('/api/auth/login', async (req, res) => {
+app.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
 
