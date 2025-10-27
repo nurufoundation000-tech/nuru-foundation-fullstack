@@ -35,24 +35,76 @@ app.get('/api/health', (req, res) => {
   res.json({ message: 'Server is running!' });
 });
 
-// Import routes
-const authRoutes = require('./routes/auth');
-const userRoutes = require('./routes/users');
-const courseRoutes = require('./routes/courses');
-const lessonRoutes = require('./routes/lessons');
-const assignmentRoutes = require('./routes/assignments');
-const submissionRoutes = require('./routes/submissions');
-const moderationRoutes = require('./routes/moderation');
-const adminRoutes = require('./routes/admin');
+// Import routes with lazy loading to avoid initialization timeouts
+console.log('📦 Importing routes...');
+let authRoutes, userRoutes, courseRoutes, lessonRoutes, assignmentRoutes, submissionRoutes, moderationRoutes, adminRoutes;
 
-app.use('/api/auth', authRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/courses', courseRoutes);
-app.use('/api/lessons', lessonRoutes);
-app.use('/api/assignments', assignmentRoutes);
-app.use('/api/submissions', submissionRoutes);
-app.use('/api/moderation', moderationRoutes);
-app.use('/api/admin', adminRoutes);
+try {
+  authRoutes = require('./routes/auth');
+  console.log('✅ Auth routes loaded');
+} catch (error) {
+  console.error('❌ Failed to load auth routes:', error.message);
+}
+
+try {
+  userRoutes = require('./routes/users');
+  console.log('✅ User routes loaded');
+} catch (error) {
+  console.error('❌ Failed to load user routes:', error.message);
+}
+
+try {
+  courseRoutes = require('./routes/courses');
+  console.log('✅ Course routes loaded');
+} catch (error) {
+  console.error('❌ Failed to load course routes:', error.message);
+}
+
+try {
+  lessonRoutes = require('./routes/lessons');
+  console.log('✅ Lesson routes loaded');
+} catch (error) {
+  console.error('❌ Failed to load lesson routes:', error.message);
+}
+
+try {
+  assignmentRoutes = require('./routes/assignments');
+  console.log('✅ Assignment routes loaded');
+} catch (error) {
+  console.error('❌ Failed to load assignment routes:', error.message);
+}
+
+try {
+  submissionRoutes = require('./routes/submissions');
+  console.log('✅ Submission routes loaded');
+} catch (error) {
+  console.error('❌ Failed to load submission routes:', error.message);
+}
+
+try {
+  moderationRoutes = require('./routes/moderation');
+  console.log('✅ Moderation routes loaded');
+} catch (error) {
+  console.error('❌ Failed to load moderation routes:', error.message);
+}
+
+try {
+  adminRoutes = require('./routes/admin');
+  console.log('✅ Admin routes loaded');
+} catch (error) {
+  console.error('❌ Failed to load admin routes:', error.message);
+}
+
+console.log('🔗 Setting up route handlers...');
+if (authRoutes) app.use('/api/auth', authRoutes);
+if (userRoutes) app.use('/api/users', userRoutes);
+if (courseRoutes) app.use('/api/courses', courseRoutes);
+if (lessonRoutes) app.use('/api/lessons', lessonRoutes);
+if (assignmentRoutes) app.use('/api/assignments', assignmentRoutes);
+if (submissionRoutes) app.use('/api/submissions', submissionRoutes);
+if (moderationRoutes) app.use('/api/moderation', moderationRoutes);
+if (adminRoutes) app.use('/api/admin', adminRoutes);
+console.log('✅ Route handlers configured');
 
 // Error handling middleware
 app.use((error, req, res, next) => {

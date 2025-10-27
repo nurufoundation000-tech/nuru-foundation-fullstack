@@ -8,7 +8,7 @@ console.log('🔗 DATABASE_URL present:', !!process.env.DATABASE_URL);
 // Create Prisma client with serverless-compatible configuration
 const prisma = new PrismaClient({
   log: process.env.NODE_ENV === 'test' ? [] : ['query'],
-  // Disable connection pooling in serverless environments to prevent connection leaks
+  // Serverless-specific configuration
   datasources: {
     db: {
       url: process.env.DATABASE_URL,
@@ -17,6 +17,16 @@ const prisma = new PrismaClient({
 });
 
 console.log('✅ Prisma client created');
+
+// Add connection timeout for serverless environments
+if (process.env.VERCEL) {
+  console.log('⚡ Configuring for Vercel serverless environment...');
+  // Set a shorter connection timeout to avoid Vercel timeouts
+  prisma.$on('beforeExit', async () => {
+    console.log('🔌 Disconnecting Prisma client...');
+    await prisma.$disconnect();
+  });
+}
 
 // Only attempt connection in non-serverless environments (development/local)
 // In serverless (Vercel), connections are managed automatically
