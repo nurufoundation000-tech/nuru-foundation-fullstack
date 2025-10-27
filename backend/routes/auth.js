@@ -2,7 +2,7 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const router = express.Router();
-const prisma = require('../config/database');
+const prisma = require('../lib/prisma');
 
 router.post('/register', async (req, res) => {
   try {

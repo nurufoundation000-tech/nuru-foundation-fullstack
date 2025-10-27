@@ -31,8 +31,25 @@ app.use(cors());
 app.use(express.json());
 
 // Health check route
-app.get('/api/health', (req, res) => {
-  res.json({ message: 'Server is running!' });
+app.get('/api/health', async (req, res) => {
+  try {
+    // Test database connectivity
+    const prisma = require('./lib/prisma');
+    await prisma.$queryRaw`SELECT 1`;
+
+    res.json({
+      message: 'Server is running!',
+      database: 'connected',
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('Health check failed:', error);
+    res.status(500).json({
+      message: 'Server error',
+      database: 'disconnected',
+      timestamp: new Date().toISOString()
+    });
+  }
 });
 
 // Import routes with lazy loading to avoid initialization timeouts
