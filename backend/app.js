@@ -4,13 +4,20 @@ const helmet = require('helmet');
 
 // Load environment variables FIRST, before any other imports
 // Only load dotenv-flow in development/local environments, not in production
+console.log('🔍 Starting application initialization...');
+console.log('📊 Current NODE_ENV:', process.env.NODE_ENV);
+console.log('🌐 Running in Vercel environment:', !!process.env.VERCEL);
+
 if (process.env.NODE_ENV !== 'production') {
   try {
+    console.log('📁 Attempting to load dotenv-flow...');
     require('dotenv-flow').config();
-    console.log('✅ Loaded local .env files');
+    console.log('✅ Loaded local .env files successfully');
   } catch (err) {
-    console.warn('⚠️ dotenv-flow not loaded (production environment)');
+    console.warn('⚠️ dotenv-flow not loaded (production environment):', err.message);
   }
+} else {
+  console.log('⏭️ Skipping dotenv-flow loading (production environment)');
 }
 
 const app = express();
