@@ -2,3 +2,4 @@
 TODO.md
 .vscode/
 .vercel
+.env*.local
