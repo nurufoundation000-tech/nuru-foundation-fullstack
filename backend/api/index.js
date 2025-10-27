@@ -1,4 +1,10 @@
 const serverless = require('serverless-http');
 const app = require('../app');
 
-module.exports = serverless(app);
+// Only wrap with serverless when running on Vercel
+if (process.env.VERCEL) {
+  module.exports = serverless(app);
+} else {
+  // For local development, export the app directly
+  module.exports = app;
+}
