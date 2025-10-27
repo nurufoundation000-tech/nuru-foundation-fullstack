@@ -1,3 +1,4 @@
+const serverless = require('serverless-http');
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
@@ -22,7 +23,7 @@ app.use(cors());
 app.use(express.json());
 
 // Auth routes
-app.post('/register', async (req, res) => {
+app.post('/api/auth/register', async (req, res) => {
   try {
     const { username, email, password, fullName, roleId } = req.body;
 
@@ -101,7 +102,7 @@ app.post('/register', async (req, res) => {
   }
 });
 
-app.post('/login', async (req, res) => {
+app.post('/api/auth/login', async (req, res) => {
   try {
     const { email, password } = req.body;
 
@@ -143,4 +144,4 @@ app.post('/login', async (req, res) => {
   }
 });
 
-module.exports = app;
+module.exports = serverless(app);
