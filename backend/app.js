@@ -3,8 +3,14 @@ const cors = require('cors');
 const helmet = require('helmet');
 
 // Load environment variables FIRST, before any other imports
-// require('dotenv').config();
-require('dotenv-flow').config();
+if (process.env.NODE_ENV !== 'production') {
+  try {
+    require('dotenv-flow').config();
+    console.log('✅ Loaded local .env files');
+  } catch (err) {
+    console.warn('⚠️ dotenv-flow not loaded (production environment)');
+  }
+}
 
 const app = express();
 
