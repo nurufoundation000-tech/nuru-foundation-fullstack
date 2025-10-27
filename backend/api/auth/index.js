@@ -35,11 +35,22 @@ module.exports = async (req, res) => {
     return res.status(200).end();
   }
 
+  // DEBUG: Log the request details
+  console.log('🔍 Auth Request Debug:', {
+    url: req.url,
+    method: req.method,
+    path: req.url,
+    timestamp: new Date().toISOString()
+  });
+
   try {
     const body = await parseJsonBody(req);
     const path = req.url;
     const method = req.method;
 
+    console.log('🔍 Processing auth path:', path, 'method:', method);
+
+    // ROOT ENDPOINT - GET /
     if (path === '/' && method === 'GET') {
       return res.json({ 
         message: 'Auth API is working',
@@ -48,8 +59,11 @@ module.exports = async (req, res) => {
       });
     }
 
-    // REGISTER - POST /register
-    if (path === '/register' && method === 'POST') {
+    // FLEXIBLE PATH MATCHING FOR REGISTER
+    // Handles: /register, /api/auth/register, or any path ending with /register
+    if ((path === '/register' || path.endsWith('/register')) && method === 'POST') {
+      console.log('🔍 Handling REGISTER request');
+      
       const { username, email, password, fullName, roleId } = body;
 
       // Check if user already exists
@@ -115,6 +129,8 @@ module.exports = async (req, res) => {
       // Remove password from response
       const { passwordHash: _, ...userWithoutPassword } = newUser;
 
+      console.log('✅ User registered successfully:', newUser.email);
+      
       return res.status(201).json({
         message: 'User created successfully',
         token,
@@ -122,8 +138,11 @@ module.exports = async (req, res) => {
       });
     }
 
-    // LOGIN - POST /login
-    if (path === '/login' && method === 'POST') {
+    // FLEXIBLE PATH MATCHING FOR LOGIN
+    // Handles: /login, /api/auth/login, or any path ending with /login
+    if ((path === '/login' || path.endsWith('/login')) && method === 'POST') {
+      console.log('🔍 Handling LOGIN request');
+      
       const { email, password } = body;
 
       // Find user with role included
@@ -133,12 +152,14 @@ module.exports = async (req, res) => {
       });
 
       if (!user) {
+        console.log('❌ Login failed: User not found for email:', email);
         return res.status(400).json({ message: 'Invalid credentials' });
       }
 
       // Check password
       const validPassword = await bcrypt.compare(password, user.passwordHash);
       if (!validPassword) {
+        console.log('❌ Login failed: Invalid password for email:', email);
         return res.status(400).json({ message: 'Invalid credentials' });
       }
 
@@ -152,6 +173,8 @@ module.exports = async (req, res) => {
       // Remove password from response
       const { passwordHash, ...userWithoutPassword } = user;
 
+      console.log('✅ User logged in successfully:', user.email);
+      
       return res.json({
         message: 'Login successful',
         token,
@@ -159,11 +182,17 @@ module.exports = async (req, res) => {
       });
     }
 
+    console.log('❌ Route not found for path:', path, 'method:', method);
+    
     // Route not found
-    return res.status(404).json({ message: 'Route not found' });
+    return res.status(404).json({ 
+      message: 'Auth endpoint not found',
+      requestedPath: path,
+      availableEndpoints: ['GET /', 'POST /register', 'POST /login']
+    });
 
   } catch (error) {
-    console.error('Auth API Error:', error);
+    console.error('❌ Auth API Error:', error);
     
     // Handle specific errors
     if (error.message.includes('Invalid JSON')) {
@@ -171,6 +200,9 @@ module.exports = async (req, res) => {
     }
     
     // Generic server error
-    return res.status(500).json({ message: 'Server error' });
+    return res.status(500).json({ 
+      message: 'Server error',
+      error: process.env.NODE_ENV === 'production' ? undefined : error.message
+    });
   }
 };
