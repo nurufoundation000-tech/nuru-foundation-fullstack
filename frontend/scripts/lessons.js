@@ -1,5 +1,5 @@
 // Lessons API functions
-const API_BASE = 'http://localhost:5000/api';
+const API_BASE = '/api';
 
 async function fetchLessons(courseId) {
     const token = localStorage.getItem('token');
