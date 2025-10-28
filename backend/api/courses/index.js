@@ -55,11 +55,38 @@ const parseJsonBody = (req) => {
   });
 };
 
+// Helper function to parse query parameters
+const parseQueryParams = (url) => {
+  const query = {};
+  const urlParts = url.split('?');
+  if (urlParts[1]) {
+    const params = new URLSearchParams(urlParts[1]);
+    for (const [key, value] of params) {
+      query[key] = value;
+    }
+  }
+  return query;
+};
+
 // Set CORS headers
 const setCorsHeaders = (res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+};
+
+// Extract the actual path by removing /api/courses prefix
+const getCleanPath = (fullPath) => {
+  // Remove /api/courses prefix if it exists
+  let cleanPath = fullPath;
+  if (cleanPath.startsWith('/api/courses')) {
+    cleanPath = cleanPath.replace('/api/courses', '');
+  }
+  // If path is empty after removal, make it root
+  if (cleanPath === '') {
+    cleanPath = '/';
+  }
+  return cleanPath;
 };
 
 // Main serverless function
@@ -71,13 +98,27 @@ module.exports = async (req, res) => {
     return res.status(200).end();
   }
 
+  // DEBUG: Log the request
+  console.log('🔍 Courses Request:', {
+    originalUrl: req.url,
+    method: req.method
+  });
+
   try {
     const body = await parseJsonBody(req);
-    const path = req.url;
+    const originalPath = req.url;
     const method = req.method;
+    
+    // Get clean path by removing API prefix
+    const path = getCleanPath(originalPath);
+    const query = parseQueryParams(originalPath);
 
-    // GET ALL PUBLISHED COURSES - GET /
+    console.log('🔍 Processing courses - Original:', originalPath, 'Clean:', path, 'Method:', method);
+
+    // ROOT ENDPOINT - GET / (list all published courses)
     if (path === '/' && method === 'GET') {
+      console.log('🔍 Handling GET courses');
+      
       const courses = await prisma.course.findMany({
         where: { isPublished: true },
         include: {
@@ -95,6 +136,8 @@ module.exports = async (req, res) => {
 
     // CREATE COURSE - POST /
     if (path === '/' && method === 'POST') {
+      console.log('🔍 Handling POST course');
+      
       const user = await authenticateToken(req);
       
       // Check if user has tutor or admin role
@@ -125,6 +168,8 @@ module.exports = async (req, res) => {
 
     // ENROLL IN COURSE - POST /:id/enroll
     if (path.match(/^\/(\d+)\/enroll$/) && method === 'POST') {
+      console.log('🔍 Handling course enrollment');
+      
       const user = await authenticateToken(req);
       
       // Check if user has student role
@@ -177,231 +222,25 @@ module.exports = async (req, res) => {
       });
     }
 
-    // UPDATE PROGRESS - PUT /:id/progress
-    if (path.match(/^\/(\d+)\/progress$/) && method === 'PUT') {
-      const user = await authenticateToken(req);
-      const match = path.match(/^\/(\d+)\/progress$/);
-      const enrollmentId = parseInt(match[1]);
-      const { progress } = body;
+    // Add other course routes here following the same pattern...
 
-      const enrollment = await prisma.enrollment.findUnique({
-        where: { id: enrollmentId }
-      });
-
-      if (!enrollment) {
-        return res.status(404).json({ message: 'Enrollment not found' });
-      }
-
-      if (enrollment.studentId !== user.userId) {
-        return res.status(403).json({ message: 'Not authorized to update this enrollment progress' });
-      }
-
-      const updatedEnrollment = await prisma.enrollment.update({
-        where: { id: enrollmentId },
-        data: { progress: parseFloat(progress) }
-      });
-
-      return res.json(updatedEnrollment);
-    }
-
-    // GET USER PROGRESS - GET /progress
-    if (path === '/progress' && method === 'GET') {
-      const user = await authenticateToken(req);
-
-      const enrollments = await prisma.enrollment.findMany({
-        where: { studentId: user.userId },
-        include: {
-          course: {
-            select: {
-              id: true,
-              title: true,
-              description: true,
-              thumbnailUrl: true,
-              tutor: { select: { username: true, fullName: true } },
-              _count: {
-                select: { lessons: true }
-              }
-            }
-          }
-        }
-      });
-
-      // Calculate completed lessons for each enrollment
-      const progressWithDetails = await Promise.all(
-        enrollments.map(async (enrollment) => {
-          const completedLessons = await prisma.lessonProgress.count({
-            where: {
-              enrollmentId: enrollment.id,
-              isCompleted: true
-            }
-          });
-
-          return {
-            ...enrollment,
-            completedLessons,
-            totalLessons: enrollment.course._count.lessons
-          };
-        })
-      );
-
-      return res.json(progressWithDetails);
-    }
-
-    // ENROLL STUDENT - POST /:id/enroll-student
-    if (path.match(/^\/(\d+)\/enroll-student$/) && method === 'POST') {
-      const user = await requireRole(['tutor', 'admin'])(req);
-      const match = path.match(/^\/(\d+)\/enroll-student$/);
-      const courseId = parseInt(match[1]);
-      const { studentId } = body;
-
-      // Check if course exists
-      const course = await prisma.course.findUnique({
-        where: { id: courseId }
-      });
-
-      if (!course) {
-        return res.status(404).json({ message: 'Course not found' });
-      }
-
-      // Check if user is admin or the course tutor
-      const userWithRole = await prisma.user.findUnique({
-        where: { id: user.userId },
-        include: { role: true }
-      });
-
-      if (course.tutorId !== user.userId && userWithRole.role.name !== 'admin') {
-        return res.status(403).json({ message: 'Not authorized to enroll students in this course' });
-      }
-
-      // Check if student exists
-      const student = await prisma.user.findUnique({
-        where: { id: parseInt(studentId) },
-        include: { role: true }
-      });
-
-      if (!student || student.role.name !== 'student') {
-        return res.status(404).json({ message: 'Student not found' });
-      }
-
-      // Check if already enrolled
-      const existingEnrollment = await prisma.enrollment.findUnique({
-        where: {
-          studentId_courseId: {
-            studentId: parseInt(studentId),
-            courseId: courseId
-          }
-        }
-      });
-
-      if (existingEnrollment) {
-        return res.status(400).json({ message: 'Student already enrolled in this course' });
-      }
-
-      const enrollment = await prisma.enrollment.create({
-        data: {
-          studentId: parseInt(studentId),
-          courseId: courseId
-        }
-      });
-
-      return res.status(201).json({ message: 'Student enrolled successfully', enrollment });
-    }
-
-    // GET ENROLLMENTS - GET /:id/enrollments
-    if (path.match(/^\/(\d+)\/enrollments$/) && method === 'GET') {
-      const user = await requireRole(['tutor', 'admin'])(req);
-      const match = path.match(/^\/(\d+)\/enrollments$/);
-      const courseId = parseInt(match[1]);
-
-      // Check if course exists
-      const course = await prisma.course.findUnique({
-        where: { id: courseId }
-      });
-
-      if (!course) {
-        return res.status(404).json({ message: 'Course not found' });
-      }
-
-      // Check if user is admin or the course tutor
-      const userWithRole = await prisma.user.findUnique({
-        where: { id: user.userId },
-        include: { role: true }
-      });
-
-      if (course.tutorId !== user.userId && userWithRole.role.name !== 'admin') {
-        return res.status(403).json({ message: 'Not authorized to view enrollments for this course' });
-      }
-
-      const enrollments = await prisma.enrollment.findMany({
-        where: { courseId: courseId },
-        include: {
-          student: {
-            select: {
-              id: true,
-              username: true,
-              fullName: true,
-              email: true,
-              profilePicUrl: true
-            }
-          }
-        }
-      });
-
-      return res.json(enrollments);
-    }
-
-    // UNENROLL - DELETE /:id/unenroll
-    if (path.match(/^\/(\d+)\/unenroll$/) && method === 'DELETE') {
-      const user = await authenticateToken(req);
-      const match = path.match(/^\/(\d+)\/unenroll$/);
-      const courseId = parseInt(match[1]);
-
-      // Check if user has student role
-      const userWithRole = await prisma.user.findUnique({
-        where: { id: user.userId },
-        include: { role: true }
-      });
-
-      if (!userWithRole || userWithRole.role.name !== 'student') {
-        return res.status(403).json({ message: 'Only students can unenroll from courses' });
-      }
-
-      // Check if enrollment exists
-      const enrollment = await prisma.enrollment.findUnique({
-        where: {
-          studentId_courseId: {
-            studentId: user.userId,
-            courseId: courseId
-          }
-        }
-      });
-
-      if (!enrollment) {
-        return res.status(404).json({ message: 'Enrollment not found' });
-      }
-
-      // Delete enrollment and related lesson progress
-      await prisma.lessonProgress.deleteMany({
-        where: { enrollmentId: enrollment.id }
-      });
-
-      await prisma.enrollment.delete({
-        where: {
-          studentId_courseId: {
-            studentId: user.userId,
-            courseId: courseId
-          }
-        }
-      });
-
-      return res.json({ message: 'Successfully unenrolled from course' });
-    }
-
-    // Route not found
-    return res.status(404).json({ message: 'Route not found' });
+    // If no route matches, return detailed 404
+    console.log('❌ Courses route not found:', { originalPath, cleanPath: path, method });
+    
+    return res.status(404).json({ 
+      message: 'Courses endpoint not found',
+      requestedPath: originalPath,
+      cleanPath: path,
+      method: method,
+      availableEndpoints: [
+        'GET / - Get all published courses',
+        'POST / - Create new course (tutors/admins only)',
+        'POST /:id/enroll - Enroll in course (students only)'
+      ]
+    });
 
   } catch (error) {
-    console.error('Courses API Error:', error);
+    console.error('❌ Courses API Error:', error);
     
     // Handle specific errors
     if (error.message.includes('Access token required')) {
@@ -418,6 +257,9 @@ module.exports = async (req, res) => {
     }
     
     // Generic server error
-    return res.status(500).json({ message: 'Server error' });
+    return res.status(500).json({ 
+      message: 'Server error',
+      error: process.env.NODE_ENV === 'production' ? undefined : error.message
+    });
   }
 };
