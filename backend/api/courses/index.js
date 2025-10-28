@@ -179,26 +179,53 @@ module.exports = async (req, res) => {
       return res.json(progressWithDetails);
     }
 
-    // GET ALL COURSES (ADMIN) - GET /
-      if (path === '/' && method === 'GET') {
-        console.log('🔍 Handling GET all courses (admin)');
-        
+    // ADMIN COURSES CRUD - GET / (list all courses for admin)
+    if (path === '/' && method === 'GET') {
+      console.log('🔍 Handling GET all courses (admin)');
+      
+      try {
         const user = await requireRole(['admin'])(req);
 
-        const courses = await prisma.course.findMany({
-          include: {
-            tutor: {
-              select: { username: true, fullName: true }
-            },
-            _count: {
-              select: { enrollments: true, lessons: true }
-            }
-          },
-          orderBy: { createdAt: 'desc' }
-        });
+        const { page = 1, limit = 50, search } = parseQueryParams(originalPath);
+        const offset = (parseInt(page) - 1) * parseInt(limit);
 
-        return res.json(courses);
+        const searchFields = ['title', 'description', 'category'];
+        const where = applySearchFilter(search, searchFields);
+
+        const [courses, total] = await Promise.all([
+          prisma.course.findMany({
+            where,
+            include: {
+              tutor: {
+                select: { id: true, username: true, fullName: true, email: true }
+              },
+              _count: {
+                select: { enrollments: true, lessons: true }
+              }
+            },
+            skip: offset,
+            take: parseInt(limit),
+            orderBy: { createdAt: 'desc' }
+          }),
+          prisma.course.count({ where })
+        ]);
+
+        return res.json({
+          data: courses,
+          pagination: {
+            page: parseInt(page),
+            limit: parseInt(limit),
+            total,
+            pages: Math.ceil(total / parseInt(limit))
+          }
+        });
+      } catch (error) {
+        if (error.message.includes('Access denied')) {
+          return res.status(403).json({ message: error.message });
+        }
+        throw error;
       }
+    }
 
     // CREATE COURSE - POST /
     if (path === '/' && method === 'POST') {
