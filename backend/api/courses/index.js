@@ -134,6 +134,51 @@ module.exports = async (req, res) => {
       return res.json(courses);
     }
 
+    // GET USER PROGRESS - GET /progress
+    if (path === '/progress' && method === 'GET') {
+      console.log('🔍 Handling GET user progress');
+      
+      const user = await authenticateToken(req);
+
+      const enrollments = await prisma.enrollment.findMany({
+        where: { studentId: user.userId },
+        include: {
+          course: {
+            select: {
+              id: true,
+              title: true,
+              description: true,
+              thumbnailUrl: true,
+              tutor: { select: { username: true, fullName: true } },
+              _count: {
+                select: { lessons: true }
+              }
+            }
+          }
+        }
+      });
+
+      // Calculate completed lessons for each enrollment
+      const progressWithDetails = await Promise.all(
+        enrollments.map(async (enrollment) => {
+          const completedLessons = await prisma.lessonProgress.count({
+            where: {
+              enrollmentId: enrollment.id,
+              isCompleted: true
+            }
+          });
+
+          return {
+            ...enrollment,
+            completedLessons,
+            totalLessons: enrollment.course._count.lessons
+          };
+        })
+      );
+
+      return res.json(progressWithDetails);
+    }
+
     // CREATE COURSE - POST /
     if (path === '/' && method === 'POST') {
       console.log('🔍 Handling POST course');
