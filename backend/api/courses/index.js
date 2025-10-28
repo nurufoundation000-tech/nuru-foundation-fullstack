@@ -179,6 +179,27 @@ module.exports = async (req, res) => {
       return res.json(progressWithDetails);
     }
 
+    // GET ALL COURSES (ADMIN) - GET /
+      if (path === '/' && method === 'GET') {
+        console.log('🔍 Handling GET all courses (admin)');
+        
+        const user = await requireRole(['admin'])(req);
+
+        const courses = await prisma.course.findMany({
+          include: {
+            tutor: {
+              select: { username: true, fullName: true }
+            },
+            _count: {
+              select: { enrollments: true, lessons: true }
+            }
+          },
+          orderBy: { createdAt: 'desc' }
+        });
+
+        return res.json(courses);
+      }
+
     // CREATE COURSE - POST /
     if (path === '/' && method === 'POST') {
       console.log('🔍 Handling POST course');
