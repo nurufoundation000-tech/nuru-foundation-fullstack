@@ -484,7 +484,7 @@
         async function loadCourses() {
             try {
                 const token = localStorage.getItem('token');
-                const response = await fetch(`${API_BASE_URL}/api/courses/progress`, {
+                const response = await fetch(`${API_BASE_URL}/courses/progress`, {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json'
