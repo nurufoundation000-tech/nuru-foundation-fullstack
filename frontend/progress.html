@@ -561,7 +561,7 @@
                 const token = localStorage.getItem('token');
 
                 // Load progress data
-                const progressResponse = await fetch('http://localhost:5000/api/courses/progress', {
+                const progressResponse = await fetch(`${API_BASE_URL}/courses/progress`, {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json'
