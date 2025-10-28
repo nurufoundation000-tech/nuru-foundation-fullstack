@@ -115,9 +115,59 @@ module.exports = async (req, res) => {
 
     console.log('🔍 Processing courses - Original:', originalPath, 'Clean:', path, 'Method:', method);
 
-    // ROOT ENDPOINT - GET / (list all published courses)
-    if (path === '/' && method === 'GET') {
-      console.log('🔍 Handling GET courses');
+    // ROOT ENDPOINT - GET / (different behavior for admin vs public)
+if (path === '/' && method === 'GET') {
+  console.log('🔍 Handling GET / for courses');
+  
+  try {
+    // Try to authenticate and check if user is admin
+    const user = await authenticateToken(req);
+    
+    // Check if user is admin
+    const userWithRole = await prisma.user.findUnique({
+      where: { id: user.userId },
+      include: { role: true }
+    });
+
+    if (userWithRole && userWithRole.role.name === 'admin') {
+      console.log('🔍 Admin accessing - returning all courses');
+      
+      const { page = 1, limit = 50, search } = query;
+      const offset = (parseInt(page) - 1) * parseInt(limit);
+
+      const searchFields = ['title', 'description', 'category'];
+      const where = applySearchFilter(search, searchFields);
+
+      const [courses, total] = await Promise.all([
+        prisma.course.findMany({
+          where,
+          include: {
+            tutor: {
+              select: { id: true, username: true, fullName: true, email: true }
+            },
+            _count: {
+              select: { enrollments: true, lessons: true }
+            }
+          },
+          skip: offset,
+          take: parseInt(limit),
+          orderBy: { createdAt: 'desc' }
+        }),
+        prisma.course.count({ where })
+      ]);
+
+      return res.json({
+        data: courses,
+        pagination: {
+          page: parseInt(page),
+          limit: parseInt(limit),
+          total,
+          pages: Math.ceil(total / parseInt(limit))
+        }
+      });
+    } else {
+      // Non-admin user - return only published courses
+      console.log('🔍 Non-admin accessing - returning published courses only');
       
       const courses = await prisma.course.findMany({
         where: { isPublished: true },
@@ -133,6 +183,26 @@ module.exports = async (req, res) => {
 
       return res.json(courses);
     }
+
+  } catch (error) {
+    // If authentication fails, return public courses
+    console.log('🔍 Unauthenticated access - returning published courses');
+    
+    const courses = await prisma.course.findMany({
+      where: { isPublished: true },
+      include: {
+        tutor: {
+          select: { username: true, fullName: true, profilePicUrl: true }
+        },
+        _count: {
+          select: { enrollments: true, lessons: true }
+        }
+      }
+    });
+
+    return res.json(courses);
+  }
+}
 
     // GET USER PROGRESS - GET /progress
     if (path === '/progress' && method === 'GET') {
@@ -177,54 +247,6 @@ module.exports = async (req, res) => {
       );
 
       return res.json(progressWithDetails);
-    }
-
-    // ADMIN COURSES CRUD - GET / (list all courses for admin)
-    if (path === '/' && method === 'GET') {
-      console.log('🔍 Handling GET all courses (admin)');
-      
-      try {
-        const user = await requireRole(['admin'])(req);
-
-        const { page = 1, limit = 50, search } = parseQueryParams(originalPath);
-        const offset = (parseInt(page) - 1) * parseInt(limit);
-
-        const searchFields = ['title', 'description', 'category'];
-        const where = applySearchFilter(search, searchFields);
-
-        const [courses, total] = await Promise.all([
-          prisma.course.findMany({
-            where,
-            include: {
-              tutor: {
-                select: { id: true, username: true, fullName: true, email: true }
-              },
-              _count: {
-                select: { enrollments: true, lessons: true }
-              }
-            },
-            skip: offset,
-            take: parseInt(limit),
-            orderBy: { createdAt: 'desc' }
-          }),
-          prisma.course.count({ where })
-        ]);
-
-        return res.json({
-          data: courses,
-          pagination: {
-            page: parseInt(page),
-            limit: parseInt(limit),
-            total,
-            pages: Math.ceil(total / parseInt(limit))
-          }
-        });
-      } catch (error) {
-        if (error.message.includes('Access denied')) {
-          return res.status(403).json({ message: error.message });
-        }
-        throw error;
-      }
     }
 
     // CREATE COURSE - POST /
