@@ -89,6 +89,20 @@ const getCleanPath = (fullPath) => {
   return cleanPath;
 };
 
+// Helper function to apply search filters
+const applySearchFilter = (search, searchFields) => {
+  if (!search || !searchFields.length) return {};
+
+  return {
+    OR: searchFields.map(field => ({
+      [field]: {
+        contains: search,
+        mode: 'insensitive'
+      }
+    }))
+  };
+};
+
 // Main serverless function
 module.exports = async (req, res) => {
   setCorsHeaders(res);
