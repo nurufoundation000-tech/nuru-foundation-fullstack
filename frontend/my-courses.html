@@ -431,6 +431,7 @@
     <script src="scripts/header.js"></script>
     <script src="scripts/footer.js"></script>
     <script>
+        const API_BASE_URL = window.location.hostname === 'localhost' ? 'http://localhost:5000/api'  : 'https://nuru-foundation-fullstack.vercel.app/api';
         let allCourses = [];
         let currentUnenrollId = null;
 
@@ -483,7 +484,7 @@
         async function loadCourses() {
             try {
                 const token = localStorage.getItem('token');
-                const response = await fetch('http://localhost:5000/api/courses/progress', {
+                const response = await fetch(`${API_BASE_URL}/api/courses/progress`, {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json'
