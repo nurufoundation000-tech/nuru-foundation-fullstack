@@ -186,6 +186,13 @@
 
             const result = await authService.login(email, password);
 
+            // After successful login
+            if (user.role === 'admin') {
+                window.location.href = 'admin-dashboard/index.html';
+            } else {
+                window.location.href = 'user-dashboard/index.html';
+            }
+
             if (result.success) {
                 // Redirect to dashboard
                 window.location.href = 'dashboard.html';

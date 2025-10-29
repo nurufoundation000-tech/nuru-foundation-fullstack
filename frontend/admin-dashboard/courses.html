@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course Management - NURU Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="../styles/root.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f8f9fa;
+            color: #333;
+        }
+
+        .admin-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .admin-sidebar {
+            width: 260px;
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: white;
+            padding: 20px 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .admin-brand {
+            padding: 0 20px 20px;
+            border-bottom: 1px solid #4a6278;
+            margin-bottom: 20px;
+        }
+
+        .admin-brand h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .admin-nav {
+            list-style: none;
+            padding: 0 10px;
+        }
+
+        .admin-nav li {
+            margin-bottom: 5px;
+        }
+
+        .admin-nav a {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            color: #ecf0f1;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .admin-nav a:hover,
+        .admin-nav a.active {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+
+        .admin-nav i {
+            width: 20px;
+            margin-right: 10px;
+        }
+
+        .admin-main {
+            flex: 1;
+            margin-left: 260px;
+            padding: 20px;
+        }
+
+        .admin-header {
+            background: white;
+            padding: 25px 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: between;
+            align-items: center;
+        }
+
+        .admin-header h1 {
+            color: #2c3e50;
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        /* Filters */
+        .filters {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .filter-label {
+            font-size: 0.9rem;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .filter-select, .filter-input {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            min-width: 150px;
+        }
+
+        /* Table */
+        .table-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .table-header {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: between;
+            align-items: center;
+        }
+
+        .table-header h2 {
+            color: #2c3e50;
+            font-size: 1.3rem;
+        }
+
+        .table-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .courses-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .courses-table th,
+        .courses-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .courses-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #2c3e50;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .courses-table th:hover {
+            background: #e9ecef;
+        }
+
+        .courses-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .course-thumbnail {
+            width: 60px;
+            height: 40px;
+            border-radius: 6px;
+            background: #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6c757d;
+            font-size: 0.8rem;
+        }
+
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .status-published {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-draft {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .level-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            background: #e2e3e5;
+            color: #383d41;
+        }
+
+        .stats {
+            display: flex;
+            gap: 10px;
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .stat {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 0.8rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-edit {
+            background: #ffc107;
+            color: #212529;
+        }
+
+        .btn-delete {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-view {
+            background: #17a2b8;
+            color: white;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #7f8c8d;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px;
+            text-align: center;
+        }
+
+        .pagination {
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid #eee;
+        }
+
+        .pagination-info {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .pagination-controls {
+            display: flex;
+            gap: 10px;
+        }
+
+        .page-btn {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .page-btn:hover:not(:disabled) {
+            background: #f8f9fa;
+        }
+
+        .page-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .page-btn.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        @media (max-width: 768px) {
+            .admin-container {
+                flex-direction: column;
+            }
+
+            .admin-sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+
+            .admin-main {
+                margin-left: 0;
+            }
+
+            .filters {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .filter-select, .filter-input {
+                min-width: auto;
+            }
+
+            .courses-table {
+                font-size: 0.9rem;
+            }
+
+            .courses-table th,
+            .courses-table td {
+                padding: 10px 8px;
+            }
+
+            .stats {
+                flex-direction: column;
+                gap: 2px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <nav class="admin-sidebar">
+            <div class="admin-brand">
+                <h1>NURU Admin</h1>
+                <p>Administration Panel</p>
+            </div>
+            <ul class="admin-nav">
+                <li><a href="index.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                <li><a href="users.html"><i class="fas fa-users"></i> User Management</a></li>
+                <li><a href="courses.html" class="active"><i class="fas fa-book"></i> Course Management</a></li>
+                <li><a href="enrollments.html"><i class="fas fa-clipboard-list"></i> Enrollments</a></li>
+                <li><a href="analytics.html"><i class="fas fa-chart-bar"></i> Analytics</a></li>
+                <li><a href="system.html"><i class="fas fa-cog"></i> System Settings</a></li>
+                <li><a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="admin-main">
+            <div class="admin-header">
+                <div>
+                    <h1>Course Management</h1>
+                    <p>Create, edit, and manage all courses on the platform</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-secondary" onclick="exportCourses()">
+                        <i class="fas fa-download"></i> Export
+                    </button>
+                    <button class="btn btn-primary" onclick="showCourseModal()">
+                        <i class="fas fa-plus-circle"></i> Create Course
+                    </button>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="filters">
+                <div class="filter-group">
+                    <label class="filter-label">Status</label>
+                    <select class="filter-select" id="statusFilter" onchange="filterCourses()">
+                        <option value="all">All Status</option>
+                        <option value="published">Published</option>
+                        <option value="draft">Draft</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label class="filter-label">Level</label>
+                    <select class="filter-select" id="levelFilter" onchange="filterCourses()">
+                        <option value="all">All Levels</option>
+                        <option value="Beginner">Beginner</option>
+                        <option value="Intermediate">Intermediate</option>
+                        <option value="Advanced">Advanced</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label class="filter-label">Search</label>
+                    <input type="text" class="filter-input" id="searchInput" placeholder="Search courses..." oninput="filterCourses()">
+                </div>
+            </div>
+
+            <!-- Courses Table -->
+            <div class="table-container">
+                <div class="table-header">
+                    <h2>Courses</h2>
+                    <div class="table-actions">
+                        <button class="btn-sm" onclick="refreshCourses()">
+                            <i class="fas fa-sync-alt"></i> Refresh
+                        </button>
+                    </div>
+                </div>
+
+                <div id="coursesTableContainer">
+                    <div class="loading">Loading courses...</div>
+                </div>
+
+                <div class="pagination">
+                    <div class="pagination-info" id="paginationInfo">
+                        Showing 0 of 0 courses
+                    </div>
+                    <div class="pagination-controls" id="paginationControls">
+                        <!-- Pagination buttons will be inserted here -->
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Course Modal -->
+    <div class="modal" id="courseModal" style="display: none;">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h3 id="modalTitle">Create New Course</h3>
+                <button class="close-modal" onclick="closeCourseModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="courseForm">
+                    <div class="form-group">
+                        <label>Course Title *</label>
+                        <input type="text" id="courseTitle" name="title" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Description *</label>
+                        <textarea id="courseDescription" name="description" rows="4" required></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group" style="flex: 1;">
+                            <label>Category</label>
+                            <input type="text" id="courseCategory" name="category" value="General">
+                        </div>
+                        <div class="form-group" style="flex: 1;">
+                            <label>Level</label>
+                            <select id="courseLevel" name="level">
+                                <option value="Beginner">Beginner</option>
+                                <option value="Intermediate">Intermediate</option>
+                                <option value="Advanced">Advanced</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Thumbnail URL</label>
+                        <input type="url" id="courseThumbnail" name="thumbnailUrl" placeholder="https://example.com/image.jpg">
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="coursePublished" name="isPublished">
+                            Publish immediately
+                        </label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeCourseModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="saveCourse()">Save Course</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = window.location.hostname === 'localhost' 
+            ? 'http://localhost:5000/api' 
+            : 'https://nuru-foundation-fullstack.vercel.app/api';
+
+        let allCourses = [];
+        let currentPage = 1;
+        let itemsPerPage = 10;
+        let currentEditingId = null;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAdminAccess();
+            loadCourses();
+        });
+
+        function checkAdminAccess() {
+            const token = localStorage.getItem('token');
+            const user = JSON.parse(localStorage.getItem('user'));
+            
+            if (!token || !user || user.role !== 'admin') {
+                window.location.href = '../login.html';
+                return;
+            }
+        }
+
+        async function loadCourses() {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch(`${API_BASE_URL}/admin/courses`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to load courses');
+                }
+
+                const data = await response.json();
+                allCourses = data.data || [];
+                displayCourses();
+                updatePagination(data.pagination?.total || allCourses.length);
+
+            } catch (error) {
+                console.error('Error loading courses:', error);
+                document.getElementById('coursesTableContainer').innerHTML = `
+                    <div class="error">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        Error loading courses. Please try again.
+                    </div>
+                `;
+            }
+        }
+
+        function displayCourses(courses = allCourses) {
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const coursesToShow = courses.slice(startIndex, endIndex);
+
+            const tableContainer = document.getElementById('coursesTableContainer');
+            
+            if (courses.length === 0) {
+                tableContainer.innerHTML = `
+                    <div style="padding: 40px; text-align: center; color: #666;">
+                        <i class="fas fa-book" style="font-size: 3rem; margin-bottom: 15px; opacity: 0.5;"></i>
+                        <h3>No courses found</h3>
+                        <p>No courses match your current filters.</p>
+                        <button class="btn btn-primary" onclick="showCourseModal()" style="margin-top: 15px;">
+                            <i class="fas fa-plus-circle"></i> Create First Course
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            tableContainer.innerHTML = `
+                <table class="courses-table">
+                    <thead>
+                        <tr>
+                            <th>Course</th>
+                            <th>Tutor</th>
+                            <th>Category</th>
+                            <th>Level</th>
+                            <th>Status</th>
+                            <th>Statistics</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${coursesToShow.map(course => `
+                            <tr>
+                                <td>
+                                    <div style="display: flex; align-items: center; gap: 12px;">
+                                        <div class="course-thumbnail">
+                                            ${course.thumbnailUrl ? 
+                                                `<img src="${course.thumbnailUrl}" alt="${course.title}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 6px;">` : 
+                                                `<i class="fas fa-book"></i>`
+                                            }
+                                        </div>
+                                        <div>
+                                            <div style="font-weight: 500; margin-bottom: 4px;">${course.title}</div>
+                                            <div style="font-size: 0.8rem; color: #666; max-width: 200px; overflow: hidden; text-overflow: ellipsis;">
+                                                ${course.description || 'No description'}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div style="font-weight: 500;">${course.tutor?.fullName || course.tutor?.username || 'Unknown'}</div>
+                                    <div style="font-size: 0.8rem; color: #666;">${course.tutor?.email || ''}</div>
+                                </td>
+                                <td>${course.category || 'General'}</td>
+                                <td><span class="level-badge">${course.level || 'Beginner'}</span></td>
+                                <td>
+                                    <span class="status-badge ${course.isPublished ? 'status-published' : 'status-draft'}">
+                                        ${course.isPublished ? 'Published' : 'Draft'}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="stats">
+                                        <div class="stat" title="Enrollments">
+                                            <i class="fas fa-users"></i>
+                                            ${course._count?.enrollments || 0}
+                                        </div>
+                                        <div class="stat" title="Lessons">
+                                            <i class="fas fa-list-ol"></i>
+                                            ${course._count?.lessons || 0}
+                                        </div>
+                                        <div class="stat" title="Reviews">
+                                            <i class="fas fa-star"></i>
+                                            ${course._count?.courseReviews || 0}
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn-sm btn-view" onclick="viewCourse(${course.id})" title="View">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="btn-sm btn-edit" onclick="editCourse(${course.id})" title="Edit">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn-sm btn-delete" onclick="deleteCourse(${course.id})" title="Delete">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        function filterCourses() {
+            const statusFilter = document.getElementById('statusFilter').value;
+            const levelFilter = document.getElementById('levelFilter').value;
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+
+            let filteredCourses = allCourses.filter(course => {
+                const matchesStatus = statusFilter === 'all' || 
+                    (statusFilter === 'published' && course.isPublished) ||
+                    (statusFilter === 'draft' && !course.isPublished);
+                const matchesLevel = levelFilter === 'all' || course.level === levelFilter;
+                const matchesSearch = !searchTerm || 
+                    course.title.toLowerCase().includes(searchTerm) ||
+                    course.description.toLowerCase().includes(searchTerm) ||
+                    course.category.toLowerCase().includes(searchTerm) ||
+                    (course.tutor?.username && course.tutor.username.toLowerCase().includes(searchTerm)) ||
+                    (course.tutor?.fullName && course.tutor.fullName.toLowerCase().includes(searchTerm));
+
+                return matchesStatus && matchesLevel && matchesSearch;
+            });
+
+            currentPage = 1;
+            displayCourses(filteredCourses);
+            updatePagination(filteredCourses.length);
+        }
+
+        function updatePagination(totalItems = allCourses.length) {
+            const totalPages = Math.ceil(totalItems / itemsPerPage);
+            const startItem = (currentPage - 1) * itemsPerPage + 1;
+            const endItem = Math.min(currentPage * itemsPerPage, totalItems);
+
+            document.getElementById('paginationInfo').textContent = 
+                `Showing ${startItem}-${endItem} of ${totalItems} courses`;
+
+            const paginationControls = document.getElementById('paginationControls');
+            let paginationHTML = '';
+
+            // Previous button
+            paginationHTML += `
+                <button class="page-btn" ${currentPage === 1 ? 'disabled' : ''} onclick="changePage(${currentPage - 1})">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+            `;
+
+            // Page numbers
+            for (let i = 1; i <= totalPages; i++) {
+                if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
+                    paginationHTML += `
+                        <button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">
+                            ${i}
+                        </button>
+                    `;
+                } else if (i === currentPage - 2 || i === currentPage + 2) {
+                    paginationHTML += `<span class="page-btn" style="border: none;">...</span>`;
+                }
+            }
+
+            // Next button
+            paginationHTML += `
+                <button class="page-btn" ${currentPage === totalPages ? 'disabled' : ''} onclick="changePage(${currentPage + 1})">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            `;
+
+            paginationControls.innerHTML = paginationHTML;
+        }
+
+        function changePage(page) {
+            currentPage = page;
+            displayCourses();
+            updatePagination();
+        }
+
+        function refreshCourses() {
+            loadCourses();
+        }
+
+        function showCourseModal() {
+            currentEditingId = null;
+            document.getElementById('modalTitle').textContent = 'Create New Course';
+            document.getElementById('courseForm').reset();
+            document.getElementById('courseModal').style.display = 'flex';
+        }
+
+        function closeCourseModal() {
+            document.getElementById('courseModal').style.display = 'none';
+        }
+
+        async function saveCourse() {
+            const formData = {
+                title: document.getElementById('courseTitle').value,
+                description: document.getElementById('courseDescription').value,
+                category: document.getElementById('courseCategory').value,
+                level: document.getElementById('courseLevel').value,
+                thumbnailUrl: document.getElementById('courseThumbnail').value,
+                isPublished: document.getElementById('coursePublished').checked
+            };
+
+            try {
+                const token = localStorage.getItem('token');
+                const url = currentEditingId ? 
+                    `${API_BASE_URL}/admin/courses/${currentEditingId}` :
+                    `${API_BASE_URL}/admin/courses`;
+
+                const response = await fetch(url, {
+                    method: currentEditingId ? 'PUT' : 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to save course');
+                }
+
+                closeCourseModal();
+                await loadCourses();
+                alert(`Course ${currentEditingId ? 'updated' : 'created'} successfully!`);
+
+            } catch (error) {
+                console.error('Error saving course:', error);
+                alert('Error saving course. Please try again.');
+            }
+        }
+
+        async function editCourse(courseId) {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch(`${API_BASE_URL}/admin/courses/${courseId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to load course data');
+                }
+
+                const course = await response.json();
+                
+                // Populate form with course data
+                document.getElementById('modalTitle').textContent = 'Edit Course';
+                document.getElementById('courseTitle').value = course.title;
+                document.getElementById('courseDescription').value = course.description || '';
+                document.getElementById('courseCategory').value = course.category || 'General';
+                document.getElementById('courseLevel').value = course.level || 'Beginner';
+                document.getElementById('courseThumbnail').value = course.thumbnailUrl || '';
+                document.getElementById('coursePublished').checked = course.isPublished || false;
+                
+                currentEditingId = courseId;
+                document.getElementById('courseModal').style.display = 'flex';
+
+            } catch (error) {
+                console.error('Error loading course:', error);
+                alert('Error loading course data. Please try again.');
+            }
+        }
+
+        function viewCourse(courseId) {
+            // Redirect to course preview or open in new tab
+            window.open(`../course-preview.html?id=${courseId}`, '_blank');
+        }
+
+        async function deleteCourse(courseId) {
+            if (confirm('Are you sure you want to delete this course? This action cannot be undone.')) {
+                try {
+                    const token = localStorage.getItem('token');
+                    const response = await fetch(`${API_BASE_URL}/admin/courses/${courseId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Failed to delete course');
+                    }
+
+                    await loadCourses();
+                    alert('Course deleted successfully!');
+
+                } catch (error) {
+                    console.error('Error deleting course:', error);
+                    alert('Error deleting course. Please try again.');
+                }
+            }
+        }
+
+        function exportCourses() {
+            alert('Export courses functionality to be implemented');
+        }
+
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = '../login.html';
+        }
+
+        // Modal and form styles
+        const style = document.createElement('style');
+        style.textContent = `
+            .modal {
+                display: none;
+                position: fixed;
+                z-index: 1000;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0,0,0,0.5);
+                justify-content: center;
+                align-items: center;
+            }
+
+            .modal-content {
+                background-color: white;
+                border-radius: 15px;
+                padding: 0;
+                max-width: 600px;
+                width: 90%;
+                max-height: 80vh;
+                overflow-y: auto;
+            }
+
+            .modal-header {
+                padding: 20px 25px;
+                border-bottom: 1px solid #eee;
+                display: flex;
+                justify-content: between;
+                align-items: center;
+            }
+
+            .modal-header h3 {
+                margin: 0;
+                color: #2c3e50;
+            }
+
+            .close-modal {
+                background: none;
+                border: none;
+                font-size: 1.5rem;
+                cursor: pointer;
+                color: #666;
+            }
+
+            .modal-body {
+                padding: 25px;
+            }
+
+            .modal-footer {
+                padding: 20px 25px;
+                border-top: 1px solid #eee;
+                display: flex;
+                justify-content: flex-end;
+                gap: 10px;
+            }
+
+            .form-group {
+                margin-bottom: 20px;
+            }
+
+            .form-row {
+                display: flex;
+                gap: 15px;
+            }
+
+            .form-group label {
+                display: block;
+                margin-bottom: 5px;
+                font-weight: 500;
+                color: #333;
+            }
+
+            .form-group input,
+            .form-group select,
+            .form-group textarea {
+                width: 100%;
+                padding: 10px;
+                border: 1px solid #ddd;
+                border-radius: 6px;
+                font-size: 1rem;
+                font-family: inherit;
+            }
+
+            .form-group textarea {
+                resize: vertical;
+                min-height: 80px;
+            }
+
+            .form-group input:focus,
+            .form-group select:focus,
+            .form-group textarea:focus {
+                outline: none;
+                border-color: var(--primary-color);
+            }
+
+            .form-group input[type="checkbox"] {
+                width: auto;
+                margin-right: 8px;
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
