@@ -6,9 +6,10 @@
     <title>Dashboard - NURU FOUNDATION</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Fredoka+One&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link rel="stylesheet" href="../styles/root.css">
-<link rel="stylesheet" href="../styles/header.css">
-<link rel="stylesheet" href="../styles/footer.css">
+    <!-- FIXED PATHS -->
+    <link rel="stylesheet" href="/styles/root.css">
+    <link rel="stylesheet" href="/styles/header.css">
+    <link rel="stylesheet" href="/styles/footer.css">
     <style>
         body {
             font-family: 'Poppins', sans-serif;
@@ -432,37 +433,37 @@
     </style>
 </head>
 <body>
-    <script src="../scripts/header.js"></script>
     <div id="headerContainer"></div>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        fetch('header.html')
-            .then(response => response.text())
-            .then(data => {
-                document.getElementById('headerContainer').innerHTML = data;
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // FIXED: Load header from root path
+            fetch('/header.html')
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('headerContainer').innerHTML = data;
 
-                // Load auth.js
-                const authScript = document.createElement('script');
-                authScript.src = 'scripts/auth.js';
-                document.head.appendChild(authScript);
+                    // FIXED: Load auth.js from root scripts
+                    const authScript = document.createElement('script');
+                    authScript.src = '/scripts/auth.js';
+                    document.head.appendChild(authScript);
 
-                authScript.onload = () => {
-                    // Load header.js
-                    const headerScript = document.createElement('script');
-                    headerScript.src = 'scripts/header.js';
-                    document.head.appendChild(headerScript);
+                    authScript.onload = () => {
+                        // FIXED: Load header.js from root scripts
+                        const headerScript = document.createElement('script');
+                        headerScript.src = '/scripts/header.js';
+                        document.head.appendChild(headerScript);
 
-                    headerScript.onload = () => {
-                        if (typeof initHeader === 'function') {
-                            initHeader();
-                        }
+                        headerScript.onload = () => {
+                            if (typeof initHeader === 'function') {
+                                initHeader();
+                            }
+                        };
                     };
-                };
-            })
-            .catch(error => console.error('Error loading header:', error));
-    });
-</script>
+                })
+                .catch(error => console.error('Error loading header:', error));
+        });
+    </script>
 
     <div class="dashboard-container">
         <div class="sidebar">
@@ -477,19 +478,19 @@
                     </a>
                 </li>
                 <li class="sidebar-item">
-                    <a href="my-courses.html">
+                    <a href="/my-courses.html">
                         <i class="fas fa-book"></i>
                         <span>My Courses</span>
                     </a>
                 </li>
                 <li class="sidebar-item" id="adminLink" style="display: none;">
-                    <a href="admin.html">
+                    <a href="/admin.html">
                         <i class="fas fa-cogs"></i>
                         <span>Course Admin</span>
                     </a>
                 </li>
                 <li class="sidebar-item">
-                    <a href="progress.html">
+                    <a href="/progress.html">
                         <i class="fas fa-chart-line"></i>
                         <span>Progress</span>
                     </a>
@@ -541,7 +542,7 @@
                 <div class="dashboard-card">
                     <h3><i class="fas fa-book"></i> Browse Courses</h3>
                     <p>Explore and enroll in new courses</p>
-                    <a href="courses.html" class="btn">Browse Courses</a>
+                    <a href="/courses.html" class="btn">Browse Courses</a>
                 </div>
 
                 <div class="dashboard-card">
@@ -559,7 +560,7 @@
                 <div class="dashboard-card">
                     <h3><i class="fas fa-users"></i> Community</h3>
                     <p>Connect with other learners and instructors</p>
-                    <a href="community.html" class="btn">Join Community</a>
+                    <a href="/community.html" class="btn">Join Community</a>
                 </div>
             </div>
 
@@ -610,12 +611,12 @@
         </div>
     </div>
 
-    <script src="../scripts/footer.js"></script>
     <div id="footerContainer"></div>
 
     <script>
         document.addEventListener('DOMContentLoaded', async function() {
-            fetch('footer.html')
+            // FIXED: Load footer from root path
+            fetch('/footer.html')
                 .then(response => response.text())
                 .then(data => {
                     document.getElementById('footerContainer').innerHTML = data;
@@ -664,8 +665,8 @@
 
         async function loadEnrolledCourses() {
             try {
-                // Load progress.js script
-                await loadScript('scripts/progress.js');
+                // FIXED: Load progress.js from root scripts
+                await loadScript('/scripts/progress.js');
 
                 const progress = await getUserProgress();
                 displayEnrolledCourses(progress);
@@ -689,7 +690,7 @@
             const coursesList = document.getElementById('coursesList');
 
             if (!progress || progress.length === 0) {
-                coursesList.innerHTML = '<p>You are not enrolled in any courses yet. <a href="courses.html">Browse courses</a> to get started.</p>';
+                coursesList.innerHTML = '<p>You are not enrolled in any courses yet. <a href="/courses.html">Browse courses</a> to get started.</p>';
                 return;
             }
 
@@ -718,20 +719,20 @@
         }
 
         function viewLessons(courseId) {
-            window.location.href = `lesson-viewer.html?courseId=${courseId}`;
+            window.location.href = `/lesson-viewer.html?courseId=${courseId}`;
         }
 
         function viewCourseDetails(courseId) {
             // For now, redirect to courses page. Later can add course detail modal
-            window.location.href = 'courses.html';
+            window.location.href = '/courses.html';
         }
 
         function showProgressModal() {
             const modal = document.getElementById('progressModal');
             const content = document.getElementById('progressContent');
 
-            // Load progress data
-            loadScript('scripts/progress.js').then(() => {
+            // FIXED: Load progress.js from root scripts
+            loadScript('/scripts/progress.js').then(() => {
                 getUserProgress().then(progress => {
                     if (!progress || progress.length === 0) {
                         content.innerHTML = '<p>No progress data available.</p>';
