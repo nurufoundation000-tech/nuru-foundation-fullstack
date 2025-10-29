@@ -13,10 +13,10 @@
   "routes": [
     {
       "src": "/api/admin/(.*)",
-      "dest": "/backend/api/admin/$1"
+      "dest": "/backend/api/admin/index.js"
     },
     {
-      "src": "/api/(.*)",
+      "src": "/api/(.*)", 
       "dest": "/backend/api/$1"
     },
     {
