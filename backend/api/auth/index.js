@@ -1,6 +1,7 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const prisma = require('../../lib/prisma');
+const { URL } = require('url');
 
 // Helper function to parse JSON body
 const parseJsonBody = (req) => {
@@ -35,23 +36,34 @@ module.exports = async (req, res) => {
     return res.status(200).end();
   }
 
-  // DEBUG: Log the request details
-  console.log('🔍 Auth Request Debug:', {
-    url: req.url,
-    method: req.method,
-    path: req.url,
-    timestamp: new Date().toISOString()
-  });
-
   try {
     const body = await parseJsonBody(req);
-    const path = req.url;
     const method = req.method;
 
-    console.log('🔍 Processing auth path:', path, 'method:', method);
+    // Parse the URL properly to handle Vercel routing
+    const baseUrl = `http://${req.headers.host || 'localhost'}`;
+    const parsedUrl = new URL(req.url, baseUrl);
+    const pathname = parsedUrl.pathname;
 
-    // ROOT ENDPOINT - GET /
-    if (path === '/' && method === 'GET') {
+    // DEBUG: Log the request details
+    console.log('🔍 Auth Request Debug:', {
+      originalUrl: req.url,
+      pathname: pathname,
+      method: method,
+      timestamp: new Date().toISOString()
+    });
+
+    // Extract the last path segment to determine the action
+    const pathSegments = pathname.split('/').filter(segment => segment);
+    const action = pathSegments[pathSegments.length - 1] || '';
+
+    console.log('🔍 Path analysis:', {
+      segments: pathSegments,
+      action: action
+    });
+
+    // ROOT ENDPOINT - GET /api/auth or /backend/api/auth
+    if ((pathname === '/' || pathname.endsWith('/auth')) && method === 'GET') {
       return res.json({ 
         message: 'Auth API is working',
         availableEndpoints: ['POST /register', 'POST /login'],
@@ -59,9 +71,8 @@ module.exports = async (req, res) => {
       });
     }
 
-    // FLEXIBLE PATH MATCHING FOR REGISTER
-    // Handles: /register, /api/auth/register, or any path ending with /register
-    if ((path === '/register' || path.endsWith('/register')) && method === 'POST') {
+    // REGISTER ENDPOINT - POST /api/auth/register or /backend/api/auth/register
+    if (action === 'register' && method === 'POST') {
       console.log('🔍 Handling REGISTER request');
       
       const { username, email, password, fullName, roleId } = body;
@@ -138,9 +149,8 @@ module.exports = async (req, res) => {
       });
     }
 
-    // FLEXIBLE PATH MATCHING FOR LOGIN
-    // Handles: /login, /api/auth/login, or any path ending with /login
-    if ((path === '/login' || path.endsWith('/login')) && method === 'POST') {
+    // LOGIN ENDPOINT - POST /api/auth/login or /backend/api/auth/login
+    if (action === 'login' && method === 'POST') {
       console.log('🔍 Handling LOGIN request');
       
       const { email, password } = body;
@@ -174,6 +184,7 @@ module.exports = async (req, res) => {
       const { passwordHash, ...userWithoutPassword } = user;
 
       console.log('✅ User logged in successfully:', user.email);
+      console.log('User role:', user.role); // Debug log to see role structure
       
       return res.json({
         message: 'Login successful',
@@ -182,12 +193,13 @@ module.exports = async (req, res) => {
       });
     }
 
-    console.log('❌ Route not found for path:', path, 'method:', method);
+    console.log('❌ Route not found for pathname:', pathname, 'method:', method);
     
     // Route not found
     return res.status(404).json({ 
       message: 'Auth endpoint not found',
-      requestedPath: path,
+      requestedPath: pathname,
+      method: method,
       availableEndpoints: ['GET /', 'POST /register', 'POST /login']
     });
 
