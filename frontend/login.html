@@ -191,9 +191,10 @@
                 // After successful login
                 if (user.role === 'admin') {
                     window.location.href = 'admin-dashboard/index.html';
-                } else {
-                    window.location.href = 'user-dashboard/index.html';
-                }
+                } 
+                // else {
+                //     window.location.href = 'dashboard.html';
+                // }
             } else {
                 errorMessage.textContent = result.message;
                 errorMessage.style.display = 'block';
