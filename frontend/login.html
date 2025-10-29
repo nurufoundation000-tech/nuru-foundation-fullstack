@@ -166,8 +166,20 @@
     <script src="scripts/auth.js"></script>
     <script>
     // Check if user is already logged in
-    if (authService.isLoggedIn()) {
-        window.location.href = 'dashboard.html';
+   if (authService.isLoggedIn()) {
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        const userRole = user.role?.name || user.role;
+        
+        if (userRole === 'admin') {
+            window.location.href = '/admin-dashboard/index.html';
+        } else if (userRole === 'tutor' || userRole === 'teacher') {
+            window.location.href = '/tutor-dashboard/index.html';
+        } else if (userRole === 'student') {
+            window.location.href = '/student-dashboard/index.html';
+        } else {
+            // Default fallback
+            window.location.href = '/dashboard.html';
+        }
     }
 
     document.getElementById('loginForm').addEventListener('submit', async (e) => {
