@@ -6,9 +6,10 @@
     <title>My Courses - NURU FOUNDATION</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Fredoka+One&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link rel="stylesheet" href="../styles/root.css">
-    <link rel="stylesheet" href="../styles/header.css">
-    <link rel="stylesheet" href="../styles/footer.css">
+    <!-- FIXED PATHS -->
+    <link rel="stylesheet" href="/styles/root.css">
+    <link rel="stylesheet" href="/styles/header.css">
+    <link rel="stylesheet" href="/styles/footer.css">
     <style>
         body {
             font-family: 'Poppins', sans-serif;
@@ -20,7 +21,7 @@
         .courses-container {
             max-width: 1400px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 100px 20px 40px 20px;
         }
 
         .courses-header {
@@ -363,7 +364,8 @@
     </style>
 </head>
 <body>
-    <div id="header-placeholder"></div>
+    <!-- FIXED: Correct container IDs -->
+    <div id="headerContainer"></div>
 
     <div class="courses-container">
         <div class="courses-header">
@@ -425,13 +427,11 @@
         </div>
     </div>
 
-    <div id="footer-placeholder"></div>
+    <!-- FIXED: Correct container ID -->
+    <div id="footerContainer"></div>
 
-    <script src="../scripts/auth.js"></script>
-    <script src="../scripts/header.js"></script>
-    <script src="../scripts/footer.js"></script>
     <script>
-        // const API_BASE_URL = window.location.hostname === 'localhost' ? 'http://localhost:5000/api'  : 'https://nuru-foundation-fullstack.vercel.app/api';
+        const API_BASE_URL = 'https://nuru-foundation-fullstack.vercel.app/api';
         let allCourses = [];
         let currentUnenrollId = null;
 
@@ -442,19 +442,34 @@
         });
 
         function loadHeaderAndFooter() {
-            // Load header
-            fetch('header.html')
+            // FIXED: Load header from root path
+            fetch('/header.html')
                 .then(response => response.text())
                 .then(data => {
                     document.getElementById('headerContainer').innerHTML = data;
-                    if (typeof initHeader === 'function') {
-                        initHeader();
-                    }
+
+                    // Load auth.js
+                    const authScript = document.createElement('script');
+                    authScript.src = '/scripts/auth.js';
+                    document.head.appendChild(authScript);
+
+                    authScript.onload = () => {
+                        // Load header.js
+                        const headerScript = document.createElement('script');
+                        headerScript.src = '/scripts/header.js';
+                        document.head.appendChild(headerScript);
+
+                        headerScript.onload = () => {
+                            if (typeof initHeader === 'function') {
+                                initHeader();
+                            }
+                        };
+                    };
                 })
                 .catch(error => console.error('Error loading header:', error));
 
-            // Load footer
-            fetch('footer.html')
+            // FIXED: Load footer from root path
+            fetch('/footer.html')
                 .then(response => response.text())
                 .then(data => {
                     document.getElementById('footerContainer').innerHTML = data;
@@ -468,7 +483,7 @@
         function checkAuthAndLoadCourses() {
             const token = localStorage.getItem('token');
             if (!token) {
-                window.location.href = 'login.html';
+                window.location.href = '/login.html';
                 return;
             }
 
@@ -493,7 +508,7 @@
 
                 if (!response.ok) {
                     if (response.status === 401) {
-                        window.location.href = 'login.html';
+                        window.location.href = '/login.html';
                         return;
                     }
                     throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -552,7 +567,7 @@
                 filteredCourses = filteredCourses.filter(course =>
                     course.course.title.toLowerCase().includes(searchTerm) ||
                     course.course.description?.toLowerCase().includes(searchTerm) ||
-                    course.course.tutor.username.toLowerCase().includes(searchTerm)
+                    course.course.tutor?.username?.toLowerCase().includes(searchTerm)
                 );
             }
 
@@ -582,7 +597,7 @@
                         <i class="fas fa-book-open"></i>
                         <h3>No courses found</h3>
                         <p>${allCourses.length === 0 ? 'You haven\'t enrolled in any courses yet.' : 'No courses match your current filters.'}</p>
-                        ${allCourses.length === 0 ? '<a href="courses.html" class="course-btn">Browse Courses</a>' : ''}
+                        ${allCourses.length === 0 ? '<a href="/courses.html" class="course-btn">Browse Courses</a>' : ''}
                     </div>
                 `;
                 return;
@@ -606,7 +621,7 @@
                     <div class="course-header">
                         <h3>${course.title}</h3>
                         <div class="course-tutor">
-                            <i class="fas fa-user-graduate"></i> ${course.tutor.fullName || course.tutor.username}
+                            <i class="fas fa-user-graduate"></i> ${course.tutor?.fullName || course.tutor?.username || 'Instructor'}
                         </div>
                         <div class="course-category">${course.category || 'General'}</div>
                     </div>
@@ -622,7 +637,7 @@
                             </div>
                             <div class="progress-text">
                                 ${isCompleted ? 'Completed' : `${progressPercent}% Complete`}
-                                (${enrollment.completedLessons}/${enrollment.totalLessons} lessons)
+                                (${enrollment.completedLessons || 0}/${enrollment.totalLessons || 0} lessons)
                             </div>
                         </div>
 
@@ -643,12 +658,12 @@
         }
 
         function continueCourse(courseId) {
-            window.location.href = `lesson-viewer.html?courseId=${courseId}`;
+            window.location.href = `/lesson-viewer.html?courseId=${courseId}`;
         }
 
         function viewCourseDetails(courseId) {
             // For now, redirect to lesson viewer. Could be enhanced to show course details modal
-            window.location.href = `lesson-viewer.html?courseId=${courseId}`;
+            window.location.href = `/lesson-viewer.html?courseId=${courseId}`;
         }
 
         function showUnenrollModal(enrollmentId) {
@@ -666,7 +681,7 @@
 
             try {
                 const token = localStorage.getItem('token');
-                const response = await fetch(`http://localhost:5000/api/courses/${currentUnenrollId}/unenroll`, {
+                const response = await fetch(`${API_BASE_URL}/courses/${currentUnenrollId}/unenroll`, {
                     method: 'DELETE',
                     headers: {
                         'Authorization': `Bearer ${token}`,
