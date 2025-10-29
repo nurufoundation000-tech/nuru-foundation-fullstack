@@ -28,6 +28,14 @@
       "dest": "/backend/api/$1/index.js"
     },
     {
+      "src": "/my-courses.html",
+      "dest": "/frontend/student-dashboard/my-courses.html"
+    },
+    {
+      "src": "/student-dashboard/(.*)",
+      "dest": "/frontend/student-dashboard/$1"
+    },
+    {
       "src": "/(.*)",
       "dest": "/frontend/$1"
     }
