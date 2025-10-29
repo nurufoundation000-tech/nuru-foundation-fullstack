@@ -165,43 +165,59 @@
 
     <script src="scripts/auth.js"></script>
     <script>
-        // Check if user is already logged in
-        if (authService.isLoggedIn()) {
-            window.location.href = 'dashboard.html';
-        }
+    // Check if user is already logged in
+    if (authService.isLoggedIn()) {
+        window.location.href = 'dashboard.html';
+    }
 
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
 
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const loginBtn = document.getElementById('loginBtn');
-            const btnText = document.getElementById('btnText');
-            const errorMessage = document.getElementById('errorMessage');
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const loginBtn = document.getElementById('loginBtn');
+        const btnText = document.getElementById('btnText');
+        const errorMessage = document.getElementById('errorMessage');
 
-            // Show loading
-            loginBtn.disabled = true;
-            btnText.innerHTML = '<div class="loading"></div>Logging in...';
-            errorMessage.style.display = 'none';
+        // Show loading
+        loginBtn.disabled = true;
+        btnText.innerHTML = '<div class="loading"></div>Logging in...';
+        errorMessage.style.display = 'none';
 
-            const result = await authService.login(email, password);
+        const result = await authService.login(email, password);
 
-
-            if (result.success) {
-                // After successful login
-                if (user.role === 'admin') {
+        if (result.success) {
+            // Get the user data from the login result
+            const user = result.user; // This should contain the user object with role
+            
+            // Check user role and redirect accordingly
+            if (user && user.role) {
+                // Check if role is an object with name property, or just a string
+                const userRole = user.role.name || user.role;
+                
+                console.log('User role:', userRole); // Debug log
+                
+                if (userRole === 'admin') {
                     window.location.href = 'admin-dashboard/index.html';
-                } 
-                // else {
-                //     window.location.href = 'dashboard.html';
-                // }
+                } else if (userRole === 'tutor') {
+                    window.location.href = 'tutor-dashboard/index.html';
+                } else if (userRole === 'student') {
+                    window.location.href = 'student-dashboard/index.html';
+                } else {
+                    // Default fallback
+                    window.location.href = 'dashboard.html';
+                }
             } else {
-                errorMessage.textContent = result.message;
-                errorMessage.style.display = 'block';
-                loginBtn.disabled = false;
-                btnText.textContent = 'Login';
+                console.error('User role not found:', user);
+                window.location.href = 'dashboard.html';
             }
-        });
-    </script>
+        } else {
+            errorMessage.textContent = result.message;
+            errorMessage.style.display = 'block';
+            loginBtn.disabled = false;
+            btnText.textContent = 'Login';
+        }
+    });
+</script>
 </body>
 </html>
