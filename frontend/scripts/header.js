@@ -95,7 +95,6 @@ function initHeader() {
             const user = authService.getUser();
             const userHtml = `
                 <a href="/student-dashboard/index.html" class="btn btn-primary">Dashboard</a>
-                <span class="user-greeting">Hello, ${user.fullName}</span>
                 <button class="btn btn-outline" onclick="logout()">Logout</button>
             `;
             const mobileUserHtml = `
