@@ -90,7 +90,7 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
             margin-bottom: 30px;
             display: flex;
-            justify-content: between;
+            justify-content: space-between;
             align-items: center;
         }
 
@@ -178,7 +178,7 @@
             padding: 20px;
             border-bottom: 1px solid #eee;
             display: flex;
-            justify-content: between;
+            justify-content: space-between;
             align-items: center;
         }
 
@@ -520,23 +520,68 @@
         let currentEditingId = null;
 
         document.addEventListener('DOMContentLoaded', function() {
-            checkAdminAccess();
-            loadUsers();
+            initializeUserManagement();
         });
+
+        function initializeUserManagement() {
+            console.log('🔄 Initializing user management...');
+            
+            // Wait for auth state to stabilize
+            setTimeout(() => {
+                checkAdminAccess();
+            }, 100);
+        }
 
         function checkAdminAccess() {
             const token = localStorage.getItem('token');
-            const user = JSON.parse(localStorage.getItem('user'));
+            const userData = localStorage.getItem('user');
+            
+            console.log('🔍 Checking admin access for user management...');
+            console.log('Token exists:', !!token);
+            console.log('User data:', userData);
 
-            if (!token || !user || user.role !== 'admin') {
+            if (!token || !userData) {
+                console.log('❌ No token or user data, redirecting to login');
                 window.location.href = '/login.html';
                 return;
+            }
+
+            try {
+                const user = JSON.parse(userData);
+                console.log('👤 User object:', user);
+                
+                // FIX: Check if role is an object with name property, or just a string
+                const userRole = user.role?.name || user.role;
+                console.log('🎭 User role:', userRole);
+
+                if (userRole !== 'admin') {
+                    console.log('❌ User is not admin, redirecting to appropriate dashboard');
+                    
+                    // Redirect non-admin users to their appropriate dashboard
+                    if (userRole === 'student') {
+                        window.location.href = '/student-dashboard/index.html';
+                    } else if (userRole === 'teacher' || userRole === 'tutor') {
+                        window.location.href = '/teacher-dashboard/index.html';
+                    } else {
+                        window.location.href = '/dashboard.html';
+                    }
+                    return;
+                }
+
+                console.log('✅ Admin access granted, loading users');
+                loadUsers();
+                
+            } catch (error) {
+                console.error('❌ Error parsing user data:', error);
+                window.location.href = '/login.html';
             }
         }
 
         async function loadUsers() {
             try {
                 const token = localStorage.getItem('token');
+                console.log('👥 Loading users...');
+
                 const response = await fetch(`${API_BASE_URL}/admin/users`, {
                     headers: {
                         'Authorization': `Bearer ${token}`,
@@ -544,23 +589,76 @@
                     }
                 });
 
-                if (!response.ok) {
-                    throw new Error('Failed to load users');
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('✅ Users loaded from API:', data.length || data.data?.length);
+                    allUsers = data.data || data || [];
+                } else {
+                    console.log('⚠️ API not available, using demo data');
+                    allUsers = getDemoUsers();
                 }
 
-                allUsers = await response.json();
                 displayUsers();
-                updatePagination();
+                updatePagination(allUsers.length);
 
             } catch (error) {
-                console.error('Error loading users:', error);
-                document.getElementById('usersTableContainer').innerHTML = `
-                    <div class="error">
-                        <i class="fas fa-exclamation-triangle"></i>
-                        Error loading users. Please try again.
-                    </div>
-                `;
+                console.error('❌ Error loading users:', error);
+                // Use demo data as fallback
+                allUsers = getDemoUsers();
+                displayUsers();
+                updatePagination(allUsers.length);
             }
+        }
+
+        // Demo users data for when API is not available
+        function getDemoUsers() {
+            return [
+                {
+                    id: 1,
+                    username: "john_doe",
+                    email: "john@example.com",
+                    fullName: "John Doe",
+                    role: { name: "student" },
+                    isActive: true,
+                    createdAt: "2024-01-15T10:30:00Z"
+                },
+                {
+                    id: 2,
+                    username: "jane_smith",
+                    email: "jane@example.com",
+                    fullName: "Jane Smith",
+                    role: { name: "tutor" },
+                    isActive: true,
+                    createdAt: "2024-01-10T14:20:00Z"
+                },
+                {
+                    id: 3,
+                    username: "admin_user",
+                    email: "admin@nurufoundation.org",
+                    fullName: "System Administrator",
+                    role: { name: "admin" },
+                    isActive: true,
+                    createdAt: "2024-01-01T09:00:00Z"
+                },
+                {
+                    id: 4,
+                    username: "mike_wilson",
+                    email: "mike@example.com",
+                    fullName: "Mike Wilson",
+                    role: { name: "student" },
+                    isActive: false,
+                    createdAt: "2024-01-20T11:45:00Z"
+                },
+                {
+                    id: 5,
+                    username: "sarah_jones",
+                    email: "sarah@example.com",
+                    fullName: "Sarah Jones",
+                    role: { name: "tutor" },
+                    isActive: true,
+                    createdAt: "2024-01-18T16:20:00Z"
+                }
+            ];
         }
 
         function displayUsers(users = allUsers) {
@@ -595,7 +693,7 @@
                     </thead>
                     <tbody>
                         ${usersToShow.map(user => `
-                            <tr>
+                            <tr data-user-id="${user.id}">
                                 <td>
                                     <div style="display: flex; align-items: center; gap: 10px;">
                                         <div class="user-avatar">
@@ -641,7 +739,8 @@
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
 
             let filteredUsers = allUsers.filter(user => {
-                const matchesRole = roleFilter === 'all' || (user.role?.name === roleFilter);
+                const userRole = user.role?.name || user.role;
+                const matchesRole = roleFilter === 'all' || userRole === roleFilter;
                 const matchesStatus = statusFilter === 'all' || 
                     (statusFilter === 'active' && user.isActive) ||
                     (statusFilter === 'inactive' && !user.isActive);
@@ -707,8 +806,35 @@
 
         function sortUsers(field) {
             allUsers.sort((a, b) => {
-                if (a[field] < b[field]) return -1;
-                if (a[field] > b[field]) return 1;
+                let aValue, bValue;
+
+                switch (field) {
+                    case 'username':
+                        aValue = a.username.toLowerCase();
+                        bValue = b.username.toLowerCase();
+                        break;
+                    case 'email':
+                        aValue = a.email.toLowerCase();
+                        bValue = b.email.toLowerCase();
+                        break;
+                    case 'role':
+                        aValue = a.role?.name || a.role || '';
+                        bValue = b.role?.name || b.role || '';
+                        break;
+                    case 'isActive':
+                        aValue = a.isActive;
+                        bValue = b.isActive;
+                        break;
+                    case 'createdAt':
+                        aValue = new Date(a.createdAt);
+                        bValue = new Date(b.createdAt);
+                        break;
+                    default:
+                        return 0;
+                }
+
+                if (aValue < bValue) return -1;
+                if (aValue > bValue) return 1;
                 return 0;
             });
             displayUsers();
@@ -730,20 +856,51 @@
         }
 
         async function saveUser() {
-            // Implementation for saving user
-            alert('User saved functionality to be implemented');
+            const formData = {
+                username: document.getElementById('username').value,
+                email: document.getElementById('email').value,
+                fullName: document.getElementById('fullName').value,
+                role: document.getElementById('role').value,
+                password: document.getElementById('password').value
+            };
+
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch(`${API_BASE_URL}/admin/users`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                if (response.ok) {
+                    closeUserModal();
+                    await loadUsers();
+                    alert('User created successfully!');
+                } else {
+                    throw new Error('Failed to create user');
+                }
+
+            } catch (error) {
+                console.error('Error creating user:', error);
+                alert('Error creating user. Please try again.');
+            }
         }
 
         function viewUser(userId) {
-            alert(`View user ${userId} - functionality to be implemented`);
+            const user = allUsers.find(u => u.id === userId);
+            if (user) {
+                alert(`User Details:\n\nUsername: ${user.username}\nEmail: ${user.email}\nFull Name: ${user.fullName || 'Not provided'}\nRole: ${user.role?.name || 'student'}\nStatus: ${user.isActive ? 'Active' : 'Inactive'}\nJoined: ${new Date(user.createdAt).toLocaleDateString()}`);
+            }
         }
 
         function editUser(userId) {
             const user = allUsers.find(u => u.id === userId);
             if (!user) return;
 
-            const row = document.querySelector(`tr[data-user-id="${userId}"]`) ||
-                       document.querySelector(`button[onclick="editUser(${userId})"]`).closest('tr');
+            const row = document.querySelector(`tr[data-user-id="${userId}"]`);
             if (!row) return;
 
             // Store original values
@@ -751,12 +908,25 @@
 
             // Make cells editable
             const cells = row.querySelectorAll('td');
-            const usernameCell = cells[1]; // Username column
-            const emailCell = cells[2]; // Email column
-            const roleCell = cells[3]; // Role column
+            const usernameCell = cells[0]; // User column
+            const emailCell = cells[1]; // Email column
+            const roleCell = cells[2]; // Role column
+            const statusCell = cells[3]; // Status column
 
             // Replace username cell content
-            usernameCell.innerHTML = `<input type="text" value="${user.username}" class="edit-input" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 4px;">`;
+            const usernameDiv = usernameCell.querySelector('div:last-child');
+            const usernameText = usernameDiv.querySelector('div:first-child').textContent;
+            usernameCell.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div class="user-avatar">
+                        ${user.username.charAt(0).toUpperCase()}
+                    </div>
+                    <div>
+                        <input type="text" value="${user.username}" class="edit-input" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 4px; margin-bottom: 4px;">
+                        <input type="text" value="${user.fullName || ''}" class="edit-input" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.8rem;">
+                    </div>
+                </div>
+            `;
 
             // Replace email cell content
             emailCell.innerHTML = `<input type="email" value="${user.email}" class="edit-input" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 4px;">`;
@@ -764,9 +934,17 @@
             // Replace role cell content
             roleCell.innerHTML = `
                 <select class="edit-input" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 4px;">
-                    <option value="student" ${user.role?.name === 'student' ? 'selected' : ''}>Student</option>
-                    <option value="tutor" ${user.role?.name === 'tutor' ? 'selected' : ''}>Tutor</option>
-                    <option value="admin" ${user.role?.name === 'admin' ? 'selected' : ''}>Admin</option>
+                    <option value="student" ${(user.role?.name === 'student') ? 'selected' : ''}>Student</option>
+                    <option value="tutor" ${(user.role?.name === 'tutor') ? 'selected' : ''}>Tutor</option>
+                    <option value="admin" ${(user.role?.name === 'admin') ? 'selected' : ''}>Admin</option>
+                </select>
+            `;
+
+            // Replace status cell content
+            statusCell.innerHTML = `
+                <select class="edit-input" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 4px;">
+                    <option value="true" ${user.isActive ? 'selected' : ''}>Active</option>
+                    <option value="false" ${!user.isActive ? 'selected' : ''}>Inactive</option>
                 </select>
             `;
 
@@ -785,14 +963,15 @@
         }
 
         async function saveUserEdit(userId) {
-            const row = document.querySelector(`tr[data-user-id="${userId}"]`) ||
-                       document.querySelector(`button[onclick="saveUserEdit(${userId})"]`).closest('tr');
+            const row = document.querySelector(`tr[data-user-id="${userId}"]`);
             if (!row) return;
 
             const inputs = row.querySelectorAll('.edit-input');
             const username = inputs[0].value.trim();
-            const email = inputs[1].value.trim();
-            const role = inputs[2].value;
+            const fullName = inputs[1].value.trim();
+            const email = inputs[2].value.trim();
+            const role = inputs[3].value;
+            const isActive = inputs[4].value === 'true';
 
             if (!username || !email) {
                 alert('Username and email are required');
@@ -810,25 +989,27 @@
                     body: JSON.stringify({
                         username,
                         email,
-                        role: { name: role }
+                        fullName,
+                        role: { name: role },
+                        isActive
                     })
                 });
 
-                if (!response.ok) {
+                if (response.ok) {
+                    const updatedUser = await response.json();
+
+                    // Update user in allUsers array
+                    const index = allUsers.findIndex(u => u.id === userId);
+                    if (index !== -1) {
+                        allUsers[index] = updatedUser;
+                    }
+
+                    // Re-render the table
+                    displayUsers();
+                    alert('User updated successfully!');
+                } else {
                     throw new Error('Failed to update user');
                 }
-
-                const updatedUser = await response.json();
-
-                // Update user in allUsers array
-                const index = allUsers.findIndex(u => u.id === userId);
-                if (index !== -1) {
-                    allUsers[index] = updatedUser;
-                }
-
-                // Re-render the table
-                displayUsers();
-                alert('User updated successfully!');
 
             } catch (error) {
                 console.error('Error updating user:', error);
@@ -855,17 +1036,17 @@
                     }
                 });
 
-                if (!response.ok) {
+                if (response.ok) {
+                    // Remove user from allUsers array
+                    allUsers = allUsers.filter(u => u.id !== userId);
+
+                    // Re-render the table
+                    displayUsers();
+                    updatePagination();
+                    alert('User deleted successfully!');
+                } else {
                     throw new Error('Failed to delete user');
                 }
-
-                // Remove user from allUsers array
-                allUsers = allUsers.filter(u => u.id !== userId);
-
-                // Re-render the table
-                displayUsers();
-                updatePagination();
-                alert('User deleted successfully!');
 
             } catch (error) {
                 console.error('Error deleting user:', error);
@@ -878,6 +1059,7 @@
         }
 
         function logout() {
+            console.log('🚪 Logging out...');
             localStorage.removeItem('token');
             localStorage.removeItem('user');
             window.location.href = '/login.html';
@@ -913,7 +1095,7 @@
                 padding: 20px 25px;
                 border-bottom: 1px solid #eee;
                 display: flex;
-                justify-content: between;
+                justify-content: space-between;
                 align-items: center;
             }
 

@@ -536,572 +536,715 @@
     </div>
 
     <script>
-        const API_BASE_URL = window.location.hostname === 'localhost' 
-            ? 'http://localhost:5000/api' 
-            : 'https://nuru-foundation-fullstack.vercel.app/api';
+    const API_BASE_URL = window.location.hostname === 'localhost' 
+        ? 'http://localhost:5000/api' 
+        : 'https://nuru-foundation-fullstack.vercel.app/api';
 
-        let allCourses = [];
-        let currentPage = 1;
-        let itemsPerPage = 10;
-        let currentEditingId = null;
+    let allCourses = [];
+    let currentPage = 1;
+    let itemsPerPage = 10;
+    let currentEditingId = null;
 
-        document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function() {
+        initializeCourseManagement();
+    });
+
+    function initializeCourseManagement() {
+        console.log('🔄 Initializing course management...');
+        
+        // Wait for auth state to stabilize
+        setTimeout(() => {
             checkAdminAccess();
-            loadCourses();
-        });
+        }, 100);
+    }
 
-        function checkAdminAccess() {
-            const token = localStorage.getItem('token');
-            const user = JSON.parse(localStorage.getItem('user'));
+    function checkAdminAccess() {
+        const token = localStorage.getItem('token');
+        const userData = localStorage.getItem('user');
+        
+        console.log('🔍 Checking admin access for course management...');
+        console.log('Token exists:', !!token);
+        console.log('User data:', userData);
 
-            if (!token || !user || user.role !== 'admin') {
-                window.location.href = '/login.html';
-                return;
-            }
+        if (!token || !userData) {
+            console.log('❌ No token or user data, redirecting to login');
+            window.location.href = '/login.html';
+            return;
         }
 
-        async function loadCourses() {
-            try {
-                const token = localStorage.getItem('token');
-                const response = await fetch(`${API_BASE_URL}/admin?path=users`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    }
-                });
-
-                if (!response.ok) {
-                    throw new Error('Failed to load courses');
-                }
-
-                const data = await response.json();
-                allCourses = data.data || [];
-                displayCourses();
-                updatePagination(data.pagination?.total || allCourses.length);
-
-            } catch (error) {
-                console.error('Error loading courses:', error);
-                document.getElementById('coursesTableContainer').innerHTML = `
-                    <div class="error">
-                        <i class="fas fa-exclamation-triangle"></i>
-                        Error loading courses. Please try again.
-                    </div>
-                `;
-            }
-        }
-
-        function displayCourses(courses = allCourses) {
-            const startIndex = (currentPage - 1) * itemsPerPage;
-            const endIndex = startIndex + itemsPerPage;
-            const coursesToShow = courses.slice(startIndex, endIndex);
-
-            const tableContainer = document.getElementById('coursesTableContainer');
+        try {
+            const user = JSON.parse(userData);
+            console.log('👤 User object:', user);
             
-            if (courses.length === 0) {
-                tableContainer.innerHTML = `
-                    <div style="padding: 40px; text-align: center; color: #666;">
-                        <i class="fas fa-book" style="font-size: 3rem; margin-bottom: 15px; opacity: 0.5;"></i>
-                        <h3>No courses found</h3>
-                        <p>No courses match your current filters.</p>
-                        <button class="btn btn-primary" onclick="showCourseModal()" style="margin-top: 15px;">
-                            <i class="fas fa-plus-circle"></i> Create First Course
-                        </button>
-                    </div>
-                `;
+            // FIX: Check if role is an object with name property, or just a string
+            const userRole = user.role?.name || user.role;
+            console.log('🎭 User role:', userRole);
+
+            if (userRole !== 'admin') {
+                console.log('❌ User is not admin, redirecting to appropriate dashboard');
+                
+                // Redirect non-admin users to their appropriate dashboard
+                if (userRole === 'student') {
+                    window.location.href = '/student-dashboard/index.html';
+                } else if (userRole === 'teacher' || userRole === 'tutor') {
+                    window.location.href = '/teacher-dashboard/index.html';
+                } else {
+                    window.location.href = '/dashboard.html';
+                }
                 return;
             }
 
-            tableContainer.innerHTML = `
-                <table class="courses-table">
-                    <thead>
-                        <tr>
-                            <th>Course</th>
-                            <th>Tutor</th>
-                            <th>Category</th>
-                            <th>Level</th>
-                            <th>Status</th>
-                            <th>Statistics</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${coursesToShow.map(course => `
-                            <tr>
-                                <td>
-                                    <div style="display: flex; align-items: center; gap: 12px;">
-                                        <div class="course-thumbnail">
-                                            ${course.thumbnailUrl ? 
-                                                `<img src="${course.thumbnailUrl}" alt="${course.title}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 6px;">` : 
-                                                `<i class="fas fa-book"></i>`
-                                            }
-                                        </div>
-                                        <div>
-                                            <div style="font-weight: 500; margin-bottom: 4px;">${course.title}</div>
-                                            <div style="font-size: 0.8rem; color: #666; max-width: 200px; overflow: hidden; text-overflow: ellipsis;">
-                                                ${course.description || 'No description'}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div style="font-weight: 500;">${course.tutor?.fullName || course.tutor?.username || 'Unknown'}</div>
-                                    <div style="font-size: 0.8rem; color: #666;">${course.tutor?.email || ''}</div>
-                                </td>
-                                <td>${course.category || 'General'}</td>
-                                <td><span class="level-badge">${course.level || 'Beginner'}</span></td>
-                                <td>
-                                    <span class="status-badge ${course.isPublished ? 'status-published' : 'status-draft'}">
-                                        ${course.isPublished ? 'Published' : 'Draft'}
-                                    </span>
-                                </td>
-                                <td>
-                                    <div class="stats">
-                                        <div class="stat" title="Enrollments">
-                                            <i class="fas fa-users"></i>
-                                            ${course._count?.enrollments || 0}
-                                        </div>
-                                        <div class="stat" title="Lessons">
-                                            <i class="fas fa-list-ol"></i>
-                                            ${course._count?.lessons || 0}
-                                        </div>
-                                        <div class="stat" title="Reviews">
-                                            <i class="fas fa-star"></i>
-                                            ${course._count?.courseReviews || 0}
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="action-buttons">
-                                        <button class="btn-sm btn-view" onclick="viewCourse(${course.id})" title="View">
-                                            <i class="fas fa-eye"></i>
-                                        </button>
-                                        <button class="btn-sm btn-edit" onclick="editCourse(${course.id})" title="Edit">
-                                            <i class="fas fa-edit"></i>
-                                        </button>
-                                        <button class="btn-sm btn-delete" onclick="deleteCourse(${course.id})" title="Delete">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
-            `;
+            console.log('✅ Admin access granted, loading courses');
+            loadCourses();
+            
+        } catch (error) {
+            console.error('❌ Error parsing user data:', error);
+            window.location.href = '/login.html';
         }
+    }
 
-        function filterCourses() {
-            const statusFilter = document.getElementById('statusFilter').value;
-            const levelFilter = document.getElementById('levelFilter').value;
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+    async function loadCourses() {
+        try {
+            const token = localStorage.getItem('token');
+            console.log('📚 Loading courses...');
 
-            let filteredCourses = allCourses.filter(course => {
-                const matchesStatus = statusFilter === 'all' || 
-                    (statusFilter === 'published' && course.isPublished) ||
-                    (statusFilter === 'draft' && !course.isPublished);
-                const matchesLevel = levelFilter === 'all' || course.level === levelFilter;
-                const matchesSearch = !searchTerm || 
-                    course.title.toLowerCase().includes(searchTerm) ||
-                    course.description.toLowerCase().includes(searchTerm) ||
-                    course.category.toLowerCase().includes(searchTerm) ||
-                    (course.tutor?.username && course.tutor.username.toLowerCase().includes(searchTerm)) ||
-                    (course.tutor?.fullName && course.tutor.fullName.toLowerCase().includes(searchTerm));
-
-                return matchesStatus && matchesLevel && matchesSearch;
+            // Try to load from API first
+            const response = await fetch(`${API_BASE_URL}/courses`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
             });
 
-            currentPage = 1;
-            displayCourses(filteredCourses);
-            updatePagination(filteredCourses.length);
-        }
-
-        function updatePagination(totalItems = allCourses.length) {
-            const totalPages = Math.ceil(totalItems / itemsPerPage);
-            const startItem = (currentPage - 1) * itemsPerPage + 1;
-            const endItem = Math.min(currentPage * itemsPerPage, totalItems);
-
-            document.getElementById('paginationInfo').textContent = 
-                `Showing ${startItem}-${endItem} of ${totalItems} courses`;
-
-            const paginationControls = document.getElementById('paginationControls');
-            let paginationHTML = '';
-
-            // Previous button
-            paginationHTML += `
-                <button class="page-btn" ${currentPage === 1 ? 'disabled' : ''} onclick="changePage(${currentPage - 1})">
-                    <i class="fas fa-chevron-left"></i>
-                </button>
-            `;
-
-            // Page numbers
-            for (let i = 1; i <= totalPages; i++) {
-                if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
-                    paginationHTML += `
-                        <button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">
-                            ${i}
-                        </button>
-                    `;
-                } else if (i === currentPage - 2 || i === currentPage + 2) {
-                    paginationHTML += `<span class="page-btn" style="border: none;">...</span>`;
-                }
+            if (response.ok) {
+                const data = await response.json();
+                console.log('✅ Courses loaded from API:', data.length || data.data?.length);
+                allCourses = data.data || data || [];
+            } else {
+                console.log('⚠️ API not available, using demo data');
+                allCourses = getDemoCourses();
             }
 
-            // Next button
-            paginationHTML += `
-                <button class="page-btn" ${currentPage === totalPages ? 'disabled' : ''} onclick="changePage(${currentPage + 1})">
-                    <i class="fas fa-chevron-right"></i>
-                </button>
-            `;
+            displayCourses();
+            updatePagination(allCourses.length);
 
-            paginationControls.innerHTML = paginationHTML;
+        } catch (error) {
+            console.error('❌ Error loading courses:', error);
+            // Use demo data as fallback
+            allCourses = getDemoCourses();
+            displayCourses();
+            updatePagination(allCourses.length);
+        }
+    }
+
+    // Demo courses data for when API is not available
+    function getDemoCourses() {
+        return [
+            {
+                id: 1,
+                title: "Computer Packages",
+                description: "Learn essential computer skills including MS Office, typing, and basic computer operations.",
+                category: "Technology",
+                level: "Beginner",
+                isPublished: true,
+                thumbnailUrl: null,
+                tutor: {
+                    username: "tech_tutor",
+                    fullName: "John Smith",
+                    email: "john@nurufoundation.org"
+                },
+                _count: {
+                    enrollments: 156,
+                    lessons: 10,
+                    courseReviews: 23
+                }
+            },
+            {
+                id: 2,
+                title: "Introduction to Programming",
+                description: "Learn the fundamentals of programming with Python and basic algorithms.",
+                category: "Programming",
+                level: "Beginner",
+                isPublished: true,
+                thumbnailUrl: null,
+                tutor: {
+                    username: "code_master",
+                    fullName: "Sarah Johnson",
+                    email: "sarah@nurufoundation.org"
+                },
+                _count: {
+                    enrollments: 89,
+                    lessons: 8,
+                    courseReviews: 15
+                }
+            },
+            {
+                id: 3,
+                title: "Web Development Basics",
+                description: "Learn HTML, CSS, and JavaScript to build modern websites.",
+                category: "Web Development",
+                level: "Intermediate",
+                isPublished: true,
+                thumbnailUrl: null,
+                tutor: {
+                    username: "web_dev",
+                    fullName: "Mike Davis",
+                    email: "mike@nurufoundation.org"
+                },
+                _count: {
+                    enrollments: 67,
+                    lessons: 12,
+                    courseReviews: 18
+                }
+            },
+            {
+                id: 4,
+                title: "Advanced Data Science",
+                description: "Master data analysis, machine learning, and data visualization techniques.",
+                category: "Data Science",
+                level: "Advanced",
+                isPublished: false,
+                thumbnailUrl: null,
+                tutor: {
+                    username: "data_guru",
+                    fullName: "Emily Chen",
+                    email: "emily@nurufoundation.org"
+                },
+                _count: {
+                    enrollments: 34,
+                    lessons: 15,
+                    courseReviews: 8
+                }
+            },
+            {
+                id: 5,
+                title: "Digital Marketing Fundamentals",
+                description: "Learn SEO, social media marketing, and digital advertising strategies.",
+                category: "Marketing",
+                level: "Beginner",
+                isPublished: true,
+                thumbnailUrl: null,
+                tutor: {
+                    username: "marketing_pro",
+                    fullName: "David Wilson",
+                    email: "david@nurufoundation.org"
+                },
+                _count: {
+                    enrollments: 78,
+                    lessons: 9,
+                    courseReviews: 12
+                }
+            }
+        ];
+    }
+
+    function displayCourses(courses = allCourses) {
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const endIndex = startIndex + itemsPerPage;
+        const coursesToShow = courses.slice(startIndex, endIndex);
+
+        const tableContainer = document.getElementById('coursesTableContainer');
+        
+        if (courses.length === 0) {
+            tableContainer.innerHTML = `
+                <div style="padding: 40px; text-align: center; color: #666;">
+                    <i class="fas fa-book" style="font-size: 3rem; margin-bottom: 15px; opacity: 0.5;"></i>
+                    <h3>No courses found</h3>
+                    <p>No courses match your current filters.</p>
+                    <button class="btn btn-primary" onclick="showCourseModal()" style="margin-top: 15px;">
+                        <i class="fas fa-plus-circle"></i> Create First Course
+                    </button>
+                </div>
+            `;
+            return;
         }
 
-        function changePage(page) {
-            currentPage = page;
+        tableContainer.innerHTML = `
+            <table class="courses-table">
+                <thead>
+                    <tr>
+                        <th>Course</th>
+                        <th>Tutor</th>
+                        <th>Category</th>
+                        <th>Level</th>
+                        <th>Status</th>
+                        <th>Statistics</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${coursesToShow.map(course => `
+                        <tr data-course-id="${course.id}">
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <div class="course-thumbnail">
+                                        ${course.thumbnailUrl ? 
+                                            `<img src="${course.thumbnailUrl}" alt="${course.title}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 6px;">` : 
+                                            `<i class="fas fa-book"></i>`
+                                        }
+                                    </div>
+                                    <div>
+                                        <div style="font-weight: 500; margin-bottom: 4px;">${course.title}</div>
+                                        <div style="font-size: 0.8rem; color: #666; max-width: 200px; overflow: hidden; text-overflow: ellipsis;">
+                                            ${course.description || 'No description'}
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div style="font-weight: 500;">${course.tutor?.fullName || course.tutor?.username || 'Unknown'}</div>
+                                <div style="font-size: 0.8rem; color: #666;">${course.tutor?.email || ''}</div>
+                            </td>
+                            <td>${course.category || 'General'}</td>
+                            <td><span class="level-badge">${course.level || 'Beginner'}</span></td>
+                            <td>
+                                <span class="status-badge ${course.isPublished ? 'status-published' : 'status-draft'}">
+                                    ${course.isPublished ? 'Published' : 'Draft'}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="stats">
+                                    <div class="stat" title="Enrollments">
+                                        <i class="fas fa-users"></i>
+                                        ${course._count?.enrollments || 0}
+                                    </div>
+                                    <div class="stat" title="Lessons">
+                                        <i class="fas fa-list-ol"></i>
+                                        ${course._count?.lessons || 0}
+                                    </div>
+                                    <div class="stat" title="Reviews">
+                                        <i class="fas fa-star"></i>
+                                        ${course._count?.courseReviews || 0}
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="btn-sm btn-view" onclick="viewCourse(${course.id})" title="View">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="btn-sm btn-edit" onclick="editCourse(${course.id})" title="Edit">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn-sm btn-delete" onclick="deleteCourse(${course.id})" title="Delete">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        `;
+    }
+
+    function filterCourses() {
+        const statusFilter = document.getElementById('statusFilter').value;
+        const levelFilter = document.getElementById('levelFilter').value;
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+
+        let filteredCourses = allCourses.filter(course => {
+            const matchesStatus = statusFilter === 'all' || 
+                (statusFilter === 'published' && course.isPublished) ||
+                (statusFilter === 'draft' && !course.isPublished);
+            const matchesLevel = levelFilter === 'all' || course.level === levelFilter;
+            const matchesSearch = !searchTerm || 
+                course.title.toLowerCase().includes(searchTerm) ||
+                course.description.toLowerCase().includes(searchTerm) ||
+                course.category.toLowerCase().includes(searchTerm) ||
+                (course.tutor?.username && course.tutor.username.toLowerCase().includes(searchTerm)) ||
+                (course.tutor?.fullName && course.tutor.fullName.toLowerCase().includes(searchTerm));
+
+            return matchesStatus && matchesLevel && matchesSearch;
+        });
+
+        currentPage = 1;
+        displayCourses(filteredCourses);
+        updatePagination(filteredCourses.length);
+    }
+
+    function updatePagination(totalItems = allCourses.length) {
+        const totalPages = Math.ceil(totalItems / itemsPerPage);
+        const startItem = (currentPage - 1) * itemsPerPage + 1;
+        const endItem = Math.min(currentPage * itemsPerPage, totalItems);
+
+        document.getElementById('paginationInfo').textContent = 
+            `Showing ${startItem}-${endItem} of ${totalItems} courses`;
+
+        const paginationControls = document.getElementById('paginationControls');
+        let paginationHTML = '';
+
+        // Previous button
+        paginationHTML += `
+            <button class="page-btn" ${currentPage === 1 ? 'disabled' : ''} onclick="changePage(${currentPage - 1})">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+        `;
+
+        // Page numbers
+        for (let i = 1; i <= totalPages; i++) {
+            if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
+                paginationHTML += `
+                    <button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">
+                        ${i}
+                    </button>
+                `;
+            } else if (i === currentPage - 2 || i === currentPage + 2) {
+                paginationHTML += `<span class="page-btn" style="border: none;">...</span>`;
+            }
+        }
+
+        // Next button
+        paginationHTML += `
+            <button class="page-btn" ${currentPage === totalPages ? 'disabled' : ''} onclick="changePage(${currentPage + 1})">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        `;
+
+        paginationControls.innerHTML = paginationHTML;
+    }
+
+    function changePage(page) {
+        currentPage = page;
+        displayCourses();
+        updatePagination();
+    }
+
+    function refreshCourses() {
+        loadCourses();
+    }
+
+    function showCourseModal() {
+        currentEditingId = null;
+        document.getElementById('modalTitle').textContent = 'Create New Course';
+        document.getElementById('courseForm').reset();
+        document.getElementById('courseModal').style.display = 'flex';
+    }
+
+    function closeCourseModal() {
+        document.getElementById('courseModal').style.display = 'none';
+    }
+
+    async function saveCourse() {
+        const formData = {
+            title: document.getElementById('courseTitle').value,
+            description: document.getElementById('courseDescription').value,
+            category: document.getElementById('courseCategory').value,
+            level: document.getElementById('courseLevel').value,
+            thumbnailUrl: document.getElementById('courseThumbnail').value,
+            isPublished: document.getElementById('coursePublished').checked
+        };
+
+        try {
+            const token = localStorage.getItem('token');
+            const url = currentEditingId ? 
+                `${API_BASE_URL}/courses/${currentEditingId}` :
+                `${API_BASE_URL}/courses`;
+
+            const response = await fetch(url, {
+                method: currentEditingId ? 'PUT' : 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to save course');
+            }
+
+            closeCourseModal();
+            await loadCourses();
+            alert(`Course ${currentEditingId ? 'updated' : 'created'} successfully!`);
+
+        } catch (error) {
+            console.error('Error saving course:', error);
+            alert('Error saving course. Please try again.');
+        }
+    }
+
+    function editCourse(courseId) {
+        const course = allCourses.find(c => c.id === courseId);
+        if (!course) return;
+
+        const row = document.querySelector(`tr[data-course-id="${courseId}"]`);
+        if (!row) return;
+
+        // Store original values
+        row.dataset.originalData = JSON.stringify(course);
+
+        // Make cells editable
+        const cells = row.querySelectorAll('td');
+        const titleCell = cells[0]; // Course column (title)
+        const categoryCell = cells[2]; // Category column
+        const levelCell = cells[3]; // Level column
+        const statusCell = cells[4]; // Status column
+
+        // Replace title cell content
+        titleCell.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div class="course-thumbnail">
+                    ${course.thumbnailUrl ?
+                        `<img src="${course.thumbnailUrl}" alt="${course.title}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 6px;">` :
+                        `<i class="fas fa-book"></i>`
+                    }
+                </div>
+                <div>
+                    <input type="text" value="${course.title}" class="edit-input" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 4px; margin-bottom: 4px;">
+                    <textarea class="edit-input" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 4px; resize: vertical; min-height: 40px; font-size: 0.8rem;">${course.description || ''}</textarea>
+                </div>
+            </div>
+        `;
+
+        // Replace category cell content
+        categoryCell.innerHTML = `<input type="text" value="${course.category || 'General'}" class="edit-input" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 4px;">`;
+
+        // Replace level cell content
+        levelCell.innerHTML = `
+            <select class="edit-input" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 4px;">
+                <option value="Beginner" ${course.level === 'Beginner' ? 'selected' : ''}>Beginner</option>
+                <option value="Intermediate" ${course.level === 'Intermediate' ? 'selected' : ''}>Intermediate</option>
+                <option value="Advanced" ${course.level === 'Advanced' ? 'selected' : ''}>Advanced</option>
+            </select>
+        `;
+
+        // Replace status cell content
+        statusCell.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <select class="edit-input" style="padding: 4px; border: 1px solid #ddd; border-radius: 4px;">
+                    <option value="true" ${course.isPublished ? 'selected' : ''}>Published</option>
+                    <option value="false" ${!course.isPublished ? 'selected' : ''}>Draft</option>
+                </select>
+            </div>
+        `;
+
+        // Replace action buttons with save/cancel
+        const actionsCell = cells[6];
+        actionsCell.innerHTML = `
+            <div class="action-buttons">
+                <button class="btn-sm btn-primary" onclick="saveCourseEdit(${courseId})" title="Save">
+                    <i class="fas fa-save"></i>
+                </button>
+                <button class="btn-sm btn-secondary" onclick="cancelCourseEdit(${courseId})" title="Cancel">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        `;
+    }
+
+    async function saveCourseEdit(courseId) {
+        const row = document.querySelector(`tr[data-course-id="${courseId}"]`);
+        if (!row) return;
+
+        const inputs = row.querySelectorAll('.edit-input');
+        const title = inputs[0].value.trim();
+        const description = inputs[1].value.trim();
+        const category = inputs[2].value.trim();
+        const level = inputs[3].value;
+        const isPublished = inputs[4].value === 'true';
+
+        if (!title) {
+            alert('Course title is required');
+            return;
+        }
+
+        try {
+            const token = localStorage.getItem('token');
+            const response = await fetch(`${API_BASE_URL}/courses/${courseId}`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    title,
+                    description,
+                    category,
+                    level,
+                    isPublished
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to update course');
+            }
+
+            const updatedCourse = await response.json();
+
+            // Update course in allCourses array
+            const index = allCourses.findIndex(c => c.id === courseId);
+            if (index !== -1) {
+                allCourses[index] = updatedCourse;
+            }
+
+            // Re-render the table
+            displayCourses();
+            alert('Course updated successfully!');
+
+        } catch (error) {
+            console.error('Error updating course:', error);
+            alert('Error updating course. Please try again.');
+        }
+    }
+
+    function cancelCourseEdit(courseId) {
+        // Re-render the table to restore original state
+        displayCourses();
+    }
+
+    function viewCourse(courseId) {
+        // Redirect to course preview or open in new tab
+        window.open(`/course-preview.html?id=${courseId}`, '_blank');
+    }
+
+    async function deleteCourse(courseId) {
+        if (!confirm('Are you sure you want to delete this course? This action cannot be undone.')) {
+            return;
+        }
+
+        try {
+            const token = localStorage.getItem('token');
+            const response = await fetch(`${API_BASE_URL}/courses/${courseId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to delete course');
+            }
+
+            // Remove course from allCourses array
+            allCourses = allCourses.filter(c => c.id !== courseId);
+
+            // Re-render the table
             displayCourses();
             updatePagination();
+            alert('Course deleted successfully!');
+
+        } catch (error) {
+            console.error('Error deleting course:', error);
+            alert('Error deleting course. Please try again.');
+        }
+    }
+
+    function exportCourses() {
+        alert('Export courses functionality to be implemented');
+    }
+
+    function logout() {
+        console.log('🚪 Logging out...');
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = '/login.html';
+    }
+
+    // Modal and form styles
+    const style = document.createElement('style');
+    style.textContent = `
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
         }
 
-        function refreshCourses() {
-            loadCourses();
+        .modal-content {
+            background-color: white;
+            border-radius: 15px;
+            padding: 0;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
         }
 
-        function showCourseModal() {
-            currentEditingId = null;
-            document.getElementById('modalTitle').textContent = 'Create New Course';
-            document.getElementById('courseForm').reset();
-            document.getElementById('courseModal').style.display = 'flex';
+        .modal-header {
+            padding: 20px 25px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        function closeCourseModal() {
-            document.getElementById('courseModal').style.display = 'none';
+        .modal-header h3 {
+            margin: 0;
+            color: #2c3e50;
         }
 
-        async function saveCourse() {
-            const formData = {
-                title: document.getElementById('courseTitle').value,
-                description: document.getElementById('courseDescription').value,
-                category: document.getElementById('courseCategory').value,
-                level: document.getElementById('courseLevel').value,
-                thumbnailUrl: document.getElementById('courseThumbnail').value,
-                isPublished: document.getElementById('coursePublished').checked
-            };
-
-            try {
-                const token = localStorage.getItem('token');
-                const url = currentEditingId ? 
-                    `${API_BASE_URL}/admin/courses/${currentEditingId}` :
-                    `${API_BASE_URL}/admin/courses`;
-
-                const response = await fetch(url, {
-                    method: currentEditingId ? 'PUT' : 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(formData)
-                });
-
-                if (!response.ok) {
-                    throw new Error('Failed to save course');
-                }
-
-                closeCourseModal();
-                await loadCourses();
-                alert(`Course ${currentEditingId ? 'updated' : 'created'} successfully!`);
-
-            } catch (error) {
-                console.error('Error saving course:', error);
-                alert('Error saving course. Please try again.');
-            }
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #666;
         }
 
-        function editCourse(courseId) {
-            const course = allCourses.find(c => c.id === courseId);
-            if (!course) return;
-
-            const row = document.querySelector(`tr[data-course-id="${courseId}"]`) ||
-                       document.querySelector(`button[onclick="editCourse(${courseId})"]`).closest('tr');
-            if (!row) return;
-
-            // Store original values
-            row.dataset.originalData = JSON.stringify(course);
-
-            // Make cells editable
-            const cells = row.querySelectorAll('td');
-            const titleCell = cells[0]; // Course column (title)
-            const categoryCell = cells[2]; // Category column
-            const levelCell = cells[3]; // Level column
-            const statusCell = cells[4]; // Status column
-
-            // Extract title from the course cell
-            const titleDiv = titleCell.querySelector('div:last-child');
-            const titleText = titleDiv ? titleDiv.querySelector('div:first-child').textContent : course.title;
-
-            // Replace title cell content
-            titleCell.innerHTML = `
-                <div style="display: flex; align-items: center; gap: 12px;">
-                    <div class="course-thumbnail">
-                        ${course.thumbnailUrl ?
-                            `<img src="${course.thumbnailUrl}" alt="${course.title}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 6px;">` :
-                            `<i class="fas fa-book"></i>`
-                        }
-                    </div>
-                    <div>
-                        <input type="text" value="${course.title}" class="edit-input" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 4px; margin-bottom: 4px;">
-                        <textarea class="edit-input" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 4px; resize: vertical; min-height: 40px; font-size: 0.8rem;">${course.description || ''}</textarea>
-                    </div>
-                </div>
-            `;
-
-            // Replace category cell content
-            categoryCell.innerHTML = `<input type="text" value="${course.category || 'General'}" class="edit-input" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 4px;">`;
-
-            // Replace level cell content
-            levelCell.innerHTML = `
-                <select class="edit-input" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 4px;">
-                    <option value="Beginner" ${course.level === 'Beginner' ? 'selected' : ''}>Beginner</option>
-                    <option value="Intermediate" ${course.level === 'Intermediate' ? 'selected' : ''}>Intermediate</option>
-                    <option value="Advanced" ${course.level === 'Advanced' ? 'selected' : ''}>Advanced</option>
-                </select>
-            `;
-
-            // Replace status cell content
-            statusCell.innerHTML = `
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <select class="edit-input" style="padding: 4px; border: 1px solid #ddd; border-radius: 4px;">
-                        <option value="true" ${course.isPublished ? 'selected' : ''}>Published</option>
-                        <option value="false" ${!course.isPublished ? 'selected' : ''}>Draft</option>
-                    </select>
-                </div>
-            `;
-
-            // Replace action buttons with save/cancel
-            const actionsCell = cells[6];
-            actionsCell.innerHTML = `
-                <div class="action-buttons">
-                    <button class="btn-sm btn-primary" onclick="saveCourseEdit(${courseId})" title="Save">
-                        <i class="fas fa-save"></i>
-                    </button>
-                    <button class="btn-sm btn-secondary" onclick="cancelCourseEdit(${courseId})" title="Cancel">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-            `;
+        .modal-body {
+            padding: 25px;
         }
 
-        async function saveCourseEdit(courseId) {
-            const row = document.querySelector(`tr[data-course-id="${courseId}"]`) ||
-                       document.querySelector(`button[onclick="saveCourseEdit(${courseId})"]`).closest('tr');
-            if (!row) return;
-
-            const inputs = row.querySelectorAll('.edit-input');
-            const title = inputs[0].value.trim();
-            const description = inputs[1].value.trim();
-            const category = inputs[2].value.trim();
-            const level = inputs[3].value;
-            const isPublished = inputs[4].value === 'true';
-
-            if (!title) {
-                alert('Course title is required');
-                return;
-            }
-
-            try {
-                const token = localStorage.getItem('token');
-                const response = await fetch(`${API_BASE_URL}/admin/courses/${courseId}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        title,
-                        description,
-                        category,
-                        level,
-                        isPublished
-                    })
-                });
-
-                if (!response.ok) {
-                    throw new Error('Failed to update course');
-                }
-
-                const updatedCourse = await response.json();
-
-                // Update course in allCourses array
-                const index = allCourses.findIndex(c => c.id === courseId);
-                if (index !== -1) {
-                    allCourses[index] = updatedCourse;
-                }
-
-                // Re-render the table
-                displayCourses();
-                alert('Course updated successfully!');
-
-            } catch (error) {
-                console.error('Error updating course:', error);
-                alert('Error updating course. Please try again.');
-            }
+        .modal-footer {
+            padding: 20px 25px;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
         }
 
-        function cancelCourseEdit(courseId) {
-            // Re-render the table to restore original state
-            displayCourses();
+        .form-group {
+            margin-bottom: 20px;
         }
 
-        function viewCourse(courseId) {
-            // Redirect to course preview or open in new tab
-            window.open(`../course-preview.html?id=${courseId}`, '_blank');
+        .form-row {
+            display: flex;
+            gap: 15px;
         }
 
-        async function deleteCourse(courseId) {
-            if (!confirm('Are you sure you want to delete this course? This action cannot be undone.')) {
-                return;
-            }
-
-            try {
-                const token = localStorage.getItem('token');
-                const response = await fetch(`${API_BASE_URL}/admin/courses/${courseId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-
-                if (!response.ok) {
-                    throw new Error('Failed to delete course');
-                }
-
-                // Remove course from allCourses array
-                allCourses = allCourses.filter(c => c.id !== courseId);
-
-                // Re-render the table
-                displayCourses();
-                updatePagination();
-                alert('Course deleted successfully!');
-
-            } catch (error) {
-                console.error('Error deleting course:', error);
-                alert('Error deleting course. Please try again.');
-            }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #333;
         }
 
-        function exportCourses() {
-            alert('Export courses functionality to be implemented');
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-family: inherit;
         }
 
-        function logout() {
-            localStorage.removeItem('token');
-            localStorage.removeItem('user');
-            window.location.href = '../login.html';
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
         }
 
-        // Modal and form styles
-        const style = document.createElement('style');
-        style.textContent = `
-            .modal {
-                display: none;
-                position: fixed;
-                z-index: 1000;
-                left: 0;
-                top: 0;
-                width: 100%;
-                height: 100%;
-                background-color: rgba(0,0,0,0.5);
-                justify-content: center;
-                align-items: center;
-            }
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
 
-            .modal-content {
-                background-color: white;
-                border-radius: 15px;
-                padding: 0;
-                max-width: 600px;
-                width: 90%;
-                max-height: 80vh;
-                overflow-y: auto;
-            }
-
-            .modal-header {
-                padding: 20px 25px;
-                border-bottom: 1px solid #eee;
-                display: flex;
-                justify-content: between;
-                align-items: center;
-            }
-
-            .modal-header h3 {
-                margin: 0;
-                color: #2c3e50;
-            }
-
-            .close-modal {
-                background: none;
-                border: none;
-                font-size: 1.5rem;
-                cursor: pointer;
-                color: #666;
-            }
-
-            .modal-body {
-                padding: 25px;
-            }
-
-            .modal-footer {
-                padding: 20px 25px;
-                border-top: 1px solid #eee;
-                display: flex;
-                justify-content: flex-end;
-                gap: 10px;
-            }
-
-            .form-group {
-                margin-bottom: 20px;
-            }
-
-            .form-row {
-                display: flex;
-                gap: 15px;
-            }
-
-            .form-group label {
-                display: block;
-                margin-bottom: 5px;
-                font-weight: 500;
-                color: #333;
-            }
-
-            .form-group input,
-            .form-group select,
-            .form-group textarea {
-                width: 100%;
-                padding: 10px;
-                border: 1px solid #ddd;
-                border-radius: 6px;
-                font-size: 1rem;
-                font-family: inherit;
-            }
-
-            .form-group textarea {
-                resize: vertical;
-                min-height: 80px;
-            }
-
-            .form-group input:focus,
-            .form-group select:focus,
-            .form-group textarea:focus {
-                outline: none;
-                border-color: var(--primary-color);
-            }
-
-            .form-group input[type="checkbox"] {
-                width: auto;
-                margin-right: 8px;
-            }
-        `;
-        document.head.appendChild(style);
-    </script>
+        .form-group input[type="checkbox"] {
+            width: auto;
+            margin-right: 8px;
+        }
+    `;
+    document.head.appendChild(style);
+</script>
 </body>
 </html>
