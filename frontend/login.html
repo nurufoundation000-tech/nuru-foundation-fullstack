@@ -211,14 +211,13 @@
                 
                 if (userRole === 'admin') {
                     window.location.href = '/admin-dashboard/index.html';
-                } else if (userRole === 'tutor') {
+                } 
+                if (userRole === 'tutor') {
                     window.location.href = '/tutor-dashboard/index.html';
-                } else if (userRole === 'student') {
+                } 
+                if (userRole === 'student') {
                     window.location.href = '/student-dashboard/index.html';
-                } else {
-                    // Default fallback
-                    window.location.href = '/dashboard.html';
-                }
+                } 
             } else {
                 console.error('User role not found:', user);
                 window.location.href = '/dashboard.html';
