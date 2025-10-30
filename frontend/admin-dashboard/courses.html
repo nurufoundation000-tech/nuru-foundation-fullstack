@@ -411,7 +411,7 @@
                 <li><a href="courses.html" class="active"><i class="fas fa-book"></i> Course Management</a></li>
                 <li><a href="enrollments.html"><i class="fas fa-clipboard-list"></i> Enrollments</a></li>
                 <li><a href="analytics.html"><i class="fas fa-chart-bar"></i> Analytics</a></li>
-                <li><a href="system.html"><i class="fas fa-cog"></i> System Settings</a></li>
+                <li><a href="settings.html"><i class="fas fa-cog"></i> System Settings</a></li>
                 <li><a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
             </ul>
         </nav>
@@ -553,9 +553,9 @@
         function checkAdminAccess() {
             const token = localStorage.getItem('token');
             const user = JSON.parse(localStorage.getItem('user'));
-            
+
             if (!token || !user || user.role !== 'admin') {
-                window.location.href = '../login.html';
+                window.location.href = '/login.html';
                 return;
             }
         }
@@ -816,37 +816,139 @@
             }
         }
 
-        async function editCourse(courseId) {
+        function editCourse(courseId) {
+            const course = allCourses.find(c => c.id === courseId);
+            if (!course) return;
+
+            const row = document.querySelector(`tr[data-course-id="${courseId}"]`) ||
+                       document.querySelector(`button[onclick="editCourse(${courseId})"]`).closest('tr');
+            if (!row) return;
+
+            // Store original values
+            row.dataset.originalData = JSON.stringify(course);
+
+            // Make cells editable
+            const cells = row.querySelectorAll('td');
+            const titleCell = cells[0]; // Course column (title)
+            const categoryCell = cells[2]; // Category column
+            const levelCell = cells[3]; // Level column
+            const statusCell = cells[4]; // Status column
+
+            // Extract title from the course cell
+            const titleDiv = titleCell.querySelector('div:last-child');
+            const titleText = titleDiv ? titleDiv.querySelector('div:first-child').textContent : course.title;
+
+            // Replace title cell content
+            titleCell.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <div class="course-thumbnail">
+                        ${course.thumbnailUrl ?
+                            `<img src="${course.thumbnailUrl}" alt="${course.title}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 6px;">` :
+                            `<i class="fas fa-book"></i>`
+                        }
+                    </div>
+                    <div>
+                        <input type="text" value="${course.title}" class="edit-input" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 4px; margin-bottom: 4px;">
+                        <textarea class="edit-input" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 4px; resize: vertical; min-height: 40px; font-size: 0.8rem;">${course.description || ''}</textarea>
+                    </div>
+                </div>
+            `;
+
+            // Replace category cell content
+            categoryCell.innerHTML = `<input type="text" value="${course.category || 'General'}" class="edit-input" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 4px;">`;
+
+            // Replace level cell content
+            levelCell.innerHTML = `
+                <select class="edit-input" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 4px;">
+                    <option value="Beginner" ${course.level === 'Beginner' ? 'selected' : ''}>Beginner</option>
+                    <option value="Intermediate" ${course.level === 'Intermediate' ? 'selected' : ''}>Intermediate</option>
+                    <option value="Advanced" ${course.level === 'Advanced' ? 'selected' : ''}>Advanced</option>
+                </select>
+            `;
+
+            // Replace status cell content
+            statusCell.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <select class="edit-input" style="padding: 4px; border: 1px solid #ddd; border-radius: 4px;">
+                        <option value="true" ${course.isPublished ? 'selected' : ''}>Published</option>
+                        <option value="false" ${!course.isPublished ? 'selected' : ''}>Draft</option>
+                    </select>
+                </div>
+            `;
+
+            // Replace action buttons with save/cancel
+            const actionsCell = cells[6];
+            actionsCell.innerHTML = `
+                <div class="action-buttons">
+                    <button class="btn-sm btn-primary" onclick="saveCourseEdit(${courseId})" title="Save">
+                        <i class="fas fa-save"></i>
+                    </button>
+                    <button class="btn-sm btn-secondary" onclick="cancelCourseEdit(${courseId})" title="Cancel">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `;
+        }
+
+        async function saveCourseEdit(courseId) {
+            const row = document.querySelector(`tr[data-course-id="${courseId}"]`) ||
+                       document.querySelector(`button[onclick="saveCourseEdit(${courseId})"]`).closest('tr');
+            if (!row) return;
+
+            const inputs = row.querySelectorAll('.edit-input');
+            const title = inputs[0].value.trim();
+            const description = inputs[1].value.trim();
+            const category = inputs[2].value.trim();
+            const level = inputs[3].value;
+            const isPublished = inputs[4].value === 'true';
+
+            if (!title) {
+                alert('Course title is required');
+                return;
+            }
+
             try {
                 const token = localStorage.getItem('token');
                 const response = await fetch(`${API_BASE_URL}/admin/courses/${courseId}`, {
+                    method: 'PUT',
                     headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        title,
+                        description,
+                        category,
+                        level,
+                        isPublished
+                    })
                 });
 
                 if (!response.ok) {
-                    throw new Error('Failed to load course data');
+                    throw new Error('Failed to update course');
                 }
 
-                const course = await response.json();
-                
-                // Populate form with course data
-                document.getElementById('modalTitle').textContent = 'Edit Course';
-                document.getElementById('courseTitle').value = course.title;
-                document.getElementById('courseDescription').value = course.description || '';
-                document.getElementById('courseCategory').value = course.category || 'General';
-                document.getElementById('courseLevel').value = course.level || 'Beginner';
-                document.getElementById('courseThumbnail').value = course.thumbnailUrl || '';
-                document.getElementById('coursePublished').checked = course.isPublished || false;
-                
-                currentEditingId = courseId;
-                document.getElementById('courseModal').style.display = 'flex';
+                const updatedCourse = await response.json();
+
+                // Update course in allCourses array
+                const index = allCourses.findIndex(c => c.id === courseId);
+                if (index !== -1) {
+                    allCourses[index] = updatedCourse;
+                }
+
+                // Re-render the table
+                displayCourses();
+                alert('Course updated successfully!');
 
             } catch (error) {
-                console.error('Error loading course:', error);
-                alert('Error loading course data. Please try again.');
+                console.error('Error updating course:', error);
+                alert('Error updating course. Please try again.');
             }
+        }
+
+        function cancelCourseEdit(courseId) {
+            // Re-render the table to restore original state
+            displayCourses();
         }
 
         function viewCourse(courseId) {
@@ -855,27 +957,34 @@
         }
 
         async function deleteCourse(courseId) {
-            if (confirm('Are you sure you want to delete this course? This action cannot be undone.')) {
-                try {
-                    const token = localStorage.getItem('token');
-                    const response = await fetch(`${API_BASE_URL}/admin/courses/${courseId}`, {
-                        method: 'DELETE',
-                        headers: {
-                            'Authorization': `Bearer ${token}`
-                        }
-                    });
+            if (!confirm('Are you sure you want to delete this course? This action cannot be undone.')) {
+                return;
+            }
 
-                    if (!response.ok) {
-                        throw new Error('Failed to delete course');
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch(`${API_BASE_URL}/admin/courses/${courseId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
                     }
+                });
 
-                    await loadCourses();
-                    alert('Course deleted successfully!');
-
-                } catch (error) {
-                    console.error('Error deleting course:', error);
-                    alert('Error deleting course. Please try again.');
+                if (!response.ok) {
+                    throw new Error('Failed to delete course');
                 }
+
+                // Remove course from allCourses array
+                allCourses = allCourses.filter(c => c.id !== courseId);
+
+                // Re-render the table
+                displayCourses();
+                updatePagination();
+                alert('Course deleted successfully!');
+
+            } catch (error) {
+                console.error('Error deleting course:', error);
+                alert('Error deleting course. Please try again.');
             }
         }
 

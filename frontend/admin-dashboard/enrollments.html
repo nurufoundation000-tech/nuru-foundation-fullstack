@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Management - NURU Admin</title>
+    <title>Enrollments - NURU Admin</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="../styles/root.css">
@@ -90,7 +90,7 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
             margin-bottom: 30px;
             display: flex;
-            justify-content: between;
+            justify-content: space-between;
             align-items: center;
         }
 
@@ -178,7 +178,7 @@
             padding: 20px;
             border-bottom: 1px solid #eee;
             display: flex;
-            justify-content: between;
+            justify-content: space-between;
             align-items: center;
         }
 
@@ -192,19 +192,19 @@
             gap: 10px;
         }
 
-        .users-table {
+        .enrollments-table {
             width: 100%;
             border-collapse: collapse;
         }
 
-        .users-table th,
-        .users-table td {
+        .enrollments-table th,
+        .enrollments-table td {
             padding: 15px;
             text-align: left;
             border-bottom: 1px solid #eee;
         }
 
-        .users-table th {
+        .enrollments-table th {
             background: #f8f9fa;
             font-weight: 600;
             color: #2c3e50;
@@ -212,24 +212,12 @@
             user-select: none;
         }
 
-        .users-table th:hover {
+        .enrollments-table th:hover {
             background: #e9ecef;
         }
 
-        .users-table tr:hover {
+        .enrollments-table tr:hover {
             background: #f8f9fa;
-        }
-
-        .user-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: var(--primary-color);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
         }
 
         .status-badge {
@@ -244,18 +232,14 @@
             color: #155724;
         }
 
-        .status-inactive {
-            background: #f8d7da;
-            color: #721c24;
+        .status-completed {
+            background: #cce5ff;
+            color: #004085;
         }
 
-        .role-badge {
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 0.8rem;
-            font-weight: 500;
-            background: #e2e3e5;
-            color: #383d41;
+        .status-cancelled {
+            background: #f8d7da;
+            color: #721c24;
         }
 
         .action-buttons {
@@ -368,12 +352,12 @@
                 min-width: auto;
             }
 
-            .users-table {
+            .enrollments-table {
                 font-size: 0.9rem;
             }
 
-            .users-table th,
-            .users-table td {
+            .enrollments-table th,
+            .enrollments-table td {
                 padding: 10px 8px;
             }
         }
@@ -389,9 +373,9 @@
             </div>
             <ul class="admin-nav">
                 <li><a href="index.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
-                <li><a href="users.html" class="active"><i class="fas fa-users"></i> User Management</a></li>
+                <li><a href="users.html"><i class="fas fa-users"></i> User Management</a></li>
                 <li><a href="courses.html"><i class="fas fa-book"></i> Course Management</a></li>
-                <li><a href="enrollments.html"><i class="fas fa-clipboard-list"></i> Enrollments</a></li>
+                <li><a href="enrollments.html" class="active"><i class="fas fa-clipboard-list"></i> Enrollments</a></li>
                 <li><a href="analytics.html"><i class="fas fa-chart-bar"></i> Analytics</a></li>
                 <li><a href="settings.html"><i class="fas fa-cog"></i> System Settings</a></li>
                 <li><a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
@@ -402,15 +386,12 @@
         <main class="admin-main">
             <div class="admin-header">
                 <div>
-                    <h1>User Management</h1>
-                    <p>Manage all users, students, tutors, and administrators</p>
+                    <h1>Enrollment Management</h1>
+                    <p>Manage course enrollments and student progress</p>
                 </div>
                 <div class="header-actions">
-                    <button class="btn btn-secondary" onclick="exportUsers()">
+                    <button class="btn btn-secondary" onclick="exportEnrollments()">
                         <i class="fas fa-download"></i> Export
-                    </button>
-                    <button class="btn btn-primary" onclick="showUserModal()">
-                        <i class="fas fa-user-plus"></i> Add User
                     </button>
                 </div>
             </div>
@@ -418,46 +399,45 @@
             <!-- Filters -->
             <div class="filters">
                 <div class="filter-group">
-                    <label class="filter-label">Role</label>
-                    <select class="filter-select" id="roleFilter" onchange="filterUsers()">
-                        <option value="all">All Roles</option>
-                        <option value="student">Student</option>
-                        <option value="tutor">Tutor</option>
-                        <option value="admin">Admin</option>
+                    <label class="filter-label">Status</label>
+                    <select class="filter-select" id="statusFilter" onchange="filterEnrollments()">
+                        <option value="all">All Status</option>
+                        <option value="active">Active</option>
+                        <option value="completed">Completed</option>
+                        <option value="cancelled">Cancelled</option>
                     </select>
                 </div>
                 <div class="filter-group">
-                    <label class="filter-label">Status</label>
-                    <select class="filter-select" id="statusFilter" onchange="filterUsers()">
-                        <option value="all">All Status</option>
-                        <option value="active">Active</option>
-                        <option value="inactive">Inactive</option>
+                    <label class="filter-label">Course</label>
+                    <select class="filter-select" id="courseFilter" onchange="filterEnrollments()">
+                        <option value="all">All Courses</option>
+                        <!-- Course options will be populated dynamically -->
                     </select>
                 </div>
                 <div class="filter-group">
                     <label class="filter-label">Search</label>
-                    <input type="text" class="filter-input" id="searchInput" placeholder="Search users..." oninput="filterUsers()">
+                    <input type="text" class="filter-input" id="searchInput" placeholder="Search students..." oninput="filterEnrollments()">
                 </div>
             </div>
 
-            <!-- Users Table -->
+            <!-- Enrollments Table -->
             <div class="table-container">
                 <div class="table-header">
-                    <h2>Users</h2>
+                    <h2>Enrollments</h2>
                     <div class="table-actions">
-                        <button class="btn-sm" onclick="refreshUsers()">
+                        <button class="btn-sm" onclick="refreshEnrollments()">
                             <i class="fas fa-sync-alt"></i> Refresh
                         </button>
                     </div>
                 </div>
 
-                <div id="usersTableContainer">
-                    <div class="loading">Loading users...</div>
+                <div id="enrollmentsTableContainer">
+                    <div class="loading">Loading enrollments...</div>
                 </div>
 
                 <div class="pagination">
                     <div class="pagination-info" id="paginationInfo">
-                        Showing 0 of 0 users
+                        Showing 0 of 0 enrollments
                     </div>
                     <div class="pagination-controls" id="paginationControls">
                         <!-- Pagination buttons will be inserted here -->
@@ -467,61 +447,20 @@
         </main>
     </div>
 
-    <!-- User Modal -->
-    <div class="modal" id="userModal" style="display: none;">
-        <div class="modal-content" style="max-width: 500px;">
-            <div class="modal-header">
-                <h3 id="modalTitle">Add New User</h3>
-                <button class="close-modal" onclick="closeUserModal()">&times;</button>
-            </div>
-            <div class="modal-body">
-                <form id="userForm">
-                    <div class="form-group">
-                        <label>Username</label>
-                        <input type="text" id="username" name="username" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Email</label>
-                        <input type="email" id="email" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Full Name</label>
-                        <input type="text" id="fullName" name="fullName">
-                    </div>
-                    <div class="form-group">
-                        <label>Role</label>
-                        <select id="role" name="role" required>
-                            <option value="student">Student</option>
-                            <option value="tutor">Tutor</option>
-                            <option value="admin">Admin</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Password</label>
-                        <input type="password" id="password" name="password" required>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="closeUserModal()">Cancel</button>
-                <button class="btn btn-primary" onclick="saveUser()">Save User</button>
-            </div>
-        </div>
-    </div>
-
     <script>
         const API_BASE_URL = window.location.hostname === 'localhost' 
             ? 'http://localhost:5000/api' 
             : 'https://nuru-foundation-fullstack.vercel.app/api';
 
-        let allUsers = [];
+        let allEnrollments = [];
+        let allCourses = [];
         let currentPage = 1;
         let itemsPerPage = 10;
-        let currentEditingId = null;
 
         document.addEventListener('DOMContentLoaded', function() {
             checkAdminAccess();
-            loadUsers();
+            loadEnrollments();
+            loadCourses();
         });
 
         function checkAdminAccess() {
@@ -534,10 +473,10 @@
             }
         }
 
-        async function loadUsers() {
+        async function loadEnrollments() {
             try {
                 const token = localStorage.getItem('token');
-                const response = await fetch(`${API_BASE_URL}/admin/users`, {
+                const response = await fetch(`${API_BASE_URL}/admin/enrollments`, {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json'
@@ -545,85 +484,128 @@
                 });
 
                 if (!response.ok) {
-                    throw new Error('Failed to load users');
+                    throw new Error('Failed to load enrollments');
                 }
 
-                allUsers = await response.json();
-                displayUsers();
+                allEnrollments = await response.json();
+                displayEnrollments();
                 updatePagination();
 
             } catch (error) {
-                console.error('Error loading users:', error);
-                document.getElementById('usersTableContainer').innerHTML = `
+                console.error('Error loading enrollments:', error);
+                document.getElementById('enrollmentsTableContainer').innerHTML = `
                     <div class="error">
                         <i class="fas fa-exclamation-triangle"></i>
-                        Error loading users. Please try again.
+                        Error loading enrollments. Please try again.
                     </div>
                 `;
             }
         }
 
-        function displayUsers(users = allUsers) {
+        async function loadCourses() {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch(`${API_BASE_URL}/admin/courses`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to load courses');
+                }
+
+                allCourses = await response.json();
+                populateCourseFilter();
+
+            } catch (error) {
+                console.error('Error loading courses:', error);
+            }
+        }
+
+        function populateCourseFilter() {
+            const courseFilter = document.getElementById('courseFilter');
+            let optionsHTML = '<option value="all">All Courses</option>';
+
+            allCourses.forEach(course => {
+                optionsHTML += `<option value="${course.id}">${course.title}</option>`;
+            });
+
+            courseFilter.innerHTML = optionsHTML;
+        }
+
+        function displayEnrollments(enrollments = allEnrollments) {
             const startIndex = (currentPage - 1) * itemsPerPage;
             const endIndex = startIndex + itemsPerPage;
-            const usersToShow = users.slice(startIndex, endIndex);
+            const enrollmentsToShow = enrollments.slice(startIndex, endIndex);
 
-            const tableContainer = document.getElementById('usersTableContainer');
-            
-            if (users.length === 0) {
+            const tableContainer = document.getElementById('enrollmentsTableContainer');
+
+            if (enrollments.length === 0) {
                 tableContainer.innerHTML = `
                     <div style="padding: 40px; text-align: center; color: #666;">
-                        <i class="fas fa-users" style="font-size: 3rem; margin-bottom: 15px; opacity: 0.5;"></i>
-                        <h3>No users found</h3>
-                        <p>No users match your current filters.</p>
+                        <i class="fas fa-clipboard-list" style="font-size: 3rem; margin-bottom: 15px; opacity: 0.5;"></i>
+                        <h3>No enrollments found</h3>
+                        <p>No enrollments match your current filters.</p>
                     </div>
                 `;
                 return;
             }
 
             tableContainer.innerHTML = `
-                <table class="users-table">
+                <table class="enrollments-table">
                     <thead>
                         <tr>
-                            <th onclick="sortUsers('username')">User</th>
-                            <th onclick="sortUsers('email')">Email</th>
-                            <th onclick="sortUsers('role')">Role</th>
-                            <th onclick="sortUsers('isActive')">Status</th>
-                            <th onclick="sortUsers('createdAt')">Joined</th>
+                            <th onclick="sortEnrollments('student')">Student</th>
+                            <th onclick="sortEnrollments('course')">Course</th>
+                            <th onclick="sortEnrollments('status')">Status</th>
+                            <th onclick="sortEnrollments('enrolledAt')">Enrolled Date</th>
+                            <th onclick="sortEnrollments('progress')">Progress</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        ${usersToShow.map(user => `
+                        ${enrollmentsToShow.map(enrollment => `
                             <tr>
                                 <td>
                                     <div style="display: flex; align-items: center; gap: 10px;">
-                                        <div class="user-avatar">
-                                            ${user.username.charAt(0).toUpperCase()}
+                                        <div style="width: 40px; height: 40px; border-radius: 50%; background: var(--primary-color); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600;">
+                                            ${enrollment.student?.username?.charAt(0).toUpperCase() || 'U'}
                                         </div>
                                         <div>
-                                            <div style="font-weight: 500;">${user.username}</div>
-                                            <div style="font-size: 0.8rem; color: #666;">${user.fullName || 'No name'}</div>
+                                            <div style="font-weight: 500;">${enrollment.student?.fullName || enrollment.student?.username || 'Unknown'}</div>
+                                            <div style="font-size: 0.8rem; color: #666;">${enrollment.student?.email || ''}</div>
                                         </div>
                                     </div>
                                 </td>
-                                <td>${user.email}</td>
-                                <td><span class="role-badge">${user.role?.name || 'student'}</span></td>
                                 <td>
-                                    <span class="status-badge ${user.isActive ? 'status-active' : 'status-inactive'}">
-                                        ${user.isActive ? 'Active' : 'Inactive'}
+                                    <div style="font-weight: 500;">${enrollment.course?.title || 'Unknown Course'}</div>
+                                    <div style="font-size: 0.8rem; color: #666;">${enrollment.course?.category || ''}</div>
+                                </td>
+                                <td>
+                                    <span class="status-badge ${getStatusClass(enrollment.status)}">
+                                        ${enrollment.status || 'active'}
                                     </span>
                                 </td>
-                                <td>${new Date(user.createdAt).toLocaleDateString()}</td>
+                                <td>${new Date(enrollment.enrolledAt).toLocaleDateString()}</td>
+                                <td>
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        <div style="flex: 1; background: #e9ecef; height: 8px; border-radius: 4px; overflow: hidden;">
+                                            <div style="width: ${enrollment.progress || 0}%; background: var(--primary-color); height: 100%;"></div>
+                                        </div>
+                                        <span style="font-size: 0.8rem; color: #666;">${enrollment.progress || 0}%</span>
+                                    </div>
+                                </td>
                                 <td>
                                     <div class="action-buttons">
-                                        <button class="btn-sm btn-view" onclick="viewUser(${user.id})" title="View">
+                                        <button class="btn-sm btn-view" onclick="viewEnrollment(${enrollment.id})" title="View">
                                             <i class="fas fa-eye"></i>
                                         </button>
-                                        <button class="btn-sm btn-edit" onclick="editUser(${user.id})" title="Edit">
+                                        <button class="btn-sm btn-edit" onclick="editEnrollment(${enrollment.id})" title="Edit">
                                             <i class="fas fa-edit"></i>
                                         </button>
-                                        <button class="btn-sm btn-delete" onclick="deleteUser(${user.id})" title="Delete">
+                                        <button class="btn-sm btn-delete" onclick="deleteEnrollment(${enrollment.id})" title="Delete">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </div>
@@ -635,36 +617,44 @@
             `;
         }
 
-        function filterUsers() {
-            const roleFilter = document.getElementById('roleFilter').value;
+        function getStatusClass(status) {
+            switch (status?.toLowerCase()) {
+                case 'active': return 'status-active';
+                case 'completed': return 'status-completed';
+                case 'cancelled': return 'status-cancelled';
+                default: return 'status-active';
+            }
+        }
+
+        function filterEnrollments() {
             const statusFilter = document.getElementById('statusFilter').value;
+            const courseFilter = document.getElementById('courseFilter').value;
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
 
-            let filteredUsers = allUsers.filter(user => {
-                const matchesRole = roleFilter === 'all' || (user.role?.name === roleFilter);
-                const matchesStatus = statusFilter === 'all' || 
-                    (statusFilter === 'active' && user.isActive) ||
-                    (statusFilter === 'inactive' && !user.isActive);
+            let filteredEnrollments = allEnrollments.filter(enrollment => {
+                const matchesStatus = statusFilter === 'all' || enrollment.status === statusFilter;
+                const matchesCourse = courseFilter === 'all' || enrollment.courseId === courseFilter;
                 const matchesSearch = !searchTerm || 
-                    user.username.toLowerCase().includes(searchTerm) ||
-                    user.email.toLowerCase().includes(searchTerm) ||
-                    (user.fullName && user.fullName.toLowerCase().includes(searchTerm));
+                    enrollment.student?.username?.toLowerCase().includes(searchTerm) ||
+                    enrollment.student?.fullName?.toLowerCase().includes(searchTerm) ||
+                    enrollment.student?.email?.toLowerCase().includes(searchTerm) ||
+                    enrollment.course?.title?.toLowerCase().includes(searchTerm);
 
-                return matchesRole && matchesStatus && matchesSearch;
+                return matchesStatus && matchesCourse && matchesSearch;
             });
 
             currentPage = 1;
-            displayUsers(filteredUsers);
-            updatePagination(filteredUsers.length);
+            displayEnrollments(filteredEnrollments);
+            updatePagination(filteredEnrollments.length);
         }
 
-        function updatePagination(totalItems = allUsers.length) {
+        function updatePagination(totalItems = allEnrollments.length) {
             const totalPages = Math.ceil(totalItems / itemsPerPage);
             const startItem = (currentPage - 1) * itemsPerPage + 1;
             const endItem = Math.min(currentPage * itemsPerPage, totalItems);
 
             document.getElementById('paginationInfo').textContent = 
-                `Showing ${startItem}-${endItem} of ${totalItems} users`;
+                `Showing ${startItem}-${endItem} of ${totalItems} enrollments`;
 
             const paginationControls = document.getElementById('paginationControls');
             let paginationHTML = '';
@@ -701,154 +691,160 @@
 
         function changePage(page) {
             currentPage = page;
-            displayUsers();
+            displayEnrollments();
             updatePagination();
         }
 
-        function sortUsers(field) {
-            allUsers.sort((a, b) => {
-                if (a[field] < b[field]) return -1;
-                if (a[field] > b[field]) return 1;
+        function sortEnrollments(field) {
+            allEnrollments.sort((a, b) => {
+                let aValue, bValue;
+
+                switch (field) {
+                    case 'student':
+                        aValue = a.student?.fullName || a.student?.username || '';
+                        bValue = b.student?.fullName || b.student?.username || '';
+                        break;
+                    case 'course':
+                        aValue = a.course?.title || '';
+                        bValue = b.course?.title || '';
+                        break;
+                    case 'status':
+                        aValue = a.status || '';
+                        bValue = b.status || '';
+                        break;
+                    case 'enrolledAt':
+                        aValue = new Date(a.enrolledAt);
+                        bValue = new Date(b.enrolledAt);
+                        break;
+                    case 'progress':
+                        aValue = a.progress || 0;
+                        bValue = b.progress || 0;
+                        break;
+                    default:
+                        return 0;
+                }
+
+                if (aValue < bValue) return -1;
+                if (aValue > bValue) return 1;
                 return 0;
             });
-            displayUsers();
+            displayEnrollments();
         }
 
-        function refreshUsers() {
-            loadUsers();
+        function refreshEnrollments() {
+            loadEnrollments();
         }
 
-        function showUserModal() {
-            currentEditingId = null;
-            document.getElementById('modalTitle').textContent = 'Add New User';
-            document.getElementById('userForm').reset();
-            document.getElementById('userModal').style.display = 'flex';
+        function viewEnrollment(enrollmentId) {
+            alert(`View enrollment ${enrollmentId} - functionality to be implemented`);
         }
 
-        function closeUserModal() {
-            document.getElementById('userModal').style.display = 'none';
-        }
+        function editEnrollment(enrollmentId) {
+            const enrollment = allEnrollments.find(e => e.id === enrollmentId);
+            if (!enrollment) return;
 
-        async function saveUser() {
-            // Implementation for saving user
-            alert('User saved functionality to be implemented');
-        }
-
-        function viewUser(userId) {
-            alert(`View user ${userId} - functionality to be implemented`);
-        }
-
-        function editUser(userId) {
-            const user = allUsers.find(u => u.id === userId);
-            if (!user) return;
-
-            const row = document.querySelector(`tr[data-user-id="${userId}"]`) ||
-                       document.querySelector(`button[onclick="editUser(${userId})"]`).closest('tr');
+            const row = document.querySelector(`tr[data-enrollment-id="${enrollmentId}"]`) ||
+                       document.querySelector(`button[onclick="editEnrollment(${enrollmentId})"]`).closest('tr');
             if (!row) return;
 
             // Store original values
-            row.dataset.originalData = JSON.stringify(user);
+            row.dataset.originalData = JSON.stringify(enrollment);
 
             // Make cells editable
             const cells = row.querySelectorAll('td');
-            const usernameCell = cells[1]; // Username column
-            const emailCell = cells[2]; // Email column
-            const roleCell = cells[3]; // Role column
+            const statusCell = cells[2]; // Status column
+            const progressCell = cells[4]; // Progress column
 
-            // Replace username cell content
-            usernameCell.innerHTML = `<input type="text" value="${user.username}" class="edit-input" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 4px;">`;
-
-            // Replace email cell content
-            emailCell.innerHTML = `<input type="email" value="${user.email}" class="edit-input" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 4px;">`;
-
-            // Replace role cell content
-            roleCell.innerHTML = `
+            // Replace status cell content
+            statusCell.innerHTML = `
                 <select class="edit-input" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 4px;">
-                    <option value="student" ${user.role?.name === 'student' ? 'selected' : ''}>Student</option>
-                    <option value="tutor" ${user.role?.name === 'tutor' ? 'selected' : ''}>Tutor</option>
-                    <option value="admin" ${user.role?.name === 'admin' ? 'selected' : ''}>Admin</option>
+                    <option value="active" ${enrollment.status === 'active' ? 'selected' : ''}>Active</option>
+                    <option value="completed" ${enrollment.status === 'completed' ? 'selected' : ''}>Completed</option>
+                    <option value="cancelled" ${enrollment.status === 'cancelled' ? 'selected' : ''}>Cancelled</option>
+                    <option value="paused" ${enrollment.status === 'paused' ? 'selected' : ''}>Paused</option>
                 </select>
             `;
+
+            // Replace progress cell content
+            progressCell.innerHTML = `<input type="number" value="${enrollment.progress || 0}" class="edit-input" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 4px;" min="0" max="100">`;
 
             // Replace action buttons with save/cancel
             const actionsCell = cells[5];
             actionsCell.innerHTML = `
                 <div class="action-buttons">
-                    <button class="btn-sm btn-primary" onclick="saveUserEdit(${userId})" title="Save">
+                    <button class="btn-sm btn-primary" onclick="saveEnrollmentEdit(${enrollmentId})" title="Save">
                         <i class="fas fa-save"></i>
                     </button>
-                    <button class="btn-sm btn-secondary" onclick="cancelUserEdit(${userId})" title="Cancel">
+                    <button class="btn-sm btn-secondary" onclick="cancelEnrollmentEdit(${enrollmentId})" title="Cancel">
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
             `;
         }
 
-        async function saveUserEdit(userId) {
-            const row = document.querySelector(`tr[data-user-id="${userId}"]`) ||
-                       document.querySelector(`button[onclick="saveUserEdit(${userId})"]`).closest('tr');
+        async function saveEnrollmentEdit(enrollmentId) {
+            const row = document.querySelector(`tr[data-enrollment-id="${enrollmentId}"]`) ||
+                       document.querySelector(`button[onclick="saveEnrollmentEdit(${enrollmentId})"]`).closest('tr');
             if (!row) return;
 
             const inputs = row.querySelectorAll('.edit-input');
-            const username = inputs[0].value.trim();
-            const email = inputs[1].value.trim();
-            const role = inputs[2].value;
+            const status = inputs[0].value;
+            const progress = parseInt(inputs[1].value) || 0;
 
-            if (!username || !email) {
-                alert('Username and email are required');
+            if (progress < 0 || progress > 100) {
+                alert('Progress must be between 0 and 100');
                 return;
             }
 
             try {
                 const token = localStorage.getItem('token');
-                const response = await fetch(`${API_BASE_URL}/admin/users/${userId}`, {
+                const response = await fetch(`${API_BASE_URL}/admin/enrollments/${enrollmentId}`, {
                     method: 'PUT',
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        username,
-                        email,
-                        role: { name: role }
+                        status,
+                        progress
                     })
                 });
 
                 if (!response.ok) {
-                    throw new Error('Failed to update user');
+                    throw new Error('Failed to update enrollment');
                 }
 
-                const updatedUser = await response.json();
+                const updatedEnrollment = await response.json();
 
-                // Update user in allUsers array
-                const index = allUsers.findIndex(u => u.id === userId);
+                // Update enrollment in allEnrollments array
+                const index = allEnrollments.findIndex(e => e.id === enrollmentId);
                 if (index !== -1) {
-                    allUsers[index] = updatedUser;
+                    allEnrollments[index] = updatedEnrollment;
                 }
 
                 // Re-render the table
-                displayUsers();
-                alert('User updated successfully!');
+                displayEnrollments();
+                alert('Enrollment updated successfully!');
 
             } catch (error) {
-                console.error('Error updating user:', error);
-                alert('Error updating user. Please try again.');
+                console.error('Error updating enrollment:', error);
+                alert('Error updating enrollment. Please try again.');
             }
         }
 
-        function cancelUserEdit(userId) {
+        function cancelEnrollmentEdit(enrollmentId) {
             // Re-render the table to restore original state
-            displayUsers();
+            displayEnrollments();
         }
 
-        async function deleteUser(userId) {
-            if (!confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
+        async function deleteEnrollment(enrollmentId) {
+            if (!confirm('Are you sure you want to delete this enrollment? This action cannot be undone.')) {
                 return;
             }
 
             try {
                 const token = localStorage.getItem('token');
-                const response = await fetch(`${API_BASE_URL}/admin/users/${userId}`, {
+                const response = await fetch(`${API_BASE_URL}/admin/enrollments/${enrollmentId}`, {
                     method: 'DELETE',
                     headers: {
                         'Authorization': `Bearer ${token}`
@@ -856,25 +852,25 @@
                 });
 
                 if (!response.ok) {
-                    throw new Error('Failed to delete user');
+                    throw new Error('Failed to delete enrollment');
                 }
 
-                // Remove user from allUsers array
-                allUsers = allUsers.filter(u => u.id !== userId);
+                // Remove enrollment from allEnrollments array
+                allEnrollments = allEnrollments.filter(e => e.id !== enrollmentId);
 
                 // Re-render the table
-                displayUsers();
+                displayEnrollments();
                 updatePagination();
-                alert('User deleted successfully!');
+                alert('Enrollment deleted successfully!');
 
             } catch (error) {
-                console.error('Error deleting user:', error);
-                alert('Error deleting user. Please try again.');
+                console.error('Error deleting enrollment:', error);
+                alert('Error deleting enrollment. Please try again.');
             }
         }
 
-        function exportUsers() {
-            alert('Export users functionality to be implemented');
+        function exportEnrollments() {
+            alert('Export enrollments functionality to be implemented');
         }
 
         function logout() {
@@ -882,93 +878,6 @@
             localStorage.removeItem('user');
             window.location.href = '/login.html';
         }
-
-        // Modal styles
-        const style = document.createElement('style');
-        style.textContent = `
-            .modal {
-                display: none;
-                position: fixed;
-                z-index: 1000;
-                left: 0;
-                top: 0;
-                width: 100%;
-                height: 100%;
-                background-color: rgba(0,0,0,0.5);
-                justify-content: center;
-                align-items: center;
-            }
-
-            .modal-content {
-                background-color: white;
-                border-radius: 15px;
-                padding: 0;
-                max-width: 600px;
-                width: 90%;
-                max-height: 80vh;
-                overflow-y: auto;
-            }
-
-            .modal-header {
-                padding: 20px 25px;
-                border-bottom: 1px solid #eee;
-                display: flex;
-                justify-content: between;
-                align-items: center;
-            }
-
-            .modal-header h3 {
-                margin: 0;
-                color: #2c3e50;
-            }
-
-            .close-modal {
-                background: none;
-                border: none;
-                font-size: 1.5rem;
-                cursor: pointer;
-                color: #666;
-            }
-
-            .modal-body {
-                padding: 25px;
-            }
-
-            .modal-footer {
-                padding: 20px 25px;
-                border-top: 1px solid #eee;
-                display: flex;
-                justify-content: flex-end;
-                gap: 10px;
-            }
-
-            .form-group {
-                margin-bottom: 20px;
-            }
-
-            .form-group label {
-                display: block;
-                margin-bottom: 5px;
-                font-weight: 500;
-                color: #333;
-            }
-
-            .form-group input,
-            .form-group select {
-                width: 100%;
-                padding: 10px;
-                border: 1px solid #ddd;
-                border-radius: 6px;
-                font-size: 1rem;
-            }
-
-            .form-group input:focus,
-            .form-group select:focus {
-                outline: none;
-                border-color: var(--primary-color);
-            }
-        `;
-        document.head.appendChild(style);
     </script>
 </body>
 </html>
