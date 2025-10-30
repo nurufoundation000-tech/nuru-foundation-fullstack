@@ -7,9 +7,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Fredoka+One&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <!-- FIXED PATHS -->
-    <link rel="stylesheet" href="/styles/root.css">
-    <link rel="stylesheet" href="/styles/header.css">
-    <link rel="stylesheet" href="/styles/footer.css">
+    <link rel="stylesheet" href="../styles/root.css">
+    <link rel="stylesheet" href="../styles/header.css">
+    <link rel="stylesheet" href="../styles/footer.css">
     <base href="/">
     <style>
         body {
@@ -451,13 +451,13 @@
 
                     // Load auth.js
                     const authScript = document.createElement('script');
-                    authScript.src = '/scripts/auth.js';
+                    authScript.src = '../scripts/auth.js';
                     document.head.appendChild(authScript);
 
                     authScript.onload = () => {
                         // Load header.js
                         const headerScript = document.createElement('script');
-                        headerScript.src = '/scripts/header.js';
+                        headerScript.src = '../scripts/header.js';
                         document.head.appendChild(headerScript);
 
                         headerScript.onload = () => {
@@ -484,8 +484,8 @@
         function checkAuthAndLoadCourses() {
             const token = localStorage.getItem('token');
             if (!token) {
-                window.location.href = '/login.html';
-                return;
+                        window.location.href = '../login.html';
+                        return;
             }
 
             loadCourses();

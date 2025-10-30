@@ -524,7 +524,7 @@
 
         function loadHeaderAndFooter() {
             // Load header
-            fetch('header.html')
+            fetch('../header.html')
                 .then(response => response.text())
                 .then(data => {
                     document.getElementById('headerContainer').innerHTML = data;
@@ -535,7 +535,7 @@
                 .catch(error => console.error('Error loading header:', error));
 
             // Load footer
-            fetch('footer.html')
+            fetch('../footer.html')
                 .then(response => response.text())
                 .then(data => {
                     document.getElementById('footerContainer').innerHTML = data;
@@ -549,7 +549,7 @@
         function checkAuthAndLoadProgress() {
             const token = localStorage.getItem('token');
             if (!token) {
-                window.location.href = 'login.html';
+                window.location.href = '/login.html';
                 return;
             }
 
@@ -570,7 +570,7 @@
 
                 if (!progressResponse.ok) {
                     if (progressResponse.status === 401) {
-                        window.location.href = 'login.html';
+                        window.location.href = '/login.html';
                         return;
                     }
                     throw new Error(`HTTP ${progressResponse.status}: ${progressResponse.statusText}`);
@@ -626,7 +626,7 @@
                     <div class="no-data">
                         <i class="fas fa-book-open"></i>
                         <p>You haven't enrolled in any courses yet.</p>
-                        <a href="courses.html" class="course-btn primary" style="display: inline-block; margin-top: 15px;">Browse Courses</a>
+                        <a href="../courses.html" class="course-btn primary" style="display: inline-block; margin-top: 15px;">Browse Courses</a>
                     </div>
                 `;
                 return;

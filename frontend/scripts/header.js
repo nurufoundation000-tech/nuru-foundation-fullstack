@@ -94,11 +94,12 @@ function initHeader() {
         if (authService.isLoggedIn()) {
             const user = authService.getUser();
             const userHtml = `
-                <a href="student-dashboard/index.html" class="btn btn-primary">Dashboard</a>
+                <a href="/student-dashboard/index.html" class="btn btn-primary">Dashboard</a>
+                <span class="user-greeting">Hello, ${user.fullName}</span>
                 <button class="btn btn-outline" onclick="logout()">Logout</button>
             `;
             const mobileUserHtml = `
-                <a href="student-dashboard/index.html" class="btn btn-primary">Dashboard</a>
+                <a href="/student-dashboard/index.html" class="btn btn-primary">Dashboard</a>
                 <span class="user-greeting">Hello, ${user.fullName}</span>
                 <button class="btn btn-outline" onclick="logout()">Logout</button>
             `;
@@ -106,8 +107,8 @@ function initHeader() {
             if (mobileActions) mobileActions.innerHTML = mobileUserHtml;
         } else {
             const loginHtml = `
-                <a href="login.html" class="btn btn-outline">Login</a>
-                <a href="register.html" class="btn btn-primary">Get Started</a>
+                <a href="/login.html" class="btn btn-outline">Login</a>
+                <a href="/register.html" class="btn btn-primary">Get Started</a>
             `;
             if (headerActions) headerActions.innerHTML = loginHtml;
             if (mobileActions) mobileActions.innerHTML = loginHtml;

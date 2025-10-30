@@ -185,7 +185,7 @@
     <script>
         // Check if user is already logged in
         if (authService.isLoggedIn()) {
-            window.location.href = 'dashboard.html';
+            window.location.href = '/dashboard.html';
         }
 
         document.getElementById('registerForm').addEventListener('submit', async (e) => {
@@ -217,7 +217,7 @@
                 successMessage.textContent = 'Registration successful! Redirecting to login...';
                 successMessage.style.display = 'block';
                 setTimeout(() => {
-                    window.location.href = 'login.html';
+                    window.location.href = '/login.html';
                 }, 2000);
             } else {
                 errorMessage.textContent = result.message;

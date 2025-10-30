@@ -283,7 +283,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', async function() {
             // Load header and footer
-            fetch('header.html')
+            fetch('../header.html')
                 .then(response => response.text())
                 .then(data => {
                     document.getElementById('headerContainer').innerHTML = data;
@@ -292,7 +292,7 @@
                     }
                 });
 
-            fetch('footer.html')
+            fetch('../footer.html')
                 .then(response => response.text())
                 .then(data => {
                     document.getElementById('footerContainer').innerHTML = data;
@@ -305,7 +305,7 @@
 
             if (!courseId) {
                 alert('Course ID is required');
-                window.location.href = 'courses.html';
+                window.location.href = '/courses.html';
                 return;
             }
 
@@ -459,7 +459,7 @@
                     assignmentDiv.innerHTML = `
                         <h5>${assignment.title}</h5>
                         <p>Max Score: ${assignment.maxScore}</p>
-                        <a href="assignment-submission.html?assignmentId=${assignment.id}" class="nav-btn">View Assignment</a>
+                        <a href="../assignment-submission.html?assignmentId=${assignment.id}" class="nav-btn">View Assignment</a>
                     `;
                     assignmentsDiv.appendChild(assignmentDiv);
                 });
