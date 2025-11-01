@@ -112,6 +112,14 @@ try {
   console.error('❌ Failed to load admin routes:', error.message);
 }
 
+let tutorRoutes;
+try {
+  tutorRoutes = require('./routes/tutor');
+  console.log('✅ Tutor routes loaded');
+} catch (error) {
+  console.error('❌ Failed to load tutor routes:', error.message);
+}
+
 console.log('🔗 Setting up route handlers...');
 if (authRoutes) app.use('/api/auth', authRoutes);
 if (userRoutes) app.use('/api/users', userRoutes);
@@ -121,6 +129,7 @@ if (assignmentRoutes) app.use('/api/assignments', assignmentRoutes);
 if (submissionRoutes) app.use('/api/submissions', submissionRoutes);
 if (moderationRoutes) app.use('/api/moderation', moderationRoutes);
 if (adminRoutes) app.use('/api/admin', adminRoutes);
+if (tutorRoutes) app.use('/api/tutor', tutorRoutes);
 console.log('✅ Route handlers configured');
 
 // Error handling middleware
