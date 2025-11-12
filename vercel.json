@@ -16,12 +16,12 @@
       "destination": "/backend/api/:path*"
     },
     {
-      "source": "/(.*\\..*)",
-      "destination": "/frontend/$1"
+      "source": "/((?!api/)[^\\.]*)",
+      "destination": "/frontend/index.html"
     },
     {
       "source": "/(.*)",
-      "destination": "/frontend/index.html"
+      "destination": "/frontend/$1"
     }
   ]
 }
