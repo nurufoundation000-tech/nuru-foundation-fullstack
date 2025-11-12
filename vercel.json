@@ -1,4 +1,9 @@
 {
+  "functions": {
+    "backend/api/**/*.js": {
+      "memory": 1024
+    }
+  },
   "rewrites": [
     {
       "source": "/api/:path*",
