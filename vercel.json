@@ -2,9 +2,8 @@
   "version": 2,
   "builds": [
     {
-      "src": "backend/package.json",
-      "use": "@vercel/node",
-      "config": { "includeFiles": ["prisma/**"] }
+      "src": "backend/api/**/*.js",
+      "use": "@vercel/node"
     },
     {
       "src": "frontend/**",
@@ -14,11 +13,11 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "/backend/api/$1"
+      "destination": "/backend/api/:path*"
     },
     {
       "source": "/((?!api/|favicon.ico|robots.txt).*)",
-      "destination": "/index.html"
+      "destination": "/frontend/index.html"
     }
   ]
 }
