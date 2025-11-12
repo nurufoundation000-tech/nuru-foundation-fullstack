@@ -1,12 +1,8 @@
 {
   "rewrites": [
     {
-      "source": "/api/admin/:path*",
-      "destination": "/api/admin?path=:path*"
-    },
-    {
       "source": "/api/:path*",
-      "destination": "/api/:path*"
+      "destination": "/backend/api/:path*"
     }
   ],
   "buildCommand": "npm run vercel-build",
