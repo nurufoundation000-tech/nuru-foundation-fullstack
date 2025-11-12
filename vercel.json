@@ -16,7 +16,11 @@
       "destination": "/backend/api/:path*"
     },
     {
-      "source": "/((?!api/|favicon.ico|robots.txt).*)",
+      "source": "/(.*\\..*)",
+      "destination": "/frontend/$1"
+    },
+    {
+      "source": "/(.*)",
       "destination": "/frontend/index.html"
     }
   ]
