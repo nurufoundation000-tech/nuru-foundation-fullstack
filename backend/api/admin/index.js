@@ -41,21 +41,25 @@ const setCorsHeaders = (res) => {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 };
 
-// Extract path from URL
-const getPath = (url) => {
-  return url.split('?')[0];
+// Extract path from URL, accounting for Vercel's rewrites
+const getPath = (req) => {
+    const url = new URL(req.url, `http://${req.headers.host}`);
+    const pathFromQuery = url.searchParams.get('path');
+    if (pathFromQuery) {
+        return `/${pathFromQuery}`;
+    }
+    return url.pathname;
 };
 
 // Main serverless function - handles ALL admin routes
 module.exports = async (req, res) => {
   setCorsHeaders(res);
   if (req.method === 'OPTIONS') return res.status(200).end();
-
   console.log('🔍 Admin API Request:', req.url, req.method);
 
   try {
     const body = await parseJsonBody(req);
-    const path = getPath(req.url);
+    const path = getPath(req);
     const method = req.method;
 
     // DASHBOARD STATS - GET /dashboard/stats
