@@ -1,14 +1,10 @@
 {
-  "dependencies": {
-    "@prisma/client": "^6.18.0",
-    "bcryptjs": "^3.0.2",
-    "cors": "^2.8.5",
-    "dotenv": "^17.2.3",
-    "dotenv-flow": "^4.1.0",
-    "express": "^5.1.0",
-    "helmet": "^8.1.0",
-    "jsonwebtoken": "^9.0.2",
-    "mysql2": "^3.15.3",
-    "serverless-http": "^4.0.0"
+  "name": "nuru-foundation-monorepo",
+  "private": true,
+  "workspaces": [
+    "backend"
+  ],
+  "scripts": {
+    "vercel-build": "cd backend && npm install && npx prisma generate --schema=./prisma/schema.prisma"
   }
 }
