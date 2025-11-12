@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course Notes - Tutor Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="../styles/root.css">
+    <link rel="stylesheet" href="../styles/header.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f8f9fa;
+            color: #333;
+        }
+
+        .tutor-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .tutor-sidebar {
+            width: 260px;
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: white;
+            padding: 20px 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .tutor-brand {
+            padding: 0 20px 20px;
+            border-bottom: 1px solid #4a8b5c;
+            margin-bottom: 20px;
+        }
+
+        .tutor-brand h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .tutor-brand p {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .tutor-nav {
+            list-style: none;
+            padding: 0 10px;
+        }
+
+        .tutor-nav li {
+            margin-bottom: 5px;
+        }
+
+        .tutor-nav a {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            color: #ecf0f1;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .tutor-nav a:hover,
+        .tutor-nav a.active {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+
+        .tutor-nav i {
+            width: 20px;
+            margin-right: 10px;
+            font-size: 1.1rem;
+        }
+
+        /* Main Content */
+        .tutor-main {
+            flex: 1;
+            margin-left: 260px;
+            padding: 20px;
+        }
+
+        .tutor-header {
+            background: white;
+            padding: 25px 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .tutor-header h1 {
+            color: #27ae60;
+            font-size: 2rem;
+            margin-bottom: 0;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        /* Filters and Search */
+        .filters-section {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .filters-row {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 12px 45px 12px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .search-box i {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c757d;
+        }
+
+        .filter-select {
+            padding: 12px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            min-width: 150px;
+        }
+
+        /* Notes Grid */
+        .notes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .note-card {
+            background: #fff;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .note-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+        }
+
+        .note-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .note-content {
+            color: #7f8c8d;
+            margin-bottom: 15px;
+            flex-grow: 1;
+            white-space: pre-wrap;
+        }
+
+        .note-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            color: #95a5a6;
+            border-top: 1px solid #ecf0f1;
+            padding-top: 10px;
+            margin-top: 10px;
+        }
+
+        .note-course {
+            font-weight: 500;
+        }
+
+        .note-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            color: #7f8c8d;
+            transition: color 0.3s ease;
+        }
+        .action-btn:hover { color: var(--primary-color); }
+        .btn-delete:hover { color: #e74c3c; }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+        }
+
+        .modal-content {
+            background: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 600px;
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #6c757d;
+        }
+
+        .modal h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #2c3e50;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 150px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+            margin-top: 30px;
+        }
+
+        /* Loading and Empty States */
+        .loading, .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #7f8c8d;
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .tutor-container { flex-direction: column; }
+            .tutor-sidebar { width: 100%; height: auto; position: relative; }
+            .tutor-main { margin-left: 0; }
+            .tutor-header { flex-direction: column; gap: 15px; text-align: center; }
+            .filters-row { flex-direction: column; align-items: stretch; }
+            .notes-grid { grid-template-columns: 1fr; }
+            .modal-content { margin: 10% auto; width: 95%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="tutor-container">
+        <!-- Sidebar -->
+        <nav class="tutor-sidebar">
+            <div class="tutor-brand">
+                <h1>NURU Tutor</h1>
+                <p>Teaching Dashboard</p>
+            </div>
+            <ul class="tutor-nav">
+                <li><a href="index.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                <li><a href="courses.html"><i class="fas fa-book"></i> My Courses</a></li>
+                <li><a href="lessons.html"><i class="fas fa-chalkboard-teacher"></i> Lessons</a></li>
+                <li><a href="assignments.html"><i class="fas fa-tasks"></i> Assignments</a></li>
+                <li><a href="submissions.html"><i class="fas fa-file-alt"></i> Submissions</a></li>
+                <li><a href="enrollments.html"><i class="fas fa-clipboard-list"></i> Enrollments</a></li>
+                <li><a href="notes.html" class="active"><i class="fas fa-sticky-note"></i> Course Notes</a></li>
+                <li><a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="tutor-main">
+            <div class="tutor-header">
+                <h1>Course Notes</h1>
+                <div class="header-actions">
+                    <button class="btn btn-secondary" onclick="refreshNotes()">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                    <button class="btn btn-primary" onclick="openCreateModal()">
+                        <i class="fas fa-plus"></i> Add Note
+                    </button>
+                </div>
+            </div>
+
+            <!-- Filters and Search -->
+            <div class="filters-section">
+                <div class="filters-row">
+                    <div class="search-box">
+                        <input type="text" id="searchInput" placeholder="Search notes..." onkeyup="filterNotes()">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <select class="filter-select" id="courseFilter" onchange="filterNotes()">
+                        <option value="">All Courses</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Notes Grid -->
+            <div id="notesContainer">
+                <div class="loading">Loading notes...</div>
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination" id="paginationContainer" style="display: none;">
+                <button class="pagination-btn" id="prevBtn" onclick="changePage(currentPage - 1)">
+                    <i class="fas fa-chevron-left"></i> Previous
+                </button>
+                <span class="pagination-info" id="paginationInfo"></span>
+                <button class="pagination-btn" id="nextBtn" onclick="changePage(currentPage + 1)">
+                    Next <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </main>
+    </div>
+
+    <!-- Create/Edit Note Modal -->
+    <div id="noteModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeModal()">&times;</span>
+            <h2 id="modalTitle">Add New Note</h2>
+            <form id="noteForm">
+                <div class="form-group">
+                    <label for="noteCourse">Course *</label>
+                    <select id="noteCourse" required></select>
+                </div>
+                <div class="form-group">
+                    <label for="noteTitle">Note Title *</label>
+                    <input type="text" id="noteTitle" required>
+                </div>
+                <div class="form-group">
+                    <label for="noteContent">Content *</label>
+                    <textarea id="noteContent" rows="8" required></textarea>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Note</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+    const API_BASE_URL = window.location.hostname === 'localhost'
+        ? 'http://localhost:5000/api'
+        : 'https://nuru-foundation-fullstack.vercel.app/api';
+
+    let currentPage = 1;
+    let totalPages = 1;
+    let allNotes = [];
+    let courses = [];
+
+    document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(() => checkTutorAccess(), 100);
+    });
+
+    function checkTutorAccess() {
+        const token = localStorage.getItem('token');
+        const userData = localStorage.getItem('user');
+        if (!token || !userData) {
+            window.location.href = '/login.html';
+            return;
+        }
+        try {
+            const user = JSON.parse(userData);
+            if ((user.role?.name || user.role) !== 'tutor') {
+                window.location.href = '/dashboard.html';
+                return;
+            }
+            loadInitialData();
+        } catch (error) {
+            console.error('Error parsing user data:', error);
+            window.location.href = '/login.html';
+        }
+    }
+
+    async function loadInitialData() {
+        await loadCourses();
+        await loadNotes();
+    }
+
+    async function loadCourses() {
+        try {
+            const token = localStorage.getItem('token');
+            const response = await fetch(`${API_BASE_URL}/tutor/courses?limit=1000`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (response.ok) {
+                const data = await response.json();
+                courses = data.data || [];
+                populateCourseFilter('courseFilter');
+                populateCourseFilter('noteCourse', 'Select a Course');
+            }
+        } catch (error) {
+            console.error('Error loading courses:', error);
+        }
+    }
+
+    function populateCourseFilter(elementId, defaultOptionText = 'All Courses') {
+        const select = document.getElementById(elementId);
+        select.innerHTML = `<option value="">${defaultOptionText}</option>`;
+        courses.forEach(course => {
+            const option = document.createElement('option');
+            option.value = course.id;
+            option.textContent = course.title;
+            select.appendChild(option);
+        });
+    }
+
+    async function loadNotes(page = 1) {
+        try {
+            const token = localStorage.getItem('token');
+            const courseFilter = document.getElementById('courseFilter').value;
+            let url = `${API_BASE_URL}/tutor/notes?page=${page}&limit=12`;
+            if (courseFilter) url += `&courseId=${courseFilter}`;
+
+            const response = await fetch(url, { headers: { 'Authorization': `Bearer ${token}` } });
+            if (response.ok) {
+                const data = await response.json();
+                allNotes = data.data || [];
+                currentPage = data.pagination?.page || 1;
+                totalPages = data.pagination?.pages || 1;
+                filterNotes();
+                updatePagination(data.pagination);
+            } else {
+                throw new Error('Failed to load notes');
+            }
+        } catch (error) {
+            console.error('Error loading notes:', error);
+            document.getElementById('notesContainer').innerHTML = '<div class="error">Failed to load notes.</div>';
+        }
+    }
+
+    function displayNotes(notes) {
+        const container = document.getElementById('notesContainer');
+        if (!notes || notes.length === 0) {
+            container.innerHTML = `<div class="empty-state"><i class="fas fa-sticky-note"></i><h3>No notes found</h3><p>Add a note for one of your courses.</p><button class="btn btn-primary" onclick="openCreateModal()"><i class="fas fa-plus"></i> Add Note</button></div>`;
+            return;
+        }
+        container.innerHTML = `<div class="notes-grid">${notes.map(note => `
+            <div class="note-card">
+                <div>
+                    <h3 class="note-title">${note.title}</h3>
+                    <p class="note-content">${note.content}</p>
+                </div>
+                <div class="note-meta">
+                    <span class="note-course"><i class="fas fa-book"></i> ${note.course.title}</span>
+                    <div class="note-actions">
+                        <button class="action-btn" onclick="editNote(${note.id})"><i class="fas fa-edit"></i></button>
+                        <button class="action-btn btn-delete" onclick="deleteNote(${note.id}, '${note.title}')"><i class="fas fa-trash"></i></button>
+                    </div>
+                </div>
+            </div>`).join('')}</div>`;
+    }
+
+    function filterNotes() {
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+        const courseFilter = document.getElementById('courseFilter').value;
+        let filtered = allNotes;
+
+        if (courseFilter) {
+            filtered = filtered.filter(note => note.courseId.toString() === courseFilter);
+        }
+        if (searchTerm) {
+            filtered = filtered.filter(note =>
+                note.title.toLowerCase().includes(searchTerm) ||
+                note.content.toLowerCase().includes(searchTerm)
+            );
+        }
+        displayNotes(filtered);
+    }
+
+    function refreshNotes() { loadNotes(currentPage); }
+    function changePage(page) { if (page >= 1 && page <= totalPages) loadNotes(page); }
+    function updatePagination(pagination) { /* Similar to other pages */ }
+
+    function openCreateModal() {
+        document.getElementById('modalTitle').textContent = 'Add New Note';
+        document.getElementById('noteForm').reset();
+        delete document.getElementById('noteForm').dataset.noteId;
+        document.getElementById('noteModal').style.display = 'block';
+    }
+
+    function editNote(noteId) {
+        const note = allNotes.find(n => n.id === noteId);
+        if (!note) return;
+
+        document.getElementById('modalTitle').textContent = 'Edit Note';
+        document.getElementById('noteCourse').value = note.courseId;
+        document.getElementById('noteTitle').value = note.title;
+        document.getElementById('noteContent').value = note.content;
+        document.getElementById('noteForm').dataset.noteId = noteId;
+        document.getElementById('noteModal').style.display = 'block';
+    }
+
+    async function deleteNote(noteId, noteTitle) {
+        if (!confirm(`Are you sure you want to delete the note "${noteTitle}"?`)) return;
+        try {
+            const token = localStorage.getItem('token');
+            const response = await fetch(`${API_BASE_URL}/tutor/notes/${noteId}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (response.ok) {
+                alert('Note deleted successfully!');
+                loadNotes();
+            } else {
+                throw new Error('Failed to delete note');
+            }
+        } catch (error) {
+            alert('Error deleting note.');
+            console.error(error);
+        }
+    }
+
+    function closeModal() {
+        document.getElementById('noteModal').style.display = 'none';
+    }
+
+    document.getElementById('noteForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const noteId = this.dataset.noteId;
+        const noteData = {
+            courseId: parseInt(document.getElementById('noteCourse').value),
+            title: document.getElementById('noteTitle').value,
+            content: document.getElementById('noteContent').value,
+        };
+
+        if (isNaN(noteData.courseId)) {
+            alert('Please select a course.');
+            return;
+        }
+
+        const url = noteId ? `${API_BASE_URL}/tutor/notes/${noteId}` : `${API_BASE_URL}/tutor/notes`;
+        const method = noteId ? 'PUT' : 'POST';
+
+        try {
+            const token = localStorage.getItem('token');
+            const response = await fetch(url, {
+                method,
+                headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify(noteData)
+            });
+
+            if (response.ok) {
+                alert(`Note ${noteId ? 'updated' : 'created'} successfully!`);
+                closeModal();
+                loadNotes();
+            } else {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Failed to save note');
+            }
+        } catch (error) {
+            alert(`Error saving note: ${error.message}`);
+            console.error(error);
+        }
+    });
+
+    function logout() {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = '/login.html';
+    }
+
+    window.onclick = function(event) {
+        if (event.target === document.getElementById('noteModal')) {
+            closeModal();
+        }
+    };
+    </script>
+</body>
+</html>
