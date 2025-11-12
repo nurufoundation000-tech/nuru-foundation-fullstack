@@ -5,6 +5,6 @@
     "backend"
   ],
   "scripts": {
-    "vercel-build": "cd backend && npm install && npx prisma generate --schema=./prisma/schema.prisma"
+    "vercel-build": "npm install --prefix backend && npm run --prefix backend build"
   }
 }
