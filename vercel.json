@@ -1,44 +1,12 @@
 {
-  "version": 2,
-  "builds": [
+  "rewrites": [
     {
-      "src": "backend/api/**/*.js",
-      "use": "@vercel/node"
+      "source": "/api/admin/:path*",
+      "destination": "/api/admin?path=:path*"
     },
     {
-      "src": "frontend/**/*",
-      "use": "@vercel/static"
+      "source": "/api/:path*",
+      "destination": "/api/:path*"
     }
-  ],
-  "routes": [
-    {
-      "src": "/api/courses/progress",
-      "dest": "/backend/api/courses/index.js"
-    },
-    {
-      "src": "/api/courses/(.*)",
-      "dest": "/backend/api/courses/index.js"
-    },
-    {
-      "src": "/api/auth/(.*)",
-      "dest": "/backend/api/auth/index.js"
-    },
-    {
-      "src": "/api/(.*)",
-      "dest": "/backend/api/$1/index.js"
-    },
-    {
-      "src": "/my-courses.html",
-      "dest": "/frontend/student-dashboard/my-courses.html"
-    },
-    {
-      "src": "/student-dashboard/(.*)",
-      "dest": "/frontend/student-dashboard/$1"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/frontend/$1"
-    }
-  ],
-  "buildCommand": "cd backend && npm install && npx prisma generate"
+  ]
 }
