@@ -531,10 +531,7 @@
                 if (response.ok) {
                     const data = await response.json();
                     console.log('✅ Enrollments loaded from API:', data.length || data.data?.length);
-                    allEnrollments = data.data || data || [];
-                } else {
-                    console.log('⚠️ API not available, using demo data');
-                    allEnrollments = getDemoEnrollments();
+                    allEnrollments = data.data || [];
                 }
 
                 displayEnrollments();
@@ -542,97 +539,8 @@
 
             } catch (error) {
                 console.error('❌ Error loading enrollments:', error);
-                // Use demo data as fallback
-                allEnrollments = getDemoEnrollments();
-                displayEnrollments();
-                updatePagination(allEnrollments.length);
+                document.getElementById('enrollmentsTableContainer').innerHTML = '<div class="error">Failed to load enrollments. Please try again.</div>';
             }
-        }
-
-        // Demo enrollments data for when API is not available
-        function getDemoEnrollments() {
-            return [
-                {
-                    id: 1,
-                    student: {
-                        username: "john_doe",
-                        fullName: "John Doe",
-                        email: "john@example.com"
-                    },
-                    course: {
-                        title: "Computer Packages",
-                        category: "Technology"
-                    },
-                    status: "active",
-                    enrolledAt: "2024-01-15T10:30:00Z",
-                    progress: 75,
-                    courseId: 1
-                },
-                {
-                    id: 2,
-                    student: {
-                        username: "jane_smith",
-                        fullName: "Jane Smith",
-                        email: "jane@example.com"
-                    },
-                    course: {
-                        title: "Introduction to Programming",
-                        category: "Programming"
-                    },
-                    status: "completed",
-                    enrolledAt: "2024-01-10T14:20:00Z",
-                    progress: 100,
-                    courseId: 2
-                },
-                {
-                    id: 3,
-                    student: {
-                        username: "mike_wilson",
-                        fullName: "Mike Wilson",
-                        email: "mike@example.com"
-                    },
-                    course: {
-                        title: "Web Development Basics",
-                        category: "Web Development"
-                    },
-                    status: "active",
-                    enrolledAt: "2024-01-20T09:15:00Z",
-                    progress: 45,
-                    courseId: 3
-                },
-                {
-                    id: 4,
-                    student: {
-                        username: "sarah_jones",
-                        fullName: "Sarah Jones",
-                        email: "sarah@example.com"
-                    },
-                    course: {
-                        title: "Digital Marketing Fundamentals",
-                        category: "Marketing"
-                    },
-                    status: "cancelled",
-                    enrolledAt: "2024-01-05T16:45:00Z",
-                    progress: 20,
-                    courseId: 5
-                },
-                {
-                    id: 5,
-                    student: {
-                        username: "alex_brown",
-                        fullName: "Alex Brown",
-                        email: "alex@example.com"
-                    },
-                    course: {
-                        title: "Computer Packages",
-                        category: "Technology"
-                    },
-                    status: "active",
-                    enrolledAt: "2024-01-25T11:00:00Z",
-                    progress: 60,
-                    courseId: 1
-                }
-            ];
         }
 
         async function loadCourses() {

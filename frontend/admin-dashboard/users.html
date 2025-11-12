@@ -592,22 +592,16 @@
                 if (response.ok) {
                     const data = await response.json();
                     console.log('✅ Users loaded from API:', data.length || data.data?.length);
-                    allUsers = data.data || data || [];
+                    allUsers = data.data || [];
                 }
 
                 displayUsers();
                 updatePagination(allUsers.length);
 
             } catch (error) {
-            console.error('❌ Error loading users:', error);            
-                displayUsers();
-                updatePagination(allUsers.length);
+                console.error('❌ Error loading users:', error);
+                document.getElementById('usersTableContainer').innerHTML = '<div class="error">Failed to load users. Please try again.</div>';
             }
-        }
-
-        // Demo users data for when API is not available
-        function getDemoUsers() {
-        return [];
         }
 
         function displayUsers(users = allUsers) {

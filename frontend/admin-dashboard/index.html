@@ -415,52 +415,25 @@
 
             if (statsResponse.ok) {
                 const data = await statsResponse.json();
-                displayStats(data.stats || getDefaultStats());
-                displayRecentActivity(data.recentActivity || getDefaultActivities());
+                if (data.stats) {
+                    displayStats(data.stats);
+                } else {
+                    displayStatsError();
+                }
+                if (data.recentActivity) {
+                    displayRecentActivity(data.recentActivity);
+                } else {
+                    displayActivityError();
+                }
             } else {
-                console.log('⚠️ API not available, using demo data');
-                // Use demo data if API fails
-                displayStats(getDefaultStats());
-                displayRecentActivity(getDefaultActivities());
+                throw new Error('Failed to load dashboard data from API');
             }
 
         } catch (error) {
             console.error('❌ Error loading dashboard:', error);
-            // Use demo data as fallback
-            displayStats(getDefaultStats());
-            displayRecentActivity(getDefaultActivities());
+            displayStatsError();
+            displayActivityError();
         }
-    }
-
-    // Demo data for when API is not available
-    function getDefaultStats() {
-        return {
-            totalUsers: 1247,
-            totalCourses: 42,
-            totalEnrollments: 3568,
-            revenue: '$12,450'
-        };
-    }
-
-    function getDefaultActivities() {
-        return [
-            {
-                description: 'New user registration: john_doe',
-                timestamp: new Date(Date.now() - 10 * 60000).toISOString()
-            },
-            {
-                description: 'Course "Web Development" updated',
-                timestamp: new Date(Date.now() - 25 * 60000).toISOString()
-            },
-            {
-                description: '5 new enrollments in "Computer Packages"',
-                timestamp: new Date(Date.now() - 45 * 60000).toISOString()
-            },
-            {
-                description: 'System backup completed',
-                timestamp: new Date(Date.now() - 60 * 60000).toISOString()
-            }
-        ];
     }
 
     function displayStats(stats) {
@@ -495,6 +468,16 @@
                 <div class="stat-label">Revenue</div>
             </div>
         `;
+    }
+
+    function displayStatsError() {
+        const statsGrid = document.getElementById('statsGrid');
+        statsGrid.innerHTML = '<div class="error" style="grid-column: 1 / -1;">Could not load statistics.</div>';
+    }
+
+    function displayActivityError() {
+        const activityContainer = document.getElementById('recentActivity');
+        activityContainer.innerHTML = '<div class="error">Could not load recent activity.</div>';
     }
 
     function displayRecentActivity(activities) {

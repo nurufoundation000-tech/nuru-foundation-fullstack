@@ -619,22 +619,16 @@
             if (response.ok) {
                 const data = await response.json();
                 console.log('✅ Courses loaded from API:', data.length || data.data?.length);
-                allCourses = data.data || data || [];
+                allCourses = data.data || [];
             }
 
             displayCourses();
             updatePagination(allCourses.length);
 
         } catch (error) {
-            console.error('❌ Error loading courses:', error);            
-            displayCourses();
-            updatePagination(allCourses.length);
+            console.error('❌ Error loading courses:', error);
+            document.getElementById('coursesTableContainer').innerHTML = '<div class="error">Failed to load courses. Please try again.</div>';
         }
-    }
-
-    // Demo courses data for when API is not available
-    function getDemoCourses() {
-        return [];
     }
 
     function displayCourses(courses = allCourses) {
