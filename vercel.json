@@ -2,29 +2,23 @@
   "version": 2,
   "builds": [
     {
-      "src": "backend/api/**/*.js",
-      "use": "@vercel/node"
+      "src": "backend/package.json",
+      "use": "@vercel/node",
+      "config": { "includeFiles": ["prisma/**"] }
     },
     {
       "src": "frontend/**",
       "use": "@vercel/static"
     }
   ],
-  "functions": {
-    "backend/api/**/*.js": {
-      "memory": 1024
-    }
-  },
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "/backend/api/:path*"
+      "destination": "/backend/api/$1"
     },
     {
       "source": "/((?!api/|favicon.ico|robots.txt).*)",
       "destination": "/index.html"
     }
-  ],
-  "buildCommand": "npm run vercel-build",
-  "outputDirectory": "frontend"
+  ]
 }
