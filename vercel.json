@@ -1,10 +1,4 @@
 {
-  "builds": [
-    {
-      "src": "backend/api/**/*.js",
-      "use": "@vercel/node"
-    }
-  ],
   "functions": {
     "backend/api/**/*.js": {
       "memory": 1024
