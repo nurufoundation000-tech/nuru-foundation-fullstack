@@ -574,15 +574,91 @@
     }
 
     async function loadCourses() {
-        // Implementation similar to other pages
+        try {
+            const token = localStorage.getItem('token');
+            const response = await fetch(`${API_BASE_URL}/tutor/courses?limit=1000`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (response.ok) {
+                const data = await response.json();
+                courses = data.data || [];
+                populateCourseFilter();
+            }
+        } catch (error) {
+            console.error('Error loading courses:', error);
+        }
+    }
+
+    function populateCourseFilter() {
+        const courseFilter = document.getElementById('courseFilter');
+        courseFilter.innerHTML = '<option value="">All Courses</option>';
+        courses.forEach(course => {
+            const option = document.createElement('option');
+            option.value = course.id;
+            option.textContent = course.title;
+            courseFilter.appendChild(option);
+        });
     }
 
     async function loadAllAssignments() {
-        // Implementation to fetch all assignments for the filters
+        try {
+            const token = localStorage.getItem('token');
+            const response = await fetch(`${API_BASE_URL}/tutor/assignments?limit=1000`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (response.ok) {
+                const data = await response.json();
+                assignments = data.data || [];
+                populateAssignmentFilter();
+            }
+        } catch (error) {
+            console.error('Error loading assignments:', error);
+        }
+    }
+
+    function populateAssignmentFilter() {
+        const assignmentFilter = document.getElementById('assignmentFilter');
+        assignmentFilter.innerHTML = '<option value="">All Assignments</option>';
+        assignments.forEach(assignment => {
+            const option = document.createElement('option');
+            option.value = assignment.id;
+            option.textContent = `${assignment.lesson.course.title} - ${assignment.title}`;
+            assignmentFilter.appendChild(option);
+        });
     }
 
     async function loadSubmissions(page = 1) {
-        // Main logic to fetch submissions
+        const container = document.getElementById('submissionsContainer');
+        container.innerHTML = '<div class="loading">Loading submissions...</div>';
+        try {
+            const token = localStorage.getItem('token');
+            const urlParams = new URLSearchParams(window.location.search);
+            const assignmentId = urlParams.get('assignmentId');
+
+            let url = `${API_BASE_URL}/tutor/submissions?page=${page}&limit=15`;
+            if (assignmentId) {
+                url += `&assignmentId=${assignmentId}`;
+                document.getElementById('assignmentFilter').value = assignmentId;
+            }
+
+            const response = await fetch(url, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                allSubmissions = data.data || [];
+                currentPage = data.pagination?.page || 1;
+                totalPages = data.pagination?.pages || 1;
+                filterSubmissions(); // This will also call display
+                updatePagination(data.pagination);
+            } else {
+                throw new Error('Failed to load submissions');
+            }
+        } catch (error) {
+            console.error('Error loading submissions:', error);
+            container.innerHTML = '<div class="error">Failed to load submissions. Please try again.</div>';
+        }
     }
 
     function displaySubmissions(submissions) {
@@ -694,9 +770,45 @@
     }
 
     function refreshSubmissions() { loadSubmissions(currentPage); }
-    function filterSubmissions() { /* Filter logic similar to other pages */ }
+
+    function filterSubmissions() {
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+        const courseFilter = document.getElementById('courseFilter').value;
+        const assignmentFilter = document.getElementById('assignmentFilter').value;
+        const statusFilter = document.getElementById('statusFilter').value;
+
+        filteredSubmissions = allSubmissions.filter(sub => {
+            const matchesSearch = sub.student.fullName.toLowerCase().includes(searchTerm) ||
+                                  sub.student.email.toLowerCase().includes(searchTerm) ||
+                                  sub.assignment.title.toLowerCase().includes(searchTerm);
+            const matchesCourse = !courseFilter || sub.assignment.lesson.courseId.toString() === courseFilter;
+            const matchesAssignment = !assignmentFilter || sub.assignmentId.toString() === assignmentFilter;
+            const matchesStatus = !statusFilter || (statusFilter === 'graded' && sub.grade !== null) || (statusFilter === 'pending' && sub.grade === null);
+
+            return matchesSearch && matchesCourse && matchesAssignment && matchesStatus;
+        });
+
+        displaySubmissions(filteredSubmissions);
+    }
+
     function changePage(page) { if (page >= 1 && page <= totalPages) loadSubmissions(page); }
-    function updatePagination(pagination) { /* Pagination logic similar to other pages */ }
+
+    function updatePagination(pagination) {
+        const container = document.getElementById('paginationContainer');
+        const info = document.getElementById('paginationInfo');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+
+        if (!pagination || pagination.pages <= 1) {
+            container.style.display = 'none';
+            return;
+        }
+
+        container.style.display = 'flex';
+        info.textContent = `Page ${pagination.page} of ${pagination.pages} (${pagination.total} submissions)`;
+        prevBtn.disabled = pagination.page <= 1;
+        nextBtn.disabled = pagination.page >= pagination.pages;
+    }
 
     function logout() {
         localStorage.removeItem('token');

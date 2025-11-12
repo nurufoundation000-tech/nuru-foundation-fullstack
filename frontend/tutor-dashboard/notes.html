@@ -584,7 +584,23 @@
 
     function refreshNotes() { loadNotes(currentPage); }
     function changePage(page) { if (page >= 1 && page <= totalPages) loadNotes(page); }
-    function updatePagination(pagination) { /* Similar to other pages */ }
+    function updatePagination(pagination) {
+        const container = document.getElementById('paginationContainer');
+        const info = document.getElementById('paginationInfo');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+
+        if (!pagination || pagination.pages <= 1) {
+            container.style.display = 'none';
+            return;
+        }
+
+        container.style.display = 'flex';
+        info.textContent = `Page ${pagination.page} of ${pagination.pages} (${pagination.total} notes)`;
+        prevBtn.disabled = pagination.page <= 1;
+        nextBtn.disabled = pagination.page >= pagination.pages;
+    }
+
 
     function openCreateModal() {
         document.getElementById('modalTitle').textContent = 'Add New Note';

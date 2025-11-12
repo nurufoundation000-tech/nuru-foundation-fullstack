@@ -586,8 +586,8 @@
                 // Redirect non-admin users to their appropriate dashboard
                 if (userRole === 'student') {
                     window.location.href = '/student-dashboard/index.html';
-                } else if (userRole === 'teacher' || userRole === 'tutor') {
-                    window.location.href = '/teacher-dashboard/index.html';
+                } else if (userRole === 'tutor') {
+                    window.location.href = '/tutor-dashboard/index.html';
                 } else {
                     window.location.href = '/dashboard.html';
                 }
@@ -620,18 +620,13 @@
                 const data = await response.json();
                 console.log('✅ Courses loaded from API:', data.length || data.data?.length);
                 allCourses = data.data || data || [];
-            } else {
-                console.log('⚠️ API not available, using demo data');
-                allCourses = getDemoCourses();
             }
 
             displayCourses();
             updatePagination(allCourses.length);
 
         } catch (error) {
-            console.error('❌ Error loading courses:', error);
-            // Use demo data as fallback
-            allCourses = getDemoCourses();
+            console.error('❌ Error loading courses:', error);            
             displayCourses();
             updatePagination(allCourses.length);
         }
@@ -639,103 +634,7 @@
 
     // Demo courses data for when API is not available
     function getDemoCourses() {
-        return [
-            {
-                id: 1,
-                title: "Computer Packages",
-                description: "Learn essential computer skills including MS Office, typing, and basic computer operations.",
-                category: "Technology",
-                level: "Beginner",
-                isPublished: true,
-                thumbnailUrl: null,
-                tutor: {
-                    username: "tech_tutor",
-                    fullName: "John Smith",
-                    email: "john@nurufoundation.org"
-                },
-                _count: {
-                    enrollments: 156,
-                    lessons: 10,
-                    courseReviews: 23
-                }
-            },
-            {
-                id: 2,
-                title: "Introduction to Programming",
-                description: "Learn the fundamentals of programming with Python and basic algorithms.",
-                category: "Programming",
-                level: "Beginner",
-                isPublished: true,
-                thumbnailUrl: null,
-                tutor: {
-                    username: "code_master",
-                    fullName: "Sarah Johnson",
-                    email: "sarah@nurufoundation.org"
-                },
-                _count: {
-                    enrollments: 89,
-                    lessons: 8,
-                    courseReviews: 15
-                }
-            },
-            {
-                id: 3,
-                title: "Web Development Basics",
-                description: "Learn HTML, CSS, and JavaScript to build modern websites.",
-                category: "Web Development",
-                level: "Intermediate",
-                isPublished: true,
-                thumbnailUrl: null,
-                tutor: {
-                    username: "web_dev",
-                    fullName: "Mike Davis",
-                    email: "mike@nurufoundation.org"
-                },
-                _count: {
-                    enrollments: 67,
-                    lessons: 12,
-                    courseReviews: 18
-                }
-            },
-            {
-                id: 4,
-                title: "Advanced Data Science",
-                description: "Master data analysis, machine learning, and data visualization techniques.",
-                category: "Data Science",
-                level: "Advanced",
-                isPublished: false,
-                thumbnailUrl: null,
-                tutor: {
-                    username: "data_guru",
-                    fullName: "Emily Chen",
-                    email: "emily@nurufoundation.org"
-                },
-                _count: {
-                    enrollments: 34,
-                    lessons: 15,
-                    courseReviews: 8
-                }
-            },
-            {
-                id: 5,
-                title: "Digital Marketing Fundamentals",
-                description: "Learn SEO, social media marketing, and digital advertising strategies.",
-                category: "Marketing",
-                level: "Beginner",
-                isPublished: true,
-                thumbnailUrl: null,
-                tutor: {
-                    username: "marketing_pro",
-                    fullName: "David Wilson",
-                    email: "david@nurufoundation.org"
-                },
-                _count: {
-                    enrollments: 78,
-                    lessons: 9,
-                    courseReviews: 12
-                }
-            }
-        ];
+        return [];
     }
 
     function displayCourses(courses = allCourses) {

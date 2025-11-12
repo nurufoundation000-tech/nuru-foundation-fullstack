@@ -560,8 +560,8 @@
                     // Redirect non-admin users to their appropriate dashboard
                     if (userRole === 'student') {
                         window.location.href = '/student-dashboard/index.html';
-                    } else if (userRole === 'teacher' || userRole === 'tutor') {
-                        window.location.href = '/teacher-dashboard/index.html';
+                } else if (userRole === 'tutor') {
+                    window.location.href = '/tutor-dashboard/index.html';
                     } else {
                         window.location.href = '/dashboard.html';
                     }
@@ -593,18 +593,13 @@
                     const data = await response.json();
                     console.log('✅ Users loaded from API:', data.length || data.data?.length);
                     allUsers = data.data || data || [];
-                } else {
-                    console.log('⚠️ API not available, using demo data');
-                    allUsers = getDemoUsers();
                 }
 
                 displayUsers();
                 updatePagination(allUsers.length);
 
             } catch (error) {
-                console.error('❌ Error loading users:', error);
-                // Use demo data as fallback
-                allUsers = getDemoUsers();
+            console.error('❌ Error loading users:', error);            
                 displayUsers();
                 updatePagination(allUsers.length);
             }
@@ -612,53 +607,7 @@
 
         // Demo users data for when API is not available
         function getDemoUsers() {
-            return [
-                {
-                    id: 1,
-                    username: "john_doe",
-                    email: "john@example.com",
-                    fullName: "John Doe",
-                    role: { name: "student" },
-                    isActive: true,
-                    createdAt: "2024-01-15T10:30:00Z"
-                },
-                {
-                    id: 2,
-                    username: "jane_smith",
-                    email: "jane@example.com",
-                    fullName: "Jane Smith",
-                    role: { name: "tutor" },
-                    isActive: true,
-                    createdAt: "2024-01-10T14:20:00Z"
-                },
-                {
-                    id: 3,
-                    username: "admin_user",
-                    email: "admin@nurufoundation.org",
-                    fullName: "System Administrator",
-                    role: { name: "admin" },
-                    isActive: true,
-                    createdAt: "2024-01-01T09:00:00Z"
-                },
-                {
-                    id: 4,
-                    username: "mike_wilson",
-                    email: "mike@example.com",
-                    fullName: "Mike Wilson",
-                    role: { name: "student" },
-                    isActive: false,
-                    createdAt: "2024-01-20T11:45:00Z"
-                },
-                {
-                    id: 5,
-                    username: "sarah_jones",
-                    email: "sarah@example.com",
-                    fullName: "Sarah Jones",
-                    role: { name: "tutor" },
-                    isActive: true,
-                    createdAt: "2024-01-18T16:20:00Z"
-                }
-            ];
+        return [];
         }
 
         function displayUsers(users = allUsers) {
