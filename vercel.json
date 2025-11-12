@@ -16,7 +16,7 @@
       "destination": "/backend/api/:path*"
     },
     {
-      "source": "/((?!api/)[^\\.]*)",
+      "source": "/(.*)",
       "destination": "/frontend/index.html"
     },
     {
