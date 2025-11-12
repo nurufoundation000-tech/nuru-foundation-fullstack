@@ -7,6 +7,9 @@
     {
       "source": "/api/:path*",
       "destination": "/api/:path*"
+    },
+    {
+    "buildCommand": "cd backend && npm install && npx prisma generate"
     }
   ]
 }

@@ -10,13 +10,5 @@
     "jsonwebtoken": "^9.0.2",
     "mysql2": "^3.15.3",
     "serverless-http": "^4.0.0"
-  },
-  "name": "nuru-foundation-monorepo",
-  "private": true,
-  "workspaces": [
-    "backend"
-  ],
-  "scripts": {
-    "vercel-build": "npm install --prefix backend && npx prisma generate --schema=backend/prisma/schema.prisma"
   }
 }
