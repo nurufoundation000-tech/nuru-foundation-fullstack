@@ -609,7 +609,7 @@
             console.log('📚 Loading courses...');
 
             // Try to load from API first
-            const response = await fetch(`${API_BASE_URL}/courses`, {
+            const response = await fetch(`${API_BASE_URL}/admin/courses`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
@@ -831,8 +831,8 @@
         try {
             const token = localStorage.getItem('token');
             const url = currentEditingId ? 
-                `${API_BASE_URL}/courses/${currentEditingId}` :
-                `${API_BASE_URL}/courses`;
+                `${API_BASE_URL}/admin/courses/${currentEditingId}` :
+                `${API_BASE_URL}/admin/courses`;
 
             const response = await fetch(url, {
                 method: currentEditingId ? 'PUT' : 'POST',
@@ -944,7 +944,7 @@
 
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`${API_BASE_URL}/courses/${courseId}`, {
+            const response = await fetch(`${API_BASE_URL}/admin/courses/${courseId}`, {
                 method: 'PUT',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -998,7 +998,7 @@
 
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`${API_BASE_URL}/courses/${courseId}`, {
+            const response = await fetch(`${API_BASE_URL}/admin/courses/${courseId}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${token}`
