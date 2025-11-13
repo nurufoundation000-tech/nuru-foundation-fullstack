@@ -48,9 +48,13 @@ const router = {
   },
   async handle(req, res) {
     const path = req.url.split('?')[0];
+    console.log(`[Tutor Router] Handling ${req.method} ${path}`);
+    console.log(`[Tutor Router] Available routes:`, Object.keys(this.handlers));
+
     const handler = this.handlers[`${req.method}:${path}`];
 
     if (handler) {
+      console.log(`[Tutor Router] Handler found for ${req.method}:${path}`);
       try {
         const body = await parseJsonBody(req);
         await handler(req, res, body);
@@ -63,6 +67,7 @@ const router = {
         return res.status(500).json({ message: 'Server error' });
       }
     } else {
+      console.log(`[Tutor Router] No handler found for ${req.method}:${path}`);
       res.status(404).json({ message: `Tutor endpoint not found: ${req.method} ${path}` });
     }
   }
