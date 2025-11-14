@@ -12,6 +12,8 @@ console.log('📊 NODE_ENV after setting:', process.env.NODE_ENV);
 const serverlessApp = serverless(app, {
   // Set a reasonable timeout to avoid Vercel 300s limit
   timeout: 20 * 1000, // 20 seconds
+  // Strip the /api base path from req.url
+  basePath: '/api'
 });
 
 console.log('🔧 Wrapping app with serverless-http...');

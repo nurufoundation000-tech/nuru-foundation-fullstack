@@ -30,6 +30,12 @@ app.use(helmet());
 app.use(cors());
 app.use(express.json());
 
+// Debug middleware
+app.use((req, res, next) => {
+  console.log('🔥 APP REQUEST:', req.method, req.url, req.headers.host);
+  next();
+});
+
 // Health check route
 app.get('/health', async (req, res) => {
   try {
