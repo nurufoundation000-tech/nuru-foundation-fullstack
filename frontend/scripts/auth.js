@@ -1,5 +1,5 @@
 // const API_BASE_URL = 'localhost' ? 'http://localhost:5000/api'  : 'https://nuru-foundation-fullstack.vercel.app/api';
-const API_BASE_URL = 'https://nuru-foundation-fullstack.vercel.app/api';
+const API_BASE_URL = '/api';
 
 class AuthService {
     constructor() {
