@@ -1,5 +1,5 @@
 const serverless = require('serverless-http');
-const app = require('../app');
+const app = require('../backend/app');
 
 console.log('🚀 Initializing serverless deployment...');
 console.log('📊 NODE_ENV before setting:', process.env.NODE_ENV);

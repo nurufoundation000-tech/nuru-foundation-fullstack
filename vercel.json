@@ -2,8 +2,9 @@
   "version": 2,
   "builds": [
     {
-      "src": "api/**/*.js",
-      "use": "@vercel/node"
+      "src": "api/index.js",
+      "use": "@vercel/node",
+      "config": { "includeFiles": ["backend/prisma/**"] }
     },
     {
       "src": "frontend/**",
@@ -11,6 +12,10 @@
     }
   ],
   "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/api/$1"
+    },
     {
       "source": "/(.*)",
       "destination": "/frontend/$1"
