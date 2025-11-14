@@ -29,10 +29,18 @@ const setCorsHeaders = (res) => {
 
 // Main serverless function
 module.exports = async (req, res) => {
+  console.log('🔥 AUTH FUNCTION CALLED:', {
+    method: req.method,
+    url: req.url,
+    headers: req.headers,
+    timestamp: new Date().toISOString()
+  });
+
   setCorsHeaders(res);
-  
+
   // Handle preflight OPTIONS request
   if (req.method === 'OPTIONS') {
+    console.log('🔥 Handling OPTIONS request');
     return res.status(200).end();
   }
 
