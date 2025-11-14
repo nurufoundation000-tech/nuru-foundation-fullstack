@@ -31,7 +31,7 @@ app.use(cors());
 app.use(express.json());
 
 // Health check route
-app.get('/api/health', async (req, res) => {
+app.get('/health', async (req, res) => {
   try {
     // Test database connectivity
     const prisma = require('./lib/prisma');
@@ -121,15 +121,15 @@ try {
 }
 
 console.log('🔗 Setting up route handlers...');
-if (authRoutes) app.use('/api/auth', authRoutes);
-if (userRoutes) app.use('/api/users', userRoutes);
-if (courseRoutes) app.use('/api/courses', courseRoutes);
-if (lessonRoutes) app.use('/api/lessons', lessonRoutes);
-if (assignmentRoutes) app.use('/api/assignments', assignmentRoutes);
-if (submissionRoutes) app.use('/api/submissions', submissionRoutes);
-if (moderationRoutes) app.use('/api/moderation', moderationRoutes);
-if (adminRoutes) app.use('/api/admin', adminRoutes);
-if (tutorRoutes) app.use('/api/tutor', tutorRoutes);
+if (authRoutes) app.use('/auth', authRoutes);
+if (userRoutes) app.use('/users', userRoutes);
+if (courseRoutes) app.use('/courses', courseRoutes);
+if (lessonRoutes) app.use('/lessons', lessonRoutes);
+if (assignmentRoutes) app.use('/assignments', assignmentRoutes);
+if (submissionRoutes) app.use('/submissions', submissionRoutes);
+if (moderationRoutes) app.use('/moderation', moderationRoutes);
+if (adminRoutes) app.use('/admin', adminRoutes);
+if (tutorRoutes) app.use('/tutor', tutorRoutes);
 console.log('✅ Route handlers configured');
 
 // Error handling middleware
