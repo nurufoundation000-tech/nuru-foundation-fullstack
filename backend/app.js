@@ -28,7 +28,7 @@ app.set('trust proxy', 1);
 // Middleware
 app.use(helmet());
 app.use(cors({
-  origin: ['http://localhost:5000', 'https://nuru-foundation-fullstack.vercel.app', 'http://localhost:3000'],
+  origin: ['https://nuru-foundation-fullstack.vercel.app'],
   credentials: true
 }));
 app.use(express.json());
