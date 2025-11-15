@@ -4,8 +4,8 @@
   "scripts": {
     "db:reset": "npx prisma migrate reset --force --schema api/prisma/schema.prisma",
     "db:seed": "node api/prisma/seed.js",
-    "build": "prisma generate --schema api/prisma/schema.prisma",
-    "postinstall": "prisma generate --schema api/prisma/schema.prisma",
+    "build": "npx prisma generate --schema api/prisma/schema.prisma",
+    "postinstall": "npx prisma generate --schema api/prisma/schema.prisma",
     "dev": "cd api && nodemon app.js",
     "start": "cd api && node app.js",
     "vercel-build": "npm run build"

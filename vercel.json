@@ -4,7 +4,7 @@
     {
       "src": "api/index.js",
       "use": "@vercel/node",
-      "config": { "includeFiles": ["backend/prisma/**"] }
+      "config": { "includeFiles": ["api/prisma/**"] }
     },
     {
       "src": "frontend/**",
