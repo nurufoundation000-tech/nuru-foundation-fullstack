@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const { authenticateToken, requireRole } = require('../middleware/auth');
-const prisma = require('../config/database');
+const { authenticateToken, requireRole } = require('../lib/auth');
+const prisma = require('../lib/prisma');
 
 // Admin action logging
 router.post('/actions', authenticateToken, requireRole(['admin']), async (req, res) => {
