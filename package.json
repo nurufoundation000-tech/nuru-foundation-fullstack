@@ -2,12 +2,10 @@
   "name": "nuru-foundation-monorepo",
   "private": true,
   "scripts": {
-    "db:reset": "npx prisma migrate reset --force --schema api/prisma/schema.prisma",
-    "db:seed": "node api/prisma/seed.js",
-    "build": "npx prisma generate --schema api/prisma/schema.prisma",
-    "dev": "cd api && node app.js",
-    "start": "cd api && node app.js",
-    "vercel-build": "npx prisma generate --schema api/prisma/schema.prisma"
+    "build": "npx prisma generate",
+    "dev": "node api/index.js",
+    "start": "node api/index.js",
+    "vercel-build": "npx prisma generate"
   },
   "dependencies": {
     "@prisma/client": "^6.17.0",
