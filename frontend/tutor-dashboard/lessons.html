@@ -596,7 +596,7 @@
 
     <script>
     const API_BASE_URL = window.location.hostname === 'localhost'
-        ? 'http://localhost:5000/api'
+        ? 'http://localhost:3000/api'
         : 'https://nuru-foundation-fullstack.vercel.app/api';
 
     let currentPage = 1;
@@ -708,6 +708,8 @@
             let url = `${API_BASE_URL}/tutor/lessons?page=${page}&limit=12`;
             if (search) url += `&search=${encodeURIComponent(search)}`;
 
+            console.log('📖 Fetching lessons from:', url);
+
             const response = await fetch(url, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -717,26 +719,41 @@
 
             if (response.ok) {
                 const data = await response.json();
-                allLessons = data.data || [];
-                filteredLessons = allLessons;
+                console.log('✅ Lessons loaded:', data);
+                
+                if (data.success) {
+                    allLessons = data.data || [];
+                    filteredLessons = allLessons;
 
-                // Apply client-side course filter if needed
-                if (courseFilter) {
-                    filteredLessons = allLessons.filter(lesson => lesson.course.id.toString() === courseFilter);
+                    // Apply client-side course filter if needed
+                    if (courseFilter) {
+                        filteredLessons = allLessons.filter(lesson => lesson.courseId.toString() === courseFilter);
+                    }
+
+                    currentPage = data.pagination?.page || 1;
+                    totalPages = data.pagination?.pages || 1;
+
+                    displayLessons(filteredLessons);
+                    updatePagination(data.pagination);
+                } else {
+                    throw new Error(data.error || 'Failed to load lessons');
                 }
-
-                currentPage = data.pagination?.page || 1;
-                totalPages = data.pagination?.pages || 1;
-
-                displayLessons(filteredLessons);
-                updatePagination(data.pagination);
             } else {
-                throw new Error('Failed to load lessons');
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.error || `HTTP ${response.status}: Failed to load lessons`);
             }
         } catch (error) {
-            console.error('Error loading lessons:', error);
-            document.getElementById('lessonsContainer').innerHTML =
-                '<div class="error">Failed to load lessons. Please try again.</div>';
+            console.error('❌ Error loading lessons:', error);
+            document.getElementById('lessonsContainer').innerHTML = `
+                <div class="error" style="text-align: center; padding: 40px;">
+                    <i class="fas fa-exclamation-triangle" style="font-size: 3rem; margin-bottom: 15px;"></i>
+                    <h3>Failed to load lessons</h3>
+                    <p>${error.message}</p>
+                    <button class="btn btn-primary" onclick="loadLessons(1)" style="margin-top: 15px;">
+                        <i class="fas fa-redo"></i> Try Again
+                    </button>
+                </div>
+            `;
         }
     }
 

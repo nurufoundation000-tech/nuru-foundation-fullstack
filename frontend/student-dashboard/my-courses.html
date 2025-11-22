@@ -432,7 +432,11 @@
     <div id="footerContainer"></div>
 
     <script>
-        const API_BASE_URL = 'https://nuru-foundation-fullstack.vercel.app/api';
+        // FIXED: Correct API base URL for student endpoints
+        const API_BASE_URL = window.location.hostname === 'localhost' 
+            ? 'http://localhost:3000/api'
+            : 'https://nuru-foundation-fullstack.vercel.app/api';
+
         let allCourses = [];
         let currentUnenrollId = null;
 
@@ -443,7 +447,7 @@
         });
 
         function loadHeaderAndFooter() {
-            // FIXED: Load header from root path
+            // Load header
             fetch('/header.html')
                 .then(response => response.text())
                 .then(data => {
@@ -469,7 +473,7 @@
                 })
                 .catch(error => console.error('Error loading header:', error));
 
-            // FIXED: Load footer from root path
+            // Load footer
             fetch('/footer.html')
                 .then(response => response.text())
                 .then(data => {
@@ -483,12 +487,27 @@
 
         function checkAuthAndLoadCourses() {
             const token = localStorage.getItem('token');
-            if (!token) {
-                        window.location.href = '../login.html';
-                        return;
+            const userData = localStorage.getItem('user');
+            
+            if (!token || !userData) {
+                window.location.href = '/login.html';
+                return;
             }
 
-            loadCourses();
+            try {
+                const user = JSON.parse(userData);
+                const userRole = user.role?.name || user.role;
+                
+                if (userRole !== 'student') {
+                    window.location.href = '/dashboard.html';
+                    return;
+                }
+                
+                loadCourses();
+            } catch (error) {
+                console.error('Error checking auth:', error);
+                window.location.href = '/login.html';
+            }
         }
 
         function setupEventListeners() {
@@ -500,34 +519,218 @@
         async function loadCourses() {
             try {
                 const token = localStorage.getItem('token');
-                const response = await fetch(`${API_BASE_URL}/courses/progress`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    }
-                });
-
-                if (!response.ok) {
-                    if (response.status === 401) {
-                        window.location.href = '/login.html';
-                        return;
-                    }
-                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                const userData = localStorage.getItem('user');
+                
+                // Check if user is authenticated
+                if (!token || !userData) {
+                    showErrorMessage('Please log in to view your courses');
+                    setTimeout(() => {
+                        window.location.href = '../login.html';
+                    }, 2000);
+                    return;
                 }
 
-                allCourses = await response.json();
-                updateStats();
-                displayCourses(allCourses);
-            } catch (error) {
-                console.error('Error loading courses:', error);
+                // Show loading state
                 document.getElementById('coursesContent').innerHTML = `
-                    <div class="error">
-                        <i class="fas fa-exclamation-triangle"></i>
-                        Error loading courses. Please try again later.
+                    <div class="loading">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        Loading your courses...
                     </div>
                 `;
+
+                // Try both endpoints for compatibility
+                const endpoints = [
+                    `${API_BASE_URL}/student/courses/progress`,
+                    `${API_BASE_URL}/courses/progress`
+                ];
+
+                let response;
+                let lastError;
+
+                for (const endpoint of endpoints) {
+                    try {
+                        console.log(`Trying endpoint: ${endpoint}`);
+                        response = await fetch(endpoint, {
+                            headers: {
+                                'Authorization': `Bearer ${token}`,
+                                'Content-Type': 'application/json'
+                            }
+                        });
+
+                        if (response.ok) {
+                            break; // Use this endpoint if successful
+                        } else {
+                            lastError = `HTTP ${response.status}: ${response.statusText}`;
+                        }
+                    } catch (error) {
+                        lastError = error.message;
+                        console.log(`Endpoint ${endpoint} failed:`, error);
+                    }
+                }
+
+                // Check if any request was successful
+                if (!response || !response.ok) {
+                    if (response && response.status === 401) {
+                        localStorage.removeItem('token');
+                        localStorage.removeItem('user');
+                        showErrorMessage('Session expired. Please log in again.');
+                        setTimeout(() => {
+                            window.location.href = '../login.html';
+                        }, 2000);
+                        return;
+                    }
+                    throw new Error(lastError || 'Failed to load courses from all endpoints');
+                }
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    allCourses = data.data || [];
+                    updateStats();
+                    filterAndDisplayCourses();
+                } else {
+                    throw new Error(data.error || 'Failed to load courses');
+                }
+
+            } catch (error) {
+                console.error('Error loading courses:', error);
+                showErrorMessage(`Error loading courses: ${error.message}`);
             }
         }
+
+        // Helper function to show error messages
+        function showErrorMessage(message) {
+            document.getElementById('coursesContent').innerHTML = `
+                <div class="error">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    ${message}
+                    <div style="margin-top: 10px;">
+                        <button class="course-btn" onclick="loadCourses()" style="margin-right: 10px;">
+                            <i class="fas fa-redo"></i> Try Again
+                        </button>
+                        <button class="course-btn secondary" onclick="window.location.href='../courses.html'">
+                            <i class="fas fa-search"></i> Browse Courses
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Enhanced updateStats function
+        function updateStats() {
+            const enrolledCount = allCourses.length;
+            const completedCount = allCourses.filter(course => course.progress >= 100).length;
+            const inProgressCount = allCourses.filter(course => course.progress > 0 && course.progress < 100).length;
+            const avgProgress = enrolledCount > 0
+                ? Math.round(allCourses.reduce((sum, course) => sum + (course.progress || 0), 0) / enrolledCount)
+                : 0;
+
+            // Update DOM elements safely
+            const enrolledElement = document.getElementById('enrolledCount');
+            const completedElement = document.getElementById('completedCount');
+            const inProgressElement = document.getElementById('inProgressCount');
+            const totalProgressElement = document.getElementById('totalProgress');
+
+            if (enrolledElement) enrolledElement.textContent = enrolledCount;
+            if (completedElement) completedElement.textContent = completedCount;
+            if (inProgressElement) inProgressElement.textContent = inProgressCount;
+            if (totalProgressElement) totalProgressElement.textContent = `${avgProgress}%`;
+        }
+
+        // Enhanced filterAndDisplayCourses function
+        function filterAndDisplayCourses() {
+            const statusFilter = document.getElementById('statusFilter')?.value || 'all';
+            const sortBy = document.getElementById('sortBy')?.value || 'recent';
+            const searchTerm = document.getElementById('searchInput')?.value.toLowerCase() || '';
+
+            let filteredCourses = [...allCourses];
+
+            // Apply status filter
+            switch (statusFilter) {
+                case 'completed':
+                    filteredCourses = filteredCourses.filter(course => course.progress >= 100);
+                    break;
+                case 'in-progress':
+                    filteredCourses = filteredCourses.filter(course => (course.progress || 0) > 0 && (course.progress || 0) < 100);
+                    break;
+                case 'not-started':
+                    filteredCourses = filteredCourses.filter(course => !course.progress || course.progress === 0);
+                    break;
+            }
+
+            // Apply search filter
+            if (searchTerm) {
+                filteredCourses = filteredCourses.filter(course => {
+                    const courseTitle = course.course?.title?.toLowerCase() || '';
+                    const courseDescription = course.course?.description?.toLowerCase() || '';
+                    const tutorName = course.course?.tutor?.fullName?.toLowerCase() || '';
+                    const tutorUsername = course.course?.tutor?.username?.toLowerCase() || '';
+                    
+                    return courseTitle.includes(searchTerm) ||
+                        courseDescription.includes(searchTerm) ||
+                        tutorName.includes(searchTerm) ||
+                        tutorUsername.includes(searchTerm);
+                });
+            }
+
+            // Apply sorting
+            switch (sortBy) {
+                case 'progress':
+                    filteredCourses.sort((a, b) => (b.progress || 0) - (a.progress || 0));
+                    break;
+                case 'title':
+                    filteredCourses.sort((a, b) => (a.course?.title || '').localeCompare(b.course?.title || ''));
+                    break;
+                case 'recent':
+                default:
+                    filteredCourses.sort((a, b) => new Date(b.enrolledAt || 0) - new Date(a.enrolledAt || 0));
+                    break;
+            }
+
+            displayCourses(filteredCourses);
+        }
+
+// Enhanced displayCourses function
+function displayCourses(courses) {
+    const container = document.getElementById('coursesContent');
+
+    if (!container) {
+        console.error('Courses container not found');
+        return;
+    }
+
+    if (courses.length === 0) {
+        container.innerHTML = `
+            <div class="no-courses">
+                <i class="fas fa-book-open"></i>
+                <h3>No courses found</h3>
+                <p>${allCourses.length === 0 ? 'You haven\'t enrolled in any courses yet.' : 'No courses match your current filters.'}</p>
+                ${allCourses.length === 0 ? 
+                    '<a href="../courses.html" class="course-btn">Browse Courses</a>' : 
+                    '<button class="course-btn" onclick="clearFilters()">Clear Filters</button>'
+                }
+            </div>
+        `;
+        return;
+    }
+
+    container.innerHTML = `
+        <div class="courses-grid">
+            ${courses.map(enrollment => createCourseCard(enrollment)).join('')}
+        </div>
+    `;
+}
+
+// Helper function to clear filters
+function clearFilters() {
+    const statusFilter = document.getElementById('statusFilter');
+    const searchInput = document.getElementById('searchInput');
+    
+    if (statusFilter) statusFilter.value = 'all';
+    if (searchInput) searchInput.value = '';
+    
+    filterAndDisplayCourses();
+}
 
         function updateStats() {
             const enrolledCount = allCourses.length;
@@ -568,6 +771,7 @@
                 filteredCourses = filteredCourses.filter(course =>
                     course.course.title.toLowerCase().includes(searchTerm) ||
                     course.course.description?.toLowerCase().includes(searchTerm) ||
+                    course.course.tutor?.fullName?.toLowerCase().includes(searchTerm) ||
                     course.course.tutor?.username?.toLowerCase().includes(searchTerm)
                 );
             }
@@ -682,7 +886,7 @@
 
             try {
                 const token = localStorage.getItem('token');
-                const response = await fetch(`${API_BASE_URL}/courses/${currentUnenrollId}/unenroll`, {
+                const response = await fetch(`${API_BASE_URL}/student/courses/${currentUnenrollId}/unenroll`, {
                     method: 'DELETE',
                     headers: {
                         'Authorization': `Bearer ${token}`,
@@ -694,13 +898,19 @@
                     throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                 }
 
-                closeUnenrollModal();
-                // Reload courses
-                await loadCourses();
-                alert('Successfully unenrolled from the course.');
+                const data = await response.json();
+                
+                if (data.success) {
+                    closeUnenrollModal();
+                    // Reload courses
+                    await loadCourses();
+                    alert('Successfully unenrolled from the course.');
+                } else {
+                    throw new Error(data.error || 'Failed to unenroll');
+                }
             } catch (error) {
                 console.error('Error unenrolling:', error);
-                alert('Error unenrolling from course. Please try again.');
+                alert('Error unenrolling from course: ' + error.message);
             }
         }
 

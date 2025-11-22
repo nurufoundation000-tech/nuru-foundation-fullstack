@@ -452,6 +452,32 @@
             justify-content: flex-end;
         }
 
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #2c3e50;
+        }
+
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            background: white;
+        }
+
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .tutor-container {
@@ -528,6 +554,9 @@
                     <button class="btn btn-secondary" onclick="refreshEnrollments()">
                         <i class="fas fa-sync-alt"></i> Refresh
                     </button>
+                    <button class="btn btn-primary" onclick="openAddEnrollmentModal()">
+                        <i class="fas fa-user-plus"></i> Add Enrollment
+                    </button>
                 </div>
             </div>
 
@@ -579,16 +608,45 @@
         </div>
     </div>
 
+    <!-- Add Enrollment Modal -->
+    <div id="addEnrollmentModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeAddModal()">&times;</span>
+            <h2>Enroll Student in Course</h2>
+            <form id="addEnrollmentForm">
+                <div class="form-group">
+                    <label for="studentSelect">Select Student *</label>
+                    <select id="studentSelect" required>
+                        <option value="">Loading students...</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="courseSelect">Select Course *</label>
+                    <select id="courseSelect" required>
+                        <option value="">Loading courses...</option>
+                    </select>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeAddModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-user-plus"></i> Enroll Student
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
     const API_BASE_URL = window.location.hostname === 'localhost'
-        ? 'http://localhost:5000/api'
-        : 'https://nuru-foundation-fullstack.vercel.app/api';
+        ? 'http://localhost:3000/api/tutor'
+        : 'https://nuru-foundation-fullstack.vercel.app/api/tutor';
 
     let currentPage = 1;
     let totalPages = 1;
     let allEnrollments = [];
     let filteredEnrollments = [];
     let courses = [];
+    let allStudents = [];
 
     document.addEventListener('DOMContentLoaded', function() {
         initializeEnrollmentsPage();
@@ -636,7 +694,7 @@
     async function loadCourses() {
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`${API_BASE_URL}/tutor/courses?page=1&limit=100`, {
+            const response = await fetch(`${API_BASE_URL}/courses?page=1&limit=100`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
@@ -665,11 +723,11 @@
         });
     }
 
-    async function loadEnrollments(page = 1) {
+    // Load students for the enrollment form
+    async function loadStudents() {
         try {
             const token = localStorage.getItem('token');
-
-            const response = await fetch(`${API_BASE_URL}/tutor/enrollments?page=${page}&limit=20`, {
+            const response = await fetch(`${API_BASE_URL}/students`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
@@ -678,21 +736,99 @@
 
             if (response.ok) {
                 const data = await response.json();
-                allEnrollments = data.data || [];
-                filteredEnrollments = allEnrollments;
-
-                currentPage = data.pagination?.page || 1;
-                totalPages = data.pagination?.pages || 1;
-
-                displayEnrollments(filteredEnrollments);
-                updatePagination(data.pagination);
+                allStudents = data.data || [];
+                populateStudentSelect();
             } else {
-                throw new Error('Failed to load enrollments');
+                throw new Error('Failed to load students');
             }
         } catch (error) {
-            console.error('Error loading enrollments:', error);
-            document.getElementById('enrollmentsContainer').innerHTML =
-                '<div class="error">Failed to load enrollments. Please try again.</div>';
+            console.error('Error loading students:', error);
+            document.getElementById('studentSelect').innerHTML = '<option value="">Error loading students</option>';
+        }
+    }
+
+    function populateStudentSelect() {
+        const studentSelect = document.getElementById('studentSelect');
+        studentSelect.innerHTML = '<option value="">Select a student</option>';
+        
+        allStudents.forEach(student => {
+            const option = document.createElement('option');
+            option.value = student.id;
+            option.textContent = `${student.fullName} (${student.email})`;
+            studentSelect.appendChild(option);
+        });
+    }
+
+    function populateCourseSelect() {
+        const courseSelect = document.getElementById('courseSelect');
+        courseSelect.innerHTML = '<option value="">Select a course</option>';
+        
+        courses.forEach(course => {
+            const option = document.createElement('option');
+            option.value = course.id;
+            option.textContent = course.title;
+            courseSelect.appendChild(option);
+        });
+    }
+
+    async function loadEnrollments(page = 1) {
+        const container = document.getElementById('enrollmentsContainer');
+        container.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Loading enrollments...</div>';
+        
+        try {
+            const token = localStorage.getItem('token');
+            const searchTerm = document.getElementById('searchInput').value;
+            const courseFilter = document.getElementById('courseFilter').value;
+
+            // Build URL with filters
+            let url = `${API_BASE_URL}/enrollments?page=${page}&limit=20`;
+            if (searchTerm) {
+                url += `&search=${encodeURIComponent(searchTerm)}`;
+            }
+            if (courseFilter) {
+                url += `&courseId=${courseFilter}`;
+            }
+
+            console.log('🔍 Loading enrollments from:', url);
+
+            const response = await fetch(url, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                console.log('✅ Enrollments loaded:', data);
+                
+                if (data.success) {
+                    allEnrollments = data.data || [];
+                    filteredEnrollments = allEnrollments;
+
+                    currentPage = data.pagination?.page || 1;
+                    totalPages = data.pagination?.pages || 1;
+
+                    displayEnrollments(filteredEnrollments);
+                    updatePagination(data.pagination);
+                } else {
+                    throw new Error(data.error || 'Failed to load enrollments');
+                }
+            } else {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.error || `HTTP ${response.status}: Failed to load enrollments`);
+            }
+        } catch (error) {
+            console.error('❌ Error loading enrollments:', error);
+            container.innerHTML = `
+                <div class="error" style="text-align: center; padding: 40px;">
+                    <i class="fas fa-exclamation-triangle" style="font-size: 3rem; margin-bottom: 15px;"></i>
+                    <h3>Failed to load enrollments</h3>
+                    <p>${error.message}</p>
+                    <button class="btn btn-primary" onclick="loadEnrollments(1)" style="margin-top: 15px;">
+                        <i class="fas fa-redo"></i> Try Again
+                    </button>
+                </div>`;
         }
     }
 
@@ -705,6 +841,9 @@
                     <i class="fas fa-clipboard-list"></i>
                     <h3>No enrollments found</h3>
                     <p>No students have enrolled in your courses yet.</p>
+                    <button class="btn btn-primary" onclick="openAddEnrollmentModal()" style="margin-top: 15px;">
+                        <i class="fas fa-user-plus"></i> Add First Enrollment
+                    </button>
                 </div>
             `;
             return;
@@ -824,42 +963,81 @@
         loadEnrollments(currentPage);
     }
 
-    function viewEnrollment(enrollmentId) {
-        const enrollment = allEnrollments.find(e => e.id === enrollmentId);
-        if (!enrollment) return;
+    function openAddEnrollmentModal() {
+        loadStudents();
+        populateCourseSelect();
+        document.getElementById('addEnrollmentModal').style.display = 'block';
+    }
 
-        document.getElementById('enrollmentDetails').innerHTML = `
-            <div class="enrollment-details">
-                <div class="detail-row">
-                    <span class="detail-label">Student Name:</span>
-                    <span class="detail-value">${enrollment.student.fullName}</span>
-                </div>
-                <div class="detail-row">
-                    <span class="detail-label">Email:</span>
-                    <span class="detail-value">${enrollment.student.email}</span>
-                </div>
-                <div class="detail-row">
-                    <span class="detail-label">Username:</span>
-                    <span class="detail-value">${enrollment.student.username}</span>
-                </div>
-                <div class="detail-row">
-                    <span class="detail-label">Course:</span>
-                    <span class="detail-value">${enrollment.course.title}</span>
-                </div>
-                <div class="detail-row">
-                    <span class="detail-label">Enrollment Date:</span>
-                    <span class="detail-value">${new Date(enrollment.enrolledAt).toLocaleDateString()}</span>
-                </div>
-                <div class="detail-row">
-                    <span class="detail-label">Status:</span>
-                    <span class="detail-value">Active</span>
-                </div>
-            </div>
-        `;
+    function closeAddModal() {
+        document.getElementById('addEnrollmentModal').style.display = 'none';
+        document.getElementById('addEnrollmentForm').reset();
+    }
 
-        // Store enrollment ID for removal
-        document.getElementById('enrollmentModal').dataset.enrollmentId = enrollmentId;
-        document.getElementById('enrollmentModal').style.display = 'block';
+    async function viewEnrollment(enrollmentId) {
+        try {
+            const token = localStorage.getItem('token');
+            const response = await fetch(`${API_BASE_URL}/enrollments/${enrollmentId}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success) {
+                    const enrollment = data.data;
+                    
+                    document.getElementById('enrollmentDetails').innerHTML = `
+                        <div class="enrollment-details">
+                            <div class="detail-row">
+                                <span class="detail-label">Student Name:</span>
+                                <span class="detail-value">${enrollment.student.fullName}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Email:</span>
+                                <span class="detail-value">${enrollment.student.email}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Username:</span>
+                                <span class="detail-value">${enrollment.student.username}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Course:</span>
+                                <span class="detail-value">${enrollment.course.title}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Category:</span>
+                                <span class="detail-value">${enrollment.course.category || 'N/A'}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Level:</span>
+                                <span class="detail-value">${enrollment.course.level || 'N/A'}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Enrollment Date:</span>
+                                <span class="detail-value">${new Date(enrollment.enrolledAt).toLocaleDateString()}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Student Since:</span>
+                                <span class="detail-value">${new Date(enrollment.student.createdAt).toLocaleDateString()}</span>
+                            </div>
+                        </div>
+                    `;
+
+                    document.getElementById('enrollmentModal').dataset.enrollmentId = enrollmentId;
+                    document.getElementById('enrollmentModal').style.display = 'block';
+                }
+            } else {
+                throw new Error('Failed to load enrollment details');
+            }
+        } catch (error) {
+            console.error('Error loading enrollment details:', error);
+            document.getElementById('enrollmentDetails').innerHTML = `
+                <div class="error">Failed to load enrollment details.</div>
+            `;
+        }
     }
 
     function confirmRemoveEnrollment(enrollmentId, studentName, courseTitle) {
@@ -873,7 +1051,7 @@
 
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`${API_BASE_URL}/tutor/enrollments/${id}`, {
+            const response = await fetch(`${API_BASE_URL}/enrollments/${id}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -899,6 +1077,55 @@
         delete document.getElementById('enrollmentModal').dataset.enrollmentId;
     }
 
+    // Handle form submission for new enrollment
+    document.getElementById('addEnrollmentForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const studentId = document.getElementById('studentSelect').value;
+        const courseId = document.getElementById('courseSelect').value;
+        
+        if (!studentId || !courseId) {
+            alert('Please select both student and course');
+            return;
+        }
+        
+        await createEnrollment(parseInt(studentId), parseInt(courseId));
+    });
+
+    async function createEnrollment(studentId, courseId) {
+        try {
+            const token = localStorage.getItem('token');
+            const response = await fetch(`${API_BASE_URL}/enrollments`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    studentId: studentId,
+                    courseId: courseId
+                })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success) {
+                    alert('Student enrolled successfully!');
+                    closeAddModal();
+                    loadEnrollments(currentPage); // Refresh the list
+                } else {
+                    throw new Error(data.error || 'Failed to enroll student');
+                }
+            } else {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to enroll student');
+            }
+        } catch (error) {
+            console.error('Error creating enrollment:', error);
+            alert(`Failed to enroll student: ${error.message}`);
+        }
+    }
+
     function logout() {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
@@ -907,11 +1134,16 @@
 
     // Close modal when clicking outside
     window.onclick = function(event) {
-        const modal = document.getElementById('enrollmentModal');
-        if (event.target === modal) {
+        const enrollmentModal = document.getElementById('enrollmentModal');
+        const addEnrollmentModal = document.getElementById('addEnrollmentModal');
+        
+        if (event.target === enrollmentModal) {
             closeModal();
         }
+        if (event.target === addEnrollmentModal) {
+            closeAddModal();
+        }
     };
-</script>
+    </script>
 </body>
 </html>

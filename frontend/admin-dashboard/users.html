@@ -511,7 +511,7 @@
 
     <script>
         const API_BASE_URL = window.location.hostname === 'localhost' 
-            ? 'http://localhost:5000/api' 
+            ? 'http://localhost:3000/api' 
             : 'https://nuru-foundation-fullstack.vercel.app/api';
 
         let allUsers = [];
@@ -537,8 +537,6 @@
             const userData = localStorage.getItem('user');
             
             console.log('🔍 Checking admin access for user management...');
-            console.log('Token exists:', !!token);
-            console.log('User data:', userData);
 
             if (!token || !userData) {
                 console.log('❌ No token or user data, redirecting to login');
@@ -550,18 +548,16 @@
                 const user = JSON.parse(userData);
                 console.log('👤 User object:', user);
                 
-                // FIX: Check if role is an object with name property, or just a string
                 const userRole = user.role?.name || user.role;
                 console.log('🎭 User role:', userRole);
 
                 if (userRole !== 'admin') {
                     console.log('❌ User is not admin, redirecting to appropriate dashboard');
                     
-                    // Redirect non-admin users to their appropriate dashboard
                     if (userRole === 'student') {
                         window.location.href = '/student-dashboard/index.html';
-                } else if (userRole === 'tutor') {
-                    window.location.href = '/tutor-dashboard/index.html';
+                    } else if (userRole === 'tutor') {
+                        window.location.href = '/tutor-dashboard/index.html';
                     } else {
                         window.location.href = '/dashboard.html';
                     }
@@ -589,18 +585,42 @@
                     }
                 });
 
+                console.log('📡 Response status:', response.status);
+                
                 if (response.ok) {
                     const data = await response.json();
-                    console.log('✅ Users loaded from API:', data.length || data.data?.length);
-                    allUsers = data.data || [];
-                }
+                    console.log('✅ Raw API response:', data);
+                    
+                    // The API now returns {success: true, data: users[]}
+                    if (data.success && data.data) {
+                        allUsers = data.data;
+                        console.log(`📊 Loaded ${allUsers.length} users`);
+                    } else {
+                        console.warn('⚠️ Unexpected response format:', data);
+                        allUsers = [];
+                    }
 
-                displayUsers();
-                updatePagination(allUsers.length);
+                    displayUsers();
+                    updatePagination(allUsers.length);
+
+                } else {
+                    const errorText = await response.text();
+                    console.error('❌ API error response:', errorText);
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
 
             } catch (error) {
                 console.error('❌ Error loading users:', error);
-                document.getElementById('usersTableContainer').innerHTML = '<div class="error">Failed to load users. Please try again.</div>';
+                document.getElementById('usersTableContainer').innerHTML = `
+                    <div class="error">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        Failed to load users: ${error.message}
+                        <br>
+                        <button onclick="loadUsers()" style="margin-top: 10px; padding: 8px 16px;">
+                            <i class="fas fa-sync-alt"></i> Try Again
+                        </button>
+                    </div>
+                `;
             }
         }
 
@@ -807,6 +827,12 @@
                 password: document.getElementById('password').value
             };
 
+            // Validation
+            if (!formData.username || !formData.email || !formData.password) {
+                alert('Username, email, and password are required');
+                return;
+            }
+
             try {
                 const token = localStorage.getItem('token');
                 const response = await fetch(`${API_BASE_URL}/admin/users`, {
@@ -818,17 +844,19 @@
                     body: JSON.stringify(formData)
                 });
 
-                if (response.ok) {
+                const result = await response.json();
+
+                if (response.ok && result.success) {
                     closeUserModal();
-                    await loadUsers();
-                    alert('User created successfully!');
+                    await loadUsers(); // Refresh the user list
+                    alert(result.message || 'User created successfully!');
                 } else {
-                    throw new Error('Failed to create user');
+                    throw new Error(result.error || 'Failed to create user');
                 }
 
             } catch (error) {
                 console.error('Error creating user:', error);
-                alert('Error creating user. Please try again.');
+                alert(`Error creating user: ${error.message}`);
             }
         }
 
@@ -938,25 +966,25 @@
                     })
                 });
 
-                if (response.ok) {
-                    const updatedUser = await response.json();
+                const result = await response.json();
 
+                if (response.ok && result.success) {
                     // Update user in allUsers array
                     const index = allUsers.findIndex(u => u.id === userId);
                     if (index !== -1) {
-                        allUsers[index] = updatedUser;
+                        allUsers[index] = result.data;
                     }
 
                     // Re-render the table
                     displayUsers();
-                    alert('User updated successfully!');
+                    alert(result.message || 'User updated successfully!');
                 } else {
-                    throw new Error('Failed to update user');
+                    throw new Error(result.error || 'Failed to update user');
                 }
 
             } catch (error) {
                 console.error('Error updating user:', error);
-                alert('Error updating user. Please try again.');
+                alert(`Error updating user: ${error.message}`);
             }
         }
 
@@ -979,21 +1007,23 @@
                     }
                 });
 
-                if (response.ok) {
+                const result = await response.json();
+
+                if (response.ok && result.success) {
                     // Remove user from allUsers array
                     allUsers = allUsers.filter(u => u.id !== userId);
 
                     // Re-render the table
                     displayUsers();
                     updatePagination();
-                    alert('User deleted successfully!');
+                    alert(result.message || 'User deleted successfully!');
                 } else {
-                    throw new Error('Failed to delete user');
+                    throw new Error(result.error || 'Failed to delete user');
                 }
 
             } catch (error) {
                 console.error('Error deleting user:', error);
-                alert('Error deleting user. Please try again.');
+                alert(`Error deleting user: ${error.message}`);
             }
         }
 

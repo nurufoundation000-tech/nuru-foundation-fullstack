@@ -2,12 +2,15 @@
   "name": "nuru-foundation-monorepo",
   "private": true,
   "scripts": {
-    "build": "echo 'No build needed'",
-    "dev": "node api/index.js",
-    "start": "node api/index.js"
+    "dev": "node server.js",
+    "start": "node server.js",
+    "db:generate": "npx prisma generate",
+    "db:migrate": "npx prisma migrate dev",
+    "db:reset": "npx prisma migrate reset --force",
+    "db:seed": "node prisma/seed.js"
   },
   "dependencies": {
-    "@prisma/client": "^6.17.0",
+    "@prisma/client": "^6.17.1",
     "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
@@ -16,7 +19,6 @@
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.2",
     "mysql2": "^3.15.2",
-    "prisma": "^6.17.1",
     "serverless-http": "^4.0.0"
   },
   "devDependencies": {
@@ -25,6 +27,7 @@
     "cross-env": "^10.1.0",
     "jest": "^30.2.0",
     "nodemon": "^3.1.10",
+    "prisma": "^6.17.1",
     "supertest": "^7.1.4"
   }
 }

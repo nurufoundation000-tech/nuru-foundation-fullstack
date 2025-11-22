@@ -624,7 +624,7 @@
 
     <script>
     const API_BASE_URL = window.location.hostname === 'localhost'
-        ? 'http://localhost:5000/api'
+        ? 'http://localhost:3000/api'
         : 'https://nuru-foundation-fullstack.vercel.app/api';
 
     let currentPage = 1;
@@ -689,6 +689,8 @@
             let url = `${API_BASE_URL}/tutor/courses?page=${page}&limit=12`;
             if (search) url += `&search=${encodeURIComponent(search)}`;
 
+            console.log('📚 Fetching courses from:', url);
+
             const response = await fetch(url, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -698,27 +700,42 @@
 
             if (response.ok) {
                 const data = await response.json();
-                allCourses = data.data || [];
-                filteredCourses = allCourses;
+                console.log('✅ Courses loaded:', data);
+                
+                if (data.success) {
+                    allCourses = data.data || [];
+                    filteredCourses = allCourses;
 
-                // Apply client-side status filter if needed
-                if (statusFilter !== '') {
-                    const isPublished = statusFilter === 'true';
-                    filteredCourses = allCourses.filter(course => course.isPublished === isPublished);
+                    // Apply client-side status filter if needed
+                    if (statusFilter !== '') {
+                        const isPublished = statusFilter === 'true';
+                        filteredCourses = allCourses.filter(course => course.isPublished === isPublished);
+                    }
+
+                    currentPage = data.pagination?.page || 1;
+                    totalPages = data.pagination?.pages || 1;
+
+                    displayCourses(filteredCourses);
+                    updatePagination(data.pagination);
+                } else {
+                    throw new Error(data.error || 'Failed to load courses');
                 }
-
-                currentPage = data.pagination?.page || 1;
-                totalPages = data.pagination?.pages || 1;
-
-                displayCourses(filteredCourses);
-                updatePagination(data.pagination);
             } else {
-                throw new Error('Failed to load courses');
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.error || `HTTP ${response.status}: Failed to load courses`);
             }
         } catch (error) {
-            console.error('Error loading courses:', error);
-            document.getElementById('coursesContainer').innerHTML =
-                '<div class="error">Failed to load courses. Please try again.</div>';
+            console.error('❌ Error loading courses:', error);
+            document.getElementById('coursesContainer').innerHTML = `
+                <div class="error" style="text-align: center; padding: 40px;">
+                    <i class="fas fa-exclamation-triangle" style="font-size: 3rem; margin-bottom: 15px;"></i>
+                    <h3>Failed to load courses</h3>
+                    <p>${error.message}</p>
+                    <button class="btn btn-primary" onclick="loadCourses(1)" style="margin-top: 15px;">
+                        <i class="fas fa-redo"></i> Try Again
+                    </button>
+                </div>
+            `;
         }
     }
 

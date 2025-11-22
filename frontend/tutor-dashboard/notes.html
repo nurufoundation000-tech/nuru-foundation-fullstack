@@ -454,8 +454,8 @@
 
     <script>
     const API_BASE_URL = window.location.hostname === 'localhost'
-        ? 'http://localhost:5000/api'
-        : 'https://nuru-foundation-fullstack.vercel.app/api';
+    ? 'http://localhost:3000/api/tutor'
+    : 'https://nuru-foundation-fullstack.vercel.app/api/tutor';
 
     let currentPage = 1;
     let totalPages = 1;
@@ -520,65 +520,129 @@
     }
 
     async function loadNotes(page = 1) {
+        const container = document.getElementById('notesContainer');
+        container.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Loading notes...</div>';
+        
         try {
             const token = localStorage.getItem('token');
+            const searchTerm = document.getElementById('searchInput').value;
             const courseFilter = document.getElementById('courseFilter').value;
-            let url = `${API_BASE_URL}/tutor/notes?page=${page}&limit=12`;
-            if (courseFilter) url += `&courseId=${courseFilter}`;
 
-            const response = await fetch(url, { headers: { 'Authorization': `Bearer ${token}` } });
+            // Build URL with filters
+            let url = `${API_BASE_URL}/notes?page=${page}&limit=12`;
+            if (courseFilter) {
+                url += `&courseId=${courseFilter}`;
+            }
+            if (searchTerm) {
+                url += `&search=${encodeURIComponent(searchTerm)}`;
+            }
+
+            console.log('📝 Loading notes from:', url);
+
+            const response = await fetch(url, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
             if (response.ok) {
                 const data = await response.json();
-                allNotes = data.data || [];
-                currentPage = data.pagination?.page || 1;
-                totalPages = data.pagination?.pages || 1;
-                filterNotes();
-                updatePagination(data.pagination);
+                console.log('✅ Notes loaded:', data);
+                
+                if (data.success) {
+                    allNotes = data.data || [];
+                    currentPage = data.pagination?.page || 1;
+                    totalPages = data.pagination?.pages || 1;
+                    filterNotes(); // This will call displayNotes
+                    updatePagination(data.pagination);
+                } else {
+                    throw new Error(data.error || 'Failed to load notes');
+                }
             } else {
-                throw new Error('Failed to load notes');
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.error || `HTTP ${response.status}: Failed to load notes`);
             }
         } catch (error) {
-            console.error('Error loading notes:', error);
-            document.getElementById('notesContainer').innerHTML = '<div class="error">Failed to load notes.</div>';
+            console.error('❌ Error loading notes:', error);
+            container.innerHTML = `
+                <div class="error" style="text-align: center; padding: 40px;">
+                    <i class="fas fa-exclamation-triangle" style="font-size: 3rem; margin-bottom: 15px;"></i>
+                    <h3>Failed to load notes</h3>
+                    <p>${error.message}</p>
+                    <button class="btn btn-primary" onclick="loadNotes(1)" style="margin-top: 15px;">
+                        <i class="fas fa-redo"></i> Try Again
+                    </button>
+                </div>`;
         }
+    }
+
+   function truncateText(text, maxLength = 150) {
+        if (text.length <= maxLength) return text;
+        return text.substring(0, maxLength) + '...';
     }
 
     function displayNotes(notes) {
         const container = document.getElementById('notesContainer');
         if (!notes || notes.length === 0) {
-            container.innerHTML = `<div class="empty-state"><i class="fas fa-sticky-note"></i><h3>No notes found</h3><p>Add a note for one of your courses.</p><button class="btn btn-primary" onclick="openCreateModal()"><i class="fas fa-plus"></i> Add Note</button></div>`;
+            container.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-sticky-note"></i>
+                    <h3>No notes found</h3>
+                    <p>Create your first note to get started.</p>
+                    <button class="btn btn-primary" onclick="openCreateModal()" style="margin-top: 15px;">
+                        <i class="fas fa-plus"></i> Add Note
+                    </button>
+                </div>`;
             return;
         }
-        container.innerHTML = `<div class="notes-grid">${notes.map(note => `
-            <div class="note-card">
-                <div>
-                    <h3 class="note-title">${note.title}</h3>
-                    <p class="note-content">${note.content}</p>
-                </div>
-                <div class="note-meta">
-                    <span class="note-course"><i class="fas fa-book"></i> ${note.course.title}</span>
-                    <div class="note-actions">
-                        <button class="action-btn" onclick="editNote(${note.id})"><i class="fas fa-edit"></i></button>
-                        <button class="action-btn btn-delete" onclick="deleteNote(${note.id}, '${note.title}')"><i class="fas fa-trash"></i></button>
+
+        container.innerHTML = `
+            <div class="notes-grid">
+                ${notes.map(note => `
+                    <div class="note-card">
+                        <div>
+                            <h3 class="note-title">${note.title}</h3>
+                            <p class="note-content">${truncateText(note.content)}</p>
+                        </div>
+                        <div class="note-meta">
+                            <span class="note-course">
+                                <i class="fas fa-book"></i> ${note.course.title}
+                            </span>
+                            <span class="note-date">
+                                ${new Date(note.updatedAt).toLocaleDateString()}
+                            </span>
+                            <div class="note-actions">
+                                <button class="action-btn" onclick="editNote(${note.id})" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="action-btn btn-delete" onclick="deleteNote(${note.id}, '${note.title}')" title="Delete">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </div>`).join('')}</div>`;
+                `).join('')}
+            </div>`;
     }
 
     function filterNotes() {
         const searchTerm = document.getElementById('searchInput').value.toLowerCase();
         const courseFilter = document.getElementById('courseFilter').value;
+
         let filtered = allNotes;
 
+        // Apply course filter
         if (courseFilter) {
             filtered = filtered.filter(note => note.courseId.toString() === courseFilter);
         }
+
+        // Apply search filter
         if (searchTerm) {
             filtered = filtered.filter(note =>
                 note.title.toLowerCase().includes(searchTerm) ||
-                note.content.toLowerCase().includes(searchTerm)
+                note.content.toLowerCase().includes(searchTerm) ||
+                note.course.title.toLowerCase().includes(searchTerm)
             );
         }
+
         displayNotes(filtered);
     }
 

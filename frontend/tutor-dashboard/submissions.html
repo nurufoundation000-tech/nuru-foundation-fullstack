@@ -534,7 +534,7 @@
 
     <script>
     const API_BASE_URL = window.location.hostname === 'localhost'
-        ? 'http://localhost:5000/api'
+        ? 'http://localhost:3000/api'
         : 'https://nuru-foundation-fullstack.vercel.app/api';
 
     let currentPage = 1;
@@ -630,6 +630,7 @@
     async function loadSubmissions(page = 1) {
         const container = document.getElementById('submissionsContainer');
         container.innerHTML = '<div class="loading">Loading submissions...</div>';
+        
         try {
             const token = localStorage.getItem('token');
             const urlParams = new URLSearchParams(window.location.search);
@@ -641,23 +642,43 @@
                 document.getElementById('assignmentFilter').value = assignmentId;
             }
 
+            console.log('📄 Fetching submissions from:', url);
+
             const response = await fetch(url, {
-                headers: { 'Authorization': `Bearer ${token}` }
+                headers: { 
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
             });
 
             if (response.ok) {
                 const data = await response.json();
-                allSubmissions = data.data || [];
-                currentPage = data.pagination?.page || 1;
-                totalPages = data.pagination?.pages || 1;
-                filterSubmissions(); // This will also call display
-                updatePagination(data.pagination);
+                console.log('✅ Submissions loaded:', data);
+                
+                if (data.success) {
+                    allSubmissions = data.data || [];
+                    currentPage = data.pagination?.page || 1;
+                    totalPages = data.pagination?.pages || 1;
+                    filterSubmissions(); // This will also call display
+                    updatePagination(data.pagination);
+                } else {
+                    throw new Error(data.error || 'Failed to load submissions');
+                }
             } else {
-                throw new Error('Failed to load submissions');
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.error || `HTTP ${response.status}: Failed to load submissions`);
             }
         } catch (error) {
-            console.error('Error loading submissions:', error);
-            container.innerHTML = '<div class="error">Failed to load submissions. Please try again.</div>';
+            console.error('❌ Error loading submissions:', error);
+            container.innerHTML = `
+                <div class="error" style="text-align: center; padding: 40px;">
+                    <i class="fas fa-exclamation-triangle" style="font-size: 3rem; margin-bottom: 15px;"></i>
+                    <h3>Failed to load submissions</h3>
+                    <p>${error.message}</p>
+                    <button class="btn btn-primary" onclick="loadSubmissions(1)" style="margin-top: 15px;">
+                        <i class="fas fa-redo"></i> Try Again
+                    </button>
+                </div>`;
         }
     }
 
