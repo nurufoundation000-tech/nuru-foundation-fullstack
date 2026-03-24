@@ -133,6 +133,26 @@
             color: white;
         }
 
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-info {
+            background: #17a2b8;
+            color: white;
+        }
+
+        .btn-warning {
+            background: #ffc107;
+            color: #212529;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
         /* Filters */
         .filters {
             background: white;
@@ -287,6 +307,11 @@
             color: white;
         }
 
+        .btn-email {
+            background: #28a745;
+            color: white;
+        }
+
         .loading {
             text-align: center;
             padding: 40px;
@@ -344,6 +369,174 @@
             border-color: var(--primary-color);
         }
 
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            z-index: 10000;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.3s ease;
+            max-width: 400px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .toast-success {
+            background: #28a745;
+        }
+
+        .toast-error {
+            background: #dc3545;
+        }
+
+        .toast-info {
+            background: #17a2b8;
+        }
+
+        .toast-warning {
+            background: #ffc107;
+            color: #212529;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            border-radius: 15px;
+            padding: 0;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-header {
+            padding: 20px 25px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            color: #2c3e50;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .modal-body {
+            padding: 25px;
+        }
+
+        .modal-footer {
+            padding: 20px 25px;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+
+        .form-hint {
+            display: block;
+            color: #666;
+            font-size: 0.85rem;
+            margin-top: 5px;
+        }
+
+        .credentials-item {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+        }
+
+        .credentials-item h4 {
+            margin: 0 0 10px 0;
+            color: #2c3e50;
+        }
+
+        .credentials-item p {
+            margin: 5px 0;
+        }
+
+        .password-display {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            margin: 10px 0;
+        }
+
+        .no-credentials {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
         @media (max-width: 768px) {
             .admin-container {
                 flex-direction: column;
@@ -376,6 +569,10 @@
             .users-table td {
                 padding: 10px 8px;
             }
+
+            .action-buttons {
+                flex-wrap: wrap;
+            }
         }
     </style>
 </head>
@@ -406,6 +603,9 @@
                     <p>Manage all users, students, tutors, and administrators</p>
                 </div>
                 <div class="header-actions">
+                    <button class="btn btn-info" onclick="testEmailSystem()">
+                        <i class="fas fa-envelope"></i> Test Email
+                    </button>
                     <button class="btn btn-secondary" onclick="exportUsers()">
                         <i class="fas fa-download"></i> Export
                     </button>
@@ -477,19 +677,21 @@
             <div class="modal-body">
                 <form id="userForm">
                     <div class="form-group">
-                        <label>Username</label>
-                        <input type="text" id="username" name="username" required>
+                        <label>Username *</label>
+                        <input type="text" id="username" name="username" required autocomplete="username">
+                        <small class="form-hint">Required. Must be unique.</small>
                     </div>
                     <div class="form-group">
-                        <label>Email</label>
-                        <input type="email" id="email" name="email" required>
+                        <label>Email *</label>
+                        <input type="email" id="email" name="email" required autocomplete="email">
+                        <small class="form-hint">Required. Welcome email will be sent here.</small>
                     </div>
                     <div class="form-group">
                         <label>Full Name</label>
-                        <input type="text" id="fullName" name="fullName">
+                        <input type="text" id="fullName" name="fullName" placeholder="Optional" autocomplete="name">
                     </div>
                     <div class="form-group">
-                        <label>Role</label>
+                        <label>Role *</label>
                         <select id="role" name="role" required>
                             <option value="student">Student</option>
                             <option value="tutor">Tutor</option>
@@ -497,17 +699,29 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label>Password</label>
-                        <input type="password" id="password" name="password" required>
+                        <div style="background: #e8f4f8; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                            <h4 style="margin: 0 0 10px 0; color: #0c5460;">Password Information</h4>
+                            <p style="margin: 5px 0; color: #0c5460;">
+                                <i class="fas fa-info-circle"></i> Password will be auto-generated and emailed to the user.
+                            </p>
+                            <p style="margin: 5px 0; color: #0c5460;">
+                                <i class="fas fa-envelope"></i> User will receive email with login credentials.
+                            </p>
+                        </div>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
                 <button class="btn btn-secondary" onclick="closeUserModal()">Cancel</button>
-                <button class="btn btn-primary" onclick="saveUser()">Save User</button>
+                <button class="btn btn-primary" onclick="saveUser()">
+                    <i class="fas fa-paper-plane"></i> Create User
+                </button>
             </div>
         </div>
     </div>
+
+    <!-- Toast Container -->
+    <div id="toastContainer"></div>
 
     <script>
         const API_BASE_URL = window.location.hostname === 'localhost' 
@@ -526,7 +740,6 @@
         function initializeUserManagement() {
             console.log('🔄 Initializing user management...');
             
-            // Wait for auth state to stabilize
             setTimeout(() => {
                 checkAdminAccess();
             }, 100);
@@ -539,20 +752,17 @@
             console.log('🔍 Checking admin access for user management...');
 
             if (!token || !userData) {
-                console.log('❌ No token or user data, redirecting to login');
+                showToast('Please login first', 'error');
                 window.location.href = '/login.html';
                 return;
             }
 
             try {
                 const user = JSON.parse(userData);
-                console.log('👤 User object:', user);
-                
                 const userRole = user.role?.name || user.role;
-                console.log('🎭 User role:', userRole);
 
                 if (userRole !== 'admin') {
-                    console.log('❌ User is not admin, redirecting to appropriate dashboard');
+                    console.log('❌ User is not admin, redirecting...');
                     
                     if (userRole === 'student') {
                         window.location.href = '/student-dashboard/index.html';
@@ -569,6 +779,7 @@
                 
             } catch (error) {
                 console.error('❌ Error parsing user data:', error);
+                showToast('Session expired. Please login again.', 'error');
                 window.location.href = '/login.html';
             }
         }
@@ -589,15 +800,15 @@
                 
                 if (response.ok) {
                     const data = await response.json();
-                    console.log('✅ Raw API response:', data);
                     
-                    // The API now returns {success: true, data: users[]}
                     if (data.success && data.data) {
                         allUsers = data.data;
                         console.log(`📊 Loaded ${allUsers.length} users`);
+                        showToast(`Loaded ${allUsers.length} users`, 'success');
                     } else {
                         console.warn('⚠️ Unexpected response format:', data);
                         allUsers = [];
+                        showToast('Failed to load users', 'error');
                     }
 
                     displayUsers();
@@ -606,7 +817,7 @@
                 } else {
                     const errorText = await response.text();
                     console.error('❌ API error response:', errorText);
-                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    showToast(`Failed to load users: ${response.statusText}`, 'error');
                 }
 
             } catch (error) {
@@ -696,6 +907,131 @@
             `;
         }
 
+        // Toast notification function
+        function showToast(message, type = 'info') {
+            const toastContainer = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.textContent = message;
+            
+            toastContainer.appendChild(toast);
+            
+            // Trigger animation
+            setTimeout(() => toast.classList.add('show'), 10);
+            
+            // Remove after 5 seconds
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, 5000);
+        }
+
+        // Save user function - uses SINGLE endpoint now
+        async function saveUser() {
+            const formData = {
+                username: document.getElementById('username').value.trim(),
+                email: document.getElementById('email').value.trim(),
+                fullName: document.getElementById('fullName').value.trim(),
+                role: document.getElementById('role').value
+            };
+
+            // Validation
+            if (!formData.username) {
+                showToast('Username is required', 'error');
+                return;
+            }
+            if (!formData.email) {
+                showToast('Email is required', 'error');
+                return;
+            }
+            if (!formData.role) {
+                showToast('Role is required', 'error');
+                return;
+            }
+
+            try {
+                const token = localStorage.getItem('token');
+                
+                // Use the SINGLE endpoint: /api/admin/users
+                console.log('📤 Creating user with SINGLE endpoint: /admin/users');
+                showToast('Creating user...', 'info');
+
+                const response = await fetch(`${API_BASE_URL}/admin/users`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const result = await response.json();
+                console.log('📥 API Response:', result);
+
+                if (response.ok && result.success) {
+                    closeUserModal();
+                    
+                    // Build success message based on email status
+                    let message = '✅ User created successfully!\n\n';
+                    
+                    if (result.emailStatus) {
+                        if (result.emailStatus.sent) {
+                            message += `📧 Welcome email sent to ${formData.email}\n`;
+                            message += `📧 User can login with email: ${formData.email}\n`;
+                        } else {
+                            message += `❌ Email failed to send.\n`;
+                            message += `🔐 Generated Password: ${result.emailStatus.generatedPassword}\n`;
+                            message += `💡 Share these credentials manually:\n`;
+                            message += `   Email: ${formData.email}\n`;
+                            message += `   Password: ${result.emailStatus.generatedPassword}\n`;
+                        }
+                    }
+                    
+                    // Add login URL
+                    message += `\n🔗 Login URL: ${API_BASE_URL.replace('/api', '')}/login.html`;
+                    
+                    // Show alert with all info
+                    alert(message);
+                    
+                    // Also log to console for easy copy
+                    console.log(`👤 New User Created:`);
+                    console.log(`   Email: ${formData.email}`);
+                    console.log(`   Username: ${formData.username}`);
+                    if (result.emailStatus?.generatedPassword) {
+                        console.log(`   Password: ${result.emailStatus.generatedPassword}`);
+                    }
+                    
+                    // Refresh the user list
+                    await loadUsers();
+                    
+                } else {
+                    throw new Error(result.error || 'Failed to create user');
+                }
+
+            } catch (error) {
+                console.error('Error creating user:', error);
+                showToast(`Error creating user: ${error.message}`, 'error');
+            }
+        }
+
+        // Test email system - REMOVED since we don't have test endpoints
+        function testEmailSystem() {
+            showToast('Test email feature is disabled', 'info');
+            alert('Test email feature is currently disabled. Create a real user to test email functionality.');
+        }
+
+        function showUserModal() {
+            currentEditingId = null;
+            document.getElementById('modalTitle').textContent = 'Add New User';
+            document.getElementById('userForm').reset();
+            document.getElementById('userModal').style.display = 'flex';
+        }
+
+        function closeUserModal() {
+            document.getElementById('userModal').style.display = 'none';
+        }
+
+        // Filter users
         function filterUsers() {
             const roleFilter = document.getElementById('roleFilter').value;
             const statusFilter = document.getElementById('statusFilter').value;
@@ -807,63 +1143,10 @@
             loadUsers();
         }
 
-        function showUserModal() {
-            currentEditingId = null;
-            document.getElementById('modalTitle').textContent = 'Add New User';
-            document.getElementById('userForm').reset();
-            document.getElementById('userModal').style.display = 'flex';
-        }
-
-        function closeUserModal() {
-            document.getElementById('userModal').style.display = 'none';
-        }
-
-        async function saveUser() {
-            const formData = {
-                username: document.getElementById('username').value,
-                email: document.getElementById('email').value,
-                fullName: document.getElementById('fullName').value,
-                role: document.getElementById('role').value,
-                password: document.getElementById('password').value
-            };
-
-            // Validation
-            if (!formData.username || !formData.email || !formData.password) {
-                alert('Username, email, and password are required');
-                return;
-            }
-
-            try {
-                const token = localStorage.getItem('token');
-                const response = await fetch(`${API_BASE_URL}/admin/users`, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(formData)
-                });
-
-                const result = await response.json();
-
-                if (response.ok && result.success) {
-                    closeUserModal();
-                    await loadUsers(); // Refresh the user list
-                    alert(result.message || 'User created successfully!');
-                } else {
-                    throw new Error(result.error || 'Failed to create user');
-                }
-
-            } catch (error) {
-                console.error('Error creating user:', error);
-                alert(`Error creating user: ${error.message}`);
-            }
-        }
-
         function viewUser(userId) {
             const user = allUsers.find(u => u.id === userId);
             if (user) {
-                alert(`User Details:\n\nUsername: ${user.username}\nEmail: ${user.email}\nFull Name: ${user.fullName || 'Not provided'}\nRole: ${user.role?.name || 'student'}\nStatus: ${user.isActive ? 'Active' : 'Inactive'}\nJoined: ${new Date(user.createdAt).toLocaleDateString()}`);
+                alert(`User Details:\n\nUsername: ${user.username}\nEmail: ${user.email}\nFull Name: ${user.fullName || 'Not provided'}\nRole: ${user.role?.name || 'student'}\nStatus: ${user.isActive ? 'Active' : 'Inactive'}\nJoined: ${new Date(user.createdAt).toLocaleDateString()}\n\nLogin URL: ${API_BASE_URL.replace('/api', '')}/login.html`);
             }
         }
 
@@ -879,10 +1162,10 @@
 
             // Make cells editable
             const cells = row.querySelectorAll('td');
-            const usernameCell = cells[0]; // User column
-            const emailCell = cells[1]; // Email column
-            const roleCell = cells[2]; // Role column
-            const statusCell = cells[3]; // Status column
+            const usernameCell = cells[0];
+            const emailCell = cells[1];
+            const roleCell = cells[2];
+            const statusCell = cells[3];
 
             // Replace username cell content
             const usernameDiv = usernameCell.querySelector('div:last-child');
@@ -893,14 +1176,14 @@
                         ${user.username.charAt(0).toUpperCase()}
                     </div>
                     <div>
-                        <input type="text" value="${user.username}" class="edit-input" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 4px; margin-bottom: 4px;">
-                        <input type="text" value="${user.fullName || ''}" class="edit-input" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.8rem;">
+                        <input type="text" value="${user.username}" class="edit-input" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 4px; margin-bottom: 4px;" autocomplete="username">
+                        <input type="text" value="${user.fullName || ''}" class="edit-input" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.8rem;" autocomplete="name">
                     </div>
                 </div>
             `;
 
             // Replace email cell content
-            emailCell.innerHTML = `<input type="email" value="${user.email}" class="edit-input" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 4px;">`;
+            emailCell.innerHTML = `<input type="email" value="${user.email}" class="edit-input" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 4px;" autocomplete="email">`;
 
             // Replace role cell content
             roleCell.innerHTML = `
@@ -977,14 +1260,14 @@
 
                     // Re-render the table
                     displayUsers();
-                    alert(result.message || 'User updated successfully!');
+                    showToast('User updated successfully!', 'success');
                 } else {
                     throw new Error(result.error || 'Failed to update user');
                 }
 
             } catch (error) {
                 console.error('Error updating user:', error);
-                alert(`Error updating user: ${error.message}`);
+                showToast(`Error updating user: ${error.message}`, 'error');
             }
         }
 
@@ -1016,19 +1299,19 @@
                     // Re-render the table
                     displayUsers();
                     updatePagination();
-                    alert(result.message || 'User deleted successfully!');
+                    showToast('User deleted successfully!', 'success');
                 } else {
                     throw new Error(result.error || 'Failed to delete user');
                 }
 
             } catch (error) {
                 console.error('Error deleting user:', error);
-                alert(`Error deleting user: ${error.message}`);
+                showToast(`Error deleting user: ${error.message}`, 'error');
             }
         }
 
         function exportUsers() {
-            alert('Export users functionality to be implemented');
+            showToast('Export feature coming soon!', 'info');
         }
 
         function logout() {
@@ -1038,92 +1321,6 @@
             window.location.href = '/login.html';
         }
 
-        // Modal styles
-        const style = document.createElement('style');
-        style.textContent = `
-            .modal {
-                display: none;
-                position: fixed;
-                z-index: 1000;
-                left: 0;
-                top: 0;
-                width: 100%;
-                height: 100%;
-                background-color: rgba(0,0,0,0.5);
-                justify-content: center;
-                align-items: center;
-            }
-
-            .modal-content {
-                background-color: white;
-                border-radius: 15px;
-                padding: 0;
-                max-width: 600px;
-                width: 90%;
-                max-height: 80vh;
-                overflow-y: auto;
-            }
-
-            .modal-header {
-                padding: 20px 25px;
-                border-bottom: 1px solid #eee;
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-            }
-
-            .modal-header h3 {
-                margin: 0;
-                color: #2c3e50;
-            }
-
-            .close-modal {
-                background: none;
-                border: none;
-                font-size: 1.5rem;
-                cursor: pointer;
-                color: #666;
-            }
-
-            .modal-body {
-                padding: 25px;
-            }
-
-            .modal-footer {
-                padding: 20px 25px;
-                border-top: 1px solid #eee;
-                display: flex;
-                justify-content: flex-end;
-                gap: 10px;
-            }
-
-            .form-group {
-                margin-bottom: 20px;
-            }
-
-            .form-group label {
-                display: block;
-                margin-bottom: 5px;
-                font-weight: 500;
-                color: #333;
-            }
-
-            .form-group input,
-            .form-group select {
-                width: 100%;
-                padding: 10px;
-                border: 1px solid #ddd;
-                border-radius: 6px;
-                font-size: 1rem;
-            }
-
-            .form-group input:focus,
-            .form-group select:focus {
-                outline: none;
-                border-color: var(--primary-color);
-            }
-        `;
-        document.head.appendChild(style);
     </script>
 </body>
 </html>
