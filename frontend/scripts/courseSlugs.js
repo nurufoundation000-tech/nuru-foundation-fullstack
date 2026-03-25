@@ -1,4 +1,5 @@
 const COURSE_SLUGS = {
+    1: { slug: 'python', name: 'Introduction to Programming' },
     2: { slug: 'python', name: 'Programming with Python' },
     3: { slug: 'computer-packages', name: 'Computer Packages' },
     4: { slug: 'cybersecurity-1', name: 'Cybersecurity Level 1' },
