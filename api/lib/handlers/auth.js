@@ -1,6 +1,7 @@
-const { prisma } = require('../db');
+const { prisma } = require('../prisma');
 const bcrypt = require('bcryptjs');
 const { validateEmail, validatePassword, validateName } = require('../validation');
+const { signToken } = require('../jwt');
 
 module.exports = {
   async login({ body }, res) {
@@ -15,7 +16,6 @@ module.exports = {
         return res.status(400).json({ error: 'Invalid email format' });
       }
 
-      // Find user with role information
       const user = await prisma.user.findUnique({
         where: { email: email.toLowerCase() },
         include: {
@@ -31,16 +31,18 @@ module.exports = {
         return res.status(401).json({ error: 'Account is deactivated' });
       }
 
-      // Verify password
       const validPassword = await bcrypt.compare(password, user.passwordHash);
       if (!validPassword) {
         return res.status(401).json({ error: 'Invalid email or password' });
       }
 
-      // Generate token
-      const token = `nuru_${Date.now()}_${user.id}`;
+      const token = signToken({
+        userId: user.id,
+        email: user.email,
+        role: user.role?.name,
+        roleId: user.roleId
+      });
 
-      // Remove sensitive data from response
       const { passwordHash, ...userWithoutPassword } = user;
 
       res.json({
@@ -60,7 +62,6 @@ module.exports = {
     try {
       const { email, password, username, fullName, roleId } = body;
 
-      // Validation
       if (!email || !password || !username || !fullName) {
         return res.status(400).json({ 
           error: 'Email, password, username, and full name are required' 
@@ -71,8 +72,9 @@ module.exports = {
         return res.status(400).json({ error: 'Invalid email format' });
       }
 
-      if (!validatePassword(password)) {
-        return res.status(400).json({ error: 'Password must be at least 6 characters' });
+      const passwordValidation = validatePassword(password);
+      if (!passwordValidation.valid) {
+        return res.status(400).json({ error: passwordValidation.message });
       }
 
       if (!validateName(fullName)) {
@@ -83,7 +85,6 @@ module.exports = {
         return res.status(400).json({ error: 'Username must be at least 3 characters' });
       }
 
-      // Check if user exists
       const existingUser = await prisma.user.findFirst({
         where: {
           OR: [
@@ -101,17 +102,15 @@ module.exports = {
         }
       }
 
-      // Hash password
       const hashedPassword = await bcrypt.hash(password, 12);
 
-      // Create user
       const user = await prisma.user.create({
         data: {
           email: email.toLowerCase(),
           passwordHash: hashedPassword,
           username: username,
           fullName: fullName.trim(),
-          roleId: roleId || null, // Default to student role if not specified
+          roleId: roleId || null,
           isActive: true
         },
         include: {
@@ -119,8 +118,13 @@ module.exports = {
         }
       });
 
-      // Generate token
-      const token = `nuru_${Date.now()}_${user.id}`;
+      const token = signToken({
+        userId: user.id,
+        email: user.email,
+        role: user.role?.name,
+        roleId: user.roleId
+      });
+
       const { passwordHash: _, ...userWithoutPassword } = user;
 
       res.status(201).json({

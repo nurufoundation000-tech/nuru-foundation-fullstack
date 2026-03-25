@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Malware & Cyber Threats - NURU Foundation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #9b59b6;
+            --accent: #8e44ad;
+            --success: #27ae60;
+            --bg-light: #f8f9fa;
+            --text-dark: #333;
+            --text-light: #666;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg-light);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+        .lesson-container { max-width: 900px; margin: 0 auto; padding: 2rem; }
+        .lesson-header {
+            background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(155, 89, 182, 0.3);
+            margin-bottom: 2rem;
+            color: white;
+        }
+        .course-breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        .course-breadcrumb a { color: white; text-decoration: none; }
+        .course-breadcrumb a:hover { text-decoration: underline; }
+        .lesson-meta {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+        .lesson-title { font-size: 2rem; margin-bottom: 1rem; }
+        .lesson-objectives {
+            background: rgba(255,255,255,0.15);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+        .lesson-objectives h3 { margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+        .lesson-objectives ul { margin-left: 1.5rem; }
+        .lesson-objectives li { margin-bottom: 0.5rem; }
+        .content-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        .content-section h2 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 3px solid var(--secondary);
+        }
+        .content-section h3 { color: var(--primary); margin: 1.5rem 0 0.75rem; }
+        .content-section p { margin-bottom: 1rem; }
+        .content-section ul, .content-section ol { margin: 1rem 0 1rem 1.5rem; }
+        .content-section li { margin-bottom: 0.5rem; }
+        .course-icon {
+            width: 80px;
+            height: 80px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 1rem auto;
+            font-size: 2.5rem;
+            color: var(--secondary);
+        }
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #3498db;
+            padding: 1rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1rem 0;
+        }
+        .warning-box {
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+            padding: 1rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1rem 0;
+        }
+        .tip-box {
+            background: #e8f5e9;
+            border-left: 4px solid var(--success);
+            padding: 1rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1rem 0;
+        }
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        .nav-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem 1.5rem;
+            background: white;
+            border: 2px solid var(--secondary);
+            color: var(--secondary);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            flex: 1;
+            justify-content: center;
+        }
+        .nav-btn:hover { background: var(--secondary); color: white; }
+        .nav-btn.disabled { opacity: 0.5; pointer-events: none; }
+        .nav-btn.next { background: var(--secondary); color: white; }
+        .nav-btn.next:hover { background: var(--accent); border-color: var(--accent); }
+        .progress-bar {
+            background: #e0e0e0;
+            height: 8px;
+            border-radius: 4px;
+            margin-top: 2rem;
+            overflow: hidden;
+        }
+        .progress-fill {
+            background: linear-gradient(90deg, #9b59b6, #8e44ad);
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+        @media (max-width: 768px) {
+            .lesson-container { padding: 1rem; }
+            .lesson-title { font-size: 1.5rem; }
+            .navigation-buttons { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <div class="lesson-container">
+        <div class="lesson-header">
+            <div class="course-icon"><i class="fas fa-bug"></i></div>
+            <div class="course-breadcrumb">
+                <a href="/student-dashboard/notes.html"><i class="fas fa-arrow-left"></i> Back to Notes</a>
+            </div>
+            <div class="lesson-meta">
+                <span class="meta-item"><i class="fas fa-book"></i> Lesson 2 of 3</span>
+                <span class="meta-item"><i class="fas fa-clock"></i> 45 minutes</span>
+            </div>
+            <h1 class="lesson-title">Malware & Cyber Threats</h1>
+        </div>
+        <div class="lesson-objectives">
+            <h3><i class="fas fa-bullseye"></i> Learning Objectives</h3>
+            <ul>
+                <li>Understand different types of malware</li>
+                <li>Recognize how viruses and ransomware work</li>
+                <li>Identify signs of malware infection</li>
+                <li>Learn prevention and removal strategies</li>
+            </ul>
+        </div>
+        <div class="content-section">
+            <h2>What is Malware?</h2>
+            <p>Malware (malicious software) is any software designed to cause damage, steal data, or gain unauthorized access to computer systems. It's one of the most common cyber threats.</p>
+            <h3>How Malware Spreads</h3>
+            <ul>
+                <li><strong>Email Attachments:</strong> Infected files from suspicious emails</li>
+                <li><strong>Malicious Downloads:</strong> Software from untrusted sources</li>
+                <li><strong>Infected Websites:</strong> Compromised sites that exploit vulnerabilities</li>
+                <li><strong>Removable Media:</strong> USB drives and external hard drives</li>
+                <li><strong>Social Engineering:</strong> Tricking users into installing malware</li>
+            </ul>
+            <div class="info-box">
+                <strong><i class="fas fa-info-circle"></i> Did You Know?</strong>
+                <p>Over 350,000 new malware samples are discovered every day!</p>
+            </div>
+        </div>
+        <div class="content-section">
+            <h2>Types of Malware</h2>
+            <h3>Viruses</h3>
+            <p>Programs that replicate themselves by attaching to other programs. They require user action to spread and can cause various damages.</p>
+            <h3>Worms</h3>
+            <p>Self-replicating programs that spread across networks without user intervention. They can consume bandwidth and spread rapidly.</p>
+            <h3>Trojans</h3>
+            <p>Disguised as legitimate software, Trojans create backdoors, steal data, or allow remote control by attackers.</p>
+            <h3>Spyware</h3>
+            <p>Secretly monitors user activity, collecting passwords, browsing history, and personal information.</p>
+            <h3>Adware</h3>
+            <p>Displays unwanted advertisements and may track browsing habits to deliver targeted ads.</p>
+            <div class="warning-box">
+                <strong><i class="fas fa-exclamation-triangle"></i> Important</strong>
+            </div>
+        </div>
+        <div class="content-section">
+            <h2>Ransomware</h2>
+            <p>Ransomware encrypts a victim's files and demands payment for the decryption key. It's one of the most profitable and damaging malware types.</p>
+            <h3>How Ransomware Works</h3>
+            <ol>
+                <li>Infection through email, website, or vulnerability</li>
+                <li>Silent encryption of files on the system</li>
+                <li>Display of ransom note with payment instructions</li>
+                <li>Demand for payment (often in cryptocurrency)</li>
+                <li>Threat of data deletion if not paid</li>
+            </ol>
+            <h3>Types of Ransomware</h3>
+            <ul>
+                <li><strong>Encrypting Ransomware:</strong> Encrypts files and demands payment</li>
+                <li><strong>Locker Ransomware:</strong> Locks users out of their devices</li>
+                <li><strong>Double Extortion:</strong> Threatens to leak stolen data</li>
+            </ul>
+            <div class="tip-box">
+                <strong><i class="fas fa-lightbulb"></i> Pro Tip</strong>
+                <p>The best protection against ransomware is regular, offline backups. If your files are backed up, you don't need to pay the ransom!</p>
+            </div>
+        </div>
+        <div class="content-section">
+            <h2>Signs of Malware Infection</h2>
+            <ul>
+                <li>Computer runs slower than usual</li>
+                <li>Unexpected pop-ups and browser redirects</li>
+                <li>New toolbars or programs you didn't install</li>
+                <li>System crashes or frequent error messages</li>
+                <li>High network usage without explanation</li>
+                <li>Disabled antivirus software</li>
+                <li>Files are missing or encrypted</li>
+            </ul>
+        </div>
+        <div class="content-section">
+            <h2>Prevention and Removal</h2>
+            <h3>Prevention Best Practices</h3>
+            <ul>
+                <li>Keep all software updated with latest patches</li>
+                <li>Use reputable antivirus and anti-malware software</li>
+                <li>Be cautious with email attachments and links</li>
+                <li>Only download software from trusted sources</li>
+                <li>Use strong passwords and enable 2FA</li>
+                <li>Backup important data regularly</li>
+            </ul>
+            <h3>If Infected</h3>
+            <ol>
+                <li>Disconnect from the network immediately</li>
+                <li>Run a full antivirus scan</li>
+                <li>Identify and remove the malware</li>
+                <li>Restore files from backup if needed</li>
+                <li>Change all passwords</li>
+                <li>Report the incident if necessary</li>
+            </ol>
+            <div class="warning-box">
+                <strong><i class="fas fa-exclamation-triangle"></i> Never Pay Ransom</strong>
+                <p>Paying doesn't guarantee you'll get your files back. Always report to authorities and restore from backups.</p>
+            </div>
+        </div>
+        <div class="navigation-buttons">
+            <a href="lesson-1.html" class="nav-btn">
+                <i class="fas fa-arrow-left"></i>
+                <span>Previous: Network Security</span>
+            </a>
+            <a href="lesson-3.html" class="nav-btn next">
+                <span>Next: Incident Response & Recovery</span>
+                <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+        <div class="progress-bar">
+            <div class="progress-fill" style="width: 66%"></div>
+        </div>
+    </div>
+</body>
+</html>

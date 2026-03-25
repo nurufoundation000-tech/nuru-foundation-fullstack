@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Introduction to Data Engineering - Lesson 1 of 3 - NURU Foundation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary: #1a535c;
+            --secondary: #16a085;
+            --accent: #1abc9c;
+            --success: #27ae60;
+            --bg-light: #f8f9fa;
+            --text-dark: #333;
+            --text-light: #666;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg-light);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+        .lesson-container { max-width: 900px; margin: 0 auto; padding: 2rem; }
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--secondary);
+            text-decoration: none;
+            margin-bottom: 1.5rem;
+            font-weight: 500;
+        }
+        .back-link:hover { color: var(--accent); }
+        .lesson-header {
+            background: linear-gradient(135deg, #16a085 0%, #1abc9c 100%);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(22, 160, 133, 0.3);
+            margin-bottom: 2rem;
+            color: white;
+        }
+        .course-breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        .course-breadcrumb a { color: white; text-decoration: none; }
+        .course-breadcrumb a:hover { text-decoration: underline; }
+        .lesson-meta {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+        .lesson-title { font-size: 2rem; margin-bottom: 1rem; }
+        .lesson-objectives {
+            background: rgba(255,255,255,0.15);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+        .lesson-objectives h3 { margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+        .lesson-objectives ul { margin-left: 1.5rem; }
+        .lesson-objectives li { margin-bottom: 0.5rem; }
+        .content-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        .content-section h2 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 3px solid var(--secondary);
+        }
+        .content-section h3 { color: var(--primary); margin: 1.5rem 0 0.75rem; }
+        .content-section p { margin-bottom: 1rem; }
+        .content-section ul, .content-section ol { margin: 1rem 0 1rem 1.5rem; }
+        .content-section li { margin-bottom: 0.5rem; }
+        .de-logo {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--secondary), var(--accent));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 1rem auto;
+            font-size: 2.5rem;
+            color: white;
+        }
+        .code-block {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 1.5rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1rem 0;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.95rem;
+            border-left: 4px solid var(--secondary);
+        }
+        .code-block .comment { color: #6a9955; }
+        .code-block .string { color: #ce9178; }
+        .code-block .keyword { color: #569cd6; }
+        .code-block .function { color: #dcdcaa; }
+        .code-block .number { color: #b5cea8; }
+        .info-box {
+            background: #e8f8f5;
+            border-left: 4px solid var(--secondary);
+            padding: 1rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1rem 0;
+        }
+        .warning-box {
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+            padding: 1rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1rem 0;
+        }
+        .tip-box {
+            background: #e8f5e9;
+            border-left: 4px solid var(--success);
+            padding: 1rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1rem 0;
+        }
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        .nav-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem 1.5rem;
+            background: white;
+            border: 2px solid var(--secondary);
+            color: var(--secondary);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            flex: 1;
+            justify-content: center;
+        }
+        .nav-btn:hover { background: var(--secondary); color: white; }
+        .nav-btn.disabled { opacity: 0.5; pointer-events: none; }
+        .nav-btn.next { background: var(--secondary); color: white; }
+        .nav-btn.next:hover { background: var(--primary); border-color: var(--primary); }
+        .progress-bar {
+            background: #e0e0e0;
+            height: 8px;
+            border-radius: 4px;
+            margin-top: 2rem;
+            overflow: hidden;
+        }
+        .progress-fill {
+            background: linear-gradient(90deg, #16a085, #1abc9c);
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+        .progress-text {
+            text-align: center;
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+        @media (max-width: 768px) {
+            .lesson-container { padding: 1rem; }
+            .lesson-title { font-size: 1.5rem; }
+            .navigation-buttons { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <div class="lesson-container">
+        <a href="/student-dashboard/notes.html" class="back-link">
+            <i class="fas fa-arrow-left"></i> Back to Notes
+        </a>
+        
+        <div class="lesson-header">
+            <div class="course-breadcrumb">
+                <a href="/student-dashboard/notes.html">Notes</a> / <span>Data Engineering</span> / Lesson 1 of 3
+            </div>
+            <div class="lesson-meta">
+                <div class="meta-item">
+                    <i class="fas fa-book"></i>
+                    <span>Lesson 1 of 3</span>
+                </div>
+                <div class="meta-item">
+                    <i class="fas fa-clock"></i>
+                    <span>35 min</span>
+                </div>
+            </div>
+            <h1 class="lesson-title">Introduction to Data Engineering</h1>
+            <div class="lesson-objectives">
+                <h3><i class="fas fa-bullseye"></i> Learning Objectives</h3>
+                <ul>
+                    <li>Understand what data engineering is and its role in organizations</li>
+                    <li>Learn about data pipelines and how they work</li>
+                    <li>Understand ETL (Extract, Transform, Load) processes</li>
+                    <li>Identify key tools and technologies in data engineering</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="content-section">
+            <h2>What is Data Engineering?</h2>
+            <p>Data engineering is the practice of designing, building, and maintaining systems that collect, store, and process data at scale. Data engineers are the architects of data infrastructure, ensuring data flows reliably from source to destination.</p>
+
+            <div class="info-box">
+                <strong><i class="fas fa-info-circle"></i> Role Comparison:</strong> While data scientists analyze data to extract insights, data engineers build the pipelines and infrastructure that make this analysis possible. They work at the foundation of the data stack.
+            </div>
+
+            <h3>Key Responsibilities</h3>
+            <ul>
+                <li>Design and build data pipelines</li>
+                <li>Create and manage data warehouses</li>
+                <li>Ensure data quality and accessibility</li>
+                <li>Optimize data storage and retrieval</li>
+                <li>Implement security and access controls</li>
+            </ul>
+        </div>
+
+        <div class="content-section">
+            <h2>Data Pipelines</h2>
+            <p>A data pipeline is a series of processes that move data from one system to another. Pipelines can be simple (one step) or complex (multi-step with transformations).</p>
+
+            <h3>Pipeline Components</h3>
+            <ul>
+                <li><strong>Source:</strong> Where data originates (databases, APIs, files)</li>
+                <li><strong>Processing:</strong> Transformations applied to data</li>
+                <li><strong>Destination:</strong> Where processed data lands (warehouse, lake)</li>
+                <li><strong>Orchestration:</strong> Scheduling and managing pipeline execution</li>
+            </ul>
+
+            <h3>Pipeline Types</h3>
+            <ul>
+                <li><strong>Batch Processing:</strong> Processes data in scheduled chunks</li>
+                <li><strong>Stream Processing:</strong> Processes data in real-time</li>
+                <li><strong>Lambda Architecture:</strong> Combines both batch and stream</li>
+            </ul>
+
+            <div class="code-block">
+<span class="comment"># Simple data pipeline concept</span>
+<span class="function">extract</span>(source) → <span class="function">transform</span>(clean, filter) → <span class="function">load</span>(destination)
+            </div>
+        </div>
+
+        <div class="content-section">
+            <h2>ETL Processes</h2>
+            <p>ETL stands for Extract, Transform, Load—the three main stages of moving data from source systems to destination systems.</p>
+
+            <h3>Extract</h3>
+            <p>Reading data from various sources:</p>
+            <ul>
+                <li>Relational databases (SQL)</li>
+                <li>NoSQL databases</li>
+                <li>APIs and web services</li>
+                <li>File systems (CSV, JSON, Parquet)</li>
+                <li>Third-party applications</li>
+            </ul>
+
+            <h3>Transform</h3>
+            <p>Applying business logic and data cleaning:</p>
+            <ul>
+                <li>Data cleaning (remove duplicates, handle missing values)</li>
+                <li>Data validation (check for errors)</li>
+                <li>Data enrichment (add derived fields)</li>
+                <li>Data aggregation (summarize data)</li>
+                <li>Format conversion (change data types)</li>
+            </ul>
+
+            <h3>Load</h3>
+            <p>Writing data to the destination:</p>
+            <ul>
+                <li>Data warehouses (Snowflake, BigQuery, Redshift)</li>
+                <li>Data lakes (S3, Azure Blob)</li>
+                <li>Databases for reporting</li>
+            </ul>
+
+            <div class="tip-box">
+                <strong><i class="fas fa-lightbulb"></i> Modern ETL:</strong> Modern data engineering often uses ELT (Extract, Load, Transform) where transformation happens in the destination system, leveraging its computational power.
+            </div>
+        </div>
+
+        <div class="content-section">
+            <h2>Tools and Technologies</h2>
+            <p>Data engineers use a variety of tools across the data pipeline:</p>
+
+            <h3>Data Processing</h3>
+            <ul>
+                <li><strong>Apache Spark:</strong> Distributed data processing</li>
+                <li><strong>Apache Airflow:</strong> Workflow orchestration</li>
+                <li><strong>dbt:</strong> Data transformation tool</li>
+                <li><strong>Python/SQL:</strong> Programming languages</li>
+            </ul>
+
+            <h3>Storage</h3>
+            <ul>
+                <li><strong>AWS S3:</strong> Object storage</li>
+                <li><strong>Snowflake:</strong> Cloud data warehouse</li>
+                <li><strong>PostgreSQL:</strong> Open-source database</li>
+                <li><strong>MongoDB:</strong> NoSQL database</li>
+            </ul>
+
+            <h3>Cloud Platforms</h3>
+            <ul>
+                <li>AWS (Amazon Web Services)</li>
+                <li>Google Cloud Platform (GCP)</li>
+                <li>Microsoft Azure</li>
+            </ul>
+        </div>
+
+        <div class="content-section">
+            <h2>Summary</h2>
+            <ul>
+                <li>Data engineering builds the infrastructure for data collection, storage, and processing</li>
+                <li>Data pipelines move data from sources through processing to destinations</li>
+                <li>ETL (Extract, Transform, Load) is the foundational process in data engineering</li>
+                <li>Modern data engineering leverages cloud platforms and distributed systems</li>
+            </ul>
+        </div>
+
+        <div class="navigation-buttons">
+            <a href="#" class="nav-btn disabled">
+                <i class="fas fa-chevron-left"></i> Previous Lesson
+            </a>
+            <a href="lesson-2.html" class="nav-btn next">
+                Next Lesson <i class="fas fa-chevron-right"></i>
+            </a>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-fill" style="width: 33%;"></div>
+        </div>
+        <div class="progress-text">Progress: 33% (1 of 3 lessons)</div>
+    </div>
+</body>
+</html>

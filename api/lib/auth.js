@@ -1,5 +1,5 @@
-const jwt = require('jsonwebtoken');
-const prisma = require('../lib/prisma');
+const { verifyToken } = require('./jwt');
+const { prisma } = require('./prisma');
 
 const authenticateToken = async (req, res, next) => {
   const authHeader = req.headers['authorization'];
@@ -10,9 +10,8 @@ const authenticateToken = async (req, res, next) => {
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback-secret');
+    const decoded = verifyToken(token);
     
-    // Verify user still exists and get role info
     const user = await prisma.user.findUnique({
       where: { id: decoded.userId },
       include: { role: true }
@@ -26,17 +25,20 @@ const authenticateToken = async (req, res, next) => {
       userId: user.id,
       roleId: user.roleId,
       roleName: user.role?.name,
-      username: user.username
+      username: user.username,
+      email: user.email
     };
     
     next();
   } catch (error) {
     console.error('Token verification error:', error);
+    if (error.name === 'TokenExpiredError') {
+      return res.status(401).json({ message: 'Token expired' });
+    }
     return res.status(403).json({ message: 'Invalid or expired token' });
   }
 };
 
-// Middleware to check specific roles
 const requireRole = (allowedRoles) => {
   return async (req, res, next) => {
     if (!req.user) {
@@ -53,7 +55,6 @@ const requireRole = (allowedRoles) => {
   };
 };
 
-// Export both as named exports
 module.exports = {
   authenticateToken,
   requireRole

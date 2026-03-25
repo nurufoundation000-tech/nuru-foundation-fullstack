@@ -15,14 +15,20 @@ class AdminPanel {
         this.setupEventListeners();
     }
 
+    escapeHtml(str) {
+        if (str === null || str === undefined) return '';
+        const div = document.createElement('div');
+        div.textContent = String(str);
+        return div.innerHTML;
+    }
+
     checkAuth() {
-        const token = localStorage.getItem('token');
+        const token = sessionStorage.getItem('token');
         if (!token) {
             window.location.href = 'login.html';
             return;
         }
 
-        // Decode token to check role
         try {
             const payload = JSON.parse(atob(token.split('.')[1]));
             if (payload.role !== 'tutor') {
@@ -32,7 +38,6 @@ class AdminPanel {
                 }, 2000);
             }
         } catch (error) {
-            console.error('Error decoding token:', error);
             window.location.href = 'login.html';
         }
     }
@@ -71,7 +76,7 @@ class AdminPanel {
 
     async loadCourses() {
         try {
-            const token = localStorage.getItem('token');
+            const token = sessionStorage.getItem('token');
             const response = await fetch('/api/courses', {
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -104,9 +109,9 @@ class AdminPanel {
         container.innerHTML = this.courses.map(course => `
             <div class="course-item ${this.selectedCourseId === course.id ? 'selected' : ''}"
                  data-course-id="${course.id}">
-                <h3>${course.title}</h3>
-                <p>${course.description || 'No description'}</p>
-                <small>${course._count.enrollments} enrolled students</small>
+                <h3>${this.escapeHtml(course.title)}</h3>
+                <p>${this.escapeHtml(course.description) || 'No description'}</p>
+                <small>${course._count?.enrollments || 0} enrolled students</small>
             </div>
         `).join('');
 
@@ -140,7 +145,7 @@ class AdminPanel {
 
     async loadAvailableStudents() {
         try {
-            const token = localStorage.getItem('token');
+            const token = sessionStorage.getItem('token');
             const response = await fetch('/api/users/students', {
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -192,7 +197,7 @@ class AdminPanel {
         if (!this.selectedCourseId) return;
 
         try {
-            const token = localStorage.getItem('token');
+            const token = sessionStorage.getItem('token');
             const response = await fetch(`/api/courses/${this.selectedCourseId}/enrollments`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -275,7 +280,7 @@ class AdminPanel {
         if (!this.selectedCourseId) return;
 
         try {
-            const token = localStorage.getItem('token');
+            const token = sessionStorage.getItem('token');
             const response = await fetch(`/api/courses/${this.selectedCourseId}/enroll-student`, {
                 method: 'POST',
                 headers: {
@@ -307,7 +312,7 @@ class AdminPanel {
         }
 
         try {
-            const token = localStorage.getItem('token');
+            const token = sessionStorage.getItem('token');
             const response = await fetch(`/api/courses/${this.selectedCourseId}/enroll-student/${studentId}`, {
                 method: 'DELETE',
                 headers: {
@@ -333,7 +338,7 @@ class AdminPanel {
         if (!this.selectedCourseId) return;
 
         try {
-            const token = localStorage.getItem('token');
+            const token = sessionStorage.getItem('token');
             const response = await fetch(`/api/courses/${this.selectedCourseId}/notes`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -391,7 +396,7 @@ class AdminPanel {
         }
 
         try {
-            const token = localStorage.getItem('token');
+            const token = sessionStorage.getItem('token');
             const response = await fetch(`/api/courses/${this.selectedCourseId}/notes`, {
                 method: 'POST',
                 headers: {
@@ -433,7 +438,7 @@ class AdminPanel {
         }
 
         try {
-            const token = localStorage.getItem('token');
+            const token = sessionStorage.getItem('token');
             const response = await fetch(`/api/courses/${this.selectedCourseId}/notes/${noteId}`, {
                 method: 'PUT',
                 headers: {
@@ -463,7 +468,7 @@ class AdminPanel {
         }
 
         try {
-            const token = localStorage.getItem('token');
+            const token = sessionStorage.getItem('token');
             const response = await fetch(`/api/courses/${this.selectedCourseId}/notes/${noteId}`, {
                 method: 'DELETE',
                 headers: {
@@ -485,7 +490,7 @@ class AdminPanel {
     }
 
     getCurrentUserId() {
-        const token = localStorage.getItem('token');
+        const token = sessionStorage.getItem('token');
         if (!token) return null;
 
         try {

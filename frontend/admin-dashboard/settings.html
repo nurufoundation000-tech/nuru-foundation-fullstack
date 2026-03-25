@@ -636,8 +636,8 @@ Languages</textarea>
         }
 
         function checkAdminAccess() {
-            const token = localStorage.getItem('token');
-            const userData = localStorage.getItem('user');
+            const token = sessionStorage.getItem('token');
+            const userData = sessionStorage.getItem('user');
             
             console.log('🔍 Checking admin access for settings management...');
             console.log('Token exists:', !!token);
@@ -682,7 +682,7 @@ Languages</textarea>
 
         async function loadSettings() {
             try {
-                const token = localStorage.getItem('token');
+                const token = sessionStorage.getItem('token');
                 console.log('⚙️ Loading settings...');
 
                 const response = await fetch(`${API_BASE_URL}/admin/settings`, {
@@ -846,7 +846,7 @@ Languages</textarea>
             };
 
             try {
-                const token = localStorage.getItem('token');
+                const token = sessionStorage.getItem('token');
                 const response = await fetch(`${API_BASE_URL}/admin/settings`, {
                     method: 'PUT',
                     headers: {

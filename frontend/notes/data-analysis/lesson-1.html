@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Introduction to Data Analysis - Lesson 1 of 3 - NURU Foundation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #f39c12;
+            --accent: #e67e22;
+            --success: #27ae60;
+            --bg-light: #f8f9fa;
+            --text-dark: #333;
+            --text-light: #666;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg-light);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+        .lesson-container { max-width: 900px; margin: 0 auto; padding: 2rem; }
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--secondary);
+            text-decoration: none;
+            margin-bottom: 1.5rem;
+            font-weight: 500;
+        }
+        .back-link:hover { color: var(--accent); }
+        .lesson-header {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(243, 156, 18, 0.3);
+            margin-bottom: 2rem;
+            color: white;
+        }
+        .course-breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        .course-breadcrumb a { color: white; text-decoration: none; }
+        .course-breadcrumb a:hover { text-decoration: underline; }
+        .lesson-meta {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+        .lesson-title { font-size: 2rem; margin-bottom: 1rem; }
+        .lesson-objectives {
+            background: rgba(255,255,255,0.15);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+        .lesson-objectives h3 { margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+        .lesson-objectives ul { margin-left: 1.5rem; }
+        .lesson-objectives li { margin-bottom: 0.5rem; }
+        .content-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        .content-section h2 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 3px solid var(--secondary);
+        }
+        .content-section h3 { color: var(--primary); margin: 1.5rem 0 0.75rem; }
+        .content-section p { margin-bottom: 1rem; }
+        .content-section ul, .content-section ol { margin: 1rem 0 1rem 1.5rem; }
+        .content-section li { margin-bottom: 0.5rem; }
+        .data-logo {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--secondary), var(--accent));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 1rem auto;
+            font-size: 2.5rem;
+            color: white;
+        }
+        .code-block {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 1.5rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1rem 0;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.95rem;
+            border-left: 4px solid var(--secondary);
+        }
+        .code-block .comment { color: #6a9955; }
+        .code-block .string { color: #ce9178; }
+        .code-block .keyword { color: #569cd6; }
+        .code-block .function { color: #dcdcaa; }
+        .code-block .number { color: #b5cea8; }
+        .info-box {
+            background: #fff8e1;
+            border-left: 4px solid var(--secondary);
+            padding: 1rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1rem 0;
+        }
+        .warning-box {
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+            padding: 1rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1rem 0;
+        }
+        .tip-box {
+            background: #e8f5e9;
+            border-left: 4px solid var(--success);
+            padding: 1rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1rem 0;
+        }
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        .nav-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem 1.5rem;
+            background: white;
+            border: 2px solid var(--secondary);
+            color: var(--secondary);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            flex: 1;
+            justify-content: center;
+        }
+        .nav-btn:hover { background: var(--secondary); color: white; }
+        .nav-btn.disabled { opacity: 0.5; pointer-events: none; }
+        .nav-btn.next { background: var(--secondary); color: white; }
+        .nav-btn.next:hover { background: var(--primary); border-color: var(--primary); }
+        .progress-bar {
+            background: #e0e0e0;
+            height: 8px;
+            border-radius: 4px;
+            margin-top: 2rem;
+            overflow: hidden;
+        }
+        .progress-fill {
+            background: linear-gradient(90deg, #f39c12, #e67e22);
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+        .progress-text {
+            text-align: center;
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+        @media (max-width: 768px) {
+            .lesson-container { padding: 1rem; }
+            .lesson-title { font-size: 1.5rem; }
+            .navigation-buttons { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <div class="lesson-container">
+        <a href="/student-dashboard/notes.html" class="back-link">
+            <i class="fas fa-arrow-left"></i> Back to Notes
+        </a>
+        
+        <div class="lesson-header">
+            <div class="course-breadcrumb">
+                <a href="/student-dashboard/notes.html">Notes</a> / <span>Data Analysis</span> / Lesson 1 of 3
+            </div>
+            <div class="lesson-meta">
+                <div class="meta-item">
+                    <i class="fas fa-book"></i>
+                    <span>Lesson 1 of 3</span>
+                </div>
+                <div class="meta-item">
+                    <i class="fas fa-clock"></i>
+                    <span>35 min</span>
+                </div>
+            </div>
+            <h1 class="lesson-title">Introduction to Data Analysis</h1>
+            <div class="lesson-objectives">
+                <h3><i class="fas fa-bullseye"></i> Learning Objectives</h3>
+                <ul>
+                    <li>Understand the data analysis process and its stages</li>
+                    <li>Identify different types of data and their characteristics</li>
+                    <li>Apply basic statistical concepts to analyze data</li>
+                    <li>Learn to ask the right questions for effective analysis</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="content-section">
+            <h2>The Data Analysis Process</h2>
+            <p>Data analysis is a systematic approach to transforming raw data into actionable insights. The process involves several key stages that ensure reliable and meaningful results.</p>
+
+            <h3>The Five Steps of Data Analysis</h3>
+            <ol>
+                <li><strong>Define the Problem:</strong> Understand what question you're trying to answer</li>
+                <li><strong>Collect Data:</strong> Gather relevant data from appropriate sources</li>
+                <li><strong>Clean & Prepare:</strong> Transform and organize data for analysis</li>
+                <li><strong>Analyze Data:</strong> Apply statistical techniques to find patterns</li>
+                <li><strong>Communicate Results:</strong> Present findings clearly to stakeholders</li>
+            </ol>
+
+            <div class="info-box">
+                <strong><i class="fas fa-info-circle"></i> Key Insight:</strong> Most data analysts spend 60-80% of their time on data cleaning and preparation. Quality data is the foundation of good analysis.
+            </div>
+        </div>
+
+        <div class="content-section">
+            <h2>Types of Data</h2>
+            <p>Understanding data types is fundamental to choosing the right analysis techniques.</p>
+
+            <h3>Qualitative vs Quantitative Data</h3>
+            <ul>
+                <li><strong>Qualitative (Categorical):</strong> Describes qualities or characteristics
+                    <ul>
+                        <li>Nominal: Categories with no order (colors, gender)</li>
+                        <li>Ordinal: Categories with order (satisfaction rating: 1-5)</li>
+                    </ul>
+                </li>
+                <li><strong>Quantitative (Numerical):</strong> Numbers that can be measured
+                    <ul>
+                        <li>Discrete: Countable values (number of items)</li>
+                        <li>Continuous: Any value within a range (height, weight)</li>
+                    </ul>
+                </li>
+            </ul>
+
+            <h3>Data Scales</h3>
+            <ul>
+                <li><strong>Nominal:</strong> Categories only (e.g., city names)</li>
+                <li><strong>Ordinal:</strong> Ordered categories (e.g., education level)</li>
+                <li><strong>Interval:</strong> Numeric with no true zero (e.g., temperature)</li>
+                <li><strong>Ratio:</strong> Numeric with true zero (e.g., income, age)</li>
+            </ul>
+        </div>
+
+        <div class="content-section">
+            <h2>Statistics Basics</h2>
+            <p>Statistical measures help summarize and describe data characteristics.</p>
+
+            <h3>Descriptive Statistics</h3>
+            <ul>
+                <li><strong>Mean:</strong> The average of all values</li>
+                <li><strong>Median:</strong> The middle value when sorted</li>
+                <li><strong>Mode:</strong> The most frequent value</li>
+                <li><strong>Standard Deviation:</strong> How spread out values are</li>
+                <li><strong>Variance:</strong> The square of standard deviation</li>
+            </ul>
+
+            <div class="code-block">
+<span class="comment"># Example calculations in Python</span>
+<span class="keyword">import</span> statistics
+
+data = [<span class="number">10</span>, <span class="number">20</span>, <span class="number">30</span>, <span class="number">40</span>, <span class="number">50</span>]
+
+print(<span class="string">"Mean:"</span>, statistics.mean(data))      <span class="comment"># 30</span>
+print(<span class="string">"Median:"</span>, statistics.median(data))    <span class="comment"># 30</span>
+print(<span class="string">"Std Dev:"</span>, statistics.stdev(data))  <span class="comment"># 15.81</span>
+            </div>
+
+            <h3>Interpreting Distribution</h3>
+            <p>Understanding data distribution helps identify patterns and anomalies. Key concepts include:</p>
+            <ul>
+                <li><strong>Normal Distribution:</strong> Bell-shaped, symmetric around the mean</li>
+                <li><strong>Skewness:</strong> Asymmetric distribution (left or right skewed)</li>
+                <li><strong>Outliers:</strong> Values significantly different from most others</li>
+            </ul>
+
+            <div class="tip-box">
+                <strong><i class="fas fa-lightbulb"></i> Tip:</strong> Always visualize your data before diving into analysis. A simple histogram or box plot can reveal patterns that statistics alone might miss.
+            </div>
+        </div>
+
+        <div class="content-section">
+            <h2>Summary</h2>
+            <ul>
+                <li>The data analysis process follows five key stages from problem definition to communication</li>
+                <li>Understanding data types (qualitative/quantitative) is essential for proper analysis</li>
+                <li>Descriptive statistics provide quick summaries of data characteristics</li>
+                <li>Always visualize data to understand its distribution and identify outliers</li>
+            </ul>
+        </div>
+
+        <div class="navigation-buttons">
+            <a href="#" class="nav-btn disabled">
+                <i class="fas fa-chevron-left"></i> Previous Lesson
+            </a>
+            <a href="lesson-2.html" class="nav-btn next">
+                Next Lesson <i class="fas fa-chevron-right"></i>
+            </a>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-fill" style="width: 33%;"></div>
+        </div>
+        <div class="progress-text">Progress: 33% (1 of 3 lessons)</div>
+    </div>
+</body>
+</html>

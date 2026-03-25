@@ -652,8 +652,8 @@
     }
 
     function checkTutorAccess() {
-        const token = localStorage.getItem('token');
-        const userData = localStorage.getItem('user');
+        const token = sessionStorage.getItem('token');
+        const userData = sessionStorage.getItem('user');
 
         if (!token || !userData) {
             window.location.href = '/login.html';
@@ -682,7 +682,7 @@
 
     async function loadCourses(page = 1) {
         try {
-            const token = localStorage.getItem('token');
+            const token = sessionStorage.getItem('token');
             const search = document.getElementById('searchInput').value;
             const statusFilter = document.getElementById('statusFilter').value;
 
@@ -873,7 +873,7 @@
         }
 
         try {
-            const token = localStorage.getItem('token');
+            const token = sessionStorage.getItem('token');
             const response = await fetch(`${API_BASE_URL}/tutor/courses/${courseId}`, {
                 method: 'DELETE',
                 headers: {
@@ -914,7 +914,7 @@
         };
 
         try {
-            const token = localStorage.getItem('token');
+            const token = sessionStorage.getItem('token');
             const courseId = this.dataset.courseId;
             let response;
 

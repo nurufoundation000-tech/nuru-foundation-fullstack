@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Building Your First Webpage - NURU Foundation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #e34f26;
+            --accent: #f7df1e;
+            --success: #27ae60;
+            --bg-light: #f8f9fa;
+            --text-dark: #333;
+            --text-light: #666;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg-light);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+        .lesson-container { max-width: 900px; margin: 0 auto; padding: 2rem; }
+        .lesson-header {
+            background: linear-gradient(135deg, #e34f26 0%, #f7df1e 100%);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(227, 79, 38, 0.3);
+            margin-bottom: 2rem;
+            color: white;
+        }
+        .course-breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        .course-breadcrumb a { color: white; text-decoration: none; }
+        .course-breadcrumb a:hover { text-decoration: underline; }
+        .lesson-meta {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+        .lesson-title { font-size: 2rem; margin-bottom: 1rem; }
+        .lesson-objectives {
+            background: rgba(255,255,255,0.15);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+        .lesson-objectives h3 { margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+        .lesson-objectives ul { margin-left: 1.5rem; }
+        .lesson-objectives li { margin-bottom: 0.5rem; }
+        .content-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        .content-section h2 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 3px solid var(--secondary);
+        }
+        .content-section h3 { color: var(--primary); margin: 1.5rem 0 0.75rem; }
+        .content-section p { margin-bottom: 1rem; }
+        .content-section ul, .content-section ol { margin: 1rem 0 1rem 1.5rem; }
+        .content-section li { margin-bottom: 0.5rem; }
+        .code-block {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 1.5rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1rem 0;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.95rem;
+            border-left: 4px solid var(--secondary);
+        }
+        .code-block .comment { color: #6a9955; }
+        .code-block .string { color: #ce9178; }
+        .code-block .tag { color: #569cd6; }
+        .code-block .attr { color: #9cdcfe; }
+        .code-block .property { color: #9cdcfe; }
+        .code-block .value { color: #ce9178; }
+        .code-block .selector { color: #d7ba7d; }
+        .info-box {
+            background: #fff5f0;
+            border-left: 4px solid var(--secondary);
+            padding: 1rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1rem 0;
+        }
+        .warning-box {
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+            padding: 1rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1rem 0;
+        }
+        .tip-box {
+            background: #e8f5e9;
+            border-left: 4px solid var(--success);
+            padding: 1rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1rem 0;
+        }
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        .nav-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem 1.5rem;
+            background: white;
+            border: 2px solid var(--secondary);
+            color: var(--secondary);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            flex: 1;
+            justify-content: center;
+        }
+        .nav-btn:hover { background: var(--secondary); color: white; }
+        .nav-btn.disabled { opacity: 0.5; pointer-events: none; }
+        .nav-btn.next { background: var(--secondary); color: white; }
+        .nav-btn.next:hover { background: var(--primary); border-color: var(--primary); }
+        .progress-bar {
+            background: #e0e0e0;
+            height: 8px;
+            border-radius: 4px;
+            margin-top: 2rem;
+            overflow: hidden;
+        }
+        .progress-fill {
+            background: linear-gradient(90deg, #e34f26, #f7df1e);
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+        @media (max-width: 768px) {
+            .lesson-container { padding: 1rem; }
+            .lesson-title { font-size: 1.5rem; }
+            .navigation-buttons { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <div class="lesson-container">
+        <div class="lesson-header">
+            <div class="course-breadcrumb">
+                <a href="/student-dashboard/notes.html"><i class="fas fa-arrow-left"></i> Back to Notes</a>
+            </div>
+            <div class="lesson-meta">
+                <span class="meta-item"><i class="fas fa-book"></i> Lesson 3 of 3</span>
+                <span class="meta-item"><i class="fas fa-clock"></i> 50 minutes</span>
+            </div>
+            <h1 class="lesson-title">Building Your First Webpage</h1>
+        </div>
+        <div class="lesson-objectives">
+            <h3><i class="fas fa-bullseye"></i> Learning Objectives</h3>
+            <ul>
+                <li>Combine HTML and CSS to create a complete webpage</li>
+                <li>Test and debug your webpage</li>
+                <li>Learn best practices for file organization</li>
+                <li>Understand how to publish your webpage online</li>
+            </ul>
+        </div>
+        <div class="content-section">
+            <h2>Putting It All Together</h2>
+            <p>Now we'll create a complete personal portfolio page using everything we've learned.</p>
+            <h3>Project Structure</h3>
+            <div class="code-block">
+my-website/
+├── index.html
+├── style.css
+└── images/
+    └── profile.jpg
+            </div>
+            <h3>HTML (index.html)</h3>
+            <div class="code-block">
+<span class="tag">&lt;!DOCTYPE html&gt;</span>
+<span class="tag">&lt;html</span> <span class="attr">lang</span>=<span class="string">"en"</span><span class="tag">&gt;</span>
+<span class="tag">&lt;head&gt;</span>
+    <span class="tag">&lt;meta</span> <span class="attr">charset</span>=<span class="string">"UTF-8"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;meta</span> <span class="attr">name</span>=<span class="string">"viewport"</span> <span class="attr">content</span>=<span class="string">"width=device-width, initial-scale=1.0"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;title&gt;</span>My Portfolio<span class="tag">&lt;/title&gt;</span>
+    <span class="tag">&lt;link</span> <span class="attr">rel</span>=<span class="string">"stylesheet"</span> <span class="attr">href</span>=<span class="string">"style.css"</span><span class="tag">&gt;</span>
+<span class="tag">&lt;/head&gt;</span>
+<span class="tag">&lt;body&gt;</span>
+    <span class="tag">&lt;header</span> <span class="attr">class</span>=<span class="string">"hero"</span><span class="tag">&gt;</span>
+        <span class="tag">&lt;h1&gt;</span>Welcome to My Portfolio<span class="tag">&lt;/h1&gt;</span>
+        <span class="tag">&lt;p&gt;</span>I'm a web developer passionate about creating beautiful websites.<span class="tag">&lt;/p&gt;</span>
+    <span class="tag">&lt;/header&gt;</span>
+    <span class="tag">&lt;main&gt;</span>
+        <span class="tag">&lt;section</span> <span class="attr">class</span>=<span class="string">"projects"</span><span class="tag">&gt;</span>
+            <span class="tag">&lt;h2&gt;</span>My Projects<span class="tag">&lt;/h2&gt;</span>
+            <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="string">"project-card"</span><span class="tag">&gt;</span>
+                <span class="tag">&lt;h3&gt;</span>Project One<span class="tag">&lt;/h3&gt;</span>
+                <span class="tag">&lt;p&gt;</span>A brief description of this project.<span class="tag">&lt;/p&gt;</span>
+            <span class="tag">&lt;/div&gt;</span>
+        <span class="tag">&lt;/section&gt;</span>
+    <span class="tag">&lt;/main&gt;</span>
+    <span class="tag">&lt;footer&gt;</span>
+        <span class="tag">&lt;p&gt;</span>&copy; 2024 My Portfolio<span class="tag">&lt;/p&gt;</span>
+    <span class="tag">&lt;/footer&gt;</span>
+<span class="tag">&lt;/body&gt;</span>
+<span class="tag">&lt;/html&gt;</span>
+            </div>
+            <h3>CSS (style.css)</h3>
+            <div class="code-block">
+<span class="comment">/* Reset */</span>
+<span class="selector">*</span> {
+    <span class="property">margin</span>: <span class="value">0</span>;
+    <span class="property">padding</span>: <span class="value">0</span>;
+    <span class="property">box-sizing</span>: <span class="value">border-box</span>;
+}
+
+<span class="selector">body</span> {
+    <span class="property">font-family</span>: <span class="value">Arial, sans-serif</span>;
+    <span class="property">line-height</span>: <span class="value">1.6</span>;
+    <span class="property">color</span>: <span class="value">#333</span>;
+}
+
+<span class="comment">/* Header Styles */</span>
+<span class="selector">.hero</span> {
+    <span class="property">background</span>: <span class="value">linear-gradient(135deg, #667eea 0%, #764ba2 100%)</span>;
+    <span class="property">color</span>: <span class="value">white</span>;
+    <span class="property">padding</span>: <span class="value">4rem 2rem</span>;
+    <span class="property">text-align</span>: <span class="value">center</span>;
+}
+
+<span class="comment">/* Projects Section */</span>
+<span class="selector">.projects</span> {
+    <span class="property">padding</span>: <span class="value">2rem</span>;
+    <span class="property">max-width</span>: <span class="value">800px</span>;
+    <span class="property">margin</span>: <span class="value">0 auto</span>;
+}
+
+<span class="selector">.project-card</span> {
+    <span class="property">background</span>: <span class="value">white</span>;
+    <span class="property">padding</span>: <span class="value">1.5rem</span>;
+    <span class="property">border-radius</span>: <span class="value">8px</span>;
+    <span class="property">box-shadow</span>: <span class="value">0 2px 10px rgba(0,0,0,0.1)</span>;
+    <span class="property">margin-bottom</span>: <span class="value">1rem</span>;
+}
+            </div>
+        </div>
+        <div class="content-section">
+            <h2>Testing Your Webpage</h2>
+            <h3>Local Testing</h3>
+            <ol>
+                <li>Double-click index.html to open in your browser</li>
+                <li>Check that all styles are applied correctly</li>
+                <li>Test all links and navigation</li>
+                <li>Resize the browser to test responsiveness</li>
+            </ol>
+            <h3>Common Issues</h3>
+            <ul>
+                <li><strong>Styles not loading:</strong> Check file paths and link tag</li>
+                <li><strong>Images not showing:</strong> Verify image file paths</li>
+                <li><strong>Layout broken:</strong> Check CSS syntax and selectors</li>
+            </ul>
+            <div class="warning-box">
+                <strong><i class="fas fa-exclamation-triangle"></i> Debugging Tip</strong>
+                <p>Use your browser's Developer Tools (F12) to inspect elements and debug CSS issues in real-time.</p>
+            </div>
+        </div>
+        <div class="content-section">
+            <h2>Publishing Your Website</h2>
+            <h3>Free Hosting Options</h3>
+            <ul>
+                <li><strong>GitHub Pages:</strong> Free, reliable, great for portfolios</li>
+                <li><strong>Netlify:</strong> Drag-and-drop deployment</li>
+                <li><strong>Vercel:</strong> Fast, free for personal projects</li>
+            </ul>
+            <h3>Publishing to GitHub Pages</h3>
+            <ol>
+                <li>Create a GitHub account</li>
+                <li>Create a new repository</li>
+                <li>Upload your HTML, CSS, and image files</li>
+                <li>Go to Settings > Pages</li>
+                <li>Select main branch and save</li>
+            </ol>
+            <div class="tip-box">
+                <strong><i class="fas fa-lightbulb"></i> Pro Tip</strong>
+                <p>GitHub Pages provides a free URL like username.github.io/repo-name that's perfect for sharing your portfolio!</p>
+            </div>
+        </div>
+        <div class="content-section">
+            <h2>Best Practices</h2>
+            <ul>
+                <li>Keep your code organized and indented</li>
+                <li>Use semantic HTML for better accessibility</li>
+                <li>Name files clearly (avoid spaces, use hyphens)</li>
+                <li>Test in multiple browsers</li>
+                <li>Comment your code for future reference</li>
+                <li>Keep learning and experimenting!</li>
+            </ul>
+            <div class="info-box">
+                <strong><i class="fas fa-star"></i> Congratulations!</strong>
+                <p>You've completed Web Development 1! You now have the foundational skills to create and publish websites. Keep practicing and move on to Web Development 2 when ready.</p>
+            </div>
+        </div>
+        <div class="navigation-buttons">
+            <a href="lesson-2.html" class="nav-btn">
+                <i class="fas fa-arrow-left"></i>
+                <span>Previous: CSS Fundamentals</span>
+            </a>
+            <a class="nav-btn disabled">
+                <span>Final Lesson</span>
+                <i class="fas fa-check"></i>
+            </a>
+        </div>
+        <div class="progress-bar">
+            <div class="progress-fill" style="width: 100%"></div>
+        </div>
+    </div>
+</body>
+</html>

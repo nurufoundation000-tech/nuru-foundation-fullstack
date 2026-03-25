@@ -746,8 +746,8 @@
         }
 
         function checkAdminAccess() {
-            const token = localStorage.getItem('token');
-            const userData = localStorage.getItem('user');
+            const token = sessionStorage.getItem('token');
+            const userData = sessionStorage.getItem('user');
             
             console.log('🔍 Checking admin access for user management...');
 
@@ -786,7 +786,7 @@
 
         async function loadUsers() {
             try {
-                const token = localStorage.getItem('token');
+                const token = sessionStorage.getItem('token');
                 console.log('👥 Loading users...');
 
                 const response = await fetch(`${API_BASE_URL}/admin/users`, {
@@ -950,7 +950,7 @@
             }
 
             try {
-                const token = localStorage.getItem('token');
+                const token = sessionStorage.getItem('token');
                 
                 // Use the SINGLE endpoint: /api/admin/users
                 console.log('📤 Creating user with SINGLE endpoint: /admin/users');
@@ -1233,7 +1233,7 @@
             }
 
             try {
-                const token = localStorage.getItem('token');
+                const token = sessionStorage.getItem('token');
                 const response = await fetch(`${API_BASE_URL}/admin/users/${userId}`, {
                     method: 'PUT',
                     headers: {
@@ -1282,7 +1282,7 @@
             }
 
             try {
-                const token = localStorage.getItem('token');
+                const token = sessionStorage.getItem('token');
                 const response = await fetch(`${API_BASE_URL}/admin/users/${userId}`, {
                     method: 'DELETE',
                     headers: {

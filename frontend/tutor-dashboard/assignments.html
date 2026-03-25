@@ -570,8 +570,8 @@
     }
 
     function checkTutorAccess() {
-        const token = localStorage.getItem('token');
-        const userData = localStorage.getItem('user');
+        const token = sessionStorage.getItem('token');
+        const userData = sessionStorage.getItem('user');
         if (!token || !userData) {
             window.location.href = '/login.html';
             return;
@@ -598,7 +598,7 @@
 
     async function loadCourses() {
         try {
-            const token = localStorage.getItem('token');
+            const token = sessionStorage.getItem('token');
             const response = await fetch(`${API_BASE_URL}/tutor/courses?limit=1000`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
@@ -614,7 +614,7 @@
 
     async function loadAllLessons() {
         try {
-            const token = localStorage.getItem('token');
+            const token = sessionStorage.getItem('token');
             const response = await fetch(`${API_BASE_URL}/tutor/lessons?limit=1000`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
@@ -664,7 +664,7 @@
 
     async function loadAssignments(page = 1) {
         try {
-            const token = localStorage.getItem('token');
+            const token = sessionStorage.getItem('token');
             let url = `${API_BASE_URL}/tutor/assignments?page=${page}&limit=15`;
 
             const response = await fetch(url, {
@@ -810,7 +810,7 @@
         }
 
         try {
-            const token = localStorage.getItem('token');
+            const token = sessionStorage.getItem('token');
             const response = await fetch(`${API_BASE_URL}/tutor/assignments/${assignmentId}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` }
@@ -850,7 +850,7 @@
         }
 
         try {
-            const token = localStorage.getItem('token');
+            const token = sessionStorage.getItem('token');
             const assignmentId = this.dataset.assignmentId;
             let response;
             const url = assignmentId ? `${API_BASE_URL}/tutor/assignments/${assignmentId}` : `${API_BASE_URL}/tutor/assignments`;

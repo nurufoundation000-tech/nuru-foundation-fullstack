@@ -1,4 +1,4 @@
-const { prisma } = require('../db');
+const { prisma } = require('../prisma');
 
 module.exports = {
   async getCurrentUser({}, res, user) {

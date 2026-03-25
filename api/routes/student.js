@@ -1,10 +1,9 @@
 // routes/student.js
 const express = require('express');
-const { PrismaClient } = require('@prisma/client');
 const router = express.Router();
-const prisma = new PrismaClient();
+const { prisma } = require('../lib/prisma');
+const { verifyToken } = require('../lib/jwt');
 
-// Student middleware
 const requireStudent = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
@@ -13,14 +12,10 @@ const requireStudent = async (req, res, next) => {
     }
 
     const token = authHeader.slice(7);
-    const userId = token.split('_')[2];
+    const decoded = verifyToken(token);
     
-    if (!userId) {
-      return res.status(401).json({ error: 'Invalid token' });
-    }
-
     const user = await prisma.user.findUnique({
-      where: { id: parseInt(userId) },
+      where: { id: decoded.userId },
       include: { role: true }
     });
 
@@ -28,9 +23,7 @@ const requireStudent = async (req, res, next) => {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    // Check if user is student
-    const userRole = user.role?.name;
-    if (userRole !== 'student') {
+    if (user.role?.name !== 'student') {
       return res.status(403).json({ error: 'Student access required' });
     }
 
@@ -38,7 +31,10 @@ const requireStudent = async (req, res, next) => {
     next();
   } catch (error) {
     console.error('Student auth error:', error);
-    res.status(500).json({ error: 'Authentication failed' });
+    if (error.name === 'TokenExpiredError') {
+      return res.status(401).json({ error: 'Token expired' });
+    }
+    res.status(401).json({ error: 'Invalid token' });
   }
 };
 

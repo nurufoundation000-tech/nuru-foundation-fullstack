@@ -2,7 +2,7 @@
 const API_BASE = '/api';
 
 async function updateProgress(enrollmentId, progress) {
-    const token = localStorage.getItem('token');
+    const token = sessionStorage.getItem('token');
     const response = await fetch(`${API_BASE}/courses/${enrollmentId}/progress`, {
         method: 'PUT',
         headers: {
@@ -20,8 +20,8 @@ async function updateProgress(enrollmentId, progress) {
 }
 
 async function getUserProgress() {
-    const token = localStorage.getItem('token');
-    const response = await fetch(`${API_BASE}/courses/progress`, {
+    const token = sessionStorage.getItem('token');
+    const response = await fetch(`${API_BASE}/student/courses/progress`, {
         headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'

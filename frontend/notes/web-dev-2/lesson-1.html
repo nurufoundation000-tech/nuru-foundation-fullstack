@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript Basics - NURU Foundation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #f7df1e;
+            --success: #27ae60;
+            --bg-light: #f8f9fa;
+            --text-dark: #333;
+            --text-light: #666;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg-light);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+        .lesson-container { max-width: 900px; margin: 0 auto; padding: 2rem; }
+        .lesson-header {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+            margin-bottom: 2rem;
+            color: white;
+        }
+        .course-breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        .course-breadcrumb a { color: white; text-decoration: none; }
+        .course-breadcrumb a:hover { text-decoration: underline; }
+        .lesson-meta {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+        .lesson-title { font-size: 2rem; margin-bottom: 1rem; }
+        .lesson-objectives {
+            background: rgba(255,255,255,0.15);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+        .lesson-objectives h3 { margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+        .lesson-objectives ul { margin-left: 1.5rem; }
+        .lesson-objectives li { margin-bottom: 0.5rem; }
+        .content-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        .content-section h2 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 3px solid var(--secondary);
+        }
+        .content-section h3 { color: var(--primary); margin: 1.5rem 0 0.75rem; }
+        .content-section p { margin-bottom: 1rem; }
+        .content-section ul, .content-section ol { margin: 1rem 0 1rem 1.5rem; }
+        .content-section li { margin-bottom: 0.5rem; }
+        .js-logo {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #f7df1e 0%, #eab308 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 1rem auto;
+            font-size: 2.5rem;
+            color: #000;
+            font-weight: bold;
+        }
+        .code-block {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 1.5rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1rem 0;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.95rem;
+            border-left: 4px solid var(--secondary);
+        }
+        .code-block .comment { color: #6a9955; }
+        .code-block .string { color: #ce9178; }
+        .code-block .keyword { color: #569cd6; }
+        .code-block .function { color: #dcdcaa; }
+        .code-block .number { color: #b5cea8; }
+        .code-block .var { color: #9cdcfe; }
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid var(--secondary);
+            padding: 1rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1rem 0;
+        }
+        .warning-box {
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+            padding: 1rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1rem 0;
+        }
+        .tip-box {
+            background: #e8f5e9;
+            border-left: 4px solid var(--success);
+            padding: 1rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1rem 0;
+        }
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        .nav-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem 1.5rem;
+            background: white;
+            border: 2px solid var(--secondary);
+            color: var(--secondary);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            flex: 1;
+            justify-content: center;
+        }
+        .nav-btn:hover { background: var(--secondary); color: white; }
+        .nav-btn.disabled { opacity: 0.5; pointer-events: none; }
+        .nav-btn.next { background: var(--secondary); color: white; }
+        .nav-btn.next:hover { background: var(--primary); border-color: var(--primary); }
+        .progress-bar {
+            background: #e0e0e0;
+            height: 8px;
+            border-radius: 4px;
+            margin-top: 2rem;
+            overflow: hidden;
+        }
+        .progress-fill {
+            background: linear-gradient(90deg, #3498db, #2980b9);
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+        @media (max-width: 768px) {
+            .lesson-container { padding: 1rem; }
+            .lesson-title { font-size: 1.5rem; }
+            .navigation-buttons { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <div class="lesson-container">
+        <div class="lesson-header">
+            <div class="js-logo">JS</div>
+            <div class="course-breadcrumb">
+                <a href="/student-dashboard/notes.html"><i class="fas fa-arrow-left"></i> Back to Notes</a>
+            </div>
+            <div class="lesson-meta">
+                <span class="meta-item"><i class="fas fa-book"></i> Lesson 1 of 3</span>
+                <span class="meta-item"><i class="fas fa-clock"></i> 45 minutes</span>
+            </div>
+            <h1 class="lesson-title">JavaScript Basics</h1>
+        </div>
+        <div class="lesson-objectives">
+            <h3><i class="fas fa-bullseye"></i> Learning Objectives</h3>
+            <ul>
+                <li>Understand JavaScript fundamentals and syntax</li>
+                <li>Learn how to declare and use variables</li>
+                <li>Write and call functions</li>
+                <li>Manipulate the DOM to update web pages</li>
+            </ul>
+        </div>
+        <div class="content-section">
+            <h2>What is JavaScript?</h2>
+            <p>JavaScript is a programming language that adds interactivity to websites. While HTML structures pages and CSS styles them, JavaScript makes them dynamic and interactive.</p>
+            <h3>Why Learn JavaScript?</h3>
+            <ul>
+                <li><strong>Universal:</strong> Runs in all modern browsers</li>
+                <li><strong>Versatile:</strong> Used for front-end, back-end, mobile apps</li>
+                <li><strong>In Demand:</strong> Essential skill for web developers</li>
+                <li><strong>Fun:</strong> Immediate visual results</li>
+            </ul>
+            <div class="info-box">
+                <strong><i class="fas fa-info-circle"></i> Did You Know?</strong>
+                <p>JavaScript was created in just 10 days in 1995. It's now one of the most popular programming languages in the world!</p>
+            </div>
+        </div>
+        <div class="content-section">
+            <h2>Variables</h2>
+            <p>Variables store data that your program can use. JavaScript has three ways to declare variables:</p>
+            <h3>let (Recommended)</h3>
+            <div class="code-block">
+<span class="keyword">let</span> <span class="var">name</span> = <span class="string">"Alex"</span>;
+<span class="keyword">let</span> <span class="var">age</span> = <span class="number">25</span>;
+<span class="keyword">let</span> <span class="var">isStudent</span> = <span class="keyword">true</span>;
+            </div>
+            <h3>const (For values that won't change)</h3>
+            <div class="code-block">
+<span class="keyword">const</span> <span class="var">schoolName</span> = <span class="string">"NURU Academy"</span>;
+<span class="keyword">const</span> <span class="var">maxScore</span> = <span class="number">100</span>;
+            </div>
+            <div class="warning-box">
+                <strong><i class="fas fa-exclamation-triangle"></i> Important</strong>
+                <p>Always use const by default unless you need to reassign the variable. Use let when you need to change the value later.</p>
+            </div>
+        </div>
+        <div class="content-section">
+            <h2>Data Types</h2>
+            <ul>
+                <li><strong>String:</strong> Text in quotes ("Hello")</li>
+                <li><strong>Number:</strong> Numeric values (42, 3.14)</li>
+                <li><strong>Boolean:</strong> true or false</li>
+                <li><strong>Array:</strong> Lists of values [1, 2, 3]</li>
+                <li><strong>Object:</strong> Key-value pairs {name: "Alex"}</li>
+            </ul>
+            <h3>Working with Strings</h3>
+            <div class="code-block">
+<span class="keyword">let</span> <span class="var">greeting</span> = <span class="string">"Hello, "</span>;
+<span class="keyword">let</span> <span class="var">name</span> = <span class="string">"World"</span>;
+<span class="keyword">let</span> <span class="var">message</span> = greeting + name; <span class="comment">// "Hello, World"</span>
+
+<span class="comment">// Template literals (use backticks)</span>
+<span class="keyword">let</span> <span class="var">fullMessage</span> = <span class="string">`${greeting}${name}!`</span>;
+            </div>
+        </div>
+        <div class="content-section">
+            <h2>Functions</h2>
+            <p>Functions are reusable blocks of code that perform a specific task.</p>
+            <h3>Function Declaration</h3>
+            <div class="code-block">
+<span class="keyword">function</span> <span class="function">greet</span>(name) {
+    <span class="keyword">return</span> <span class="string">"Hello, "</span> + name + <span class="string">"!"</span>;
+}
+
+<span class="comment">// Call the function</span>
+<span class="keyword">let</span> <span class="var">result</span> = <span class="function">greet</span>(<span class="string">"Alex"</span>);
+            </div>
+            <h3>Arrow Functions (Modern Syntax)</h3>
+            <div class="code-block">
+<span class="keyword">const</span> <span class="function">add</span> = (a, b) => a + b;
+<span class="keyword">const</span> <span class="function">square</span> = (x) => x * x;
+            </div>
+        </div>
+        <div class="content-section">
+            <h2>DOM Manipulation</h2>
+            <p>The DOM (Document Object Model) is how JavaScript interacts with HTML elements.</p>
+            <h3>Selecting Elements</h3>
+            <div class="code-block">
+<span class="comment">// By ID</span>
+<span class="keyword">const</span> <span class="var">heading</span> = <span class="function">document</span>.<span class="function">getElementById</span>(<span class="string">"myHeading"</span>);
+
+<span class="comment">// By class</span>
+<span class="keyword">const</span> <span class="var">cards</span> = <span class="function">document</span>.<span class="function">getElementsByClassName</span>(<span class="string">"card"</span>);
+
+<span class="comment">// Using querySelector</span>
+<span class="keyword">const</span> <span class="var">firstButton</span> = <span class="function">document</span>.<span class="function">querySelector</span>(<span class="string">"button"</span>);
+            </div>
+            <h3>Changing Content</h3>
+            <div class="code-block">
+<span class="comment">// Change text</span>
+<span class="var">heading</span>.<span class="property">textContent</span> = <span class="string">"New Title"</span>;
+
+<span class="comment">// Change HTML</span>
+<span class="var">element</span>.<span class="property">innerHTML</span> = <span class="string">"&lt;strong&gt;Bold&lt;/strong&gt;"</span>;
+
+<span class="comment">// Change styles</span>
+<span class="var">element</span>.<span class="property">style</span>.<span class="property">color</span> = <span class="string">"red"</span>;
+            </div>
+            <div class="tip-box">
+                <strong><i class="fas fa-lightbulb"></i> Pro Tip</strong>
+                <p>Always wrap your JavaScript in an event listener or place it at the bottom of the body to ensure the HTML exists before your code runs.</p>
+            </div>
+        </div>
+        <div class="content-section">
+            <h2>Practice Exercise</h2>
+            <p>Create a simple page that:</p>
+            <ol>
+                <li>Has a heading with id "title"</li>
+                <li>Uses JavaScript to change the heading text</li>
+                <li>Creates a button that alerts "Hello!" when clicked</li>
+            </ol>
+        </div>
+        <div class="navigation-buttons">
+            <a class="nav-btn disabled">
+                <i class="fas fa-arrow-left"></i>
+                <span>No Previous</span>
+            </a>
+            <a href="lesson-2.html" class="nav-btn next">
+                <span>Next: Events & Interactivity</span>
+                <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+        <div class="progress-bar">
+            <div class="progress-fill" style="width: 33%"></div>
+        </div>
+    </div>
+</body>
+</html>

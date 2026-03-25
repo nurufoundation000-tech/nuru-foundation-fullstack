@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Introduction to Cybersecurity - NURU Foundation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #e74c3c;
+            --accent: #c0392b;
+            --success: #27ae60;
+            --bg-light: #f8f9fa;
+            --text-dark: #333;
+            --text-light: #666;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg-light);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+        .lesson-container { max-width: 900px; margin: 0 auto; padding: 2rem; }
+        .lesson-header {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+            margin-bottom: 2rem;
+            color: white;
+        }
+        .course-breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        .course-breadcrumb a { color: white; text-decoration: none; }
+        .course-breadcrumb a:hover { text-decoration: underline; }
+        .lesson-meta {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+        .lesson-title { font-size: 2rem; margin-bottom: 1rem; }
+        .lesson-objectives {
+            background: rgba(255,255,255,0.15);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+        .lesson-objectives h3 { margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+        .lesson-objectives ul { margin-left: 1.5rem; }
+        .lesson-objectives li { margin-bottom: 0.5rem; }
+        .content-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        .content-section h2 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 3px solid var(--secondary);
+        }
+        .content-section h3 { color: var(--primary); margin: 1.5rem 0 0.75rem; }
+        .content-section p { margin-bottom: 1rem; }
+        .content-section ul, .content-section ol { margin: 1rem 0 1rem 1.5rem; }
+        .content-section li { margin-bottom: 0.5rem; }
+        .course-icon {
+            width: 80px;
+            height: 80px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 1rem auto;
+            font-size: 2.5rem;
+            color: var(--secondary);
+        }
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #3498db;
+            padding: 1rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1rem 0;
+        }
+        .warning-box {
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+            padding: 1rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1rem 0;
+        }
+        .tip-box {
+            background: #e8f5e9;
+            border-left: 4px solid var(--success);
+            padding: 1rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1rem 0;
+        }
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        .nav-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem 1.5rem;
+            background: white;
+            border: 2px solid var(--secondary);
+            color: var(--secondary);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            flex: 1;
+            justify-content: center;
+        }
+        .nav-btn:hover { background: var(--secondary); color: white; }
+        .nav-btn.disabled { opacity: 0.5; pointer-events: none; }
+        .nav-btn.next { background: var(--secondary); color: white; }
+        .nav-btn.next:hover { background: var(--accent); border-color: var(--accent); }
+        .progress-bar {
+            background: #e0e0e0;
+            height: 8px;
+            border-radius: 4px;
+            margin-top: 2rem;
+            overflow: hidden;
+        }
+        .progress-fill {
+            background: linear-gradient(90deg, #e74c3c, #c0392b);
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+        @media (max-width: 768px) {
+            .lesson-container { padding: 1rem; }
+            .lesson-title { font-size: 1.5rem; }
+            .navigation-buttons { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <div class="lesson-container">
+        <div class="lesson-header">
+            <div class="course-icon"><i class="fas fa-shield-alt"></i></div>
+            <div class="course-breadcrumb">
+                <a href="/student-dashboard/notes.html"><i class="fas fa-arrow-left"></i> Back to Notes</a>
+            </div>
+            <div class="lesson-meta">
+                <span class="meta-item"><i class="fas fa-book"></i> Lesson 1 of 3</span>
+                <span class="meta-item"><i class="fas fa-clock"></i> 45 minutes</span>
+            </div>
+            <h1 class="lesson-title">Introduction to Cybersecurity</h1>
+        </div>
+        <div class="lesson-objectives">
+            <h3><i class="fas fa-bullseye"></i> Learning Objectives</h3>
+            <ul>
+                <li>Understand what cybersecurity is and why it matters</li>
+                <li>Identify common types of cyber threats</li>
+                <li>Recognize the importance of cybersecurity in daily life</li>
+                <li>Learn basic cybersecurity concepts and terminology</li>
+            </ul>
+        </div>
+        <div class="content-section">
+            <h2>What is Cybersecurity?</h2>
+            <p>Cybersecurity is the practice of protecting computers, networks, programs, and data from unauthorized access or digital attacks. It involves a set of technologies, processes, and practices designed to safeguard systems from malicious activities.</p>
+            <h3>Why Cybersecurity Matters</h3>
+            <ul>
+                <li><strong>Protection of Personal Data:</strong> Safeguards your private information from theft</li>
+                <li><strong>Financial Security:</strong> Prevents fraud and monetary losses</li>
+                <li><strong>Privacy Protection:</strong> Keeps your digital life secure</li>
+                <li><strong>Business Continuity:</strong> Ensures organizations can operate safely</li>
+            </ul>
+            <div class="info-box">
+                <strong><i class="fas fa-info-circle"></i> Did You Know?</strong>
+                <p>Cyber attacks occur every 39 seconds, affecting 1 in 3 Americans every year!</p>
+            </div>
+        </div>
+        <div class="content-section">
+            <h2>Common Cyber Threats</h2>
+            <p>Understanding the types of threats is the first step in protecting yourself.</p>
+            <h3>Types of Threats</h3>
+            <ul>
+                <li><strong>Malware:</strong> Malicious software including viruses, worms, and trojans</li>
+                <li><strong>Phishing:</strong> Deceptive emails or websites designed to steal information</li>
+                <li><strong>Ransomware:</strong> Encrypts files and demands payment for recovery</li>
+                <li><strong>Social Engineering:</strong> Manipulating people into revealing confidential information</li>
+                <li><strong>Man-in-the-Middle Attacks:</strong> Intercepting communications between two parties</li>
+                <li><strong>Denial of Service (DoS):</strong> Overloading systems to make them unavailable</li>
+            </ul>
+            <div class="warning-box">
+                <strong><i class="fas fa-exclamation-triangle"></i> Important</strong>
+                <p>Cyber criminals often target the weakest link - human users. Being aware is your first line of defense!</p>
+            </div>
+        </div>
+        <div class="content-section">
+            <h2>Basic Security Concepts</h2>
+            <p>These fundamental concepts form the foundation of cybersecurity practices.</p>
+            <h3>The CIA Triad</h3>
+            <ul>
+                <li><strong>Confidentiality:</strong> Ensuring information is accessible only to authorized individuals</li>
+                <li><strong>Integrity:</strong> Maintaining accuracy and completeness of data</li>
+                <li><strong>Availability:</strong> Ensuring systems and data are accessible when needed</li>
+            </ul>
+            <h3>Defense in Depth</h3>
+            <p>Using multiple layers of security controls throughout a system. If one layer fails, others still provide protection.</p>
+            <div class="tip-box">
+                <strong><i class="fas fa-lightbulb"></i> Pro Tip</strong>
+                <p>Think of cybersecurity like onion layers - the more layers, the harder it is for attackers to reach your data!</p>
+            </div>
+        </div>
+        <div class="content-section">
+            <h2>Your Role in Cybersecurity</h2>
+            <p>Every user plays a crucial role in maintaining security. Simple habits can make a big difference.</p>
+            <h3>Best Practices</h3>
+            <ul>
+                <li>Use strong, unique passwords for each account</li>
+                <li>Keep software and systems updated</li>
+                <li>Be cautious with email attachments and links</li>
+                <li>Use secure Wi-Fi connections</li>
+                <li>Back up important data regularly</li>
+                <li>Report suspicious activities immediately</li>
+            </ul>
+        </div>
+        <div class="navigation-buttons">
+            <a class="nav-btn disabled">
+                <i class="fas fa-arrow-left"></i>
+                <span>No Previous</span>
+            </a>
+            <a href="lesson-2.html" class="nav-btn next">
+                <span>Next: Password Security & Authentication</span>
+                <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+        <div class="progress-bar">
+            <div class="progress-fill" style="width: 33%"></div>
+        </div>
+    </div>
+</body>
+</html>

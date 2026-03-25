@@ -1,0 +1,355 @@
+/* ========================================
+   STUDENT DASHBOARD STYLES
+   NURU FOUNDATION
+   ======================================== */
+
+/* --- Course Card Specifics --- */
+.course-card .card-stats {
+    display: flex;
+    gap: 15px;
+    margin: 15px 0;
+    padding: 12px;
+    background: #f8f9fa;
+    border-radius: var(--border-radius-md);
+}
+
+.course-card .stat {
+    flex: 1;
+    text-align: center;
+}
+
+.course-card .stat-value {
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+.course-card .stat-label {
+    font-size: 0.75rem;
+    color: #888;
+}
+
+.course-card .card-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+/* --- Notes Grid --- */
+.notes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.note-card {
+    background: white;
+    border-radius: var(--border-radius-lg);
+    padding: 20px;
+    box-shadow: var(--shadow-md);
+    transition: transform 0.3s ease;
+}
+
+.note-card:hover {
+    transform: translateY(-3px);
+}
+
+.note-card .note-course {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--primary-color), var(--accent-color-1));
+    color: white;
+    padding: 4px 10px;
+    border-radius: 15px;
+    font-size: 0.75rem;
+    margin-bottom: 10px;
+}
+
+.note-card .note-title {
+    color: var(--primary-color);
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.note-card .note-content {
+    color: #666;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.note-card .note-date {
+    color: #999;
+    font-size: 0.8rem;
+    margin-top: 10px;
+}
+
+/* --- Progress Page --- */
+.progress-course-item {
+    background: white;
+    border-radius: var(--border-radius-lg);
+    padding: 20px;
+    margin-bottom: 15px;
+    box-shadow: var(--shadow-md);
+}
+
+.progress-course-item .course-title {
+    color: var(--primary-color);
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.progress-course-item .course-meta {
+    display: flex;
+    gap: 20px;
+    color: #666;
+    font-size: 0.9rem;
+    margin-bottom: 15px;
+}
+
+.progress-percentage {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.progress-percentage .percentage {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+/* --- Profile Page --- */
+.profile-header {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    background: linear-gradient(135deg, var(--primary-color), var(--accent-color-1));
+    color: white;
+    padding: 40px;
+    border-radius: var(--border-radius-lg);
+    margin-bottom: 30px;
+}
+
+.profile-avatar {
+    width: 120px;
+    height: 120px;
+    background: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+.profile-info h1 {
+    margin: 0 0 10px 0;
+    font-size: 2rem;
+}
+
+.profile-info p {
+    margin: 0;
+    opacity: 0.9;
+}
+
+.profile-section {
+    background: white;
+    border-radius: var(--border-radius-lg);
+    padding: 30px;
+    margin-bottom: 25px;
+    box-shadow: var(--shadow-md);
+}
+
+.profile-section h2 {
+    color: var(--primary-color);
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #eee;
+}
+
+.profile-info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.info-item {
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: var(--border-radius-md);
+}
+
+.info-item .label {
+    color: #888;
+    font-size: 0.85rem;
+    margin-bottom: 5px;
+}
+
+.info-item .value {
+    color: #333;
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+/* --- Course Lessons List --- */
+.lessons-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.lesson-item {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+    transition: background 0.3s;
+}
+
+.lesson-item:hover {
+    background: #f8f9fa;
+}
+
+.lesson-item.completed {
+    opacity: 0.7;
+}
+
+.lesson-item .lesson-number {
+    width: 30px;
+    height: 30px;
+    background: var(--primary-color);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    font-weight: bold;
+    margin-right: 15px;
+}
+
+.lesson-item.completed .lesson-number {
+    background: #28a745;
+}
+
+.lesson-item .lesson-title {
+    flex: 1;
+    color: #333;
+}
+
+.lesson-item .lesson-duration {
+    color: #888;
+    font-size: 0.85rem;
+    margin-right: 15px;
+}
+
+.lesson-item .lesson-status {
+    font-size: 0.8rem;
+    padding: 4px 10px;
+    border-radius: 15px;
+}
+
+.lesson-item .lesson-status.completed {
+    background: #d4edda;
+    color: #155724;
+}
+
+.lesson-item .lesson-status.pending {
+    background: #fff3cd;
+    color: #856404;
+}
+
+/* --- Lesson Viewer --- */
+.lesson-viewer {
+    display: none;
+    margin-top: 2rem;
+    width: 100%;
+}
+
+.lesson-viewer.active {
+    display: block;
+}
+
+.viewer-container {
+    width: 100%;
+}
+
+#lessonFrame {
+    width: 100%;
+    height: 70vh;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: #fff;
+}
+
+.nav-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 0 0 8px 8px;
+    border: 1px solid #ddd;
+    border-top: none;
+}
+
+.nav-controls .nav-btn {
+    padding: 0.6rem 1.5rem;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background 0.3s;
+}
+
+.nav-controls .nav-btn:hover:not(:disabled) {
+    background: var(--accent-color-1);
+}
+
+.nav-controls .nav-btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+}
+
+#lessonIndicator {
+    font-weight: 600;
+    color: #333;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .dashboard-container {
+        flex-direction: column;
+    }
+    
+    .notes-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .lesson-viewer {
+        margin-top: 1rem;
+    }
+    
+    #lessonFrame {
+        height: 60vh;
+    }
+    
+    .nav-controls {
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: center;
+    }
+    
+    .nav-controls .nav-btn {
+        flex: 1;
+        min-width: 100px;
+    }
+}

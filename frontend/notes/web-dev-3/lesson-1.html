@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Introduction to React - NURU Foundation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #2ecc71;
+            --accent: #27ae60;
+            --success: #27ae60;
+            --bg-light: #f8f9fa;
+            --text-dark: #333;
+            --text-light: #666;
+            --react-cyan: #61dafb;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg-light);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+        .lesson-container { max-width: 900px; margin: 0 auto; padding: 2rem; }
+        .lesson-header {
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(46, 204, 113, 0.3);
+            margin-bottom: 2rem;
+            color: white;
+        }
+        .course-breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        .course-breadcrumb a { color: white; text-decoration: none; }
+        .course-breadcrumb a:hover { text-decoration: underline; }
+        .lesson-meta {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+        .lesson-title { font-size: 2rem; margin-bottom: 1rem; }
+        .lesson-objectives {
+            background: rgba(255,255,255,0.15);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+        .lesson-objectives h3 { margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+        .lesson-objectives ul { margin-left: 1.5rem; }
+        .lesson-objectives li { margin-bottom: 0.5rem; }
+        .content-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        .content-section h2 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 3px solid var(--secondary);
+        }
+        .content-section h3 { color: var(--primary); margin: 1.5rem 0 0.75rem; }
+        .content-section p { margin-bottom: 1rem; }
+        .content-section ul, .content-section ol { margin: 1rem 0 1rem 1.5rem; }
+        .content-section li { margin-bottom: 0.5rem; }
+        .react-logo {
+            width: 80px;
+            height: 80px;
+            background: #282c34;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 1rem auto;
+            font-size: 2.5rem;
+            color: var(--react-cyan);
+        }
+        .code-block {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 1.5rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1rem 0;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.95rem;
+            border-left: 4px solid var(--secondary);
+        }
+        .code-block .comment { color: #6a9955; }
+        .code-block .string { color: #ce9178; }
+        .code-block .keyword { color: #569cd6; }
+        .code-block .function { color: #dcdcaa; }
+        .code-block .number { color: #b5cea8; }
+        .code-block .tag { color: #569cd6; }
+        .code-block .attr { color: #9cdcfe; }
+        .code-block .prop { color: #4ec9b0; }
+        .info-box {
+            background: #e8f8f5;
+            border-left: 4px solid var(--secondary);
+            padding: 1rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1rem 0;
+        }
+        .warning-box {
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+            padding: 1rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1rem 0;
+        }
+        .tip-box {
+            background: #e8f5e9;
+            border-left: 4px solid var(--success);
+            padding: 1rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1rem 0;
+        }
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        .nav-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem 1.5rem;
+            background: white;
+            border: 2px solid var(--secondary);
+            color: var(--secondary);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            flex: 1;
+            justify-content: center;
+        }
+        .nav-btn:hover { background: var(--secondary); color: white; }
+        .nav-btn.disabled { opacity: 0.5; pointer-events: none; }
+        .nav-btn.next { background: var(--secondary); color: white; }
+        .nav-btn.next:hover { background: var(--primary); border-color: var(--primary); }
+        .progress-bar {
+            background: #e0e0e0;
+            height: 8px;
+            border-radius: 4px;
+            margin-top: 2rem;
+            overflow: hidden;
+        }
+        .progress-fill {
+            background: linear-gradient(90deg, #2ecc71, #27ae60);
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+        @media (max-width: 768px) {
+            .lesson-container { padding: 1rem; }
+            .lesson-title { font-size: 1.5rem; }
+            .navigation-buttons { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <div class="lesson-container">
+        <div class="lesson-header">
+            <div class="react-logo">
+                <svg viewBox="0 0 24 24" width="40" height="40" fill="currentColor">
+                    <path d="M12 10.11c1.03 0 1.87.84 1.87 1.89 0 1-.84 1.85-1.87 1.85-1.03 0-1.87-.85-1.87-1.85 0-1.05.84-1.89 1.87-1.89M7.37 20c.63.38 2.01-.2 3.6-1.7.79-.75 1.68-1.61 2.52-2.59.42-.49.81-1.02 1.14-1.56.16-.27.28-.56.36-.86.03-.12.05-.24.05-.37 0-.46-.16-.88-.44-1.14-.28-.26-.68-.37-1.09-.28-.52.12-.98.61-1.21 1.33-.12.37-.22.75-.28 1.15-.08.53-.09 1.07-.02 1.61.13.99.61 1.9 1.35 2.54-.5.27-1.04.5-1.6.68-.85.28-1.75.45-2.68.45-.8 0-1.57-.12-2.27-.35-.71-.24-1.35-.58-1.89-1-.55-.42-.99-.91-1.32-1.45-.32-.53-.49-1.09-.49-1.64 0-.67.23-1.29.65-1.78.42-.49.99-.79 1.6-.82.36-.02.71.05 1.03.18.32.13.6.32.84.55.23.23.42.5.55.8.12.3.18.62.18.96 0 .22-.04.44-.11.64-.08.24-.21.46-.4.64-.14.13-.31.22-.5.26-.19.04-.39.04-.58 0-.2-.04-.38-.13-.52-.26-.15-.14-.27-.32-.35-.53-.08-.22-.12-.45-.11-.69.02-.67.23-1.31.59-1.85.35-.53.82-.97 1.37-1.29.54-.31 1.15-.5 1.79-.54.63-.04 1.28.05 1.88.25.59.2 1.12.5 1.55.88.42.38.78.83 1.04 1.32.27.5.44 1.03.5 1.57.02.21 0 .42-.05.62z"/>
+                </svg>
+            </div>
+            <div class="course-breadcrumb">
+                <a href="/student-dashboard/notes.html"><i class="fas fa-arrow-left"></i> Back to Notes</a>
+            </div>
+            <div class="lesson-meta">
+                <span class="meta-item"><i class="fas fa-book"></i> Lesson 1 of 3</span>
+                <span class="meta-item"><i class="fas fa-clock"></i> 45 minutes</span>
+            </div>
+            <h1 class="lesson-title">Introduction to React</h1>
+        </div>
+        <div class="lesson-objectives">
+            <h3><i class="fas fa-bullseye"></i> Learning Objectives</h3>
+            <ul>
+                <li>Understand what React is and why it's popular</li>
+                <li>Learn about components and JSX</li>
+                <li>Create your first React component</li>
+                <li>Understand the virtual DOM concept</li>
+            </ul>
+        </div>
+        <div class="content-section">
+            <h2>What is React?</h2>
+            <p><strong>React</strong> is a JavaScript library for building user interfaces. Developed by Facebook, it's the most popular front-end framework used today.</p>
+            <h3>Why Learn React?</h3>
+            <ul>
+                <li><strong>Component-Based:</strong> Build reusable pieces of UI</li>
+                <li><strong>Virtual DOM:</strong> Fast and efficient updates</li>
+                <li><strong>Declarative:</strong> Describe what you want, not how</li>
+                <li><strong>Large Ecosystem:</strong> Libraries, tools, and community</li>
+            </ul>
+            <div class="info-box">
+                <strong><i class="fas fa-info-circle"></i> Did You Know?</strong>
+                <p>React is used by Facebook, Instagram, Netflix, and many other major companies!</p>
+            </div>
+        </div>
+        <div class="content-section">
+            <h2>Setting Up React</h2>
+            <p>The easiest way to create a React app is using Create React App or Vite.</p>
+            <h3>Using Vite (Recommended)</h3>
+            <div class="code-block">
+<span class="comment"># Create a new React project</span>
+npm create vite@latest my-app -- --template react
+
+<span class="comment"># Navigate to the folder</span>
+cd my-app
+
+<span class="comment"># Install dependencies</span>
+npm install
+
+<span class="comment"># Start the development server</span>
+npm run dev
+            </div>
+            <div class="tip-box">
+                <strong><i class="fas fa-lightbulb"></i> Pro Tip</strong>
+                <p>Vite is much faster than Create React App for project setup and development!</p>
+            </div>
+        </div>
+        <div class="content-section">
+            <h2>Components</h2>
+            <p>Components are the building blocks of React applications. They let you split the UI into independent, reusable pieces.</p>
+            <h3>Function Component</h3>
+            <div class="code-block">
+<span class="keyword">function</span> <span class="function">Welcome</span>() {
+    <span class="keyword">return</span> (
+        <span class="tag">&lt;div&gt;</span>
+            <span class="tag">&lt;h1&gt;</span>Hello, World!<span class="tag">&lt;/h1&gt;</span>
+        <span class="tag">&lt;/div&gt;</span>
+    );
+}
+            </div>
+            <h3>Arrow Function Version</h3>
+            <div class="code-block">
+<span class="keyword">const</span> <span class="function">Welcome</span> = () => {
+    <span class="keyword">return</span> (
+        <span class="tag">&lt;h1&gt;</span>Hello, World!<span class="tag">&lt;/h1&gt;</span>
+    );
+};
+            </div>
+            <h3>Using the Component</h3>
+            <div class="code-block">
+<span class="keyword">function</span> <span class="function">App</span>() {
+    <span class="keyword">return</span> (
+        <span class="tag">&lt;div&gt;</span>
+            <span class="tag">&lt;Welcome /&gt;</span>
+            <span class="tag">&lt;Welcome /&gt;</span>
+        <span class="tag">&lt;/div&gt;</span>
+    );
+}
+            </div>
+        </div>
+        <div class="content-section">
+            <h2>JSX - JavaScript XML</h2>
+            <p>JSX is a syntax extension that lets you write HTML-like code in JavaScript. It looks like HTML but is actually JavaScript.</p>
+            <h3>JSX Rules</h3>
+            <ul>
+                <li>Return a single root element</li>
+                <li>Close all tags (including self-closing)</li>
+                <li>Use camelCase for attributes</li>
+                <li>Use className instead of class</li>
+            </ul>
+            <div class="code-block">
+<span class="comment">// JSX looks like HTML but is JavaScript</span>
+<span class="keyword">const</span> <span class="var">element</span> = <span class="tag">&lt;h1</span> <span class="attr">className</span>=<span class="string">"title"</span><span class="tag">&gt;</span>Hello!<span class="tag">&lt;/h1&gt;</span>;
+
+<span class="comment">// You can embed JavaScript with curly braces</span>
+<span class="keyword">const</span> <span class="var">name</span> = <span class="string">"Alex"</span>;
+<span class="keyword">const</span> <span class="var">greeting</span> = <span class="tag">&lt;p&gt;</span>Hello, {<span class="var">name</span>}<span class="tag">&lt;/p&gt;</span>;
+            </div>
+            <div class="warning-box">
+                <strong><i class="fas fa-exclamation-triangle"></i> Important</strong>
+                <p>JSX is not valid JavaScript - it gets transformed to regular JavaScript function calls by a transpiler (like Babel) before running in the browser.</p>
+            </div>
+        </div>
+        <div class="content-section">
+            <h2>Creating a Simple App</h2>
+            <p>Let's create a simple React app with multiple components.</p>
+            <h3>App.jsx</h3>
+            <div class="code-block">
+<span class="comment">// Header Component</span>
+<span class="keyword">function</span> <span class="function">Header</span>() {
+    <span class="keyword">return</span> <span class="tag">&lt;header&gt;</span><span class="tag">&lt;h1&gt;</span>My React App<span class="tag">&lt;/h1&gt;</span><span class="tag">&lt;/header&gt;</span>;
+}
+
+<span class="comment">// Card Component</span>
+<span class="keyword">function</span> <span class="function">Card</span>(<span class="attr">props</span>) {
+    <span class="keyword">return</span> (
+        <span class="tag">&lt;div</span> <span class="attr">className</span>=<span class="string">"card"</span><span class="tag">&gt;</span>
+            <span class="tag">&lt;h2&gt;</span>{props.<span class="property">title</span>}<span class="tag">&lt;/h2&gt;</span>
+            <span class="tag">&lt;p&gt;</span>{props.<span class="property">description</span>}<span class="tag">&lt;/p&gt;</span>
+        <span class="tag">&lt;/div&gt;</span>
+    );
+}
+
+<span class="comment">// Main App Component</span>
+<span class="keyword">export default function</span> <span class="function">App</span>() {
+    <span class="keyword">return</span> (
+        <span class="tag">&lt;div&gt;</span>
+            <span class="tag">&lt;Header /&gt;</span>
+            <span class="tag">&lt;Card</span> <span class="attr">title</span>=<span class="string">"React"</span> <span class="attr">description</span>=<span class="string">"A UI library"</span> <span class="tag">/&gt;</span>
+            <span class="tag">&lt;Card</span> <span class="attr">title</span>=<span class="string">"Components"</span> <span class="attr">description</span>=<span class="string">"Building blocks"</span> <span class="tag">/&gt;</span>
+        <span class="tag">&lt;/div&gt;</span>
+    );
+}
+            </div>
+        </div>
+        <div class="content-section">
+            <h2>Practice Exercise</h2>
+            <p>Create a React app that:</p>
+            <ol>
+                <li>Has a Header component with your app name</li>
+                <li>Has a Profile component that shows your name</li>
+                <li>Has a Footer component</li>
+                <li>Combines them all in the App component</li>
+            </ol>
+        </div>
+        <div class="navigation-buttons">
+            <a class="nav-btn disabled">
+                <i class="fas fa-arrow-left"></i>
+                <span>No Previous</span>
+            </a>
+            <a href="lesson-2.html" class="nav-btn next">
+                <span>Next: State & Props</span>
+                <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+        <div class="progress-bar">
+            <div class="progress-fill" style="width: 33%"></div>
+        </div>
+    </div>
+</body>
+</html>

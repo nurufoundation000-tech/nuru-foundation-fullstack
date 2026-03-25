@@ -364,8 +364,8 @@
     }
 
     function checkAdminAccess() {
-        const token = localStorage.getItem('token');
-        const userData = localStorage.getItem('user');
+        const token = sessionStorage.getItem('token');
+        const userData = sessionStorage.getItem('user');
         
         console.log('🔍 Checking admin access for analytics...');
         console.log('Token exists:', !!token);
@@ -410,7 +410,7 @@
 
     async function loadAnalytics() {
         try {
-            const token = localStorage.getItem('token');
+            const token = sessionStorage.getItem('token');
             const timePeriod = document.getElementById('timeFilter').value;
 
             console.log('📊 Loading analytics data for period:', timePeriod);

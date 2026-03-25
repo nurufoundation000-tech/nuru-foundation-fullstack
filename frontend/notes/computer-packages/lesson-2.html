@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word Processing with MS Word - NURU Foundation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #27ae60;
+            --accent: #1e8449;
+            --success: #27ae60;
+            --bg-light: #f8f9fa;
+            --text-dark: #333;
+            --text-light: #666;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg-light);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+        .lesson-container { max-width: 900px; margin: 0 auto; padding: 2rem; }
+        .lesson-header {
+            background: linear-gradient(135deg, #27ae60 0%, #1e8449 100%);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3);
+            margin-bottom: 2rem;
+            color: white;
+        }
+        .course-breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        .course-breadcrumb a { color: white; text-decoration: none; }
+        .course-breadcrumb a:hover { text-decoration: underline; }
+        .lesson-meta {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+        .lesson-title { font-size: 2rem; margin-bottom: 1rem; }
+        .lesson-objectives {
+            background: rgba(255,255,255,0.15);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+        .lesson-objectives h3 { margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+        .lesson-objectives ul { margin-left: 1.5rem; }
+        .lesson-objectives li { margin-bottom: 0.5rem; }
+        .content-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        .content-section h2 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 3px solid var(--secondary);
+        }
+        .content-section h3 { color: var(--primary); margin: 1.5rem 0 0.75rem; }
+        .content-section p { margin-bottom: 1rem; }
+        .content-section ul, .content-section ol { margin: 1rem 0 1rem 1.5rem; }
+        .content-section li { margin-bottom: 0.5rem; }
+        .skill-icon {
+            width: 80px;
+            height: 80px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 1rem auto;
+            font-size: 2.5rem;
+            color: var(--secondary);
+        }
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid var(--secondary);
+            padding: 1rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1rem 0;
+        }
+        .warning-box {
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+            padding: 1rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1rem 0;
+        }
+        .tip-box {
+            background: #e8f5e9;
+            border-left: 4px solid var(--success);
+            padding: 1rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1rem 0;
+        }
+        .exercise-box {
+            background: #fce4ec;
+            border-left: 4px solid #e91e63;
+            padding: 1rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1rem 0;
+        }
+        .exercise-box h4 {
+            color: #c2185b;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .exercise-box ol { margin-left: 1.25rem; }
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        .nav-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem 1.5rem;
+            background: white;
+            border: 2px solid var(--secondary);
+            color: var(--secondary);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            flex: 1;
+            justify-content: center;
+        }
+        .nav-btn:hover { background: var(--secondary); color: white; }
+        .nav-btn.disabled { opacity: 0.5; pointer-events: none; }
+        .nav-btn.next { background: var(--secondary); color: white; }
+        .nav-btn.next:hover { background: var(--accent); border-color: var(--accent); }
+        .progress-bar {
+            background: #e0e0e0;
+            height: 8px;
+            border-radius: 4px;
+            margin-top: 2rem;
+            overflow: hidden;
+        }
+        .progress-fill {
+            background: linear-gradient(90deg, #27ae60, #1e8449);
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+        @media (max-width: 768px) {
+            .lesson-container { padding: 1rem; }
+            .lesson-title { font-size: 1.5rem; }
+            .navigation-buttons { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <div class="lesson-container">
+        <div class="lesson-header">
+            <div class="skill-icon"><i class="fas fa-file-word"></i></div>
+            <div class="course-breadcrumb">
+                <a href="/student-dashboard/notes.html"><i class="fas fa-arrow-left"></i> Back to Notes</a>
+            </div>
+            <div class="lesson-meta">
+                <span class="meta-item"><i class="fas fa-book"></i> Lesson 2 of 3</span>
+                <span class="meta-item"><i class="fas fa-clock"></i> 50 minutes</span>
+            </div>
+            <h1 class="lesson-title">Word Processing with MS Word</h1>
+        </div>
+        <div class="lesson-objectives">
+            <h3><i class="fas fa-bullseye"></i> Learning Objectives</h3>
+            <ul>
+                <li>Create and save new documents in Microsoft Word</li>
+                <li>Apply text formatting (bold, italic, fonts, colors)</li>
+                <li>Insert and format tables in documents</li>
+                <li>Add images and shapes to enhance documents</li>
+                <li>Use page layout and printing options</li>
+            </ul>
+        </div>
+        <div class="content-section">
+            <h2>Getting Started with MS Word</h2>
+            <p>Microsoft Word is the world's most popular word processing software. It's used for creating letters, reports, resumes, and many other types of documents.</p>
+            <h3>Creating a New Document</h3>
+            <ul>
+                <li>Open Microsoft Word from the Start menu or desktop shortcut</li>
+                <li>Click "Blank Document" to start a new page</li>
+                <li>Your document opens with a cursor ready for typing</li>
+                <li>Save your document using Ctrl+S or File > Save As</li>
+            </ul>
+            <div class="info-box">
+                <strong><i class="fas fa-info-circle"></i> Did You Know?</strong>
+                <p>The default file extension for Word documents is .docx, which replaced the older .doc format!</p>
+            </div>
+        </div>
+        <div class="content-section">
+            <h2>Text Formatting</h2>
+            <p>Formatting makes your documents more readable and professional. Use the formatting toolbar or keyboard shortcuts.</p>
+            <h3>Basic Formatting Options</h3>
+            <ul>
+                <li><strong>Bold:</strong> Ctrl+B - Makes text thicker and darker</li>
+                <li><strong>Italic:</strong> Ctrl+I - Slants text for emphasis</li>
+                <li><strong>Underline:</strong> Ctrl+U - Draws a line under text</li>
+                <li><strong>Font Size:</strong> Change text size from the dropdown (default is 11pt)</li>
+                <li><strong>Font Family:</strong> Choose different text styles like Arial, Times New Roman</li>
+                <li><strong>Text Color:</strong> Change the color of your text</li>
+            </ul>
+            <div class="tip-box">
+                <strong><i class="fas fa-lightbulb"></i> Pro Tip</strong>
+                <p>Use the Format Painter (paintbrush icon) to quickly copy formatting from one text to another!</p>
+            </div>
+        </div>
+        <div class="content-section">
+            <h2>Working with Tables</h2>
+            <p>Tables are perfect for organizing information in rows and columns. They're great for schedules, data, and comparisons.</p>
+            <h3>Creating and Formatting Tables</h3>
+            <ul>
+                <li><strong>Insert Table:</strong> Click Insert > Table and drag to select rows and columns</li>
+                <li><strong>Add Rows/Columns:</strong> Right-click and choose Insert Above/Below or Left/Right</li>
+                <li><strong>Merge Cells:</strong> Select cells and click Merge Cells to combine them</li>
+                <li><strong>Table Styles:</strong> Use pre-designed table styles for professional looks</li>
+                <li><strong>Adjust Columns:</strong> Drag the gridlines to resize columns</li>
+            </ul>
+            <div class="warning-box">
+                <strong><i class="fas fa-exclamation-triangle"></i> Watch Out</strong>
+                <p>Always press Tab to move between table cells - pressing Enter creates a new row instead!</p>
+            </div>
+        </div>
+        <div class="content-section">
+            <h2>Adding Images and Graphics</h2>
+            <p>Visual elements make your documents more engaging. Word allows you to insert pictures, shapes, and SmartArt.</p>
+            <h3>Inserting Visual Elements</h3>
+            <ul>
+                <li><strong>Pictures:</strong> Insert > Pictures to add photos from your computer</li>
+                <li><strong>Online Pictures:</strong> Search Bing for images directly in Word</li>
+                <li><strong>Shapes:</strong> Insert > Shapes to add arrows, boxes, and other shapes</li>
+                <li><strong>SmartArt:</strong> Create professional diagrams like process flows</li>
+                <li><strong>Text Boxes:</strong> Add floating text anywhere on the page</li>
+            </ul>
+            <div class="tip-box">
+                <strong><i class="fas fa-check-circle"></i> Remember</strong>
+                <p>Use the picture formatting tools to crop, resize, and add effects to images!</p>
+            </div>
+        </div>
+        <div class="content-section">
+            <h2>Practice Exercise</h2>
+            <div class="exercise-box">
+                <h4><i class="fas fa-pencil-alt"></i> Create a Professional Letter</h4>
+                <ol>
+                    <li>Create a new blank document</li>
+                    <li>Add a header with your name and address (use right-align)</li>
+                    <li>Format the title in bold, 16pt font</li>
+                    <li>Insert a 3-column table with dates, topics, and notes</li>
+                    <li>Add a relevant image to enhance the document</li>
+                    <li>Save your document as "MyLetter.docx"</li>
+                </ol>
+            </div>
+        </div>
+        <div class="navigation-buttons">
+            <a href="lesson-1.html" class="nav-btn">
+                <i class="fas fa-arrow-left"></i>
+                <span>Previous: Introduction</span>
+            </a>
+            <a href="lesson-3.html" class="nav-btn next">
+                <span>Next: Spreadsheets with MS Excel</span>
+                <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+        <div class="progress-bar">
+            <div class="progress-fill" style="width: 66%"></div>
+        </div>
+    </div>
+</body>
+</html>

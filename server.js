@@ -393,7 +393,6 @@ app.put('/api/users/change-password', authenticateToken, async (req, res) => {
 app.get('/api/courses', async (req, res) => {
   try {
     const courses = await prisma.course.findMany({
-      where: { isPublished: true },
       include: {
         tutor: {
           select: {
@@ -426,8 +425,14 @@ app.get('/api/courses', async (req, res) => {
 // Get single course
 app.get('/api/courses/:id', async (req, res) => {
   try {
+    const courseId = parseInt(req.params.id);
+    
+    if (isNaN(courseId)) {
+      return res.status(400).json({ error: 'Invalid course ID' });
+    }
+    
     const course = await prisma.course.findUnique({
-      where: { id: parseInt(req.params.id) },
+      where: { id: courseId },
       include: {
         tutor: {
           select: {
@@ -438,7 +443,6 @@ app.get('/api/courses/:id', async (req, res) => {
           }
         },
         lessons: {
-          where: { isPublished: true },
           orderBy: { orderIndex: 'asc' },
           select: {
             id: true,
@@ -476,6 +480,10 @@ app.get('/api/courses/:id', async (req, res) => {
 app.post('/api/courses/:id/enroll', authenticateToken, async (req, res) => {
   try {
     const courseId = parseInt(req.params.id);
+    
+    if (isNaN(courseId)) {
+      return res.status(400).json({ error: 'Invalid course ID' });
+    }
     
     // Check if course exists
     const course = await prisma.course.findUnique({
@@ -559,7 +567,8 @@ app.get('/api/student/courses', authenticateToken, async (req, res) => {
             }
           }
         },
-        completedLessons: {
+        lessonProgress: {
+          where: { isCompleted: true },
           select: {
             lessonId: true
           }
@@ -570,7 +579,7 @@ app.get('/api/student/courses', authenticateToken, async (req, res) => {
 
     const progressData = enrollments.map(enrollment => {
       const totalLessons = enrollment.course.lessons.length;
-      const completedLessons = enrollment.completedLessons.length;
+      const completedLessons = enrollment.lessonProgress.length;
       const progress = totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
 
       return {
@@ -600,6 +609,74 @@ app.get('/api/student/courses', authenticateToken, async (req, res) => {
   }
 });
 
+// Get student's enrolled courses with progress
+app.get('/api/student/courses/progress', authenticateToken, async (req, res) => {
+  try {
+    const enrollments = await prisma.enrollment.findMany({
+      where: {
+        studentId: req.user.userId
+      },
+      include: {
+        course: {
+          include: {
+            tutor: {
+              select: {
+                id: true,
+                fullName: true,
+                username: true
+              }
+            },
+            lessons: {
+              select: {
+                id: true,
+                title: true,
+                orderIndex: true
+              }
+            }
+          }
+        },
+        lessonProgress: {
+          where: { isCompleted: true },
+          select: {
+            lessonId: true
+          }
+        }
+      },
+      orderBy: { enrolledAt: 'desc' }
+    });
+
+    const progressData = enrollments.map(enrollment => {
+      const totalLessons = enrollment.course.lessons.length;
+      const completedLessons = enrollment.lessonProgress.length;
+      const progress = totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
+
+      return {
+        id: enrollment.id,
+        enrolledAt: enrollment.enrolledAt,
+        progress: progress,
+        completedLessons: completedLessons,
+        totalLessons: totalLessons,
+        course: {
+          id: enrollment.course.id,
+          title: enrollment.course.title,
+          description: enrollment.course.description,
+          category: enrollment.course.category,
+          tutor: enrollment.course.tutor
+        }
+      };
+    });
+
+    res.json({
+      success: true,
+      data: progressData
+    });
+
+  } catch (error) {
+    console.error('Get student courses progress error:', error);
+    res.status(500).json({ error: 'Failed to load student courses progress' });
+  }
+});
+
 // Get course progress (legacy endpoint)
 app.get('/api/courses/progress', authenticateToken, async (req, res) => {
   try {
@@ -626,7 +703,8 @@ app.get('/api/courses/progress', authenticateToken, async (req, res) => {
             }
           }
         },
-        completedLessons: {
+        lessonProgress: {
+          where: { isCompleted: true },
           select: {
             lessonId: true
           }
@@ -636,7 +714,7 @@ app.get('/api/courses/progress', authenticateToken, async (req, res) => {
 
     const progressData = enrollments.map(enrollment => {
       const totalLessons = enrollment.course.lessons.length;
-      const completedLessons = enrollment.completedLessons.length;
+      const completedLessons = enrollment.lessonProgress.length;
       const progress = totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
 
       return {
@@ -670,6 +748,10 @@ app.get('/api/courses/progress', authenticateToken, async (req, res) => {
 app.post('/api/lessons/:lessonId/complete', authenticateToken, async (req, res) => {
   try {
     const lessonId = parseInt(req.params.lessonId);
+    
+    if (isNaN(lessonId)) {
+      return res.status(400).json({ error: 'Invalid lesson ID' });
+    }
     
     // Get the lesson
     const lesson = await prisma.lesson.findUnique({
@@ -733,6 +815,10 @@ app.post('/api/lessons/:lessonId/complete', authenticateToken, async (req, res) 
 app.delete('/api/student/courses/:enrollmentId/unenroll', authenticateToken, async (req, res) => {
   try {
     const enrollmentId = parseInt(req.params.enrollmentId);
+    
+    if (isNaN(enrollmentId)) {
+      return res.status(400).json({ error: 'Invalid enrollment ID' });
+    }
     
     // Verify the enrollment belongs to the user
     const enrollment = await prisma.enrollment.findFirst({
@@ -844,6 +930,11 @@ app.post('/api/tutor/courses', requireTutor, async (req, res) => {
 app.put('/api/tutor/courses/:id', requireTutor, async (req, res) => {
   try {
     const courseId = parseInt(req.params.id);
+    
+    if (isNaN(courseId)) {
+      return res.status(400).json({ error: 'Invalid course ID' });
+    }
+    
     const { title, description, category, level, isPublished } = req.body;
 
     // Verify the course belongs to the tutor
@@ -900,6 +991,10 @@ app.put('/api/tutor/courses/:id', requireTutor, async (req, res) => {
 app.get('/api/tutor/courses/:courseId/lessons', requireTutor, async (req, res) => {
   try {
     const courseId = parseInt(req.params.courseId);
+    
+    if (isNaN(courseId)) {
+      return res.status(400).json({ error: 'Invalid course ID' });
+    }
 
     // Verify the course belongs to the tutor
     const course = await prisma.course.findFirst({
@@ -1318,6 +1413,10 @@ app.patch('/api/admin/users/:id/status', requireAdmin, async (req, res) => {
 app.get('/api/lessons/:id', authenticateToken, async (req, res) => {
   try {
     const lessonId = parseInt(req.params.id);
+    
+    if (isNaN(lessonId)) {
+      return res.status(400).json({ error: 'Invalid lesson ID' });
+    }
     
     const lesson = await prisma.lesson.findUnique({
       where: { id: lessonId },

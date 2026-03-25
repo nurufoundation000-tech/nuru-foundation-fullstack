@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{TITLE}} - NURU Foundation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/styles/header.css">
+    <link rel="stylesheet" href="/styles/footer.css">
+    <link rel="stylesheet" href="/styles/notes.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #e74c3c;
+            --success: #27ae60;
+            --bg-light: #f8f9fa;
+            --text-dark: #333;
+            --text-light: #666;
+        }
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg-light);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+        
+        .lesson-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .lesson-header {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        
+        .course-breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--secondary);
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+        
+        .course-breadcrumb a {
+            color: var(--secondary);
+            text-decoration: none;
+        }
+        
+        .course-breadcrumb a:hover {
+            text-decoration: underline;
+        }
+        
+        .lesson-meta {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+        
+        .lesson-title {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+        
+        .lesson-objectives {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+        
+        .lesson-objectives h3 {
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .lesson-objectives ul {
+            margin-left: 1.5rem;
+        }
+        
+        .lesson-objectives li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .content-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        
+        .content-section h2 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--secondary);
+        }
+        
+        .content-section h3 {
+            color: var(--primary);
+            margin: 1.5rem 0 0.75rem;
+        }
+        
+        .content-section p {
+            margin-bottom: 1rem;
+            color: var(--text-dark);
+        }
+        
+        .content-section ul, .content-section ol {
+            margin: 1rem 0 1rem 1.5rem;
+        }
+        
+        .content-section li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .code-block {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 1.5rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1rem 0;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.95rem;
+        }
+        
+        .code-block .keyword { color: #569cd6; }
+        .code-block .string { color: #ce9178; }
+        .code-block .comment { color: #6a9955; }
+        .code-block .function { color: #dcdcaa; }
+        .code-block .number { color: #b5cea8; }
+        
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid var(--secondary);
+            padding: 1rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1rem 0;
+        }
+        
+        .warning-box {
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+            padding: 1rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1rem 0;
+        }
+        
+        .tip-box {
+            background: #e8f5e9;
+            border-left: 4px solid var(--success);
+            padding: 1rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1rem 0;
+        }
+        
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        .nav-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem 1.5rem;
+            background: white;
+            border: 2px solid var(--secondary);
+            color: var(--secondary);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            flex: 1;
+            justify-content: center;
+        }
+        
+        .nav-btn:hover {
+            background: var(--secondary);
+            color: white;
+        }
+        
+        .nav-btn.disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+        
+        .nav-btn.next {
+            background: var(--secondary);
+            color: white;
+        }
+        
+        .nav-btn.next:hover {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+        
+        .progress-bar {
+            background: #e0e0e0;
+            height: 8px;
+            border-radius: 4px;
+            margin-top: 2rem;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            background: linear-gradient(90deg, var(--secondary), var(--success));
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+        
+        .access-denied {
+            max-width: 500px;
+            margin: 4rem auto;
+            padding: 2rem;
+            text-align: center;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .access-denied i {
+            font-size: 4rem;
+            color: var(--accent);
+            margin-bottom: 1rem;
+        }
+        
+        .access-denied h2 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+        
+        .access-denied p {
+            color: var(--text-light);
+            margin-bottom: 1.5rem;
+        }
+        
+        .access-denied .btn {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            background: var(--secondary);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: background 0.3s ease;
+        }
+        
+        .access-denied .btn:hover {
+            background: var(--primary);
+        }
+        
+        @media (max-width: 768px) {
+            .lesson-container { padding: 1rem; }
+            .lesson-title { font-size: 1.5rem; }
+            .navigation-buttons { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <div id="headerContainer"></div>
+
+    <div id="content">
+        <!-- Content will be loaded here -->
+    </div>
+
+    <div id="footerContainer"></div>
+
+    <script src="/scripts/config.js"></script>
+    <script src="/scripts/auth.js"></script>
+    <script>
+        const COURSE_SLUG = '{{COURSE_SLUG}}';
+        const LESSON_NUM = {{LESSON_NUM}};
+        const TOTAL_LESSONS = {{TOTAL_LESSONS}};
+        
+        async function checkAccess() {
+            const token = sessionStorage.getItem('token');
+            const user = JSON.parse(sessionStorage.getItem('user') || '{}');
+            
+            if (!token || !user.id) {
+                showAccessDenied('Please log in to access this lesson.', '/login.html');
+                return false;
+            }
+            
+            try {
+                const response = await fetch(`${window.APP_CONFIG?.apiBaseUrl || '/api'}/notes/check?course=${COURSE_SLUG}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (!response.ok) {
+                    showAccessDenied('You are not enrolled in this course.', '/courses.html');
+                    return false;
+                }
+                
+                return true;
+            } catch (error) {
+                showAccessDenied('Unable to verify access. Please try again.', '/student-dashboard/index.html');
+                return false;
+            }
+        }
+        
+        function showAccessDenied(message, redirectUrl) {
+            document.getElementById('content').innerHTML = `
+                <div class="access-denied">
+                    <i class="fas fa-lock"></i>
+                    <h2>Access Restricted</h2>
+                    <p>${message}</p>
+                    <a href="${redirectUrl}" class="btn">${redirectUrl.includes('login') ? 'Log In' : 'Continue'}</a>
+                </div>
+            `;
+        }
+        
+        function showNavigation() {
+            const prevDisabled = LESSON_NUM <= 1;
+            const nextDisabled = LESSON_NUM >= TOTAL_LESSONS;
+            
+            let navHtml = '<div class="navigation-buttons">';
+            
+            navHtml += `<a href="lesson-${LESSON_NUM - 1}.html" class="nav-btn ${prevDisabled ? 'disabled' : ''}">
+                <i class="fas fa-arrow-left"></i>
+                <span>${prevDisabled ? 'No Previous' : 'Previous Lesson'}</span>
+            </a>`;
+            
+            navHtml += `<a href="lesson-${LESSON_NUM + 1}.html" class="nav-btn next ${nextDisabled ? 'disabled' : ''}">
+                <span>${nextDisabled ? 'Course Complete!' : 'Next Lesson'}</span>
+                <i class="fas fa-arrow-right"></i>
+            </a>`;
+            
+            navHtml += '</div>';
+            
+            const progress = (LESSON_NUM / TOTAL_LESSONS) * 100;
+            navHtml += `
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: ${progress}%"></div>
+                </div>
+            `;
+            
+            return navHtml;
+        }
+        
+        document.addEventListener('DOMContentLoaded', async function() {
+            document.getElementById('headerContainer').innerHTML = '<div class="header-placeholder"></div>';
+            
+            const hasAccess = await checkAccess();
+            if (hasAccess) {
+                document.getElementById('content').innerHTML = `
+                    <div class="lesson-container">
+                        <div class="lesson-header">
+                            <div class="course-breadcrumb">
+                                <a href="/student-dashboard/index.html"><i class="fas fa-home"></i></a>
+                                <i class="fas fa-chevron-right"></i>
+                                <a href="/courses.html">{{COURSE_NAME}}</a>
+                                <i class="fas fa-chevron-right"></i>
+                                <span>Lesson {{LESSON_NUM}}</span>
+                            </div>
+                            <div class="lesson-meta">
+                                <span class="meta-item"><i class="fas fa-book"></i> Lesson {{LESSON_NUM}} of {{TOTAL_LESSONS}}</span>
+                                <span class="meta-item"><i class="fas fa-clock"></i> {{DURATION}}</span>
+                            </div>
+                            <h1 class="lesson-title">{{LESSON_TITLE}}</h1>
+                        </div>
+                        
+                        <div class="lesson-objectives">
+                            <h3><i class="fas fa-bullseye"></i> Learning Objectives</h3>
+                            {{OBJECTIVES_HTML}}
+                        </div>
+                        
+                        <div class="content-section">
+                            {{CONTENT_HTML}}
+                        </div>
+                        
+                        ${showNavigation()}
+                    </div>
+                `;
+            }
+            
+            fetch('/footer.html')
+                .then(r => r.text())
+                .then(data => document.getElementById('footerContainer').innerHTML = data);
+        });
+    </script>
+</body>
+</html>

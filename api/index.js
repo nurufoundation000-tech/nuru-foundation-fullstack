@@ -2,18 +2,39 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 const { handleAuth, handleUsers, handleCourses, handleAssignments } = require('../lib/handlers');
 const { authenticate } = require('../middleware/auth');
+const { authLimiter, registerLimiter } = require('./middleware/rateLimiter');
+
+const loginAttempts = new Map();
+const registerAttempts = new Map();
+
+const checkRateLimit = (key, limit, windowMs, map) => {
+  const now = Date.now();
+  const record = map.get(key) || { count: 0, resetAt: now + windowMs };
+  
+  if (now > record.resetAt) {
+    record.count = 0;
+    record.resetAt = now + windowMs;
+  }
+  
+  record.count++;
+  map.set(key, record);
+  
+  if (record.count > limit) {
+    return false;
+  }
+  return true;
+};
 
 module.exports = async (req, res) => {
   const { method, url } = req;
+  const ip = req.headers['x-forwarded-for'] || req.connection?.remoteAddress || 'unknown';
   
   console.log(`📨 ${method} ${url}`);
 
-  // Set CORS headers
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Origin', process.env.CORS_ORIGIN || '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
-  // Handle preflight
   if (method === 'OPTIONS') {
     return res.status(200).end();
   }
@@ -23,7 +44,6 @@ module.exports = async (req, res) => {
     
     const requestData = { method, path, body, query, headers: req.headers };
 
-    // Public routes (no auth required)
     if (path === '/api/health' && method === 'GET') {
       return res.json({ 
         status: 'OK', 
@@ -33,20 +53,30 @@ module.exports = async (req, res) => {
     }
 
     if (path === '/api/auth/login' && method === 'POST') {
+      if (!checkRateLimit(ip, 5, 15 * 60 * 1000, loginAttempts)) {
+        return res.status(429).json({
+          success: false,
+          error: 'Too many login attempts. Please try again after 15 minutes.'
+        });
+      }
       return await handleAuth.login(requestData, res);
     }
 
     if (path === '/api/auth/register' && method === 'POST') {
+      if (!checkRateLimit(ip, 10, 60 * 60 * 1000, registerAttempts)) {
+        return res.status(429).json({
+          success: false,
+          error: 'Too many registration attempts. Please try again after an hour.'
+        });
+      }
       return await handleAuth.register(requestData, res);
     }
 
-    // Protected routes (require authentication)
     const auth = await authenticate(requestData);
     if (!auth.user) {
       return res.status(401).json({ error: 'Authentication required' });
     }
 
-    // User routes
     if (path === '/api/users/me' && method === 'GET') {
       return await handleUsers.getCurrentUser(requestData, res, auth.user);
     }
@@ -59,7 +89,6 @@ module.exports = async (req, res) => {
       return await handleUsers.getUserEnrollments(requestData, res, auth.user);
     }
 
-    // Course routes
     if (path === '/api/courses' && method === 'GET') {
       return await handleCourses.list(requestData, res, auth.user);
     }
@@ -75,7 +104,7 @@ module.exports = async (req, res) => {
     if (path.match(/^\/api\/courses\/\d+\/enroll$/) && method === 'POST') {
       return await handleCourses.enroll(requestData, res, auth.user);
     }
-    // Assignment routes
+
     if (path === '/api/assignments' && method === 'GET') {
       return await handleAssignments.list(requestData, res, auth.user);
     }
@@ -88,26 +117,15 @@ module.exports = async (req, res) => {
       return await handleAssignments.submit(requestData, res, auth.user);
     }
 
-    // 404 for unknown routes
     res.status(404).json({ 
       error: 'Endpoint not found', 
-      path: `${method} ${path}`,
-      availableEndpoints: [
-        'GET /api/health',
-        'POST /api/auth/login',
-        'POST /api/auth/register',
-        'GET /api/users/me',
-        'GET /api/courses',
-        'POST /api/courses (tutor/admin only)',
-        'GET /api/assignments'
-      ]
+      path: `${method} ${path}`
     });
 
   } catch (error) {
     console.error('🚨 API Error:', error);
     res.status(500).json({ 
-      error: 'Internal server error',
-      message: process.env.NODE_ENV === 'development' ? error.message : 'Something went wrong'
+      error: 'Internal server error'
     });
   }
 };

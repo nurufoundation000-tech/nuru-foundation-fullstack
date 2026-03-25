@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Notes - NURU FOUNDATION</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Fredoka+One&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="/styles/root.css">
+    <link rel="stylesheet" href="/styles/header.css">
+    <link rel="stylesheet" href="/styles/footer.css">
+    <link rel="stylesheet" href="/styles/dashboard.css">
+    <link rel="stylesheet" href="styles.css">
+    <base href="/">
+</head>
+<body>
+    <div id="headerContainer"></div>
+    
+    <div class="dashboard-container" style="padding-top: 80px;">
+        <dashboard-sidebar active="notes"></dashboard-sidebar>
+        
+        <div class="dashboard-main">
+            <page-header title="My Notes" subtitle="Access your course notes and study materials" icon="fa-sticky-note"></page-header>
+            
+            <div id="notesContent">
+                <div class="loading"><i class="fas fa-spinner fa-spin"></i><p>Loading your courses...</p></div>
+            </div>
+            
+            <!-- Lesson Viewer -->
+            <div id="lessonViewer" class="lesson-viewer">
+                <div class="viewer-container">
+                    <iframe id="lessonFrame" src=""></iframe>
+                    <div class="nav-controls">
+                        <button id="prevBtn" class="nav-btn" onclick="changeLesson(-1)">← Previous</button>
+                        <span id="lessonIndicator">Lesson 1 of 3</span>
+                        <button id="nextBtn" class="nav-btn" onclick="changeLesson(1)">Next →</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="footerContainer"></div>
+
+    <script src="/scripts/config.js"></script>
+    <script src="/scripts/dashboard.js"></script>
+    <script src="/scripts/courseSlugs.js"></script>
+    <script>
+        let enrolledCourses = [];
+        let currentCourseSlug = null;
+        let currentLesson = 1;
+        const totalLessons = 3;
+        
+        document.addEventListener('DOMContentLoaded', async () => {
+            await DashboardUtils.loadHeader();
+            await DashboardUtils.loadFooter();
+            
+            if (!DashboardUtils.checkAuth('student')) return;
+            
+            loadCourses();
+        });
+        
+        async function loadCourses() {
+            const container = document.getElementById('notesContent');
+            
+            try {
+                const data = await DashboardUtils.fetchAPI('/student/courses/progress');
+                
+                if (!data.success) throw new Error(data.error);
+                
+                enrolledCourses = data.data || [];
+                displayCourses();
+            } catch (error) {
+                console.error('Error:', error);
+                container.innerHTML = `<div class="error-message"><i class="fas fa-exclamation-triangle"></i> ${error.message}</div>`;
+            }
+        }
+        
+        function displayCourses() {
+            const container = document.getElementById('notesContent');
+            
+            if (!enrolledCourses.length) {
+                container.innerHTML = '<div class="empty-state"><i class="fas fa-book-open"></i><h3>No courses yet</h3><p>Enroll in courses to access notes</p><a href="/courses.html" class="btn btn-primary">Browse Courses</a></div>';
+                return;
+            }
+            
+            container.innerHTML = `
+                <div class="notes-grid">
+                    ${enrolledCourses.map(enrollment => {
+                        const course = enrollment.course;
+                        const slug = window.getCourseSlug ? window.getCourseSlug(course.id) : null;
+                        const progress = enrollment.progress || 0;
+                        const hasNotes = slug !== null;
+                        
+                        return `
+                            <div class="note-card">
+                                <span class="note-course">${escapeHtml(course.category || 'Course')}</span>
+                                <div class="note-title">${escapeHtml(course.title)}</div>
+                                <p class="note-content">${escapeHtml(course.description || 'No description available')}</p>
+                                <div class="progress-container">
+                                    <div class="progress-bar"><div class="progress-fill" style="width: ${progress}%"></div></div>
+                                    <div class="progress-text">${progress}% Complete</div>
+                                </div>
+                                <button class="btn btn-primary btn-block" onclick="${hasNotes ? `openLessonViewer('${slug}')` : ''}" ${!hasNotes ? 'style="opacity:0.5;cursor:not-allowed"' : ''}>
+                                    <i class="fas fa-book-open"></i> View Course Notes
+                                </button>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+        }
+        
+        function openLessonViewer(slug) {
+            currentCourseSlug = slug;
+            currentLesson = 1;
+            loadLesson();
+            document.getElementById('lessonViewer').classList.add('active');
+        }
+        
+        function loadLesson() {
+            const frame = document.getElementById('lessonFrame');
+            frame.src = `/notes/${currentCourseSlug}/lesson-${currentLesson}.html`;
+            updateNavButtons();
+        }
+        
+        function changeLesson(direction) {
+            currentLesson += direction;
+            if (currentLesson < 1) currentLesson = 1;
+            if (currentLesson > totalLessons) currentLesson = totalLessons;
+            loadLesson();
+        }
+        
+        function updateNavButtons() {
+            document.getElementById('prevBtn').disabled = currentLesson === 1;
+            document.getElementById('nextBtn').disabled = currentLesson === totalLessons;
+            document.getElementById('lessonIndicator').textContent = `Lesson ${currentLesson} of ${totalLessons}`;
+        }
+    </script>
+</body>
+</html>

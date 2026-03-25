@@ -3,701 +3,134 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Progress - NURU FOUNDATION</title>
+    <title>Progress - NURU FOUNDATION</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Fredoka+One&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <!-- FIXED PATHS -->
-    <link rel="stylesheet" href="../styles/root.css">
-    <link rel="stylesheet" href="../styles/header.css">
-    <link rel="stylesheet" href="../styles/footer.css">
-    <style>
-        body {
-            font-family: 'Poppins', sans-serif;
-            background: #f8f9fa;
-            margin: 0;
-            padding: 0;
-        }
-
-        .progress-container {
-            max-width: 1200px;
-            margin: 100px auto 50px;
-            padding: 20px;
-        }
-
-        .progress-header {
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color-1) 100%);
-            color: white;
-            padding: 40px 20px;
-            border-radius: 15px;
-            margin-bottom: 30px;
-            text-align: center;
-        }
-
-        .progress-header h1 {
-            margin: 0;
-            font-size: 2.5rem;
-            font-weight: 700;
-        }
-
-        .progress-header p {
-            margin: 10px 0 0 0;
-            opacity: 0.9;
-        }
-
-        .progress-overview {
-            background: white;
-            padding: 25px;
-            border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            margin-bottom: 30px;
-        }
-
-        .progress-stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
-        }
-
-        .progress-stat {
-            text-align: center;
-            padding: 20px;
-            background: #f8f9fa;
-            border-radius: 10px;
-        }
-
-        .stat-number {
-            display: block;
-            font-size: 2rem;
-            font-weight: bold;
-            color: var(--primary-color);
-            margin-bottom: 5px;
-        }
-
-        .stat-label {
-            color: #666;
-            font-size: 0.9rem;
-        }
-
-        .course-progress-list {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .course-progress-item {
-            background: white;
-            padding: 25px;
-            border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            transition: transform 0.3s ease;
-        }
-
-        .course-progress-item:hover {
-            transform: translateY(-2px);
-        }
-
-        .course-info h4 {
-            color: var(--primary-color);
-            margin: 0 0 10px 0;
-            font-size: 1.3rem;
-        }
-
-        .course-tutor {
-            color: #666;
-            margin: 0 0 20px 0;
-            font-size: 0.9rem;
-        }
-
-        .progress-section {
-            margin-bottom: 20px;
-        }
-
-        .progress-bar {
-            width: 100%;
-            height: 10px;
-            background: #e9ecef;
-            border-radius: 5px;
-            overflow: hidden;
-            margin-bottom: 8px;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--primary-color), var(--accent-color-1));
-            border-radius: 5px;
-            transition: width 0.3s ease;
-        }
-
-        .progress-details {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.9rem;
-        }
-
-        .progress-percent {
-            color: var(--primary-color);
-            font-weight: 600;
-        }
-
-        .progress-lessons {
-            color: #666;
-        }
-
-        .progress-actions {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .progress-btn {
-            background: var(--primary-color);
-            color: white;
-            border: none;
-            padding: 10px 16px;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .progress-btn:hover {
-            background: var(--secondary-color);
-            transform: translateY(-2px);
-        }
-
-        .progress-btn.outline {
-            background: transparent;
-            color: var(--primary-color);
-            border: 2px solid var(--primary-color);
-        }
-
-        .progress-btn.outline:hover {
-            background: var(--primary-color);
-            color: white;
-        }
-
-        .no-progress, .loading, .error {
-            text-align: center;
-            padding: 60px 20px;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-
-        .no-progress i, .loading i {
-            font-size: 4rem;
-            color: #ddd;
-            margin-bottom: 20px;
-        }
-
-        .no-progress h3, .loading h3 {
-            color: #666;
-            margin-bottom: 15px;
-        }
-
-        .no-progress p, .loading p {
-            color: #888;
-            margin-bottom: 25px;
-        }
-
-        .error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-
-        .error i {
-            font-size: 2rem;
-            margin-bottom: 15px;
-        }
-
-        .filter-section {
-            background: white;
-            padding: 20px;
-            border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            margin-bottom: 30px;
-        }
-
-        .filter-controls {
-            display: flex;
-            gap: 15px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-
-        .filter-select {
-            padding: 8px 12px;
-            border: 1px solid #dee2e6;
-            border-radius: 6px;
-            font-size: 0.9rem;
-        }
-
-        .search-input {
-            padding: 8px 12px;
-            border: 1px solid #dee2e6;
-            border-radius: 6px;
-            font-size: 0.9rem;
-            min-width: 250px;
-        }
-
-        @media (max-width: 768px) {
-            .progress-container {
-                margin-top: 80px;
-                padding: 15px;
-            }
-
-            .progress-header {
-                padding: 30px 15px;
-            }
-
-            .progress-header h1 {
-                font-size: 2rem;
-            }
-
-            .progress-stats {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .filter-controls {
-                flex-direction: column;
-                align-items: stretch;
-            }
-
-            .search-input {
-                min-width: auto;
-                width: 100%;
-            }
-
-            .progress-actions {
-                flex-direction: column;
-            }
-
-            .progress-btn {
-                justify-content: center;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="/styles/root.css">
+    <link rel="stylesheet" href="/styles/header.css">
+    <link rel="stylesheet" href="/styles/footer.css">
+    <link rel="stylesheet" href="/styles/dashboard.css">
+    <link rel="stylesheet" href="styles.css">
+    <base href="/">
 </head>
 <body>
     <div id="headerContainer"></div>
-
-    <div class="progress-container">
-        <div class="progress-header">
-            <h1>My Learning Progress</h1>
-            <p>Track your course progress and learning achievements</p>
-        </div>
-
-        <div class="filter-section">
-            <div class="filter-controls">
-                <select class="filter-select" id="statusFilter">
-                    <option value="all">All Courses</option>
-                    <option value="in-progress">In Progress</option>
-                    <option value="completed">Completed</option>
-                    <option value="not-started">Not Started</option>
-                </select>
-                <select class="filter-select" id="sortBy">
-                    <option value="recent">Recently Enrolled</option>
-                    <option value="progress">Progress</option>
-                    <option value="title">Course Title</option>
-                </select>
+    
+    <div class="dashboard-container" style="padding-top: 80px;">
+        <dashboard-sidebar active="progress"></dashboard-sidebar>
+        
+        <div class="dashboard-main">
+            <page-header title="My Progress" subtitle="Track your learning journey" icon="fa-chart-line"></page-header>
+            
+            <stats-grid id="statsGrid" stats='[]'></stats-grid>
+            
+            <div class="filter-bar">
                 <input type="text" class="search-input" id="searchInput" placeholder="Search courses...">
+                <select class="filter-select" id="sortBy">
+                    <option value="progress">Progress</option>
+                    <option value="title">Name</option>
+                    <option value="enrolledAt">Date Enrolled</option>
+                </select>
             </div>
-        </div>
-
-        <div id="progressContent">
-            <div class="loading">
-                <i class="fas fa-spinner fa-spin"></i>
-                <h3>Loading Your Progress</h3>
-                <p>Please wait while we load your course progress...</p>
-            </div>
+            
+            <div id="progressList"></div>
         </div>
     </div>
 
     <div id="footerContainer"></div>
 
+    <script src="/scripts/config.js"></script>
+    <script src="/scripts/dashboard.js"></script>
     <script>
-        // API Configuration
-        const API_BASE_URL = window.location.hostname === 'localhost' 
-            ? 'http://localhost:3000/api'
-            : 'https://nuru-foundation-fullstack.vercel.app/api';
-
         let allProgressData = [];
-
-        document.addEventListener('DOMContentLoaded', function() {
-            loadHeaderAndFooter();
-            setupEventListeners();
-            checkAuthAndLoadProgress();
-        });
-
-        function loadHeaderAndFooter() {
-            // Load header
-            fetch('../header.html')
-                .then(response => response.text())
-                .then(data => {
-                    const headerContainer = document.getElementById('headerContainer');
-                    if (headerContainer) {
-                        headerContainer.innerHTML = data;
-
-                        // Load auth.js
-                        const authScript = document.createElement('script');
-                        authScript.src = '../scripts/auth.js';
-                        document.head.appendChild(authScript);
-
-                        authScript.onload = () => {
-                            // Load header.js
-                            const headerScript = document.createElement('script');
-                            headerScript.src = '../scripts/header.js';
-                            document.head.appendChild(headerScript);
-
-                            headerScript.onload = () => {
-                                if (typeof initHeader === 'function') {
-                                    initHeader();
-                                }
-                            };
-                        };
-                    }
-                })
-                .catch(error => console.error('Error loading header:', error));
-
-            // Load footer
-            fetch('../footer.html')
-                .then(response => response.text())
-                .then(data => {
-                    const footerContainer = document.getElementById('footerContainer');
-                    if (footerContainer) {
-                        footerContainer.innerHTML = data;
-                        if (typeof startCourseRotation === 'function') {
-                            startCourseRotation();
-                        }
-                    }
-                })
-                .catch(error => console.error('Error loading footer:', error));
-        }
-
-        function setupEventListeners() {
-            const statusFilter = document.getElementById('statusFilter');
-            const sortBy = document.getElementById('sortBy');
-            const searchInput = document.getElementById('searchInput');
-
-            if (statusFilter) {
-                statusFilter.addEventListener('change', filterAndDisplayProgress);
-            }
-            if (sortBy) {
-                sortBy.addEventListener('change', filterAndDisplayProgress);
-            }
-            if (searchInput) {
-                searchInput.addEventListener('input', filterAndDisplayProgress);
-            }
-        }
-
-        function checkAuthAndLoadProgress() {
-            const token = localStorage.getItem('token');
-            const userData = localStorage.getItem('user');
+        
+        document.addEventListener('DOMContentLoaded', async () => {
+            await DashboardUtils.loadHeader();
+            await DashboardUtils.loadFooter();
             
-            if (!token || !userData) {
-                showProgressError('Please log in to view your progress');
-                setTimeout(() => {
-                    window.location.href = '../login.html';
-                }, 2000);
-                return;
-            }
-
-            try {
-                const user = JSON.parse(userData);
-                const userRole = user.role?.name || user.role;
-                
-                if (userRole !== 'student') {
-                    showProgressError('This page is for students only');
-                    setTimeout(() => {
-                        window.location.href = '../dashboard.html';
-                    }, 2000);
-                    return;
-                }
-                
-                loadProgress();
-            } catch (error) {
-                console.error('Error checking auth:', error);
-                showProgressError('Authentication error');
-            }
-        }
-
+            if (!DashboardUtils.checkAuth('student')) return;
+            
+            document.getElementById('searchInput').addEventListener('input', filterProgress);
+            document.getElementById('sortBy').addEventListener('change', filterProgress);
+            
+            loadProgress();
+        });
+        
         async function loadProgress() {
             try {
-                const token = localStorage.getItem('token');
+                const data = await DashboardUtils.fetchAPI('/student/courses/progress');
+                if (!data.success) throw new Error(data.error);
                 
-                if (!token) {
-                    throw new Error('No authentication token found');
-                }
-
-                // Show loading state
-                showLoadingState();
-
-                // Try multiple endpoints for compatibility
-                const endpoints = [
-                    `${API_BASE_URL}/student/courses/progress`,
-                    `${API_BASE_URL}/courses/progress`
-                ];
-
-                let response;
-                let lastError;
-
-                for (const endpoint of endpoints) {
-                    try {
-                        console.log(`Trying progress endpoint: ${endpoint}`);
-                        response = await fetch(endpoint, {
-                            headers: {
-                                'Authorization': `Bearer ${token}`,
-                                'Content-Type': 'application/json'
-                            }
-                        });
-
-                        if (response.ok) {
-                            console.log(`Success with endpoint: ${endpoint}`);
-                            break;
-                        } else {
-                            lastError = `HTTP ${response.status}: ${response.statusText}`;
-                        }
-                    } catch (error) {
-                        lastError = error.message;
-                    }
-                }
-
-                // Handle response
-                if (!response || !response.ok) {
-                    if (response && response.status === 401) {
-                        localStorage.removeItem('token');
-                        localStorage.removeItem('user');
-                        throw new Error('Session expired. Please log in again.');
-                    }
-                    throw new Error(lastError || 'Failed to load progress data');
-                }
-
-                const data = await response.json();
-                
-                if (data.success) {
-                    allProgressData = data.data || [];
-                    updateProgressStats();
-                    filterAndDisplayProgress();
-                } else {
-                    throw new Error(data.error || 'Failed to load progress data');
-                }
-
+                allProgressData = data.data || [];
+                updateStats();
+                filterProgress();
             } catch (error) {
-                console.error('Error loading progress:', error);
-                showProgressError(error.message);
+                console.error('Error:', error);
+                document.getElementById('progressList').innerHTML = `<div class="error-message"><i class="fas fa-exclamation-triangle"></i> ${error.message}</div>`;
             }
         }
-
-        function showLoadingState() {
-            const progressContent = document.getElementById('progressContent');
-            if (progressContent) {
-                progressContent.innerHTML = `
-                    <div class="loading">
-                        <i class="fas fa-spinner fa-spin"></i>
-                        <h3>Loading Your Progress</h3>
-                        <p>Please wait while we load your course progress...</p>
-                    </div>
-                `;
-            }
-        }
-
-        function updateProgressStats() {
-            const enrolledCount = allProgressData.length;
-            const completedCount = allProgressData.filter(course => course.progress >= 100).length;
-            const inProgressCount = allProgressData.filter(course => course.progress > 0 && course.progress < 100).length;
-            const avgProgress = enrolledCount > 0
-                ? Math.round(allProgressData.reduce((sum, course) => sum + (course.progress || 0), 0) / enrolledCount)
-                : 0;
-
-            // Update the overview section
-            const progressOverview = document.querySelector('.progress-overview');
-            if (progressOverview) {
-                progressOverview.innerHTML = `
-                    <h3>Overall Learning Progress</h3>
-                    <div class="progress-stats">
-                        <div class="progress-stat">
-                            <span class="stat-number">${enrolledCount}</span>
-                            <span class="stat-label">Enrolled Courses</span>
-                        </div>
-                        <div class="progress-stat">
-                            <span class="stat-number">${completedCount}</span>
-                            <span class="stat-label">Completed</span>
-                        </div>
-                        <div class="progress-stat">
-                            <span class="stat-number">${inProgressCount}</span>
-                            <span class="stat-label">In Progress</span>
-                        </div>
-                        <div class="progress-stat">
-                            <span class="stat-number">${avgProgress}%</span>
-                            <span class="stat-label">Average Progress</span>
-                        </div>
-                    </div>
-                `;
-            }
-        }
-
-        function filterAndDisplayProgress() {
-            const statusFilter = document.getElementById('statusFilter')?.value || 'all';
-            const sortBy = document.getElementById('sortBy')?.value || 'recent';
-            const searchTerm = document.getElementById('searchInput')?.value.toLowerCase() || '';
-
-            let filteredCourses = [...allProgressData];
-
-            // Apply status filter
-            switch (statusFilter) {
-                case 'completed':
-                    filteredCourses = filteredCourses.filter(course => course.progress >= 100);
-                    break;
-                case 'in-progress':
-                    filteredCourses = filteredCourses.filter(course => (course.progress || 0) > 0 && (course.progress || 0) < 100);
-                    break;
-                case 'not-started':
-                    filteredCourses = filteredCourses.filter(course => !course.progress || course.progress === 0);
-                    break;
-            }
-
-            // Apply search filter
-            if (searchTerm) {
-                filteredCourses = filteredCourses.filter(course => {
-                    const courseTitle = course.course?.title?.toLowerCase() || '';
-                    const courseDescription = course.course?.description?.toLowerCase() || '';
-                    const tutorName = course.course?.tutor?.fullName?.toLowerCase() || '';
-                    
-                    return courseTitle.includes(searchTerm) ||
-                           courseDescription.includes(searchTerm) ||
-                           tutorName.includes(searchTerm);
-                });
-            }
-
-            // Apply sorting
-            switch (sortBy) {
-                case 'progress':
-                    filteredCourses.sort((a, b) => (b.progress || 0) - (a.progress || 0));
-                    break;
-                case 'title':
-                    filteredCourses.sort((a, b) => (a.course?.title || '').localeCompare(b.course?.title || ''));
-                    break;
-                case 'recent':
-                default:
-                    filteredCourses.sort((a, b) => new Date(b.enrolledAt || 0) - new Date(a.enrolledAt || 0));
-                    break;
-            }
-
-            displayProgress(filteredCourses);
-        }
-
-        function displayProgress(progressData) {
-            const container = document.getElementById('progressContent');
+        
+        function updateStats() {
+            const totalCourses = allProgressData.length;
+            const completedCourses = allProgressData.filter(c => c.progress === 100).length;
+            const totalLessons = allProgressData.reduce((sum, c) => sum + (c.totalLessons || 0), 0);
+            const completedLessons = allProgressData.reduce((sum, c) => sum + (c.completedLessons || 0), 0);
             
-            if (!container) {
-                console.error('Progress container not found');
+            document.getElementById('statsGrid').setAttribute('stats', JSON.stringify([
+                { value: totalCourses, label: 'Enrolled Courses' },
+                { value: completedCourses, label: 'Completed' },
+                { value: completedLessons, label: 'Lessons Done' },
+                { value: totalLessons - completedLessons, label: 'Remaining' }
+            ]));
+        }
+        
+        function filterProgress() {
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const sort = document.getElementById('sortBy').value;
+            
+            let filtered = allProgressData.filter(c => c.course.title.toLowerCase().includes(search));
+            
+            filtered.sort((a, b) => {
+                if (sort === 'title') return a.course.title.localeCompare(b.course.title);
+                if (sort === 'progress') return (b.progress || 0) - (a.progress || 0);
+                return new Date(b.enrolledAt) - new Date(a.enrolledAt);
+            });
+            
+            displayProgress(filtered);
+        }
+        
+        function displayProgress(courses) {
+            const container = document.getElementById('progressList');
+            
+            if (!courses.length) {
+                container.innerHTML = '<div class="empty-state"><i class="fas fa-chart-line"></i><h3>No progress data</h3><p>Start learning to see your progress</p></div>';
                 return;
             }
-
-            if (!progressData || progressData.length === 0) {
-                container.innerHTML = `
-                    <div class="no-progress">
-                        <i class="fas fa-chart-line"></i>
-                        <h3>No Progress Data</h3>
-                        <p>${allProgressData.length === 0 ? 'You haven\'t enrolled in any courses yet.' : 'No courses match your current filters.'}</p>
-                        ${allProgressData.length === 0 ? 
-                            '<a href="../courses.html" class="progress-btn">Browse Courses</a>' : 
-                            '<button class="progress-btn" onclick="clearFilters()">Clear Filters</button>'
-                        }
-                    </div>
-                `;
-                return;
-            }
-
-            container.innerHTML = `
-                <div class="course-progress-list">
-                    ${progressData.map(course => `
-                        <div class="course-progress-item">
-                            <div class="course-info">
-                                <h4>${course.course?.title || 'Unknown Course'}</h4>
-                                <p class="course-tutor">
-                                    <i class="fas fa-user-graduate"></i> 
-                                    Instructor: ${course.course?.tutor?.fullName || course.course?.tutor?.username || 'Unknown'}
-                                </p>
-                            </div>
-                            
-                            <div class="progress-section">
-                                <div class="progress-bar">
-                                    <div class="progress-fill" style="width: ${course.progress || 0}%"></div>
-                                </div>
-                                <div class="progress-details">
-                                    <span class="progress-percent">${course.progress || 0}% Complete</span>
-                                    <span class="progress-lessons">(${course.completedLessons || 0}/${course.totalLessons || 0} lessons)</span>
-                                </div>
-                            </div>
-
-                            <div class="progress-actions">
-                                <button class="progress-btn" onclick="continueCourse(${course.course?.id})">
-                                    <i class="fas fa-play"></i> ${(course.progress || 0) >= 100 ? 'Review' : 'Continue'}
-                                </button>
-                                <button class="progress-btn outline" onclick="viewCourseDetails(${course.course?.id})">
-                                    <i class="fas fa-info-circle"></i> Details
-                                </button>
-                            </div>
+            
+            container.innerHTML = courses.map(enrollment => {
+                const c = enrollment.course;
+                const progress = enrollment.progress || 0;
+                const completed = enrollment.completedLessons || 0;
+                const total = enrollment.totalLessons || 0;
+                
+                return `
+                    <div class="progress-course-item">
+                        <div class="course-title">${escapeHtml(c.title)}</div>
+                        <div class="course-meta">
+                            <span><i class="fas fa-book"></i> ${total} lessons</span>
+                            <span><i class="fas fa-check"></i> ${completed} completed</span>
+                            <span><i class="fas fa-calendar"></i> Enrolled ${new Date(enrollment.enrolledAt).toLocaleDateString()}</span>
                         </div>
-                    `).join('')}
-                </div>
-            `;
-        }
-
-        function showProgressError(message) {
-            const progressContent = document.getElementById('progressContent');
-            if (progressContent) {
-                progressContent.innerHTML = `
-                    <div class="error">
-                        <i class="fas fa-exclamation-triangle"></i>
-                        ${message}
-                        <div style="margin-top: 15px;">
-                            <button class="progress-btn" onclick="loadProgress()" style="margin-right: 10px;">
-                                <i class="fas fa-redo"></i> Try Again
-                            </button>
-                            <button class="progress-btn outline" onclick="window.location.href='../login.html'">
-                                <i class="fas fa-sign-in-alt"></i> Login
-                            </button>
+                        <div class="progress-percentage">
+                            <div class="percentage">${progress}%</div>
+                            <div class="progress-container" style="flex:1">
+                                <div class="progress-bar"><div class="progress-fill" style="width: ${progress}%"></div></div>
+                            </div>
+                            <a href="/student-dashboard/lesson-viewer.html?courseId=${c.id}" class="btn btn-primary btn-sm">Continue</a>
                         </div>
                     </div>
                 `;
-            }
-        }
-
-        function clearFilters() {
-            const statusFilter = document.getElementById('statusFilter');
-            const sortBy = document.getElementById('sortBy');
-            const searchInput = document.getElementById('searchInput');
-            
-            if (statusFilter) statusFilter.value = 'all';
-            if (sortBy) sortBy.value = 'recent';
-            if (searchInput) searchInput.value = '';
-            
-            filterAndDisplayProgress();
-        }
-
-        function continueCourse(courseId) {
-            if (courseId) {
-                window.location.href = `lesson-viewer.html?courseId=${courseId}`;
-            } else {
-                alert('Course ID not available');
-            }
-        }
-
-        function viewCourseDetails(courseId) {
-            if (courseId) {
-                // For now, redirect to lesson viewer. You can implement a modal later
-                window.location.href = `lesson-viewer.html?courseId=${courseId}`;
-            } else {
-                alert('Course details not available');
-            }
+            }).join('');
         }
     </script>
 </body>

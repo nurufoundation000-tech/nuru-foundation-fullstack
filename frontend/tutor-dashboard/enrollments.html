@@ -662,8 +662,8 @@
     }
 
     function checkTutorAccess() {
-        const token = localStorage.getItem('token');
-        const userData = localStorage.getItem('user');
+        const token = sessionStorage.getItem('token');
+        const userData = sessionStorage.getItem('user');
 
         if (!token || !userData) {
             window.location.href = '/login.html';
@@ -693,7 +693,7 @@
 
     async function loadCourses() {
         try {
-            const token = localStorage.getItem('token');
+            const token = sessionStorage.getItem('token');
             const response = await fetch(`${API_BASE_URL}/courses?page=1&limit=100`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -726,7 +726,7 @@
     // Load students for the enrollment form
     async function loadStudents() {
         try {
-            const token = localStorage.getItem('token');
+            const token = sessionStorage.getItem('token');
             const response = await fetch(`${API_BASE_URL}/students`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -776,7 +776,7 @@
         container.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Loading enrollments...</div>';
         
         try {
-            const token = localStorage.getItem('token');
+            const token = sessionStorage.getItem('token');
             const searchTerm = document.getElementById('searchInput').value;
             const courseFilter = document.getElementById('courseFilter').value;
 
@@ -976,7 +976,7 @@
 
     async function viewEnrollment(enrollmentId) {
         try {
-            const token = localStorage.getItem('token');
+            const token = sessionStorage.getItem('token');
             const response = await fetch(`${API_BASE_URL}/enrollments/${enrollmentId}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -1050,7 +1050,7 @@
         const id = enrollmentId || document.getElementById('enrollmentModal').dataset.enrollmentId;
 
         try {
-            const token = localStorage.getItem('token');
+            const token = sessionStorage.getItem('token');
             const response = await fetch(`${API_BASE_URL}/enrollments/${id}`, {
                 method: 'DELETE',
                 headers: {
@@ -1094,7 +1094,7 @@
 
     async function createEnrollment(studentId, courseId) {
         try {
-            const token = localStorage.getItem('token');
+            const token = sessionStorage.getItem('token');
             const response = await fetch(`${API_BASE_URL}/enrollments`, {
                 method: 'POST',
                 headers: {

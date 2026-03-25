@@ -6,765 +6,167 @@
     <title>Dashboard - NURU FOUNDATION</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Fredoka+One&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <!-- FIXED PATHS -->
     <link rel="stylesheet" href="/styles/root.css">
     <link rel="stylesheet" href="/styles/header.css">
     <link rel="stylesheet" href="/styles/footer.css">
+    <link rel="stylesheet" href="/styles/dashboard.css">
+    <link rel="stylesheet" href="styles.css">
+    <base href="/">
     <style>
-        body {
-            font-family: 'Poppins', sans-serif;
-            background: #f8f9fa;
-            margin: 0;
-            padding: 0;
-        }
-
-        .dashboard-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        .dashboard-header {
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color-1) 100%);
-            color: white;
-            padding: 40px 20px;
-            border-radius: 15px;
-            margin-bottom: 30px;
-            text-align: center;
-        }
-
-        .dashboard-header h1 {
-            margin: 0;
-            font-size: 2.5rem;
-            font-weight: 700;
-        }
-
-        .dashboard-header p {
-            margin: 10px 0 0 0;
-            opacity: 0.9;
-        }
-
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .dashboard-card {
-            background: white;
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            transition: transform 0.3s ease;
-        }
-
-        .dashboard-card:hover {
-            transform: translateY(-5px);
-        }
-
-        .dashboard-card h3 {
-            color: var(--primary-color);
-            margin-bottom: 15px;
-            font-size: 1.3rem;
-        }
-
-        .dashboard-card p {
-            color: #666;
-            margin-bottom: 20px;
-        }
-
-        .dashboard-card .btn {
-            background: var(--primary-color);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-
-        .dashboard-card .btn:hover {
-            background: var(--secondary-color);
-        }
-
-        .user-info {
-            background: white;
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            margin-bottom: 30px;
-        }
-
-        .user-info h2 {
-            color: var(--primary-color);
-            margin-bottom: 20px;
-        }
-
-        .user-details {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-        }
-
-        .user-detail {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .user-detail label {
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 5px;
-        }
-
-        .user-detail span {
-            color: #666;
-        }
-
-        .enrolled-courses {
-            background: white;
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            margin-bottom: 30px;
-        }
-
-        .enrolled-courses h2 {
-            color: var(--primary-color);
-            margin-bottom: 20px;
-        }
-
-        .courses-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-        }
-
-        .course-card {
-            background: #f8f9fa;
-            border-radius: 10px;
-            padding: 20px;
-            border-left: 4px solid var(--primary-color);
-            transition: transform 0.3s ease;
-        }
-
-        .course-card:hover {
-            transform: translateY(-2px);
-        }
-
-        .course-card h3 {
-            color: var(--primary-color);
-            margin-bottom: 10px;
-            font-size: 1.2rem;
-        }
-
-        .course-card p {
-            color: #666;
-            margin-bottom: 15px;
-            font-size: 0.9rem;
-        }
-
-        .progress-section {
-            margin-bottom: 15px;
-        }
-
-        .progress-bar {
-            width: 100%;
-            height: 8px;
-            background: #e9ecef;
-            border-radius: 4px;
-            overflow: hidden;
-            margin-bottom: 5px;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--primary-color), var(--accent-color-1));
-            border-radius: 4px;
-            transition: width 0.3s ease;
-        }
-
-        .progress-text {
-            font-size: 0.8rem;
-            color: var(--primary-color);
-            font-weight: 600;
-        }
-
-        .course-actions {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .course-btn {
-            background: var(--primary-color);
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 6px;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-
-        .course-btn:hover {
-            background: var(--secondary-color);
-        }
-
-        .course-btn.secondary {
-            background: #6c757d;
-        }
-
-        .course-btn.secondary:hover {
-            background: #5a6268;
-        }
-
-        /* Progress Modal */
-        .progress-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .progress-modal.show {
-            display: flex;
-        }
-
-        .progress-modal-content {
-            background: white;
-            border-radius: 15px;
-            padding: 30px;
-            max-width: 600px;
-            width: 90%;
-            max-height: 80vh;
-            overflow-y: auto;
-            position: relative;
-        }
-
-        .progress-modal h2 {
-            color: var(--primary-color);
-            margin-bottom: 20px;
-        }
-
-        .progress-item {
-            margin-bottom: 20px;
-            padding: 15px;
-            background: #f8f9fa;
-            border-radius: 8px;
-        }
-
-        .progress-item h4 {
-            margin: 0 0 10px 0;
-            color: var(--primary-color);
-        }
-
-        .close-modal {
-            position: absolute;
-            top: 10px;
-            right: 15px;
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: #666;
-        }
-
-        .recent-activity {
-            background: white;
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-
-        .recent-activity h2 {
-            color: var(--primary-color);
-            margin-bottom: 20px;
-        }
-
-        .activity-item {
-            display: flex;
-            align-items: center;
-            padding: 15px 0;
-            border-bottom: 1px solid #eee;
-        }
-
-        .activity-item:last-child {
-            border-bottom: none;
-        }
-
-        .activity-icon {
-            width: 40px;
-            height: 40px;
-            background: var(--primary-color);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            margin-right: 15px;
-        }
-
-        .activity-content h4 {
-            margin: 0;
-            color: #333;
-        }
-
-        .activity-content p {
-            margin: 5px 0 0 0;
-            color: #666;
-            font-size: 0.9rem;
-        }
-
-        /* Sidebar Styles */
-        .sidebar {
-            width: 250px;
-            background: white;
-            border-radius: 15px;
-            padding: 20px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            position: sticky;
-            top: 100px;
-            height: fit-content;
-            margin-right: 30px;
-        }
-
-        .sidebar-header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .sidebar-header h2 {
-            color: var(--primary-color);
-            font-size: 1.5rem;
-            margin: 0;
-        }
-
-        .sidebar-menu {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .sidebar-item {
-            margin-bottom: 10px;
-        }
-
-        .sidebar-item a {
-            display: flex;
-            align-items: center;
-            padding: 12px 15px;
-            color: #666;
-            text-decoration: none;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-        }
-
-        .sidebar-item a:hover,
-        .sidebar-item.active a {
-            background: var(--primary-color);
-            color: white;
-        }
-
-        .sidebar-item i {
-            margin-right: 10px;
-            width: 20px;
-            text-align: center;
-        }
-
-        .sidebar-item span {
-            font-weight: 500;
-        }
-        .main-container {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .main-content {
-            flex: 1;
-            margin-top: 100px;
-        }
-
-        .dashboard-container {
-            display: flex;
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        @media (max-width: 1024px) {
-            .sidebar {
-                width: 200px;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .dashboard-container {
-                flex-direction: column;
-            }
-
-            .sidebar {
-                width: 100%;
-                margin-right: 0;
-                margin-bottom: 30px;
-                position: static;
-            }
-
-            .dashboard-header {
-                padding: 30px 15px;
-            }
-
-            .dashboard-header h1 {
-                font-size: 2rem;
-            }
-
-            .dashboard-grid {
-                grid-template-columns: 1fr;
-            }
-        }
+        body { background: #f8f9fa; }
+        .dashboard-header { text-align: center; padding: 30px 20px; background: linear-gradient(135deg, var(--primary-color), var(--accent-color-1)); color: white; border-radius: var(--border-radius-lg); margin-bottom: 30px; }
+        .dashboard-header h1 { margin: 0 0 10px 0; font-size: 2rem; }
+        .dashboard-header p { margin: 0; opacity: 0.9; }
+        .user-info { background: white; padding: 25px; border-radius: var(--border-radius-lg); margin-bottom: 25px; box-shadow: var(--shadow-md); }
+        .user-info h2 { color: var(--primary-color); margin: 0 0 15px 0; font-size: 1.3rem; }
+        .user-details { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
+        .user-detail-item { padding: 15px; background: #f8f9fa; border-radius: var(--border-radius-md); }
+        .user-detail-item .label { font-size: 0.8rem; color: #888; margin-bottom: 5px; }
+        .user-detail-item .value { font-weight: 600; color: #333; }
+        .enrolled-courses { margin-bottom: 25px; }
+        .enrolled-courses h2 { color: var(--primary-color); font-size: 1.3rem; margin-bottom: 15px; }
+        .courses-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+        .course-mini-card { background: white; border-radius: var(--border-radius-lg); overflow: hidden; box-shadow: var(--shadow-md); transition: transform 0.3s; }
+        .course-mini-card:hover { transform: translateY(-3px); }
+        .course-mini-card-header { background: linear-gradient(135deg, var(--primary-color), var(--accent-color-1)); color: white; padding: 15px; }
+        .course-mini-card-header h3 { margin: 0; font-size: 1rem; }
+        .course-mini-card-body { padding: 15px; }
+        .course-mini-card-body .progress-container { margin: 10px 0; }
+        .quick-links { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
+        .quick-link-card { background: white; padding: 20px; border-radius: var(--border-radius-lg); text-align: center; box-shadow: var(--shadow-md); transition: transform 0.3s; cursor: pointer; }
+        .quick-link-card:hover { transform: translateY(-3px); }
+        .quick-link-card i { font-size: 2rem; color: var(--primary-color); margin-bottom: 10px; }
+        .quick-link-card h4 { margin: 0 0 5px 0; color: #333; }
+        .quick-link-card p { margin: 0; color: #888; font-size: 0.85rem; }
     </style>
 </head>
 <body>
     <div id="headerContainer"></div>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // FIXED: Load header from root path
-            fetch('/header.html')
-                .then(response => response.text())
-                .then(data => {
-                    document.getElementById('headerContainer').innerHTML = data;
-
-                    // FIXED: Load auth.js from root scripts
-                    const authScript = document.createElement('script');
-                    authScript.src = '/scripts/auth.js';
-                    document.head.appendChild(authScript);
-
-                    authScript.onload = () => {
-                        // FIXED: Load header.js from root scripts
-                        const headerScript = document.createElement('script');
-                        headerScript.src = '/scripts/header.js';
-                        document.head.appendChild(headerScript);
-
-                        headerScript.onload = () => {
-                            if (typeof initHeader === 'function') {
-                                initHeader();
-                            }
-                        };
-                    };
-                })
-                .catch(error => console.error('Error loading header:', error));
-        });
-    </script>
-
-    <div class="dashboard-container">
-        <div class="sidebar">
-            <div class="sidebar-header">
-                <h2>Dashboard</h2>
-            </div>
-            <ul class="sidebar-menu">
-                <li class="sidebar-item active">
-                    <a href="#overview">
-                        <i class="fas fa-tachometer-alt"></i>
-                        <span>Overview</span>
-                    </a>
-                </li>
-                <li class="sidebar-item">
-                    <a href="/student-dashboard/my-courses.html">
-                        <i class="fas fa-book"></i>
-                        <span>My Courses</span>
-                    </a>
-                </li>
-                <li class="sidebar-item" id="adminLink" style="display: none;">
-                    <a href="/admin.html">
-                        <i class="fas fa-cogs"></i>
-                        <span>Course Admin</span>
-                    </a>
-                </li>
-                <li class="sidebar-item">
-                    <a href="/student-dashboard/progress.html">
-                        <i class="fas fa-chart-line"></i>
-                        <span>Progress</span>
-                    </a>
-                </li>
-                <li class="sidebar-item">
-                    <a href="#certificates">
-                        <i class="fas fa-certificate"></i>
-                        <span>Certificates</span>
-                    </a>
-                </li>
-                <li class="sidebar-item">
-                    <a href="/student-dashboard/profile.html">
-                        <i class="fas fa-user"></i>
-                        <span>Profile</span>
-                    </a>
-                </li>
-                <li class="sidebar-item">
-                    <a href="#settings">
-                        <i class="fas fa-cog"></i>
-                        <span>Settings</span>
-                    </a>
-                </li>
-            </ul>
-        </div>
-
-        <div class="main-container">
-            <div class="main-content">
-                <div class="dashboard-header">
-                    <h1>Welcome to Your Dashboard</h1>
-                    <p>Track your progress and access your learning resources</p>
-                </div>
-            </div>
-
-            <div class="user-info">
-                <h2>Your Profile</h2>
-                <div class="user-details" id="userDetails">
-                    <!-- User details will be populated by JavaScript -->
-                </div>
-            </div>
-
-            <div class="enrolled-courses" id="enrolledCourses">
-                <h2>My Enrolled Courses</h2>
-                <div id="coursesList" class="courses-grid">
-                    <!-- Enrolled courses will be populated by JavaScript -->
-                </div>
-            </div>
-
-            <div class="dashboard-grid">
-                <div class="dashboard-card">
-                    <h3><i class="fas fa-book"></i> Browse Courses</h3>
-                    <p>Explore and enroll in new courses</p>
-                    <a href="/courses.html" class="btn">Browse Courses</a>
-                </div>
-
-                <div class="dashboard-card">
-                    <h3><i class="fas fa-chart-line"></i> Overall Progress</h3>
-                    <p>Track your learning progress and achievements</p>
-                    <button class="btn" onclick="showProgressModal()">View Progress</button>
-                </div>
-
-                <div class="dashboard-card">
-                    <h3><i class="fas fa-certificate"></i> Certificates</h3>
-                    <p>View and download your completed course certificates</p>
-                    <button class="btn">View Certificates</button>
-                </div>
-
-                <div class="dashboard-card">
-                    <h3><i class="fas fa-users"></i> Community</h3>
-                    <p>Connect with other learners and instructors</p>
-                    <a href="/community.html" class="btn">Join Community</a>
-                </div>
-            </div>
-
-            <div class="recent-activity">
-                <h2>Recent Activity</h2>
-                <div class="activity-item">
-                    <div class="activity-icon">
-                        <i class="fas fa-play"></i>
-                    </div>
-                    <div class="activity-content">
-                        <h4>Started Computer Packages Course</h4>
-                        <p>2 days ago</p>
-                    </div>
-                </div>
-
-                <div class="activity-item">
-                    <div class="activity-icon">
-                        <i class="fas fa-check"></i>
-                    </div>
-                    <div class="activity-content">
-                        <h4>Completed Introduction to Programming</h4>
-                        <p>1 week ago</p>
-                    </div>
-                </div>
-
-                <div class="activity-item">
-                    <div class="activity-icon">
-                        <i class="fas fa-star"></i>
-                    </div>
-                    <div class="activity-content">
-                        <h4>Earned Achievement: First Steps</h4>
-                        <p>2 weeks ago</p>
-                    </div>
-                </div>
-            </div>
-        </div>
+    
+    <div class="dashboard-container" style="padding-top: 80px;">
+        <dashboard-sidebar active="/student-dashboard/"></dashboard-sidebar>
         
-    </div>
-
-    <!-- Progress Modal -->
-    <div class="progress-modal" id="progressModal">
-        <div class="progress-modal-content">
-            <button class="close-modal" onclick="closeProgressModal()">&times;</button>
-            <h2>Overall Progress</h2>
-            <div id="progressContent">
-                <!-- Progress content will be populated by JavaScript -->
+        <div class="dashboard-main">
+            <div class="dashboard-header">
+                <h1>Welcome to Your Dashboard</h1>
+                <p>Track your progress and access your learning resources</p>
+            </div>
+            
+            <div class="user-info">
+                <h2><i class="fas fa-user"></i> Your Profile</h2>
+                <div class="user-details" id="userDetails">
+                    <div class="loading"><i class="fas fa-spinner fa-spin"></i></div>
+                </div>
+            </div>
+            
+            <div class="enrolled-courses">
+                <h2><i class="fas fa-book"></i> My Enrolled Courses</h2>
+                <div id="coursesList" class="courses-grid">
+                    <div class="loading"><i class="fas fa-spinner fa-spin"></i></div>
+                </div>
+            </div>
+            
+            <h2 style="color: var(--primary-color); margin-bottom: 15px;"><i class="fas fa-bolt"></i> Quick Links</h2>
+            <div class="quick-links">
+                <a href="/courses.html" class="quick-link-card">
+                    <i class="fas fa-search"></i>
+                    <h4>Browse Courses</h4>
+                    <p>Find new courses</p>
+                </a>
+                <a href="/student-dashboard/progress.html" class="quick-link-card">
+                    <i class="fas fa-chart-line"></i>
+                    <h4>View Progress</h4>
+                    <p>Track achievements</p>
+                </a>
+                <a href="/student-dashboard/notes.html" class="quick-link-card">
+                    <i class="fas fa-sticky-note"></i>
+                    <h4>My Notes</h4>
+                    <p>Study materials</p>
+                </a>
+                <a href="/community.html" class="quick-link-card">
+                    <i class="fas fa-users"></i>
+                    <h4>Community</h4>
+                    <p>Connect & learn</p>
+                </a>
             </div>
         </div>
     </div>
 
     <div id="footerContainer"></div>
 
+    <script src="/scripts/config.js"></script>
+    <script src="/scripts/dashboard.js"></script>
+    <script src="/scripts/courseSlugs.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', async function() {
-            // FIXED: Load footer from root path
-            fetch('/footer.html')
-                .then(response => response.text())
-                .then(data => {
-                    document.getElementById('footerContainer').innerHTML = data;
-                    if (typeof startCourseRotation === 'function') {
-                        startCourseRotation();
-                    }
-                })
-                .catch(error => console.error('Error loading footer:', error));
-
-            // Load user details
-            const user = JSON.parse(localStorage.getItem('user') || '{}');
-            const userDetails = document.getElementById('userDetails');
-
-            if (user.username) {
-                userDetails.innerHTML = `
-                    <div class="user-detail">
-                        <label>Username:</label>
-                        <span>${user.username}</span>
-                    </div>
-                    <div class="user-detail">
-                        <label>Full Name:</label>
-                        <span>${user.fullName}</span>
-                    </div>
-                    <div class="user-detail">
-                        <label>Email:</label>
-                        <span>${user.email}</span>
-                    </div>
-                    <div class="user-detail">
-                        <label>Role:</label>
-                        <span>${user.role?.name || 'Student'}</span>
-                    </div>
-                `;
-
-                // Show admin link if user is tutor or admin
-                if (user.role?.name === 'tutor' || user.role?.name === 'admin') {
-                    document.getElementById('adminLink').style.display = 'block';
-                }
-
-                // Load enrolled courses
-                await loadEnrolledCourses();
-            } else {
-                userDetails.innerHTML = '<p>Please log in to view your profile.</p>';
-                document.getElementById('enrolledCourses').style.display = 'none';
-            }
+        document.addEventListener('DOMContentLoaded', async () => {
+            await DashboardUtils.loadHeader();
+            await DashboardUtils.loadFooter();
+            
+            if (!DashboardUtils.checkAuth('student')) return;
+            
+            loadUserData();
+            loadEnrolledCourses();
         });
-
-        async function loadEnrolledCourses() {
-            try {
-                // FIXED: Load progress.js from root scripts
-                await loadScript('/scripts/progress.js');
-
-                const progress = await getUserProgress();
-                displayEnrolledCourses(progress);
-            } catch (error) {
-                console.error('Error loading enrolled courses:', error);
-                document.getElementById('coursesList').innerHTML = '<p>Error loading courses. Please try again.</p>';
-            }
-        }
-
-        function loadScript(src) {
-            return new Promise((resolve, reject) => {
-                const script = document.createElement('script');
-                script.src = src;
-                script.onload = resolve;
-                script.onerror = reject;
-                document.head.appendChild(script);
-            });
-        }
-
-        function displayEnrolledCourses(progress) {
-            const coursesList = document.getElementById('coursesList');
-
-            if (!progress || progress.length === 0) {
-                coursesList.innerHTML = '<p>You are not enrolled in any courses yet. <a href="/courses.html">Browse courses</a> to get started.</p>';
-                return;
-            }
-
-            coursesList.innerHTML = progress.map(enrollment => `
-                <div class="course-card">
-                    <h3>${enrollment.course.title}</h3>
-                    <p>${enrollment.course.description || 'No description available'}</p>
-
-                    <div class="progress-section">
-                        <div class="progress-bar">
-                            <div class="progress-fill" style="width: ${enrollment.progress}%"></div>
-                        </div>
-                        <div class="progress-text">${Math.round((enrollment.completedLessons / enrollment.totalLessons) * 100) || 0}% Complete (${enrollment.completedLessons}/${enrollment.totalLessons} lessons)</div>
-                    </div>
-
-                    <div class="course-actions">
-                        <button class="course-btn" onclick="viewLessons(${enrollment.course.id})">
-                            <i class="fas fa-play"></i> Continue Learning
-                        </button>
-                        <button class="course-btn secondary" onclick="viewCourseDetails(${enrollment.course.id})">
-                            <i class="fas fa-info-circle"></i> Details
-                        </button>
-                    </div>
+        
+        function loadUserData() {
+            const user = JSON.parse(sessionStorage.getItem('user') || '{}');
+            const container = document.getElementById('userDetails');
+            
+            container.innerHTML = `
+                <div class="user-detail-item">
+                    <div class="label">Name</div>
+                    <div class="value">${escapeHtml(user.fullName || user.username || 'N/A')}</div>
                 </div>
-            `).join('');
+                <div class="user-detail-item">
+                    <div class="label">Email</div>
+                    <div class="value">${escapeHtml(user.email || 'N/A')}</div>
+                </div>
+                <div class="user-detail-item">
+                    <div class="label">Role</div>
+                    <div class="value">${escapeHtml(user.role?.name || user.role || 'Student')}</div>
+                </div>
+            `;
         }
-
-        function viewLessons(courseId) {
-            window.location.href = `/lesson-viewer.html?courseId=${courseId}`;
-        }
-
-        function viewCourseDetails(courseId) {
-            // For now, redirect to courses page. Later can add course detail modal
-            window.location.href = '/courses.html';
-        }
-
-        function showProgressModal() {
-            const modal = document.getElementById('progressModal');
-            const content = document.getElementById('progressContent');
-
-            // FIXED: Load progress.js from root scripts
-            loadScript('/scripts/progress.js').then(() => {
-                getUserProgress().then(progress => {
-                    if (!progress || progress.length === 0) {
-                        content.innerHTML = '<p>No progress data available.</p>';
-                    } else {
-                        content.innerHTML = progress.map(enrollment => `
-                            <div class="progress-item">
-                                <h4>${enrollment.course.title}</h4>
-                                <p>Progress: ${enrollment.progress}%</p>
-                                <p>Lessons Completed: ${enrollment.completedLessons || 0}</p>
-                                <p>Total Lessons: ${enrollment.totalLessons || 0}</p>
+        
+        async function loadEnrolledCourses() {
+            const container = document.getElementById('coursesList');
+            
+            try {
+                const data = await DashboardUtils.fetchAPI('/student/courses/progress');
+                
+                if (!data.success || !data.data || data.data.length === 0) {
+                    container.innerHTML = '<div class="empty-state"><i class="fas fa-book-open"></i><h3>No courses yet</h3><p>Enroll in courses to get started</p><a href="/courses.html" class="btn btn-primary">Browse Courses</a></div>';
+                    return;
+                }
+                
+                const courses = data.data.slice(0, 6);
+                container.innerHTML = courses.map(enrollment => {
+                    const course = enrollment.course;
+                    const slug = window.getCourseSlug ? window.getCourseSlug(course.id) : null;
+                    const progress = enrollment.progress || 0;
+                    
+                    return `
+                        <div class="course-mini-card">
+                            <div class="course-mini-card-header">
+                                <h3>${escapeHtml(course.title)}</h3>
                             </div>
-                        `).join('');
-                    }
-                    modal.classList.add('show');
-                }).catch(error => {
-                    console.error('Error loading progress:', error);
-                    content.innerHTML = '<p>Error loading progress data.</p>';
-                    modal.classList.add('show');
-                });
-            });
-        }
-
-        function closeProgressModal() {
-            document.getElementById('progressModal').classList.remove('show');
-        }
-
-        // Close modal when clicking outside
-        document.getElementById('progressModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeProgressModal();
+                            <div class="course-mini-card-body">
+                                <div class="progress-container">
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: ${progress}%"></div>
+                                    </div>
+                                    <div class="progress-text">${progress}% Complete</div>
+                                </div>
+                                <a href="/student-dashboard/my-courses.html" class="btn btn-primary btn-sm btn-block">View Course</a>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error('Error loading courses:', error);
+                container.innerHTML = '<div class="error-message"><i class="fas fa-exclamation-triangle"></i> Failed to load courses</div>';
             }
-        });
+        }
     </script>
 </body>
 </html>

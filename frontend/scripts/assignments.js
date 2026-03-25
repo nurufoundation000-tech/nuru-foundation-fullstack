@@ -2,7 +2,7 @@
 const API_BASE = '/api';
 
 async function fetchAssignment(id) {
-    const token = localStorage.getItem('token');
+    const token = sessionStorage.getItem('token');
     const response = await fetch(`${API_BASE}/assignments/${id}`, {
         headers: {
             'Authorization': `Bearer ${token}`,
@@ -18,7 +18,7 @@ async function fetchAssignment(id) {
 }
 
 async function createAssignment(assignmentData) {
-    const token = localStorage.getItem('token');
+    const token = sessionStorage.getItem('token');
     const response = await fetch(`${API_BASE}/assignments`, {
         method: 'POST',
         headers: {
@@ -36,7 +36,7 @@ async function createAssignment(assignmentData) {
 }
 
 async function submitAssignment(assignmentId, codeSubmission) {
-    const token = localStorage.getItem('token');
+    const token = sessionStorage.getItem('token');
     const response = await fetch(`${API_BASE}/assignments/${assignmentId}/submit`, {
         method: 'POST',
         headers: {

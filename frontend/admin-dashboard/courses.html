@@ -559,8 +559,8 @@
     }
 
     function checkAdminAccess() {
-        const token = localStorage.getItem('token');
-        const userData = localStorage.getItem('user');
+        const token = sessionStorage.getItem('token');
+        const userData = sessionStorage.getItem('user');
         
         console.log('🔍 Checking admin access for course management...');
         console.log('Token exists:', !!token);
@@ -605,7 +605,7 @@
 
     async function loadCourses() {
         try {
-            const token = localStorage.getItem('token');
+            const token = sessionStorage.getItem('token');
             console.log('📚 Loading courses...');
 
             // Try to load from API first
@@ -829,7 +829,7 @@
         };
 
         try {
-            const token = localStorage.getItem('token');
+            const token = sessionStorage.getItem('token');
             const url = currentEditingId ? 
                 `${API_BASE_URL}/admin/courses/${currentEditingId}` :
                 `${API_BASE_URL}/admin/courses`;
@@ -943,7 +943,7 @@
         }
 
         try {
-            const token = localStorage.getItem('token');
+            const token = sessionStorage.getItem('token');
             const response = await fetch(`${API_BASE_URL}/admin/courses/${courseId}`, {
                 method: 'PUT',
                 headers: {
@@ -997,7 +997,7 @@
         }
 
         try {
-            const token = localStorage.getItem('token');
+            const token = sessionStorage.getItem('token');
             const response = await fetch(`${API_BASE_URL}/admin/courses/${courseId}`, {
                 method: 'DELETE',
                 headers: {

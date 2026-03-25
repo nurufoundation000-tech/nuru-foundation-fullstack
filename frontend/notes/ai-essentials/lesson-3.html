@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI in the Future & Ethics - NURU Foundation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #5849c4;
+            --accent: #e74c3c;
+            --success: #27ae60;
+            --bg-light: #f8f9fa;
+            --text-dark: #333;
+            --text-light: #666;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg-light);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+        .lesson-container { max-width: 900px; margin: 0 auto; padding: 2rem; }
+        .lesson-header {
+            background: linear-gradient(135deg, #5849c4 0%, #8b5cf6 100%);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(88, 73, 196, 0.3);
+            margin-bottom: 2rem;
+            color: white;
+        }
+        .course-breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        .course-breadcrumb a { color: white; text-decoration: none; }
+        .course-breadcrumb a:hover { text-decoration: underline; }
+        .lesson-meta {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+        .lesson-title { font-size: 2rem; margin-bottom: 1rem; }
+        .lesson-objectives {
+            background: rgba(255,255,255,0.15);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+        .lesson-objectives h3 { margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+        .lesson-objectives ul { margin-left: 1.5rem; }
+        .lesson-objectives li { margin-bottom: 0.5rem; }
+        .content-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        .content-section h2 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 3px solid var(--secondary);
+        }
+        .content-section h3 { color: var(--primary); margin: 1.5rem 0 0.75rem; }
+        .content-section p { margin-bottom: 1rem; }
+        .content-section ul, .content-section ol { margin: 1rem 0 1rem 1.5rem; }
+        .content-section li { margin-bottom: 0.5rem; }
+        .ai-logo {
+            width: 80px;
+            height: 80px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 1rem auto;
+            font-size: 2.5rem;
+            color: var(--secondary);
+        }
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid var(--secondary);
+            padding: 1rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1rem 0;
+        }
+        .warning-box {
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+            padding: 1rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1rem 0;
+        }
+        .tip-box {
+            background: #e8f5e9;
+            border-left: 4px solid var(--success);
+            padding: 1rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1rem 0;
+        }
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        .nav-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem 1.5rem;
+            background: white;
+            border: 2px solid var(--secondary);
+            color: var(--secondary);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            flex: 1;
+            justify-content: center;
+        }
+        .nav-btn:hover { background: var(--secondary); color: white; }
+        .nav-btn.disabled { opacity: 0.5; pointer-events: none; }
+        .nav-btn.next { background: var(--secondary); color: white; }
+        .nav-btn.next:hover { background: var(--primary); border-color: var(--primary); }
+        .progress-bar {
+            background: #e0e0e0;
+            height: 8px;
+            border-radius: 4px;
+            margin-top: 2rem;
+            overflow: hidden;
+        }
+        .progress-fill {
+            background: linear-gradient(90deg, #5849c4, #8b5cf6);
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+        .career-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        .career-card {
+            background: #fafafa;
+            border: 2px solid var(--secondary);
+            padding: 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .career-card i {
+            font-size: 2rem;
+            color: var(--secondary);
+            margin-bottom: 1rem;
+        }
+        .career-card h4 { color: var(--primary); margin-bottom: 0.5rem; }
+        @media (max-width: 768px) {
+            .lesson-container { padding: 1rem; }
+            .lesson-title { font-size: 1.5rem; }
+            .navigation-buttons { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <div class="lesson-container">
+        <div class="lesson-header">
+            <div class="ai-logo"><i class="fas fa-globe"></i></div>
+            <div class="course-breadcrumb">
+                <a href="/student-dashboard/notes.html"><i class="fas fa-arrow-left"></i> Back to Notes</a>
+            </div>
+            <div class="lesson-meta">
+                <span class="meta-item"><i class="fas fa-book"></i> Lesson 3 of 3</span>
+                <span class="meta-item"><i class="fas fa-clock"></i> 45 minutes</span>
+            </div>
+            <h1 class="lesson-title">AI in the Future & Ethics</h1>
+        </div>
+        <div class="lesson-objectives">
+            <h3><i class="fas fa-bullseye"></i> Learning Objectives</h3>
+            <ul>
+                <li>Understand emerging trends in AI technology</li>
+                <li>Recognize ethical considerations in AI development</li>
+                <li>Identify sources of bias in AI systems</li>
+                <li>Learn strategies for responsible AI development</li>
+                <li>Explore career opportunities in AI and ethics</li>
+            </ul>
+        </div>
+        <div class="content-section">
+            <h2>The Future of AI</h2>
+            <p>Artificial Intelligence is evolving rapidly, transforming every aspect of our lives. Understanding these trends helps us prepare for the changes ahead.</p>
+            <h3>Key Trends Shaping AI's Future</h3>
+            <ul>
+                <li><strong>General AI (AGI):</strong> Development of AI systems with human-level intelligence across diverse tasks</li>
+                <li><strong>Multimodal AI:</strong> Systems that can process and understand multiple types of data (text, images, audio, video)</li>
+                <li><strong>Edge AI:</strong> Running AI models locally on devices rather than in the cloud</li>
+                <li><strong>AI in Healthcare:</strong> Personalized medicine, drug discovery, and diagnostic assistance</li>
+                <li><strong>Autonomous Systems:</strong> Self-driving vehicles, drones, and robotics</li>
+            </ul>
+            <div class="info-box">
+                <strong><i class="fas fa-info-circle"></i> Did You Know?</strong>
+                <p>AI is expected to contribute $15.7 trillion to the global economy by 2030, making it the biggest commercial opportunity in today's economy!</p>
+            </div>
+        </div>
+        <div class="content-section">
+            <h2>Ethics in Artificial Intelligence</h2>
+            <p>As AI becomes more powerful and pervasive, ethical considerations become crucial. We must ensure AI systems are developed and used responsibly.</p>
+            <h3>Core Ethical Principles</h3>
+            <ul>
+                <li><strong>Fairness:</strong> AI should treat all people equally and not discriminate</li>
+                <li><strong>Transparency:</strong> We should understand how AI makes decisions</li>
+                <li><strong>Accountability:</strong> Clear responsibility for AI outcomes</li>
+                <li><strong>Privacy:</strong> Protect personal data used by AI systems</li>
+                <li><strong>Safety:</strong> AI systems should not cause harm</li>
+            </ul>
+            <div class="tip-box">
+                <strong><i class="fas fa-lightbulb"></i> Remember</strong>
+                <p>Ethical AI isn't just about avoiding harm—it's about actively creating systems that benefit society and promote human well-being.</p>
+            </div>
+        </div>
+        <div class="content-section">
+            <h2>Bias in AI Systems</h2>
+            <p>AI systems can inadvertently learn and amplify societal biases present in training data. Understanding these biases is the first step to addressing them.</p>
+            <h3>Types of AI Bias</h3>
+            <ul>
+                <li><strong>Data Bias:</strong> Training data that doesn't represent diverse populations</li>
+                <li><strong>Historical Bias:</strong> Reflecting past societal inequalities</li>
+                <li><strong>Aggregation Bias:</strong> Applying models across different groups inappropriately</li>
+                <li><strong>Label Bias:</strong> Inconsistent labeling in training data</li>
+                <li><strong>Confirmation Bias:</strong> Systems trained to confirm existing beliefs</li>
+            </ul>
+            <div class="warning-box">
+                <strong><i class="fas fa-exclamation-triangle"></i> Real-World Impact</strong>
+                <p>Biased AI has led to discriminatory outcomes in hiring, lending, criminal justice, and healthcare. For example, some facial recognition systems have lower accuracy rates for women and people with darker skin tones.</p>
+            </div>
+            <h3>Fighting AI Bias</h3>
+            <p>Creating fair AI requires deliberate effort:</p>
+            <ul>
+                <li>Diverse teams developing AI systems</li>
+                <li>Representative and balanced training data</li>
+                <li>Regular bias audits and testing</li>
+                <li>Inclusive design processes</li>
+                <li>Clear documentation of limitations</li>
+            </ul>
+        </div>
+        <div class="content-section">
+            <h2>Responsible AI Development</h2>
+            <p>Building AI responsibly involves following established frameworks and best practices throughout the development lifecycle.</p>
+            <h3>AI Governance Frameworks</h3>
+            <ul>
+                <li><strong>EU AI Act:</strong> Comprehensive regulation classifying AI systems by risk level</li>
+                <li><strong>IEEE Ethically Aligned Design:</strong> Standards for ethical AI development</li>
+                <li><strong>OECD AI Principles:</strong> International guidelines for trustworthy AI</li>
+            </ul>
+            <h3>Best Practices for Developers</h3>
+            <ol>
+                <li>Document training data sources and potential limitations</li>
+                <li>Test models across diverse populations</li>
+                <li>Implement explainability in decision-making systems</li>
+                <li>Establish clear human oversight mechanisms</li>
+                <li>Plan for ongoing monitoring and updates</li>
+            </ol>
+        </div>
+        <div class="content-section">
+            <h2>Career Opportunities in AI & Ethics</h2>
+            <p>The AI field offers diverse career paths, including specialized roles focused on ethics and responsible AI development.</p>
+            <div class="career-grid">
+                <div class="career-card">
+                    <i class="fas fa-brain"></i>
+                    <h4>Machine Learning Engineer</h4>
+                    <p>Build and deploy AI models</p>
+                </div>
+                <div class="career-card">
+                    <i class="fas fa-balance-scale"></i>
+                    <h4>AI Ethics Specialist</h4>
+                    <p>Ensure responsible AI development</p>
+                </div>
+                <div class="career-card">
+                    <i class="fas fa-search"></i>
+                    <h4>AI Auditor</h4>
+                    <p>Review systems for bias and compliance</p>
+                </div>
+                <div class="career-card">
+                    <i class="fas fa-shield-alt"></i>
+                    <h4>AI Policy Analyst</h4>
+                    <p>Shape AI regulations and guidelines</p>
+                </div>
+            </div>
+            <div class="info-box">
+                <strong><i class="fas fa-info-circle"></i> Getting Started</strong>
+                <p>To pursue AI careers, focus on building strong foundations in programming, mathematics, and data science, while developing skills in ethical reasoning and communication.</p>
+            </div>
+        </div>
+        <div class="content-section">
+            <h2>Course Summary</h2>
+            <p>Congratulations on completing the AI Essentials course! Here's what you've learned:</p>
+            <ul>
+                <li><strong>Lesson 1:</strong> Introduction to AI, ML, and NLP fundamentals</li>
+                <li><strong>Lesson 2:</strong> Neural networks and deep learning architectures</li>
+                <li><strong>Lesson 3:</strong> Future trends, ethics, bias, and career paths</li>
+            </ul>
+            <div class="tip-box">
+                <strong><i class="fas fa-rocket"></i> Keep Learning!</strong>
+                <p>AI is a rapidly evolving field. Stay updated by following AI research papers, joining online communities, and experimenting with AI tools and frameworks.</p>
+            </div>
+        </div>
+        <div class="navigation-buttons">
+            <a href="lesson-2.html" class="nav-btn">
+                <i class="fas fa-arrow-left"></i>
+                <span>Previous: Neural Networks & Deep Learning</span>
+            </a>
+            <div class="nav-btn disabled">
+                <span>Final Lesson</span>
+            </div>
+        </div>
+        <div class="progress-bar">
+            <div class="progress-fill" style="width: 100%"></div>
+        </div>
+    </div>
+</body>
+</html>

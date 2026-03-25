@@ -471,8 +471,8 @@
         }
 
         function checkAdminAccess() {
-            const token = localStorage.getItem('token');
-            const userData = localStorage.getItem('user');
+            const token = sessionStorage.getItem('token');
+            const userData = sessionStorage.getItem('user');
             
             console.log('🔍 Checking admin access for enrollment management...');
             console.log('Token exists:', !!token);
@@ -518,7 +518,7 @@
 
         async function loadEnrollments() {
             try {
-                const token = localStorage.getItem('token');
+                const token = sessionStorage.getItem('token');
                 console.log('📚 Loading enrollments...');
 
                 const response = await fetch(`${API_BASE_URL}/admin/enrollments`, {
@@ -545,7 +545,7 @@
 
         async function loadCourses() {
             try {
-                const token = localStorage.getItem('token');
+                const token = sessionStorage.getItem('token');
                 const response = await fetch(`${API_BASE_URL}/admin/courses`, {
                     headers: {
                         'Authorization': `Bearer ${token}`,
@@ -854,7 +854,7 @@
             }
 
             try {
-                const token = localStorage.getItem('token');
+                const token = sessionStorage.getItem('token');
                 const response = await fetch(`${API_BASE_URL}/admin/enrollments/${enrollmentId}`, {
                     method: 'PUT',
                     headers: {
@@ -900,7 +900,7 @@
             }
 
             try {
-                const token = localStorage.getItem('token');
+                const token = sessionStorage.getItem('token');
                 const response = await fetch(`${API_BASE_URL}/admin/enrollments/${enrollmentId}`, {
                     method: 'DELETE',
                     headers: {

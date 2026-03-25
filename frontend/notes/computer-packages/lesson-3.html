@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spreadsheets with MS Excel - NURU Foundation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #27ae60;
+            --accent: #1e8449;
+            --success: #27ae60;
+            --bg-light: #f8f9fa;
+            --text-dark: #333;
+            --text-light: #666;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg-light);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+        .lesson-container { max-width: 900px; margin: 0 auto; padding: 2rem; }
+        .lesson-header {
+            background: linear-gradient(135deg, #27ae60 0%, #1e8449 100%);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3);
+            margin-bottom: 2rem;
+            color: white;
+        }
+        .course-breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        .course-breadcrumb a { color: white; text-decoration: none; }
+        .course-breadcrumb a:hover { text-decoration: underline; }
+        .lesson-meta {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+        .lesson-title { font-size: 2rem; margin-bottom: 1rem; }
+        .lesson-objectives {
+            background: rgba(255,255,255,0.15);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+        .lesson-objectives h3 { margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+        .lesson-objectives ul { margin-left: 1.5rem; }
+        .lesson-objectives li { margin-bottom: 0.5rem; }
+        .content-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        .content-section h2 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 3px solid var(--secondary);
+        }
+        .content-section h3 { color: var(--primary); margin: 1.5rem 0 0.75rem; }
+        .content-section p { margin-bottom: 1rem; }
+        .content-section ul, .content-section ol { margin: 1rem 0 1rem 1.5rem; }
+        .content-section li { margin-bottom: 0.5rem; }
+        .skill-icon {
+            width: 80px;
+            height: 80px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 1rem auto;
+            font-size: 2.5rem;
+            color: var(--secondary);
+        }
+        .formula-block {
+            background: #1e1e1e;
+            color: #9cdcfe;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            font-family: 'Consolas', monospace;
+            border-left: 4px solid var(--secondary);
+        }
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid var(--secondary);
+            padding: 1rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1rem 0;
+        }
+        .warning-box {
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+            padding: 1rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1rem 0;
+        }
+        .tip-box {
+            background: #e8f5e9;
+            border-left: 4px solid var(--success);
+            padding: 1rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1rem 0;
+        }
+        .exercise-box {
+            background: #fce4ec;
+            border-left: 4px solid #e91e63;
+            padding: 1rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1rem 0;
+        }
+        .exercise-box h4 {
+            color: #c2185b;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .exercise-box ol { margin-left: 1.25rem; }
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        .nav-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem 1.5rem;
+            background: white;
+            border: 2px solid var(--secondary);
+            color: var(--secondary);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            flex: 1;
+            justify-content: center;
+        }
+        .nav-btn:hover { background: var(--secondary); color: white; }
+        .nav-btn.disabled { opacity: 0.5; pointer-events: none; }
+        .nav-btn.next { background: var(--secondary); color: white; }
+        .nav-btn.next:hover { background: var(--accent); border-color: var(--accent); }
+        .progress-bar {
+            background: #e0e0e0;
+            height: 8px;
+            border-radius: 4px;
+            margin-top: 2rem;
+            overflow: hidden;
+        }
+        .progress-fill {
+            background: linear-gradient(90deg, #27ae60, #1e8449);
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+        @media (max-width: 768px) {
+            .lesson-container { padding: 1rem; }
+            .lesson-title { font-size: 1.5rem; }
+            .navigation-buttons { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <div class="lesson-container">
+        <div class="lesson-header">
+            <div class="skill-icon"><i class="fas fa-file-excel"></i></div>
+            <div class="course-breadcrumb">
+                <a href="/student-dashboard/notes.html"><i class="fas fa-arrow-left"></i> Back to Notes</a>
+            </div>
+            <div class="lesson-meta">
+                <span class="meta-item"><i class="fas fa-book"></i> Lesson 3 of 3</span>
+                <span class="meta-item"><i class="fas fa-clock"></i> 45 minutes</span>
+            </div>
+            <h1 class="lesson-title">Spreadsheets with MS Excel</h1>
+        </div>
+        <div class="lesson-objectives">
+            <h3><i class="fas fa-bullseye"></i> Learning Objectives</h3>
+            <ul>
+                <li>Navigate the Excel interface and understand workbooks, worksheets, and cells</li>
+                <li>Enter and format data in spreadsheets</li>
+                <li>Use basic formulas and functions for calculations</li>
+                <li>Create and customize charts to visualize data</li>
+                <li>Apply basic data analysis techniques</li>
+            </ul>
+        </div>
+        <div class="content-section">
+            <h2>Excel Basics</h2>
+            <p>Microsoft Excel is a powerful spreadsheet program used for organizing, calculating, and analyzing data. It's essential for business, finance, and data management.</p>
+            <h3>Understanding the Excel Interface</h3>
+            <ul>
+                <li><strong>Workbook:</strong> A file containing multiple worksheets (like a book)</li>
+                <li><strong>Worksheet:</strong> A single spreadsheet with rows and columns</li>
+                <li><strong>Cell:</strong> The intersection of a row and column (e.g., A1, B5)</li>
+                <li><strong>Column Letters:</strong> A, B, C... (vertical)</li>
+                <li><strong>Row Numbers:</strong> 1, 2, 3... (horizontal)</li>
+                <li><strong>Formula Bar:</strong> Shows and edits cell contents</li>
+            </ul>
+            <div class="info-box">
+                <strong><i class="fas fa-info-circle"></i> Did You Know?</strong>
+                <p>A single Excel worksheet can have over 1 million rows and 16,000 columns - that's a lot of data!</p>
+            </div>
+        </div>
+        <div class="content-section">
+            <h2>Working with Formulas</h2>
+            <p>Formulas are what make Excel powerful. They perform calculations on your data automatically.</p>
+            <h3>Basic Formulas</h3>
+            <ul>
+                <li><strong>Always start with =</strong> to tell Excel you're entering a formula</li>
+                <li><strong>Addition:</strong> =A1+B1 adds values in cells A1 and B1</li>
+                <li><strong>Subtraction:</strong> =A1-B1 subtracts B1 from A1</li>
+                <li><strong>Multiplication:</strong> =A1*B1 multiplies the values</li>
+                <li><strong>Division:</strong> =A1/B1 divides A1 by B1</li>
+            </ul>
+            <h3>Common Functions</h3>
+            <div class="formula-block">
+                =SUM(A1:A10) - Adds all values from A1 to A10<br>
+                =AVERAGE(A1:A10) - Calculates the average<br>
+                =MAX(A1:A10) - Finds the largest value<br>
+                =MIN(A1:A10) - Finds the smallest value<br>
+                =COUNT(A1:A10) - Counts cells with numbers
+            </div>
+            <div class="tip-box">
+                <strong><i class="fas fa-lightbulb"></i> Pro Tip</strong>
+                <p>Double-click the small square in the bottom-right of a cell to copy formulas down quickly!</p>
+            </div>
+        </div>
+        <div class="content-section">
+            <h2>Creating Charts</h2>
+            <p>Charts help you visualize data and make it easier to understand trends and patterns.</p>
+            <h3>Types of Charts</h3>
+            <ul>
+                <li><strong>Column Chart:</strong> Best for comparing categories</li>
+                <li><strong>Line Chart:</strong> Shows trends over time</li>
+                <li><strong>Pie Chart:</strong> Shows parts of a whole (percentages)</li>
+                <li><strong>Bar Chart:</strong> Horizontal comparison of categories</li>
+                <li><strong>Area Chart:</strong> Emphasizes the magnitude of change</li>
+            </ul>
+            <h3>Creating a Chart</h3>
+            <ul>
+                <li>Select the data you want to include in the chart</li>
+                <li>Click Insert > Charts and choose your chart type</li>
+                <li>Use Chart Tools to customize colors, titles, and labels</li>
+                <li>Move or resize the chart as needed</li>
+            </ul>
+            <div class="warning-box">
+                <strong><i class="fas fa-exclamation-triangle"></i> Watch Out</strong>
+                <p>Always include headers in your data selection - they become labels in your chart!</p>
+            </div>
+        </div>
+        <div class="content-section">
+            <h2>Data Analysis Features</h2>
+            <p>Excel offers powerful tools to analyze and summarize your data.</p>
+            <h3>Essential Data Analysis Tools</h3>
+            <ul>
+                <li><strong>Sorting:</strong> Arrange data A-Z, Z-A, or by number (smallest to largest)</li>
+                <li><strong>Filtering:</strong> Show only specific data that meets criteria</li>
+                <li><strong>Conditional Formatting:</strong> Automatically color cells based on values</li>
+                <li><strong>Freeze Panes:</strong> Keep headers visible while scrolling</li>
+                <li><strong>AutoSum:</strong> Quick button to add a range of cells</li>
+            </ul>
+            <div class="tip-box">
+                <strong><i class="fas fa-check-circle"></i> Remember</strong>
+                <p>Use Ctrl+Shift+L to quickly add or remove filters from your data!</p>
+            </div>
+        </div>
+        <div class="content-section">
+            <h2>Practice Exercise</h2>
+            <div class="exercise-box">
+                <h4><i class="fas fa-pencil-alt"></i> Create a Sales Report</h4>
+                <ol>
+                    <li>Create a new Excel workbook</li>
+                    <li>Create a table with columns: Product, Q1 Sales, Q2 Sales, Q3 Sales, Q4 Sales</li>
+                    <li>Enter 5 products with sales data</li>
+                    <li>Add a Total column using SUM formula</li>
+                    <li>Create a column chart showing sales by product</li>
+                    <li>Use conditional formatting to highlight the highest sales in green</li>
+                    <li>Save as "SalesReport.xlsx"</li>
+                </ol>
+            </div>
+        </div>
+        <div class="navigation-buttons">
+            <a href="lesson-2.html" class="nav-btn">
+                <i class="fas fa-arrow-left"></i>
+                <span>Previous: MS Word</span>
+            </a>
+            <a class="nav-btn next disabled">
+                <span>Final Lesson</span>
+                <i class="fas fa-check-circle"></i>
+            </a>
+        </div>
+        <div class="progress-bar">
+            <div class="progress-fill" style="width: 100%"></div>
+        </div>
+    </div>
+</body>
+</html>

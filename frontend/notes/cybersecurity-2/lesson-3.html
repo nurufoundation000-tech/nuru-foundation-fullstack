@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Incident Response & Recovery - NURU Foundation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #9b59b6;
+            --accent: #8e44ad;
+            --success: #27ae60;
+            --bg-light: #f8f9fa;
+            --text-dark: #333;
+            --text-light: #666;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg-light);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+        .lesson-container { max-width: 900px; margin: 0 auto; padding: 2rem; }
+        .lesson-header {
+            background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(155, 89, 182, 0.3);
+            margin-bottom: 2rem;
+            color: white;
+        }
+        .course-breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        .course-breadcrumb a { color: white; text-decoration: none; }
+        .course-breadcrumb a:hover { text-decoration: underline; }
+        .lesson-meta {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+        .lesson-title { font-size: 2rem; margin-bottom: 1rem; }
+        .lesson-objectives {
+            background: rgba(255,255,255,0.15);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+        .lesson-objectives h3 { margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+        .lesson-objectives ul { margin-left: 1.5rem; }
+        .lesson-objectives li { margin-bottom: 0.5rem; }
+        .content-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        .content-section h2 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 3px solid var(--secondary);
+        }
+        .content-section h3 { color: var(--primary); margin: 1.5rem 0 0.75rem; }
+        .content-section p { margin-bottom: 1rem; }
+        .content-section ul, .content-section ol { margin: 1rem 0 1rem 1.5rem; }
+        .content-section li { margin-bottom: 0.5rem; }
+        .course-icon {
+            width: 80px;
+            height: 80px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 1rem auto;
+            font-size: 2.5rem;
+            color: var(--secondary);
+        }
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #3498db;
+            padding: 1rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1rem 0;
+        }
+        .warning-box {
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+            padding: 1rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1rem 0;
+        }
+        .tip-box {
+            background: #e8f5e9;
+            border-left: 4px solid var(--success);
+            padding: 1rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1rem 0;
+        }
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        .nav-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem 1.5rem;
+            background: white;
+            border: 2px solid var(--secondary);
+            color: var(--secondary);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            flex: 1;
+            justify-content: center;
+        }
+        .nav-btn:hover { background: var(--secondary); color: white; }
+        .nav-btn.disabled { opacity: 0.5; pointer-events: none; }
+        .nav-btn.next { background: var(--secondary); color: white; }
+        .nav-btn.next:hover { background: var(--accent); border-color: var(--accent); }
+        .progress-bar {
+            background: #e0e0e0;
+            height: 8px;
+            border-radius: 4px;
+            margin-top: 2rem;
+            overflow: hidden;
+        }
+        .progress-fill {
+            background: linear-gradient(90deg, #9b59b6, #8e44ad);
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+        @media (max-width: 768px) {
+            .lesson-container { padding: 1rem; }
+            .lesson-title { font-size: 1.5rem; }
+            .navigation-buttons { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <div class="lesson-container">
+        <div class="lesson-header">
+            <div class="course-icon"><i class="fas fa-shield-virus"></i></div>
+            <div class="course-breadcrumb">
+                <a href="/student-dashboard/notes.html"><i class="fas fa-arrow-left"></i> Back to Notes</a>
+            </div>
+            <div class="lesson-meta">
+                <span class="meta-item"><i class="fas fa-book"></i> Lesson 3 of 3</span>
+                <span class="meta-item"><i class="fas fa-clock"></i> 45 minutes</span>
+            </div>
+            <h1 class="lesson-title">Incident Response & Recovery</h1>
+        </div>
+        <div class="lesson-objectives">
+            <h3><i class="fas fa-bullseye"></i> Learning Objectives</h3>
+            <ul>
+                <li>Understand the incident response process</li>
+                <li>Learn how to handle security breaches</li>
+                <li>Know the steps for system recovery</li>
+                <li>Understand how to report incidents properly</li>
+            </ul>
+        </div>
+        <div class="content-section">
+            <h2>What is Incident Response?</h2>
+            <p>Incident response is the systematic approach to managing security incidents. It involves detecting, responding to, and recovering from security breaches while minimizing damage and reducing recovery time and costs.</p>
+            <h3>Why Incident Response Matters</h3>
+            <ul>
+                <li>Reduces the impact of security breaches</li>
+                <li>Helps preserve evidence for investigation</li>
+                <li>Ensures compliance with regulations</li>
+                <li>Minimizes financial and reputational damage</li>
+                <li>Enables faster recovery</li>
+            </ul>
+            <div class="info-box">
+                <strong><i class="fas fa-info-circle"></i> Did You Know?</strong>
+                <p>Companies that respond quickly to breaches save an average of $1.2 million compared to those with slow response times!</p>
+            </div>
+        </div>
+        <div class="content-section">
+            <h2>The Incident Response Framework</h2>
+            <h3>1. Preparation</h3>
+            <ul>
+                <li>Create an incident response plan</li>
+                <li>Establish response team and roles</li>
+                <li>Set up communication channels</li>
+                <li>Prepare tools and resources</li>
+                <li>Conduct regular training and drills</li>
+            </ul>
+            <h3>2. Detection & Analysis</h3>
+            <ul>
+                <li>Monitor systems for anomalies</li>
+                <li>Analyze alerts and indicators</li>
+                <li>Determine scope and severity</li>
+                <li>Document findings</li>
+            </ul>
+            <h3>3. Containment</h3>
+            <ul>
+                <li>Isolate affected systems</li>
+                <li>Block attacker access</li>
+                <li>Preserve evidence</li>
+                <li>Prevent further damage</li>
+            </ul>
+            <div class="warning-box">
+                <strong><i class="fas fa-exclamation-triangle"></i> Important</strong>
+                <p>Quick containment is critical - the faster you isolate the threat, the less damage it can cause!</p>
+            </div>
+        </div>
+        <div class="content-section">
+            <h2>Handling Security Breaches</h2>
+            <h3>Immediate Steps</h3>
+            <ol>
+                <li><strong>Identify:</strong> Confirm that a breach has occurred</li>
+                <li><strong>Contain:</strong> Isolate affected systems from the network</li>
+                <li><strong>Document:</strong> Record all details about the incident</li>
+                <li><strong>Notify:</strong> Alert appropriate personnel and stakeholders</li>
+                <li><strong>Assess:</strong> Determine the scope and impact</li>
+                <li><strong>Eradicate:</strong> Remove the threat from the system</li>
+            </ol>
+            <h3>Recovery Steps</h3>
+            <ol>
+                <li>Restore systems from clean backups</li>
+                <li>Apply all security patches and updates</li>
+                <li>Reset all compromised passwords</li>
+                <li>Verify system integrity</li>
+                <li>Monitor for signs of reinfection</li>
+                <li>Gradually restore services</li>
+            </ol>
+            <div class="tip-box">
+                <strong><i class="fas fa-lightbulb"></i> Pro Tip</strong>
+                <p>Always restore from backups created BEFORE the breach occurred. Make sure backups aren't infected!</p>
+            </div>
+        </div>
+        <div class="content-section">
+            <h2>Reporting Incidents</h2>
+            <p>Proper reporting is essential for both legal compliance and preventing future incidents.</p>
+            <h3>Who to Report To</h3>
+            <ul>
+                <li><strong>Internal:</strong> IT department, security team, management</li>
+                <li><strong>Law Enforcement:</strong> For serious crimes or data breaches</li>
+                <li><strong>Regulators:</strong> Depending on industry (GDPR, HIPAA, etc.)</li>
+                <li><strong>Affected Individuals:</strong> If personal data was compromised</li>
+            </ul>
+            <h3>What to Include in Reports</h3>
+            <ul>
+                <li>Date and time of discovery</li>
+                <li>Description of the incident</li>
+                <li>Systems and data affected</li>
+                <li>Potential impact assessment</li>
+                <li>Actions taken so far</li>
+                <li>Recommendations for next steps</li>
+            </ul>
+        </div>
+        <div class="content-section">
+            <h2>Post-Incident Activities</h2>
+            <h3>After Action Review</h3>
+            <ul>
+                <li>Document lessons learned</li>
+                <li>Identify what worked and what didn't</li>
+                <li>Update incident response procedures</li>
+                <li>Implement improvements</li>
+                <li>Conduct additional training if needed</li>
+            </ul>
+            <h3>Prevention Going Forward</h3>
+            <ul>
+                <li>Enhance monitoring and detection capabilities</li>
+                <li>Update security policies</li>
+                <li>Implement additional safeguards</li>
+                <li>Schedule regular security assessments</li>
+                <li>Maintain current backups</li>
+            </ul>
+            <div class="warning-box">
+                <strong><i class="fas fa-exclamation-triangle"></i> Final Reminder</strong>
+                <p>Every incident is a learning opportunity. Use what you learn to improve your security posture!</p>
+            </div>
+        </div>
+        <div class="navigation-buttons">
+            <a href="lesson-2.html" class="nav-btn">
+                <i class="fas fa-arrow-left"></i>
+                <span>Previous: Malware & Cyber Threats</span>
+            </a>
+            <a class="nav-btn disabled next">
+                <span>Final Lesson</span>
+                <i class="fas fa-check-circle"></i>
+            </a>
+        </div>
+        <div class="progress-bar">
+            <div class="progress-fill" style="width: 100%"></div>
+        </div>
+    </div>
+</body>
+</html>

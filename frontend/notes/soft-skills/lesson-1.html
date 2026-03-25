@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Communication Skills - NURU Foundation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #f39c12;
+            --accent: #e67e22;
+            --success: #27ae60;
+            --bg-light: #f8f9fa;
+            --text-dark: #333;
+            --text-light: #666;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg-light);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+        .lesson-container { max-width: 900px; margin: 0 auto; padding: 2rem; }
+        .lesson-header {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(243, 156, 18, 0.3);
+            margin-bottom: 2rem;
+            color: white;
+        }
+        .course-breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        .course-breadcrumb a { color: white; text-decoration: none; }
+        .course-breadcrumb a:hover { text-decoration: underline; }
+        .lesson-meta {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+        .lesson-title { font-size: 2rem; margin-bottom: 1rem; }
+        .lesson-objectives {
+            background: rgba(255,255,255,0.15);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+        .lesson-objectives h3 { margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+        .lesson-objectives ul { margin-left: 1.5rem; }
+        .lesson-objectives li { margin-bottom: 0.5rem; }
+        .content-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        .content-section h2 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 3px solid var(--secondary);
+        }
+        .content-section h3 { color: var(--primary); margin: 1.5rem 0 0.75rem; }
+        .content-section p { margin-bottom: 1rem; }
+        .content-section ul, .content-section ol { margin: 1rem 0 1rem 1.5rem; }
+        .content-section li { margin-bottom: 0.5rem; }
+        .skill-icon {
+            width: 80px;
+            height: 80px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 1rem auto;
+            font-size: 2.5rem;
+            color: var(--secondary);
+        }
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid var(--secondary);
+            padding: 1rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1rem 0;
+        }
+        .warning-box {
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+            padding: 1rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1rem 0;
+        }
+        .tip-box {
+            background: #e8f5e9;
+            border-left: 4px solid var(--success);
+            padding: 1rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1rem 0;
+        }
+        .exercise-box {
+            background: #fce4ec;
+            border-left: 4px solid #e91e63;
+            padding: 1rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1rem 0;
+        }
+        .exercise-box h4 {
+            color: #c2185b;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .exercise-box ol { margin-left: 1.25rem; }
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        .nav-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem 1.5rem;
+            background: white;
+            border: 2px solid var(--secondary);
+            color: var(--secondary);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            flex: 1;
+            justify-content: center;
+        }
+        .nav-btn:hover { background: var(--secondary); color: white; }
+        .nav-btn.disabled { opacity: 0.5; pointer-events: none; }
+        .nav-btn.next { background: var(--secondary); color: white; }
+        .nav-btn.next:hover { background: var(--accent); border-color: var(--accent); }
+        .progress-bar {
+            background: #e0e0e0;
+            height: 8px;
+            border-radius: 4px;
+            margin-top: 2rem;
+            overflow: hidden;
+        }
+        .progress-fill {
+            background: linear-gradient(90deg, #f39c12, #e67e22);
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+        @media (max-width: 768px) {
+            .lesson-container { padding: 1rem; }
+            .lesson-title { font-size: 1.5rem; }
+            .navigation-buttons { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <div class="lesson-container">
+        <div class="lesson-header">
+            <div class="skill-icon"><i class="fas fa-comments"></i></div>
+            <div class="course-breadcrumb">
+                <a href="/student-dashboard/notes.html"><i class="fas fa-arrow-left"></i> Back to Notes</a>
+            </div>
+            <div class="lesson-meta">
+                <span class="meta-item"><i class="fas fa-book"></i> Lesson 1 of 3</span>
+                <span class="meta-item"><i class="fas fa-clock"></i> 45 minutes</span>
+            </div>
+            <h1 class="lesson-title">Communication Skills</h1>
+        </div>
+        <div class="lesson-objectives">
+            <h3><i class="fas fa-bullseye"></i> Learning Objectives</h3>
+            <ul>
+                <li>Understand the importance of effective communication</li>
+                <li>Learn verbal and non-verbal communication techniques</li>
+                <li>Develop active listening skills</li>
+                <li>Practice clear and concise message delivery</li>
+            </ul>
+        </div>
+        <div class="content-section">
+            <h2>Why Communication Skills Matter</h2>
+            <p>Effective communication is the foundation of success in work and life. Whether you're speaking with friends, presenting ideas at work, or building relationships, how you communicate determines your impact.</p>
+            <h3>Key Benefits of Good Communication</h3>
+            <ul>
+                <li><strong>Builds Stronger Relationships:</strong> Clear communication fosters trust and understanding</li>
+                <li><strong>Increases Career Success:</strong> Good communicators are more likely to be promoted</li>
+                <li><strong>Reduces Conflicts:</strong> Misunderstandings are minimized when messages are clear</li>
+                <li><strong>Boosts Confidence:</strong> Expressing yourself clearly makes you feel more confident</li>
+            </ul>
+            <div class="info-box">
+                <strong><i class="fas fa-info-circle"></i> Did You Know?</strong>
+                <p>Studies show that up to 93% of communication effectiveness is determined by non-verbal cues, while only 7% comes from the actual words spoken!</p>
+            </div>
+        </div>
+        <div class="content-section">
+            <h2>Verbal Communication Skills</h2>
+            <p>Verbal communication involves the words you choose and how you deliver them.</p>
+            <h3>Practical Tips for Better Verbal Communication</h3>
+            <ul>
+                <li><strong>Be Clear and Concise:</strong> Get to the point without unnecessary details</li>
+                <li><strong>Use Simple Language:</strong> Avoid jargon unless your audience understands it</li>
+                <li><strong>Match Your Tone:</strong> Adjust your energy level to suit the situation</li>
+                <li><strong>Ask Clarifying Questions:</strong> Ensure understanding by asking "What do you mean?"</li>
+                <li><strong>Pause Before Responding:</strong> Take a moment to think before speaking</li>
+            </ul>
+            <div class="tip-box">
+                <strong><i class="fas fa-lightbulb"></i> Pro Tip</strong>
+                <p>When explaining something complex, use the " sandwich method": start with a simple overview, give details, then summarize the key point.</p>
+            </div>
+        </div>
+        <div class="content-section">
+            <h2>Non-Verbal Communication</h2>
+            <p>Your body language, facial expressions, and tone of voice speak volumes even before you say a word.</p>
+            <h3>Essential Non-Verbal Elements</h3>
+            <ul>
+                <li><strong>Eye Contact:</strong> Maintain appropriate eye contact to show engagement (not too intense, not looking away)</li>
+                <li><strong>Posture:</strong> Stand or sit upright to appear confident and interested</li>
+                <li><strong>Gestures:</strong> Use hand movements naturally to emphasize points</li>
+                <li><strong>Facial Expressions:</strong> Match your expressions to your message - smile when appropriate</li>
+                <li><strong>Physical Space:</strong> Respect personal boundaries - don't stand too close or too far</li>
+            </ul>
+            <div class="warning-box">
+                <strong><i class="fas fa-exclamation-triangle"></i> Watch Out</strong>
+                <p>Crossed arms, looking at your phone, or fidgeting can signal disinterest even if your words say otherwise. Be aware of your non-verbal cues!</p>
+            </div>
+        </div>
+        <div class="content-section">
+            <h2>Active Listening</h2>
+            <p>Great communicators are also great listeners. Active listening means fully concentrating on what is being said rather than just passively hearing the message.</p>
+            <h3>Active Listening Techniques</h3>
+            <ul>
+                <li><strong>Give Full Attention:</strong> Put away distractions and focus on the speaker</li>
+                <li><strong>Show You're Listening:</strong> Nod, make small comments like "I see", "Go on"</li>
+                <li><strong>Don't Interrupt:</strong> Let the speaker finish before responding</li>
+                <li><strong>Paraphrase:</strong> Repeat back what you heard in your own words</li>
+                <li><strong>Ask Questions:</strong> Clarify anything you don't understand</li>
+            </ul>
+            <div class="tip-box">
+                <strong><i class="fas fa-check-circle"></i> Practice This</strong>
+                <p>Next time someone speaks to you, try to summarize their main point before responding. Say: "So what I'm hearing is..."</p>
+            </div>
+        </div>
+        <div class="content-section">
+            <h2>Practice Exercise</h2>
+            <div class="exercise-box">
+                <h4><i class="fas fa-pencil-alt"></i> Communication Self-Assessment</h4>
+                <ol>
+                    <li>Think of a recent conversation where you felt misunderstood. What went wrong?</li>
+                    <li>Identify one verbal and one non-verbal cue you could improve</li>
+                    <li>Practice with a friend: Share a story for 2 minutes while they practice active listening</li>
+                    <li>Switch roles and discuss how it felt to be actively listened to</li>
+                </ol>
+            </div>
+        </div>
+        <div class="navigation-buttons">
+            <a class="nav-btn disabled">
+                <i class="fas fa-arrow-left"></i>
+                <span>No Previous</span>
+            </a>
+            <a href="lesson-2.html" class="nav-btn next">
+                <span>Next: Teamwork & Collaboration</span>
+                <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+        <div class="progress-bar">
+            <div class="progress-fill" style="width: 33%"></div>
+        </div>
+    </div>
+</body>
+</html>

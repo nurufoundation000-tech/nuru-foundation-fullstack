@@ -24,7 +24,12 @@
             .then(data => {
                 document.getElementById('headerContainer').innerHTML = data;
 
-                // Load auth.js first
+                // Load config.js first (needed for auth.js)
+                const configScript = document.createElement('script');
+                configScript.src = 'scripts/config.js';
+                document.head.appendChild(configScript);
+
+                // Load auth.js
                 const authScript = document.createElement('script');
                 authScript.src = 'scripts/auth.js';
                 document.head.appendChild(authScript);

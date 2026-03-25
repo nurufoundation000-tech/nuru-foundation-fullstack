@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neural Networks & Deep Learning - NURU Foundation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #5849c4;
+            --accent: #e74c3c;
+            --success: #27ae60;
+            --bg-light: #f8f9fa;
+            --text-dark: #333;
+            --text-light: #666;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg-light);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+        .lesson-container { max-width: 900px; margin: 0 auto; padding: 2rem; }
+        .lesson-header {
+            background: linear-gradient(135deg, #5849c4 0%, #8b5cf6 100%);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(88, 73, 196, 0.3);
+            margin-bottom: 2rem;
+            color: white;
+        }
+        .course-breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        .course-breadcrumb a { color: white; text-decoration: none; }
+        .course-breadcrumb a:hover { text-decoration: underline; }
+        .lesson-meta {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+        .lesson-title { font-size: 2rem; margin-bottom: 1rem; }
+        .lesson-objectives {
+            background: rgba(255,255,255,0.15);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+        .lesson-objectives h3 { margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+        .lesson-objectives ul { margin-left: 1.5rem; }
+        .lesson-objectives li { margin-bottom: 0.5rem; }
+        .content-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        .content-section h2 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 3px solid var(--secondary);
+        }
+        .content-section h3 { color: var(--primary); margin: 1.5rem 0 0.75rem; }
+        .content-section p { margin-bottom: 1rem; }
+        .content-section ul, .content-section ol { margin: 1rem 0 1rem 1.5rem; }
+        .content-section li { margin-bottom: 0.5rem; }
+        .ai-logo {
+            width: 80px;
+            height: 80px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 1rem auto;
+            font-size: 2.5rem;
+            color: var(--secondary);
+        }
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid var(--secondary);
+            padding: 1rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1rem 0;
+        }
+        .warning-box {
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+            padding: 1rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1rem 0;
+        }
+        .tip-box {
+            background: #e8f5e9;
+            border-left: 4px solid var(--success);
+            padding: 1rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1rem 0;
+        }
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        .nav-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem 1.5rem;
+            background: white;
+            border: 2px solid var(--secondary);
+            color: var(--secondary);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            flex: 1;
+            justify-content: center;
+        }
+        .nav-btn:hover { background: var(--secondary); color: white; }
+        .nav-btn.disabled { opacity: 0.5; pointer-events: none; }
+        .nav-btn.next { background: var(--secondary); color: white; }
+        .nav-btn.next:hover { background: var(--primary); border-color: var(--primary); }
+        .progress-bar {
+            background: #e0e0e0;
+            height: 8px;
+            border-radius: 4px;
+            margin-top: 2rem;
+            overflow: hidden;
+        }
+        .progress-fill {
+            background: linear-gradient(90deg, #5849c4, #8b5cf6);
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+        .diagram-box {
+            background: #fafafa;
+            border: 2px solid var(--secondary);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+            text-align: center;
+        }
+        .diagram-box pre {
+            font-family: monospace;
+            background: #2c3e50;
+            color: #8b5cf6;
+            padding: 1rem;
+            border-radius: 6px;
+            overflow-x: auto;
+            text-align: left;
+        }
+        @media (max-width: 768px) {
+            .lesson-container { padding: 1rem; }
+            .lesson-title { font-size: 1.5rem; }
+            .navigation-buttons { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <div class="lesson-container">
+        <div class="lesson-header">
+            <div class="ai-logo"><i class="fas fa-network-wired"></i></div>
+            <div class="course-breadcrumb">
+                <a href="/student-dashboard/notes.html"><i class="fas fa-arrow-left"></i> Back to Notes</a>
+            </div>
+            <div class="lesson-meta">
+                <span class="meta-item"><i class="fas fa-book"></i> Lesson 2 of 3</span>
+                <span class="meta-item"><i class="fas fa-clock"></i> 50 minutes</span>
+            </div>
+            <h1 class="lesson-title">Neural Networks & Deep Learning</h1>
+        </div>
+        <div class="lesson-objectives">
+            <h3><i class="fas fa-bullseye"></i> Learning Objectives</h3>
+            <ul>
+                <li>Understand the structure and components of neural networks</li>
+                <li>Learn how neurons process information</li>
+                <li>Explore the concept of deep learning and hidden layers</li>
+                <li>Understand backpropagation and how networks learn</li>
+                <li>Recognize different types of neural network architectures</li>
+            </ul>
+        </div>
+        <div class="content-section">
+            <h2>What is a Neural Network?</h2>
+            <p>A neural network is a computing system inspired by biological neural networks in the brain. It consists of interconnected nodes (neurons) that process information together to solve complex problems.</p>
+            <h3>Key Components</h3>
+            <ul>
+                <li><strong>Input Layer:</strong> Receives the initial data (features)</li>
+                <li><strong>Hidden Layers:</strong> Process information through weighted connections</li>
+                <li><strong>Output Layer:</strong> Produces the final prediction or classification</li>
+                <li><strong>Weights & Biases:</strong> Parameters that the network learns during training</li>
+            </ul>
+            <div class="info-box">
+                <strong><i class="fas fa-info-circle"></i> Did You Know?</strong>
+                <p>The first neural network, called "Mark I Perceptron," was built in 1958 by Frank Rosenblatt!</p>
+            </div>
+        </div>
+        <div class="content-section">
+            <h2>How Neural Networks Work</h2>
+            <p>Neural networks learn by adjusting weights based on the error in predictions. This process involves:</p>
+            <h3>1. Forward Propagation</h3>
+            <p>Data flows from the input layer through hidden layers to the output layer. Each neuron applies a weighted sum of inputs followed by an activation function.</p>
+            <h3>2. Activation Functions</h3>
+            <p>These functions introduce non-linearity, allowing networks to learn complex patterns:</p>
+            <ul>
+                <li><strong>ReLU (Rectified Linear Unit):</strong> Returns 0 for negative values, the value itself for positive</li>
+                <li><strong>Sigmoid:</strong> Maps values to between 0 and 1 (useful for probabilities)</li>
+                <li><strong>Tanh:</strong> Maps values to between -1 and 1</li>
+            </ul>
+            <div class="tip-box">
+                <strong><i class="fas fa-lightbulb"></i> Pro Tip</strong>
+                <p>ReLU is the most commonly used activation function in modern deep learning because it helps gradients flow better during training.</p>
+            </div>
+        </div>
+        <div class="content-section">
+            <h2>Deep Learning Explained</h2>
+            <p>Deep learning is a subset of machine learning that uses neural networks with multiple hidden layers (hence "deep"). These deep networks can learn increasingly abstract representations of data.</p>
+            <h3>Why Deep Networks Matter</h3>
+            <ul>
+                <li><strong>Feature Learning:</strong> Automatically learn features from raw data without manual feature engineering</li>
+                <li><strong>Complex Patterns:</strong> Capture intricate patterns in images, text, and audio</li>
+                <li><strong>State-of-the-Art Performance:</strong> Achieve superior results in image recognition, NLP, and speech recognition</li>
+            </ul>
+            <div class="warning-box">
+                <strong><i class="fas fa-exclamation-triangle"></i> Important</strong>
+                <p>More layers don't always mean better results. Deep networks require more data and computational power, and can suffer from vanishing gradients if not properly initialized.</p>
+            </div>
+        </div>
+        <div class="content-section">
+            <h2>Backpropagation: How Networks Learn</h2>
+            <p>Backpropagation is the algorithm that allows neural networks to learn from errors. It works by:</p>
+            <ol>
+                <li><strong>Calculate Error:</strong> Compare predictions to actual values</li>
+                <li><strong>Backward Pass:</strong> Propagate error backwards through the network</li>
+                <li><strong>Update Weights:</strong> Adjust weights to reduce error using gradient descent</li>
+                <li><strong>Repeat:</strong> Iterate until the model performs well</li>
+            </ol>
+            <div class="diagram-box">
+                <p><strong>Training Loop</strong></p>
+                <pre>Input Data → Forward Pass → Calculate Loss → 
+Backward Pass → Update Weights → Repeat</pre>
+            </div>
+            <p>The learning rate controls how much weights change with each update. Too high = unstable training; too low = slow convergence.</p>
+        </div>
+        <div class="content-section">
+            <h2>Types of Neural Networks</h2>
+            <p>Different architectures suit different problems:</p>
+            <ul>
+                <li><strong>Feedforward Neural Networks:</strong> Data flows in one direction; used for classification and regression</li>
+                <li><strong>Convolutional Neural Networks (CNN):</strong> Specialized for image processing with convolutional layers</li>
+                <li><strong>Recurrent Neural Networks (RNN):</strong> Good for sequential data like text and time series</li>
+                <li><strong>Transformer Networks:</strong> Power modern language models like ChatGPT</li>
+            </ul>
+            <div class="info-box">
+                <strong><i class="fas fa-info-circle"></i> Real-World Example</strong>
+                <p>CNN architectures like ResNet achieve 99%+ accuracy on image classification tasks, surpassing human performance!</p>
+            </div>
+        </div>
+        <div class="content-section">
+            <h2>Practice Exercise</h2>
+            <p>To reinforce your understanding:</p>
+            <ol>
+                <li>Draw a simple neural network with 2 inputs, 3 hidden neurons, and 1 output</li>
+                <li>Explain how changing the weights would affect the output</li>
+                <li>Research one real-world application of deep learning (e.g., facial recognition, medical diagnosis)</li>
+            </ol>
+        </div>
+        <div class="navigation-buttons">
+            <a href="lesson-1.html" class="nav-btn">
+                <i class="fas fa-arrow-left"></i>
+                <span>Previous: Introduction to AI</span>
+            </a>
+            <a href="lesson-3.html" class="nav-btn next">
+                <span>Next: AI Applications & Ethics</span>
+                <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+        <div class="progress-bar">
+            <div class="progress-fill" style="width: 66%"></div>
+        </div>
+    </div>
+</body>
+</html>

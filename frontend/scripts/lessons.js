@@ -2,7 +2,7 @@
 const API_BASE = '/api';
 
 async function fetchLessons(courseId) {
-    const token = localStorage.getItem('token');
+    const token = sessionStorage.getItem('token');
     const response = await fetch(`${API_BASE}/lessons?courseId=${courseId}`, {
         headers: {
             'Authorization': `Bearer ${token}`,
@@ -18,7 +18,7 @@ async function fetchLessons(courseId) {
 }
 
 async function createLesson(lessonData) {
-    const token = localStorage.getItem('token');
+    const token = sessionStorage.getItem('token');
     const response = await fetch(`${API_BASE}/lessons`, {
         method: 'POST',
         headers: {
@@ -36,7 +36,7 @@ async function createLesson(lessonData) {
 }
 
 async function updateLesson(id, lessonData) {
-    const token = localStorage.getItem('token');
+    const token = sessionStorage.getItem('token');
     const response = await fetch(`${API_BASE}/lessons/${id}`, {
         method: 'PUT',
         headers: {
@@ -54,7 +54,7 @@ async function updateLesson(id, lessonData) {
 }
 
 async function deleteLesson(id) {
-    const token = localStorage.getItem('token');
+    const token = sessionStorage.getItem('token');
     const response = await fetch(`${API_BASE}/lessons/${id}`, {
         method: 'DELETE',
         headers: {
@@ -70,7 +70,7 @@ async function deleteLesson(id) {
 }
 
 async function fetchLesson(id) {
-    const token = localStorage.getItem('token');
+    const token = sessionStorage.getItem('token');
     const response = await fetch(`${API_BASE}/lessons/${id}`, {
         headers: {
             'Authorization': `Bearer ${token}`,
@@ -87,7 +87,7 @@ async function fetchLesson(id) {
 
 // Mark lesson as completed
 async function markLessonCompleted(lessonId) {
-    const token = localStorage.getItem('token');
+    const token = sessionStorage.getItem('token');
     const response = await fetch(`${API_BASE}/lessons/${lessonId}/complete`, {
         method: 'POST',
         headers: {

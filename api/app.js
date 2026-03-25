@@ -1,11 +1,11 @@
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
-const fs =require('fs');
+const fs = require('fs');
 const path = require('path');
 const errorHandler = require('./middleware/errorHandler');
+const { apiLimiter } = require('./middleware/rateLimiter');
 
-// Load environment variables
 if (process.env.NODE_ENV !== 'production') {
   require('dotenv-flow').config();
 }
@@ -14,10 +14,35 @@ const app = express();
 
 app.set('trust proxy', 1);
 
-// Middleware
-app.use(helmet());
-app.use(cors());
-app.use(express.json());
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com"],
+      imgSrc: ["'self'", "data:", "https:"],
+      connectSrc: ["'self'"],
+      frameSrc: ["'none'"],
+      objectSrc: ["'none'"]
+    }
+  },
+  crossOriginEmbedderPolicy: false
+}));
+
+app.use(cors({
+  origin: process.env.CORS_ORIGIN || '*',
+  credentials: true
+}));
+
+app.use(express.json({ limit: '10kb' }));
+
+app.use('/api', apiLimiter);
+
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.json({ status: 'OK', timestamp: new Date().toISOString() });
+});
 
 // Dynamically load routes
 const routesDir = path.join(__dirname, 'routes');

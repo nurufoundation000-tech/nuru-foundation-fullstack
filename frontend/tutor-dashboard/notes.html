@@ -467,8 +467,8 @@
     });
 
     function checkTutorAccess() {
-        const token = localStorage.getItem('token');
-        const userData = localStorage.getItem('user');
+        const token = sessionStorage.getItem('token');
+        const userData = sessionStorage.getItem('user');
         if (!token || !userData) {
             window.location.href = '/login.html';
             return;
@@ -493,7 +493,7 @@
 
     async function loadCourses() {
         try {
-            const token = localStorage.getItem('token');
+            const token = sessionStorage.getItem('token');
             const response = await fetch(`${API_BASE_URL}/tutor/courses?limit=1000`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
@@ -524,7 +524,7 @@
         container.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Loading notes...</div>';
         
         try {
-            const token = localStorage.getItem('token');
+            const token = sessionStorage.getItem('token');
             const searchTerm = document.getElementById('searchInput').value;
             const courseFilter = document.getElementById('courseFilter').value;
 
@@ -688,7 +688,7 @@
     async function deleteNote(noteId, noteTitle) {
         if (!confirm(`Are you sure you want to delete the note "${noteTitle}"?`)) return;
         try {
-            const token = localStorage.getItem('token');
+            const token = sessionStorage.getItem('token');
             const response = await fetch(`${API_BASE_URL}/tutor/notes/${noteId}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` }
@@ -727,7 +727,7 @@
         const method = noteId ? 'PUT' : 'POST';
 
         try {
-            const token = localStorage.getItem('token');
+            const token = sessionStorage.getItem('token');
             const response = await fetch(url, {
                 method,
                 headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },

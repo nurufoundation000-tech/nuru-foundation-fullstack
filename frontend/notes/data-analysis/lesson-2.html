@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Excel for Data Analysis - Lesson 2 of 3 - NURU Foundation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #f39c12;
+            --accent: #e67e22;
+            --success: #27ae60;
+            --bg-light: #f8f9fa;
+            --text-dark: #333;
+            --text-light: #666;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg-light);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+        .lesson-container { max-width: 900px; margin: 0 auto; padding: 2rem; }
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--secondary);
+            text-decoration: none;
+            margin-bottom: 1.5rem;
+            font-weight: 500;
+        }
+        .back-link:hover { color: var(--accent); }
+        .lesson-header {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(243, 156, 18, 0.3);
+            margin-bottom: 2rem;
+            color: white;
+        }
+        .course-breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        .course-breadcrumb a { color: white; text-decoration: none; }
+        .course-breadcrumb a:hover { text-decoration: underline; }
+        .lesson-meta {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+        .lesson-title { font-size: 2rem; margin-bottom: 1rem; }
+        .lesson-objectives {
+            background: rgba(255,255,255,0.15);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+        .lesson-objectives h3 { margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+        .lesson-objectives ul { margin-left: 1.5rem; }
+        .lesson-objectives li { margin-bottom: 0.5rem; }
+        .content-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        .content-section h2 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 3px solid var(--secondary);
+        }
+        .content-section h3 { color: var(--primary); margin: 1.5rem 0 0.75rem; }
+        .content-section p { margin-bottom: 1rem; }
+        .content-section ul, .content-section ol { margin: 1rem 0 1rem 1.5rem; }
+        .content-section li { margin-bottom: 0.5rem; }
+        .data-logo {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--secondary), var(--accent));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 1rem auto;
+            font-size: 2.5rem;
+            color: white;
+        }
+        .code-block {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 1.5rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1rem 0;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.95rem;
+            border-left: 4px solid var(--secondary);
+        }
+        .code-block .comment { color: #6a9955; }
+        .code-block .string { color: #ce9178; }
+        .code-block .keyword { color: #569cd6; }
+        .code-block .function { color: #dcdcaa; }
+        .code-block .number { color: #b5cea8; }
+        .excel-block {
+            background: #217346;
+            color: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.95rem;
+            border-left: 4px solid #185d2b;
+        }
+        .info-box {
+            background: #fff8e1;
+            border-left: 4px solid var(--secondary);
+            padding: 1rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1rem 0;
+        }
+        .warning-box {
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+            padding: 1rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1rem 0;
+        }
+        .tip-box {
+            background: #e8f5e9;
+            border-left: 4px solid var(--success);
+            padding: 1rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1rem 0;
+        }
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        .nav-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem 1.5rem;
+            background: white;
+            border: 2px solid var(--secondary);
+            color: var(--secondary);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            flex: 1;
+            justify-content: center;
+        }
+        .nav-btn:hover { background: var(--secondary); color: white; }
+        .nav-btn.disabled { opacity: 0.5; pointer-events: none; }
+        .nav-btn.next { background: var(--secondary); color: white; }
+        .nav-btn.next:hover { background: var(--primary); border-color: var(--primary); }
+        .progress-bar {
+            background: #e0e0e0;
+            height: 8px;
+            border-radius: 4px;
+            margin-top: 2rem;
+            overflow: hidden;
+        }
+        .progress-fill {
+            background: linear-gradient(90deg, #f39c12, #e67e22);
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+        .progress-text {
+            text-align: center;
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+        @media (max-width: 768px) {
+            .lesson-container { padding: 1rem; }
+            .lesson-title { font-size: 1.5rem; }
+            .navigation-buttons { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <div class="lesson-container">
+        <a href="/student-dashboard/notes.html" class="back-link">
+            <i class="fas fa-arrow-left"></i> Back to Notes
+        </a>
+        
+        <div class="lesson-header">
+            <div class="course-breadcrumb">
+                <a href="/student-dashboard/notes.html">Notes</a> / <span>Data Analysis</span> / Lesson 2 of 3
+            </div>
+            <div class="lesson-meta">
+                <div class="meta-item">
+                    <i class="fas fa-book"></i>
+                    <span>Lesson 2 of 3</span>
+                </div>
+                <div class="meta-item">
+                    <i class="fas fa-clock"></i>
+                    <span>45 min</span>
+                </div>
+            </div>
+            <h1 class="lesson-title">Excel for Data Analysis</h1>
+            <div class="lesson-objectives">
+                <h3><i class="fas fa-bullseye"></i> Learning Objectives</h3>
+                <ul>
+                    <li>Master pivot tables for data summarization and analysis</li>
+                    <li>Use essential Excel formulas for data manipulation</li>
+                    <li>Apply data cleaning techniques in Excel</li>
+                    <li>Perform basic calculations and statistical analysis</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="content-section">
+            <h2>Essential Excel Formulas</h2>
+            <p>Excel provides powerful formulas for data analysis. Here are the most important ones:</p>
+
+            <h3>Basic Aggregation Functions</h3>
+            <div class="excel-block">
+=SUM(A1:A10)      - Adds all values in range
+=AVERAGE(A1:A10)  - Calculates mean
+=COUNT(A1:A10)    - Counts numeric values
+=MIN(A1:A10)      - Finds minimum value
+=MAX(A1:A10)      - Finds maximum value
+            </div>
+
+            <h3>Conditional Functions</h3>
+            <div class="excel-block">
+=IF(A1>10, "Yes", "No")                      - Basic condition
+=SUMIF(A1:A10, ">10", B1:B10)                - Sum with condition
+=COUNTIF(A1:A10, "Active")                   - Count with condition
+=AVERAGEIF(A1:A10, ">10")                    - Average with condition
+            </div>
+
+            <h3>Lookup Functions</h3>
+            <div class="excel-block">
+=VLOOKUP(lookup_value, table_range, col_index, FALSE)  - Vertical lookup
+=INDEX(array, row_num, col_num)                        - Get value by position
+=MATCH(lookup_value, array, 0)                        - Find position
+=XLOOKUP(lookup_value, lookup_array, return_array)    - Modern lookup
+            </div>
+
+            <div class="info-box">
+                <strong><i class="fas fa-info-circle"></i> Pro Tip:</strong> Always use FALSE as the last parameter in VLOOKUP to ensure exact matches. This prevents errors from returning incorrect values.
+            </div>
+        </div>
+
+        <div class="content-section">
+            <h2>Pivot Tables</h2>
+            <p>Pivot tables are powerful tools for summarizing and analyzing large datasets. They allow you to quickly transform rows of data into meaningful summaries.</p>
+
+            <h3>Creating a Pivot Table</h3>
+            <ol>
+                <li>Select your data range (including headers)</li>
+                <li>Go to Insert > Pivot Table</li>
+                <li>Choose where to place the pivot table</li>
+                <li>Drag fields to Rows, Columns, Values, and Filters areas</li>
+            </ol>
+
+            <h3>Pivot Table Fields</h3>
+            <ul>
+                <li><strong>Rows:</strong> Groups data vertically</li>
+                <li><strong>Columns:</strong> Groups data horizontally</li>
+                <li><strong>Values:</strong> Calculates aggregations (sum, count, average)</li>
+                <li><strong>Filters:</strong> Filters the entire pivot table</li>
+            </ul>
+
+            <h3>Value Field Settings</h3>
+            <p>Click the dropdown arrow next to a value field to change:</p>
+            <ul>
+                <li>Sum, Count, Average, Max, Min</li>
+                <li>Show values as % of grand total</li>
+                <li>Running totals and rankings</li>
+            </ul>
+
+            <div class="excel-block">
+<span class="comment">Example Pivot Table Setup:</span>
+<span class="function">Rows:</span> Region (East, West, North, South)
+<span class="function">Values:</span> Sales - Sum, Quantity - Count
+<span class="function">Filter:</span> Year (2023, 2024)
+            </div>
+        </div>
+
+        <div class="content-section">
+            <h2>Data Cleaning Techniques</h2>
+            <p>Clean data is essential for accurate analysis. Here are key techniques:</p>
+
+            <h3>Removing Duplicates</h3>
+            <p>Select your data > Data > Remove Duplicates</p>
+
+            <h3>Text Functions for Cleaning</h3>
+            <div class="excel-block">
+=TRIM(A1)           - Removes extra spaces
+=UPPER(A1)          - Convert to uppercase
+=LOWER(A1)          - Convert to lowercase
+=PROPER(A1)         - Capitalize first letter
+=LEFT(A1, 5)        - Extract first 5 characters
+=RIGHT(A1, 3)       - Extract last 3 characters
+=MID(A1, 2, 5)     - Extract from position 2, length 5
+=LEN(A1)            - Count characters
+            </div>
+
+            <h3>Handling Missing Data</h3>
+            <ul>
+                <li>Use Find & Select > Go To Special > Blanks</li>
+                <li>Replace with 0, average, or remove rows</li>
+                <li>Use IFERROR to handle formula errors</li>
+            </ul>
+
+            <h3>Data Validation</h3>
+            <p>Data > Data Validation allows you to:</p>
+            <ul>
+                <li>Create dropdown lists</li>
+                <li>Restrict input to specific types</li>
+                <li>Add input messages and error alerts</li>
+            </ul>
+
+            <div class="warning-box">
+                <strong><i class="fas fa-exclamation-triangle"></i> Important:</strong> Always create a backup of your original data before cleaning. Use Excel's "Fill Down" feature carefully to avoid propagating errors.
+            </div>
+        </div>
+
+        <div class="content-section">
+            <h2>Summary</h2>
+            <ul>
+                <li>Excel formulas like SUMIF, VLOOKUP, and IF are essential for data analysis</li>
+                <li>Pivot tables quickly summarize large datasets with flexible configurations</li>
+                <li>Data cleaning involves removing duplicates, handling missing values, and text manipulation</li>
+                <li>Data validation ensures data consistency and reduces errors</li>
+            </ul>
+        </div>
+
+        <div class="navigation-buttons">
+            <a href="lesson-1.html" class="nav-btn">
+                <i class="fas fa-chevron-left"></i> Previous Lesson
+            </a>
+            <a href="lesson-3.html" class="nav-btn next">
+                Next Lesson <i class="fas fa-chevron-right"></i>
+            </a>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-fill" style="width: 66%;"></div>
+        </div>
+        <div class="progress-text">Progress: 66% (2 of 3 lessons)</div>
+    </div>
+</body>
+</html>

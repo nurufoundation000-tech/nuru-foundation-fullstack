@@ -20,7 +20,7 @@ class AdminDashboard {
     }
 
     checkAuth() {
-        const token = localStorage.getItem('token');
+        const token = sessionStorage.getItem('token');
         if (!token) {
             window.location.href = 'login.html';
             return;
@@ -472,7 +472,7 @@ class AdminDashboard {
 
     async loadDashboardStats() {
         try {
-            const token = localStorage.getItem('token');
+            const token = sessionStorage.getItem('token');
             const endpoints = [
                 { key: 'users', endpoint: '/api/admin/users?limit=1' },
                 { key: 'courses', endpoint: '/api/admin/courses?limit=1' },
@@ -502,7 +502,7 @@ class AdminDashboard {
         if (!this.currentTable) return;
 
         try {
-            const token = localStorage.getItem('token');
+            const token = sessionStorage.getItem('token');
             let url = `/api/admin/${this.currentTable}?page=${this.currentPage}&limit=50`;
 
             if (this.searchQuery) {
@@ -649,7 +649,7 @@ class AdminDashboard {
 
     async loadRecordForEdit(recordId) {
         try {
-            const token = localStorage.getItem('token');
+            const token = sessionStorage.getItem('token');
             const response = await fetch(`/api/admin/${this.currentTable}/${recordId}`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
@@ -709,7 +709,7 @@ class AdminDashboard {
                 }
             });
 
-            const token = localStorage.getItem('token');
+            const token = sessionStorage.getItem('token');
             const isUpdate = data.id;
             const url = isUpdate
                 ? `/api/admin/${this.currentTable}/${data.id}`
@@ -747,7 +747,7 @@ class AdminDashboard {
         }
 
         try {
-            const token = localStorage.getItem('token');
+            const token = sessionStorage.getItem('token');
             const response = await fetch(`/api/admin/${this.currentTable}/${recordId}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` }

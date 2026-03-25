@@ -625,8 +625,8 @@
     }
 
     function checkTutorAccess() {
-        const token = localStorage.getItem('token');
-        const userData = localStorage.getItem('user');
+        const token = sessionStorage.getItem('token');
+        const userData = sessionStorage.getItem('user');
 
         if (!token || !userData) {
             window.location.href = '/login.html';
@@ -656,7 +656,7 @@
 
     async function loadCourses() {
         try {
-            const token = localStorage.getItem('token');
+            const token = sessionStorage.getItem('token');
             const response = await fetch(`${API_BASE_URL}/tutor/courses?page=1&limit=100`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -701,7 +701,7 @@
 
     async function loadLessons(page = 1) {
         try {
-            const token = localStorage.getItem('token');
+            const token = sessionStorage.getItem('token');
             const search = document.getElementById('searchInput').value;
             const courseFilter = document.getElementById('courseFilter').value;
 
@@ -890,7 +890,7 @@
         }
 
         try {
-            const token = localStorage.getItem('token');
+            const token = sessionStorage.getItem('token');
             const response = await fetch(`${API_BASE_URL}/tutor/lessons/${lessonId}`, {
                 method: 'DELETE',
                 headers: {
@@ -936,7 +936,7 @@
         };
 
         try {
-            const token = localStorage.getItem('token');
+            const token = sessionStorage.getItem('token');
             const lessonId = this.dataset.lessonId;
             let response;
 

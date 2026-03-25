@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Introduction to AI - NURU Foundation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #5849c4;
+            --accent: #e74c3c;
+            --success: #27ae60;
+            --bg-light: #f8f9fa;
+            --text-dark: #333;
+            --text-light: #666;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg-light);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+        .lesson-container { max-width: 900px; margin: 0 auto; padding: 2rem; }
+        .lesson-header {
+            background: linear-gradient(135deg, #5849c4 0%, #8b5cf6 100%);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(88, 73, 196, 0.3);
+            margin-bottom: 2rem;
+            color: white;
+        }
+        .course-breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        .course-breadcrumb a { color: white; text-decoration: none; }
+        .course-breadcrumb a:hover { text-decoration: underline; }
+        .lesson-meta {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+        .lesson-title { font-size: 2rem; margin-bottom: 1rem; }
+        .lesson-objectives {
+            background: rgba(255,255,255,0.15);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+        .lesson-objectives h3 { margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+        .lesson-objectives ul { margin-left: 1.5rem; }
+        .lesson-objectives li { margin-bottom: 0.5rem; }
+        .content-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        .content-section h2 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 3px solid var(--secondary);
+        }
+        .content-section h3 { color: var(--primary); margin: 1.5rem 0 0.75rem; }
+        .content-section p { margin-bottom: 1rem; }
+        .content-section ul, .content-section ol { margin: 1rem 0 1rem 1.5rem; }
+        .content-section li { margin-bottom: 0.5rem; }
+        .ai-logo {
+            width: 80px;
+            height: 80px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 1rem auto;
+            font-size: 2.5rem;
+            color: var(--secondary);
+        }
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid var(--secondary);
+            padding: 1rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1rem 0;
+        }
+        .warning-box {
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+            padding: 1rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1rem 0;
+        }
+        .tip-box {
+            background: #e8f5e9;
+            border-left: 4px solid var(--success);
+            padding: 1rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1rem 0;
+        }
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        .nav-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem 1.5rem;
+            background: white;
+            border: 2px solid var(--secondary);
+            color: var(--secondary);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            flex: 1;
+            justify-content: center;
+        }
+        .nav-btn:hover { background: var(--secondary); color: white; }
+        .nav-btn.disabled { opacity: 0.5; pointer-events: none; }
+        .nav-btn.next { background: var(--secondary); color: white; }
+        .nav-btn.next:hover { background: var(--primary); border-color: var(--primary); }
+        .progress-bar {
+            background: #e0e0e0;
+            height: 8px;
+            border-radius: 4px;
+            margin-top: 2rem;
+            overflow: hidden;
+        }
+        .progress-fill {
+            background: linear-gradient(90deg, #5849c4, #8b5cf6);
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+        @media (max-width: 768px) {
+            .lesson-container { padding: 1rem; }
+            .lesson-title { font-size: 1.5rem; }
+            .navigation-buttons { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <div class="lesson-container">
+        <div class="lesson-header">
+            <div class="ai-logo"><i class="fas fa-brain"></i></div>
+            <div class="course-breadcrumb">
+                <a href="/student-dashboard/notes.html"><i class="fas fa-arrow-left"></i> Back to Notes</a>
+            </div>
+            <div class="lesson-meta">
+                <span class="meta-item"><i class="fas fa-book"></i> Lesson 1 of 3</span>
+                <span class="meta-item"><i class="fas fa-clock"></i> 45 minutes</span>
+            </div>
+            <h1 class="lesson-title">Introduction to AI Essentials</h1>
+        </div>
+        <div class="lesson-objectives">
+            <h3><i class="fas fa-bullseye"></i> Learning Objectives</h3>
+            <ul>
+                <li>Understand what Artificial Intelligence is and its importance</li>
+                <li>Learn about different types of AI</li>
+                <li>Explore real-world applications of AI</li>
+                <li>Understand the basics of machine learning</li>
+            </ul>
+        </div>
+        <div class="content-section">
+            <h2>What is Artificial Intelligence?</h2>
+            <p>Artificial Intelligence (AI) is the simulation of human intelligence by machines. It encompasses systems that can perform tasks that typically require human cognition, such as learning, problem-solving, and decision-making.</p>
+            <h3>Why AI Matters</h3>
+            <ul>
+                <li><strong>Automation:</strong> AI can automate repetitive tasks, freeing humans for creative work</li>
+                <li><strong>Insights:</strong> AI can analyze vast amounts of data to find patterns humans might miss</li>
+                <li><strong>Personalization:</strong> AI enables personalized experiences in apps and services</li>
+                <li><strong>Innovation:</strong> AI drives innovation in healthcare, finance, transportation, and more</li>
+            </ul>
+            <div class="info-box">
+                <strong><i class="fas fa-info-circle"></i> Did You Know?</strong>
+                <p>The term "Artificial Intelligence" was first coined in 1956 at the Dartmouth Conference!</p>
+            </div>
+        </div>
+        <div class="content-section">
+            <h2>Types of AI</h2>
+            <p>AI can be categorized into different types based on its capabilities:</p>
+            <h3>Narrow AI (Weak AI)</h3>
+            <p>AI systems designed for specific tasks, like voice assistants, recommendation systems, and image recognition.</p>
+            <h3>General AI (Strong AI)</h3>
+            <p>Hypothetical AI with human-like intelligence that can perform any intellectual task that a human can do.</p>
+            <h3>Superintelligent AI</h3>
+            <p>Theoretical AI that surpasses human intelligence in virtually every aspect.</p>
+            <div class="tip-box">
+                <strong><i class="fas fa-lightbulb"></i> Pro Tip</strong>
+                <p>Most AI we use today is Narrow AI - it's very good at specific tasks but can't generalize like humans.</p>
+            </div>
+        </div>
+        <div class="content-section">
+            <h2>Machine Learning Fundamentals</h2>
+            <p>Machine Learning (ML) is a subset of AI where systems learn from data to improve their performance without being explicitly programmed.</p>
+            <h3>Types of Machine Learning</h3>
+            <ul>
+                <li><strong>Supervised Learning:</strong> Learning from labeled data (e.g., spam detection)</li>
+                <li><strong>Unsupervised Learning:</strong> Finding patterns in unlabeled data (e.g., customer segmentation)</li>
+                <li><strong>Reinforcement Learning:</strong> Learning through trial and error with rewards (e.g., game playing AI)</li>
+            </ul>
+            <div class="warning-box">
+                <strong><i class="fas fa-exclamation-triangle"></i> Important</li>
+                <p>Quality data is crucial for machine learning. Garbage in = garbage out!</p>
+            </div>
+        </div>
+        <div class="content-section">
+            <h2>Real-World AI Applications</h2>
+            <p>AI is already transforming many industries:</p>
+            <ul>
+                <li><strong>Healthcare:</strong> Disease diagnosis, drug discovery, patient monitoring</li>
+                <li><strong>Finance:</strong> Fraud detection, algorithmic trading, risk assessment</li>
+                <li><strong>Transportation:</strong> Self-driving cars, traffic optimization, logistics</li>
+                <li><strong>Entertainment:</strong> Streaming recommendations, game AI, content creation</li>
+            </ul>
+        </div>
+        <div class="content-section">
+            <h2>Practice Exercise</h2>
+            <p>Think about your daily life and identify:</p>
+            <ol>
+                <li>Three apps or services that use AI</li>
+                <li>How AI makes these services better</li>
+                <li>Potential drawbacks or concerns with these AI applications</li>
+            </ol>
+        </div>
+        <div class="navigation-buttons">
+            <a class="nav-btn disabled">
+                <i class="fas fa-arrow-left"></i>
+                <span>No Previous</span>
+            </a>
+            <a href="lesson-2.html" class="nav-btn next">
+                <span>Next: Neural Networks & Deep Learning</span>
+                <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+        <div class="progress-bar">
+            <div class="progress-fill" style="width: 33%"></div>
+        </div>
+    </div>
+</body>
+</html>

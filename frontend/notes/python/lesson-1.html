@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Introduction to Python - NURU Foundation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #e74c3c;
+            --success: #27ae60;
+            --bg-light: #f8f9fa;
+            --text-dark: #333;
+            --text-light: #666;
+            --python-yellow: #ffc107;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg-light);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+        .lesson-container { max-width: 900px; margin: 0 auto; padding: 2rem; }
+        .lesson-header {
+            background: linear-gradient(135deg, #306998 0%, #ffd43b 100%);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(48, 105, 152, 0.3);
+            margin-bottom: 2rem;
+            color: white;
+        }
+        .course-breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        .course-breadcrumb a { color: white; text-decoration: none; }
+        .course-breadcrumb a:hover { text-decoration: underline; }
+        .lesson-meta {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+        .lesson-title { font-size: 2rem; margin-bottom: 1rem; }
+        .lesson-objectives {
+            background: rgba(255,255,255,0.15);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+        .lesson-objectives h3 { margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+        .lesson-objectives ul { margin-left: 1.5rem; }
+        .lesson-objectives li { margin-bottom: 0.5rem; }
+        .content-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        .content-section h2 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 3px solid #ffd43b;
+        }
+        .content-section h3 { color: var(--primary); margin: 1.5rem 0 0.75rem; }
+        .content-section p { margin-bottom: 1rem; }
+        .content-section ul, .content-section ol { margin: 1rem 0 1rem 1.5rem; }
+        .content-section li { margin-bottom: 0.5rem; }
+        .python-logo {
+            width: 80px;
+            height: 80px;
+            background: #ffd43b;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 1rem auto;
+            font-size: 2.5rem;
+            color: #306998;
+            font-weight: bold;
+        }
+        .code-block {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 1.5rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1rem 0;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.95rem;
+            border-left: 4px solid #ffd43b;
+        }
+        .code-block .comment { color: #6a9955; }
+        .code-block .string { color: #ce9178; }
+        .code-block .keyword { color: #569cd6; }
+        .code-block .function { color: #dcdcaa; }
+        .code-block .number { color: #b5cea8; }
+        .code-block .print { color: #ce9178; }
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid var(--secondary);
+            padding: 1rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1rem 0;
+        }
+        .warning-box {
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+            padding: 1rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1rem 0;
+        }
+        .tip-box {
+            background: #e8f5e9;
+            border-left: 4px solid var(--success);
+            padding: 1rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1rem 0;
+        }
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        .nav-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem 1.5rem;
+            background: white;
+            border: 2px solid var(--secondary);
+            color: var(--secondary);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            flex: 1;
+            justify-content: center;
+        }
+        .nav-btn:hover { background: var(--secondary); color: white; }
+        .nav-btn.disabled { opacity: 0.5; pointer-events: none; }
+        .nav-btn.next { background: var(--secondary); color: white; }
+        .nav-btn.next:hover { background: var(--primary); border-color: var(--primary); }
+        .progress-bar {
+            background: #e0e0e0;
+            height: 8px;
+            border-radius: 4px;
+            margin-top: 2rem;
+            overflow: hidden;
+        }
+        .progress-fill {
+            background: linear-gradient(90deg, #306998, #ffd43b);
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+        .access-denied {
+            max-width: 500px;
+            margin: 4rem auto;
+            padding: 2rem;
+            text-align: center;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .access-denied i { font-size: 4rem; color: var(--accent); margin-bottom: 1rem; }
+        .access-denied h2 { color: var(--primary); margin-bottom: 1rem; }
+        .access-denied p { color: var(--text-light); margin-bottom: 1.5rem; }
+        .access-denied .btn {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            background: var(--secondary);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: background 0.3s ease;
+        }
+        .access-denied .btn:hover { background: var(--primary); }
+        @media (max-width: 768px) {
+            .lesson-container { padding: 1rem; }
+            .lesson-title { font-size: 1.5rem; }
+            .navigation-buttons { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <div class="lesson-container">
+        <div class="lesson-header">
+            <div class="python-logo"><i class="fab fa-python"></i></div>
+            <div class="course-breadcrumb">
+                <a href="/student-dashboard/notes.html"><i class="fas fa-arrow-left"></i> Back to Notes</a>
+            </div>
+            <div class="lesson-meta">
+                <span class="meta-item"><i class="fas fa-book"></i> Lesson 1 of 3</span>
+                <span class="meta-item"><i class="fas fa-clock"></i> 45 minutes</span>
+            </div>
+            <h1 class="lesson-title">Introduction to Python Programming</h1>
+        </div>
+        <div class="lesson-objectives">
+            <h3><i class="fas fa-bullseye"></i> Learning Objectives</h3>
+            <ul>
+                <li>Understand what Python is and why it's popular</li>
+                <li>Set up your Python development environment</li>
+                <li>Write and run your first Python program</li>
+                <li>Learn basic Python syntax and print statements</li>
+            </ul>
+        </div>
+        <div class="content-section">
+            <h2>What is Python?</h2>
+            <p>Python is a high-level, interpreted programming language known for its simplicity and readability. Created by Guido van Rossum in 1991, Python has become one of the most popular programming languages in the world.</p>
+            <h3>Why Learn Python?</h3>
+            <ul>
+                <li><strong>Easy to Learn:</strong> Python has a simple syntax that resembles English, making it perfect for beginners</li>
+                <li><strong>Versatile:</strong> Used in web development, data science, AI, automation, and more</li>
+                <li><strong>High Demand:</strong> Python developers are among the most sought-after in the job market</li>
+                <li><strong>Large Community:</strong> Thousands of libraries and frameworks available</li>
+            </ul>
+            <div class="info-box">
+                <strong><i class="fas fa-info-circle"></i> Did You Know?</strong>
+                <p>Python is used by companies like Google, Netflix, Instagram, and Spotify!</p>
+            </div>
+        </div>
+        <div class="content-section">
+            <h2>Setting Up Your Environment</h2>
+            <p>Before writing Python code, you need to install Python on your computer.</p>
+            <h3>Installing Python</h3>
+            <ol>
+                <li>Go to <strong>python.org</strong></li>
+                <li>Click the "Downloads" button</li>
+                <li>Download the latest version for your operating system</li>
+                <li>Run the installer and <strong>check "Add Python to PATH"</strong></li>
+                <li>Click "Install Now"</li>
+            </ol>
+            <h3>Choosing a Code Editor</h3>
+            <p>You can write Python code in various editors:</p>
+            <ul>
+                <li><strong>IDLE:</strong> Comes with Python installation</li>
+                <li><strong>VS Code:</strong> Free, powerful, with Python extension</li>
+                <li><strong>PyCharm:</strong> Professional IDE for Python</li>
+                <li><strong>Jupyter Notebook:</strong> Great for data science</li>
+            </ul>
+            <div class="tip-box">
+                <strong><i class="fas fa-lightbulb"></i> Pro Tip</strong>
+                <p>For beginners, we recommend starting with VS Code + Python extension. It's free and provides helpful features like code completion and error highlighting.</p>
+            </div>
+        </div>
+        <div class="content-section">
+            <h2>Your First Python Program</h2>
+            <p>Let's write the classic "Hello, World!" program - a tradition for learning any programming language.</p>
+            <h3>The print() Function</h3>
+            <p>In Python, we use the <code>print()</code> function to display text on the screen.</p>
+            <div class="code-block">
+<span class="comment"># This is a comment - Python ignores this line</span>
+<span class="print">print</span>(<span class="string">"Hello, World!"</span>)
+            </div>
+            <p>When you run this code, you should see:</p>
+            <div class="code-block">
+Hello, World!
+            </div>
+            <h3>Running Your Code</h3>
+            <ol>
+                <li>Open your code editor (VS Code, IDLE, etc.)</li>
+                <li>Type the code above</li>
+                <li>Save the file as <code>hello.py</code></li>
+                <li>Run the program (usually F5 or a Run button)</li>
+            </ol>
+            <div class="warning-box">
+                <strong><i class="fas fa-exclamation-triangle"></i> Important</strong>
+                <p>Python files should always end with <code>.py</code>. This tells your computer that the file contains Python code.</p>
+            </div>
+        </div>
+        <div class="content-section">
+            <h2>Understanding Python Syntax</h2>
+            <p>Python has unique rules for writing code, known as syntax. Let's learn the basics.</p>
+            <h3>Comments</h3>
+            <p>Comments are notes for humans reading the code. Python ignores comments.</p>
+            <div class="code-block">
+<span class="comment"># This is a single-line comment</span>
+<span class="string">"""
+This is a multi-line comment.
+You can write longer explanations here.
+"""</span>
+            </div>
+            <h3>Strings</h3>
+            <p>Text in Python is called a "string" and must be wrapped in quotes:</p>
+            <div class="code-block">
+<span class="print">print</span>(<span class="string">"Double quotes work"</span>)
+<span class="print">print</span>(<span class="string">'Single quotes also work'</span>)
+<span class="print">print</span>(<span class="string">"You can mix them if you need to include a quote: 'like this'"</span>)
+            </div>
+            <h3>Numbers</h3>
+            <p>Python can do math directly:</p>
+            <div class="code-block">
+<span class="print">print</span>(<span class="number">2 + 2</span>)       <span class="comment"># Addition: 4</span>
+<span class="print">print</span>(<span class="number">10 - 3</span>)      <span class="comment"># Subtraction: 7</span>
+<span class="print">print</span>(<span class="number">4 * 3</span>)       <span class="comment"># Multiplication: 12</span>
+<span class="print">print</span>(<span class="number">15 / 3</span>)      <span class="comment"># Division: 5.0</span>
+            </div>
+        </div>
+        <div class="content-section">
+            <h2>Practice Exercise</h2>
+            <p>Now it's your turn! Try creating a program that:</p>
+            <ol>
+                <li>Prints a greeting with your name</li>
+                <li>Prints your age</li>
+                <li>Calculates 25 + 17</li>
+            </ol>
+            <div class="tip-box">
+                <strong><i class="fas fa-check-circle"></i> Expected Output</strong>
+                <div class="code-block">
+Hello, my name is Alex!
+I am 15 years old.
+25 + 17 = 42
+                </div>
+            </div>
+        </div>
+        <div class="navigation-buttons">
+            <a class="nav-btn disabled">
+                <i class="fas fa-arrow-left"></i>
+                <span>No Previous</span>
+            </a>
+            <a href="lesson-2.html" class="nav-btn next">
+                <span>Next: Variables & Data Types</span>
+                <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+        <div class="progress-bar">
+            <div class="progress-fill" style="width: 33%"></div>
+        </div>
+    </div>
+</body>
+</html>
+        const COURSE_SLUG = 'python';
+        const LESSON_NUM = 1;
+        const TOTAL_LESSONS = 3;
+        async function checkAccess() {
+            const token = sessionStorage.getItem('token');
+            const user = JSON.parse(sessionStorage.getItem('user') || '{}');
+            if (!token || !user.id) {
+                showAccessDenied('Please log in to access this lesson.', '/login.html');
+                return false;
+            }
+            try {
+                const response = await fetch(`${window.APP_CONFIG?.apiBaseUrl || '/api'}/notes/check?course=${COURSE_SLUG}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (!response.ok) {
+                    showAccessDenied('You are not enrolled in Programming with Python.', '/courses.html');
+                    return false;
+                }
+                return true;
+            } catch (error) {
+                showAccessDenied('Unable to verify access. Please try again.', '/student-dashboard/index.html');
+                return false;
+            }
+        }
+        function showAccessDenied(message, redirectUrl) {
+            document.getElementById('content').innerHTML = `
+                <div class="access-denied">
+                    <i class="fas fa-lock"></i>
+                    <h2>Access Restricted</h2>
+                    <p>${message}</p>
+                    <a href="${redirectUrl}" class="btn">${redirectUrl.includes('login') ? 'Log In' : 'Continue'}</a>
+                </div>
+            `;
+        }
+        document.addEventListener('DOMContentLoaded', async function() {
+            const hasAccess = await checkAccess();
+            if (hasAccess) {
+                document.getElementById('content').innerHTML = `
+                    <div class="lesson-container">
+                        <div class="lesson-header">
+                            <div class="python-logo"><i class="fab fa-python"></i></div>
+                            <div class="course-breadcrumb">
+                                <a href="/student-dashboard/index.html"><i class="fas fa-home"></i></a>
+                                <i class="fas fa-chevron-right"></i>
+                                <a href="/courses.html">Programming with Python</a>
+                                <i class="fas fa-chevron-right"></i>
+                                <span>Lesson 1</span>
+                            </div>
+                            <div class="lesson-meta">
+                                <span class="meta-item"><i class="fas fa-book"></i> Lesson 1 of 3</span>
+                                <span class="meta-item"><i class="fas fa-clock"></i> 45 minutes</span>
+                            </div>
+                            <h1 class="lesson-title">Introduction to Python Programming</h1>
+                        </div>
+                        <div class="lesson-objectives">
+                            <h3><i class="fas fa-bullseye"></i> Learning Objectives</h3>
+                            <ul>
+                                <li>Understand what Python is and why it's popular</li>
+                                <li>Set up your Python development environment</li>
+                                <li>Write and run your first Python program</li>
+                                <li>Learn basic Python syntax and print statements</li>
+                            </ul>
+                        </div>
+                        <div class="content-section">
+                            <h2>What is Python?</h2>
+                            <p>Python is a high-level, interpreted programming language known for its simplicity and readability. Created by Guido van Rossum in 1991, Python has become one of the most popular programming languages in the world.</p>
+                            <h3>Why Learn Python?</h3>
+                            <ul>
+                                <li><strong>Easy to Learn:</strong> Python has a simple syntax that resembles English, making it perfect for beginners</li>
+                                <li><strong>Versatile:</strong> Used in web development, data science, AI, automation, and more</li>
+                                <li><strong>High Demand:</strong> Python developers are among the most sought-after in the job market</li>
+                                <li><strong>Large Community:</strong> Thousands of libraries and frameworks available</li>
+                            </ul>
+                            <div class="info-box">
+                                <strong><i class="fas fa-info-circle"></i> Did You Know?</strong>
+                                <p>Python is used by companies like Google, Netflix, Instagram, and Spotify!</p>
+                            </div>
+                        </div>
+                        <div class="content-section">
+                            <h2>Setting Up Your Environment</h2>
+                            <p>Before writing Python code, you need to install Python on your computer.</p>
+                            <h3>Installing Python</h3>
+                            <ol>
+                                <li>Go to <strong>python.org</strong></li>
+                                <li>Click the "Downloads" button</li>
+                                <li>Download the latest version for your operating system</li>
+                                <li>Run the installer and <strong>check "Add Python to PATH"</strong></li>
+                                <li>Click "Install Now"</li>
+                            </ol>
+                            <h3>Choosing a Code Editor</h3>
+                            <p>You can write Python code in various editors:</p>
+                            <ul>
+                                <li><strong>IDLE:</strong> Comes with Python installation</li>
+                                <li><strong>VS Code:</strong> Free, powerful, with Python extension</li>
+                                <li><strong>PyCharm:</strong> Professional IDE for Python</li>
+                                <li><strong>Jupyter Notebook:</strong> Great for data science</li>
+                            </ul>
+                            <div class="tip-box">
+                                <strong><i class="fas fa-lightbulb"></i> Pro Tip</strong>
+                                <p>For beginners, we recommend starting with VS Code + Python extension. It's free and provides helpful features like code completion and error highlighting.</p>
+                            </div>
+                        </div>
+                        <div class="content-section">
+                            <h2>Your First Python Program</h2>
+                            <p>Let's write the classic "Hello, World!" program - a tradition for learning any programming language.</p>
+                            <h3>The print() Function</h3>
+                            <p>In Python, we use the <code>print()</code> function to display text on the screen.</p>
+                            <div class="code-block">
+<span class="comment"># This is a comment - Python ignores this line</span>
+<span class="print">print</span>(<span class="string">"Hello, World!"</span>)
+                            </div>
+                            <p>When you run this code, you should see:</p>
+                            <div class="code-block">
+Hello, World!
+                            </div>
+                            <h3>Running Your Code</h3>
+                            <ol>
+                                <li>Open your code editor (VS Code, IDLE, etc.)</li>
+                                <li>Type the code above</li>
+                                <li>Save the file as <code>hello.py</code></li>
+                                <li>Run the program (usually F5 or a Run button)</li>
+                            </ol>
+                            <div class="warning-box">
+                                <strong><i class="fas fa-exclamation-triangle"></i> Important</strong>
+                                <p>Python files should always end with <code>.py</code>. This tells your computer that the file contains Python code.</p>
+                            </div>
+                        </div>
+                        <div class="content-section">
+                            <h2>Understanding Python Syntax</h2>
+                            <p>Python has unique rules for writing code, known as syntax. Let's learn the basics.</p>
+                            <h3>Comments</h3>
+                            <p>Comments are notes for humans reading the code. Python ignores comments.</p>
+                            <div class="code-block">
+<span class="comment"># This is a single-line comment</span>
+<span class="string">"""
+This is a multi-line comment.
+You can write longer explanations here.
+"""</span>
+                            </div>
+                            <h3>Strings</h3>
+                            <p>Text in Python is called a "string" and must be wrapped in quotes:</p>
+                            <div class="code-block">
+<span class="print">print</span>(<span class="string">"Double quotes work"</span>)
+<span class="print">print</span>(<span class="string">'Single quotes also work'</span>)
+<span class="print">print</span>(<span class="string">"You can mix them if you need to include a quote: 'like this'"</span>)
+                            </div>
+                            <h3>Numbers</h3>
+                            <p>Python can do math directly:</p>
+                            <div class="code-block">
+<span class="print">print</span>(<span class="number">2 + 2</span>)       <span class="comment"># Addition: 4</span>
+<span class="print">print</span>(<span class="number">10 - 3</span>)      <span class="comment"># Subtraction: 7</span>
+<span class="print">print</span>(<span class="number">4 * 3</span>)       <span class="comment"># Multiplication: 12</span>
+<span class="print">print</span>(<span class="number">15 / 3</span>)      <span class="comment"># Division: 5.0</span>
+                            </div>
+                        </div>
+                        <div class="content-section">
+                            <h2>Practice Exercise</h2>
+                            <p>Now it's your turn! Try creating a program that:</p>
+                            <ol>
+                                <li>Prints a greeting with your name</li>
+                                <li>Prints your age</li>
+                                <li>Calculates 25 + 17</li>
+                            </ol>
+                            <div class="tip-box">
+                                <strong><i class="fas fa-check-circle"></i> Expected Output</strong>
+                                <div class="code-block">
+Hello, my name is Alex!
+I am 15 years old.
+25 + 17 = 42
+                                </div>
+                            </div>
+                        </div>
+                        <div class="navigation-buttons">
+                            <a class="nav-btn disabled">
+                                <i class="fas fa-arrow-left"></i>
+                                <span>No Previous</span>
+                            </a>
+                            <a href="lesson-2.html" class="nav-btn next">
+                                <span>Next: Variables & Data Types</span>
+                                <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 33%"></div>
+                        </div>
+                    </div>
+                `;
+            }
+            fetch('/footer.html')
+                .then(r => r.text())
+                .then(data => document.getElementById('footerContainer').innerHTML = data);
+        });
+    </script>
+</body>
+</html>

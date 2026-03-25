@@ -1,4 +1,4 @@
-const { prisma } = require('../lib/db');
+const { prisma } = require('../lib/prisma');
 
 module.exports = {
   async authenticate({ headers }) {

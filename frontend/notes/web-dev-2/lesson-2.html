@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Events & Interactivity - NURU Foundation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #f7df1e;
+            --success: #27ae60;
+            --bg-light: #f8f9fa;
+            --text-dark: #333;
+            --text-light: #666;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg-light);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+        .lesson-container { max-width: 900px; margin: 0 auto; padding: 2rem; }
+        .lesson-header {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+            margin-bottom: 2rem;
+            color: white;
+        }
+        .course-breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        .course-breadcrumb a { color: white; text-decoration: none; }
+        .course-breadcrumb a:hover { text-decoration: underline; }
+        .lesson-meta {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+        .lesson-title { font-size: 2rem; margin-bottom: 1rem; }
+        .lesson-objectives {
+            background: rgba(255,255,255,0.15);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+        .lesson-objectives h3 { margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+        .lesson-objectives ul { margin-left: 1.5rem; }
+        .lesson-objectives li { margin-bottom: 0.5rem; }
+        .content-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        .content-section h2 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 3px solid var(--secondary);
+        }
+        .content-section h3 { color: var(--primary); margin: 1.5rem 0 0.75rem; }
+        .content-section p { margin-bottom: 1rem; }
+        .content-section ul, .content-section ol { margin: 1rem 0 1rem 1.5rem; }
+        .content-section li { margin-bottom: 0.5rem; }
+        .js-logo {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #f7df1e 0%, #eab308 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 1rem auto;
+            font-size: 2.5rem;
+            color: #000;
+            font-weight: bold;
+        }
+        .code-block {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 1.5rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1rem 0;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.95rem;
+            border-left: 4px solid var(--secondary);
+        }
+        .code-block .comment { color: #6a9955; }
+        .code-block .string { color: #ce9178; }
+        .code-block .keyword { color: #569cd6; }
+        .code-block .function { color: #dcdcaa; }
+        .code-block .number { color: #b5cea8; }
+        .code-block .var { color: #9cdcfe; }
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid var(--secondary);
+            padding: 1rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1rem 0;
+        }
+        .warning-box {
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+            padding: 1rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1rem 0;
+        }
+        .tip-box {
+            background: #e8f5e9;
+            border-left: 4px solid var(--success);
+            padding: 1rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1rem 0;
+        }
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        .nav-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem 1.5rem;
+            background: white;
+            border: 2px solid var(--secondary);
+            color: var(--secondary);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            flex: 1;
+            justify-content: center;
+        }
+        .nav-btn:hover { background: var(--secondary); color: white; }
+        .nav-btn.disabled { opacity: 0.5; pointer-events: none; }
+        .nav-btn.next { background: var(--secondary); color: white; }
+        .nav-btn.next:hover { background: var(--primary); border-color: var(--primary); }
+        .progress-bar {
+            background: #e0e0e0;
+            height: 8px;
+            border-radius: 4px;
+            margin-top: 2rem;
+            overflow: hidden;
+        }
+        .progress-fill {
+            background: linear-gradient(90deg, #3498db, #2980b9);
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+        @media (max-width: 768px) {
+            .lesson-container { padding: 1rem; }
+            .lesson-title { font-size: 1.5rem; }
+            .navigation-buttons { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <div class="lesson-container">
+        <div class="lesson-header">
+            <div class="js-logo">JS</div>
+            <div class="course-breadcrumb">
+                <a href="/student-dashboard/notes.html"><i class="fas fa-arrow-left"></i> Back to Notes</a>
+            </div>
+            <div class="lesson-meta">
+                <span class="meta-item"><i class="fas fa-book"></i> Lesson 2 of 3</span>
+                <span class="meta-item"><i class="fas fa-clock"></i> 45 minutes</span>
+            </div>
+            <h1 class="lesson-title">Events & Interactivity</h1>
+        </div>
+        <div class="lesson-objectives">
+            <h3><i class="fas fa-bullseye"></i> Learning Objectives</h3>
+            <ul>
+                <li>Understand JavaScript event handling</li>
+                <li>Add click handlers and other event listeners</li>
+                <li>Work with forms and user input</li>
+                <li>Create interactive web experiences</li>
+            </ul>
+        </div>
+        <div class="content-section">
+            <h2>What are Events?</h2>
+            <p>Events are actions that happen in the browser - clicks, key presses, page loads, form submissions, and more. JavaScript can respond to these events to create interactive pages.</p>
+            <h3>Common Events</h3>
+            <ul>
+                <li><strong>click:</strong> When user clicks an element</li>
+                <li><strong>mouseover/mouseout:</strong> When mouse enters/leaves</li>
+                <li><strong>keydown/keyup:</strong> When keys are pressed</li>
+                <li><strong>submit:</strong> When a form is submitted</li>
+                <li><strong>load:</strong> When page finishes loading</li>
+            </ul>
+        </div>
+        <div class="content-section">
+            <h2>Event Listeners</h2>
+            <p>Event listeners watch for events and run code when they occur.</p>
+            <h3>addEventListener Method</h3>
+            <div class="code-block">
+<span class="keyword">const</span> <span class="var">button</span> = <span class="function">document</span>.<span class="function">querySelector</span>(<span class="string">"#myButton"</span>);
+
+<span class="var">button</span>.<span class="function">addEventListener</span>(<span class="string">"click"</span>, <span class="keyword">function</span>() {
+    <span class="function">alert</span>(<span class="string">"Button clicked!"</span>);
+});
+            </div>
+            <h3>Arrow Function Version</h3>
+            <div class="code-block">
+<span class="var">button</span>.<span class="function">addEventListener</span>(<span class="string">"click"</span>, () => {
+    <span class="var">button</span>.<span class="property">textContent</span> = <span class="string">"Clicked!"</span>;
+});
+            </div>
+        </div>
+        <div class="content-section">
+            <h2>Working with Forms</h2>
+            <p>Forms are key to user interaction. Let's create a simple form handler.</p>
+            <h3>HTML Form</h3>
+            <div class="code-block">
+<span class="tag">&lt;form</span> <span class="attr">id</span>=<span class="string">"contactForm"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;input</span> <span class="attr">type</span>=<span class="string">"text"</span> <span class="attr">id</span>=<span class="string">"name"</span> <span class="attr">placeholder</span>=<span class="string">"Your name"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;input</span> <span class="attr">type</span>=<span class="string">"email"</span> <span class="attr">id</span>=<span class="string">"email"</span> <span class="attr">placeholder</span>=<span class="string">"Your email"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;button</span> <span class="attr">type</span>=<span class="string">"submit"</span><span class="tag">&gt;</span>Submit<span class="tag">&lt;/button&gt;</span>
+<span class="tag">&lt;/form&gt;</span>
+            </div>
+            <h3>JavaScript Form Handler</h3>
+            <div class="code-block">
+<span class="keyword">const</span> <span class="var">form</span> = <span class="function">document</span>.<span class="function">getElementById</span>(<span class="string">"contactForm"</span>);
+
+<span class="var">form</span>.<span class="function">addEventListener</span>(<span class="string">"submit"</span>, (e) => {
+    <span class="var">e</span>.<span class="function">preventDefault</span>(); <span class="comment">// Stop page reload</span>
+    
+    <span class="keyword">const</span> <span class="var">name</span> = <span class="function">document</span>.<span class="function">getElementById</span>(<span class="string">"name"</span>).<span class="property">value</span>;
+    <span class="keyword">const</span> <span class="var">email</span> = <span class="function">document</span>.<span class="function">getElementById</span>(<span class="string">"email"</span>).<span class="property">value</span>;
+    
+    <span class="function">console</span>.<span class="function">log</span>(<span class="string">`Name: ${name}, Email: ${email}`</span>);
+    <span class="function">alert</span>(<span class="string">"Form submitted!"</span>);
+});
+            </div>
+            <div class="warning-box">
+                <strong><i class="fas fa-exclamation-triangle"></i> Important</strong>
+                <p>Always use e.preventDefault() in form handlers to prevent the page from refreshing, which is the default browser behavior.</p>
+            </div>
+        </div>
+        <div class="content-section">
+            <h2>Practical Examples</h2>
+            <h3>Toggle Content</h3>
+            <div class="code-block">
+<span class="keyword">const</span> <span class="var">toggleBtn</span> = <span class="function">document</span>.<span class="function">getElementById</span>(<span class="string">"toggleBtn"</span>);
+<span class="keyword">const</span> <span class="var">content</span> = <span class="function">document</span>.<span class="function">getElementById</span>(<span class="string">"content"</span>);
+
+<span class="var">toggleBtn</span>.<span class="function">addEventListener</span>(<span class="string">"click"</span>, () => {
+    <span class="keyword">if</span> (content.<span class="property">style</span>.<span class="property">display</span> === <span class="string">"none"</span>) {
+        content.<span class="property">style</span>.<span class="property">display</span> = <span class="string">"block"</span>;
+    } <span class="keyword">else</span> {
+        content.<span class="property">style</span>.<span class="property">display</span> = <span class="string">"none"</span>;
+    }
+});
+            </div>
+            <h3>Counter Example</h3>
+            <div class="code-block">
+<span class="keyword">let</span> <span class="var">count</span> = <span class="number">0</span>;
+<span class="keyword">const</span> <span class="var">display</span> = <span class="function">document</span>.<span class="function">getElementById</span>(<span class="string">"countDisplay"</span>);
+
+<span class="function">document</span>.<span class="function">getElementById</span>(<span class="string">"increment"</span>).<span class="function">addEventListener</span>(<span class="string">"click"</span>, () => {
+    <span class="var">count</span>++;
+    display.<span class="property">textContent</span> = <span class="var">count</span>;
+});
+            </div>
+        </div>
+        <div class="content-section">
+            <h2>Event Object</h2>
+            <p>Event handlers receive an event object with useful properties and methods.</p>
+            <div class="code-block">
+<span class="var">element</span>.<span class="function">addEventListener</span>(<span class="string">"click"</span>, (event) => {
+    <span class="function">console</span>.<span class="function">log</span>(event.<span class="property">type</span>);      <span class="comment">// "click"</span>
+    <span class="function">console</span>.<span class="function">log</span>(event.<span class="property">target</span>);       <span class="comment">// The clicked element</span>
+    <span class="function">console</span>.<span class="function">log</span>(event.<span class="property">clientX</span>);     <span class="comment">// Mouse X position</span>
+    <span class="function">console</span>.<span class="function">log</span>(event.<span class="property">clientY</span>);     <span class="comment">// Mouse Y position</span>
+});
+            </div>
+            <div class="tip-box">
+                <strong><i class="fas fa-lightbulb"></i> Pro Tip</strong>
+                <p>Use event.target to get the exact element that triggered the event - very useful when delegating events to parent elements.</p>
+            </div>
+        </div>
+        <div class="content-section">
+            <h2>Practice Exercise</h2>
+            <p>Create a to-do list that:</p>
+            <ol>
+                <li>Has an input field and add button</li>
+                <li>Adds items to a list when button is clicked</li>
+                <li>Allows clicking items to mark them as done</li>
+                <li>Can delete items</li>
+            </ol>
+        </div>
+        <div class="navigation-buttons">
+            <a href="lesson-1.html" class="nav-btn">
+                <i class="fas fa-arrow-left"></i>
+                <span>Previous: JavaScript Basics</span>
+            </a>
+            <a href="lesson-3.html" class="nav-btn next">
+                <span>Next: Dynamic Content</span>
+                <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+        <div class="progress-bar">
+            <div class="progress-fill" style="width: 66%"></div>
+        </div>
+    </div>
+</body>
+</html>

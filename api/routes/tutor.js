@@ -1,9 +1,8 @@
 const express = require('express');
-const { PrismaClient } = require('@prisma/client');
 const router = express.Router();
-const prisma = new PrismaClient();
+const { prisma } = require('../lib/prisma');
+const { verifyToken } = require('../lib/jwt');
 
-// Middleware to check if user is tutor
 const requireTutor = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
@@ -12,14 +11,10 @@ const requireTutor = async (req, res, next) => {
     }
 
     const token = authHeader.slice(7);
-    const userId = token.split('_')[2];
+    const decoded = verifyToken(token);
     
-    if (!userId) {
-      return res.status(401).json({ error: 'Invalid token' });
-    }
-
     const user = await prisma.user.findUnique({
-      where: { id: parseInt(userId) },
+      where: { id: decoded.userId },
       include: { role: true }
     });
 
@@ -27,9 +22,7 @@ const requireTutor = async (req, res, next) => {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    // Check if user is tutor
-    const userRole = user.role?.name;
-    if (userRole !== 'tutor') {
+    if (user.role?.name !== 'tutor') {
       return res.status(403).json({ error: 'Tutor access required' });
     }
 
@@ -37,7 +30,10 @@ const requireTutor = async (req, res, next) => {
     next();
   } catch (error) {
     console.error('Auth error:', error);
-    res.status(500).json({ error: 'Authentication failed' });
+    if (error.name === 'TokenExpiredError') {
+      return res.status(401).json({ error: 'Token expired' });
+    }
+    res.status(401).json({ error: 'Invalid token' });
   }
 };
 
@@ -45,8 +41,8 @@ const requireTutor = async (req, res, next) => {
 router.get('/enrollments', requireTutor, async (req, res) => {
   try {
     const tutorId = req.user.id;
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 20;
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit) || 20));
     const search = req.query.search || '';
     const courseId = req.query.courseId;
     const skip = (page - 1) * limit;
@@ -276,8 +272,8 @@ router.get('/enrollments/stats', requireTutor, async (req, res) => {
 router.get('/notes', requireTutor, async (req, res) => {
   try {
     const tutorId = req.user.id;
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 12;
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit) || 12));
     const search = req.query.search || '';
     const courseId = req.query.courseId;
     const skip = (page - 1) * limit;
@@ -715,8 +711,8 @@ router.post('/enrollments', requireTutor, async (req, res) => {
 router.get('/courses', requireTutor, async (req, res) => {
   try {
     const tutorId = req.user.id;
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 12;
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit) || 12));
     const search = req.query.search || '';
     const skip = (page - 1) * limit;
 
@@ -982,8 +978,8 @@ router.delete('/courses/:id', requireTutor, async (req, res) => {
 router.get('/lessons', requireTutor, async (req, res) => {
   try {
     const tutorId = req.user.id;
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 12;
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit) || 12));
     const search = req.query.search || '';
     const skip = (page - 1) * limit;
 
@@ -1308,8 +1304,8 @@ router.delete('/lessons/:id', requireTutor, async (req, res) => {
 router.get('/assignments', requireTutor, async (req, res) => {
   try {
     const tutorId = req.user.id;
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 15;
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit) || 15));
     const search = req.query.search || '';
     const skip = (page - 1) * limit;
 
@@ -1760,8 +1756,8 @@ router.get('/courses/:courseId/lessons', requireTutor, async (req, res) => {
 router.get('/submissions', requireTutor, async (req, res) => {
   try {
     const tutorId = req.user.id;
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 15;
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit) || 15));
     const search = req.query.search || '';
     const assignmentId = req.query.assignmentId;
     const skip = (page - 1) * limit;

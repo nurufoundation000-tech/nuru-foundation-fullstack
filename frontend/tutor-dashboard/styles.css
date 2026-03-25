@@ -1,0 +1,333 @@
+/* ========================================
+   TUTOR DASHBOARD STYLES
+   NURU FOUNDATION
+   ======================================== */
+
+/* --- Tutor Specific Cards --- */
+.tutor-course-card {
+    background: white;
+    border-radius: var(--border-radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+    margin-bottom: 20px;
+}
+
+.tutor-course-header {
+    background: linear-gradient(135deg, var(--primary-color), var(--accent-color-1));
+    color: white;
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.tutor-course-header h3 {
+    margin: 0;
+    font-size: 1.2rem;
+}
+
+.tutor-course-header .course-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.tutor-course-body {
+    padding: 20px;
+}
+
+.tutor-course-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 15px;
+    margin: 15px 0;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: var(--border-radius-md);
+}
+
+.tutor-course-stats .stat {
+    text-align: center;
+}
+
+.tutor-course-stats .stat-value {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+.tutor-course-stats .stat-label {
+    font-size: 0.75rem;
+    color: #888;
+}
+
+/* --- Lesson Management --- */
+.lesson-list-item {
+    display: flex;
+    align-items: center;
+    padding: 15px 20px;
+    background: white;
+    border-radius: var(--border-radius-md);
+    margin-bottom: 10px;
+    box-shadow: var(--shadow-md);
+    transition: transform 0.3s;
+}
+
+.lesson-list-item:hover {
+    transform: translateX(5px);
+}
+
+.lesson-list-item .lesson-order {
+    width: 40px;
+    height: 40px;
+    background: var(--primary-color);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    margin-right: 15px;
+    flex-shrink: 0;
+}
+
+.lesson-list-item .lesson-info {
+    flex: 1;
+}
+
+.lesson-list-item .lesson-title {
+    color: #333;
+    font-weight: 500;
+    margin-bottom: 5px;
+}
+
+.lesson-list-item .lesson-meta {
+    font-size: 0.85rem;
+    color: #888;
+}
+
+.lesson-list-item .lesson-actions {
+    display: flex;
+    gap: 10px;
+}
+
+/* --- Assignment Card --- */
+.assignment-card {
+    background: white;
+    border-radius: var(--border-radius-lg);
+    padding: 20px;
+    margin-bottom: 15px;
+    box-shadow: var(--shadow-md);
+    border-left: 4px solid var(--primary-color);
+}
+
+.assignment-card h4 {
+    color: var(--primary-color);
+    margin: 0 0 10px 0;
+}
+
+.assignment-card .assignment-meta {
+    display: flex;
+    gap: 20px;
+    color: #666;
+    font-size: 0.85rem;
+    margin-bottom: 10px;
+}
+
+.assignment-card .assignment-description {
+    color: #555;
+    line-height: 1.5;
+}
+
+/* --- Enrollment Table --- */
+.enrollment-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.enrollment-table th,
+.enrollment-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+.enrollment-table th {
+    background: var(--primary-color);
+    color: white;
+    font-weight: 600;
+}
+
+.enrollment-table tr:hover {
+    background: #f8f9fa;
+}
+
+.enrollment-table .status-badge {
+    padding: 5px 12px;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.enrollment-table .status-active {
+    background: #d4edda;
+    color: #155724;
+}
+
+.enrollment-table .status-pending {
+    background: #fff3cd;
+    color: #856404;
+}
+
+/* --- Submission Item --- */
+.submission-item {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    background: white;
+    border-radius: var(--border-radius-md);
+    margin-bottom: 10px;
+    box-shadow: var(--shadow-md);
+}
+
+.submission-item .student-avatar {
+    width: 45px;
+    height: 45px;
+    background: var(--primary-color);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    margin-right: 15px;
+}
+
+.submission-item .submission-info {
+    flex: 1;
+}
+
+.submission-item .submission-info h4 {
+    margin: 0 0 5px 0;
+    color: #333;
+}
+
+.submission-item .submission-info p {
+    margin: 0;
+    font-size: 0.85rem;
+    color: #666;
+}
+
+/* --- Notes Management --- */
+.note-editor {
+    background: white;
+    border-radius: var(--border-radius-lg);
+    padding: 25px;
+    box-shadow: var(--shadow-md);
+}
+
+.note-editor .form-group {
+    margin-bottom: 15px;
+}
+
+.note-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.note-list-item {
+    background: white;
+    border-radius: var(--border-radius-md);
+    padding: 20px;
+    margin-bottom: 15px;
+    box-shadow: var(--shadow-md);
+}
+
+.note-list-item .note-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.note-list-item .note-title {
+    color: var(--primary-color);
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.note-list-item .note-date {
+    color: #888;
+    font-size: 0.85rem;
+}
+
+.note-list-item .note-content {
+    color: #555;
+    line-height: 1.6;
+}
+
+.note-list-item .note-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #eee;
+}
+
+/* --- Form Styles --- */
+.lesson-form,
+.assignment-form {
+    background: white;
+    padding: 25px;
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-md);
+}
+
+.lesson-form h3,
+.assignment-form h3 {
+    color: var(--primary-color);
+    margin: 0 0 20px 0;
+}
+
+/* --- Bulk Actions --- */
+.bulk-actions {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: var(--border-radius-md);
+}
+
+.bulk-actions select {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: var(--border-radius-md);
+    background: white;
+}
+
+/* --- Empty States --- */
+.empty-course {
+    text-align: center;
+    padding: 60px 20px;
+    background: white;
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-md);
+}
+
+.empty-course i {
+    font-size: 4rem;
+    color: var(--primary-color);
+    opacity: 0.3;
+    margin-bottom: 20px;
+}
+
+.empty-course h3 {
+    color: #666;
+    margin-bottom: 10px;
+}
+
+.empty-course p {
+    color: #888;
+    margin-bottom: 20px;
+}

@@ -549,8 +549,8 @@
     });
 
     function checkTutorAccess() {
-        const token = localStorage.getItem('token');
-        const userData = localStorage.getItem('user');
+        const token = sessionStorage.getItem('token');
+        const userData = sessionStorage.getItem('user');
         if (!token || !userData) {
             window.location.href = '/login.html';
             return;
@@ -575,7 +575,7 @@
 
     async function loadCourses() {
         try {
-            const token = localStorage.getItem('token');
+            const token = sessionStorage.getItem('token');
             const response = await fetch(`${API_BASE_URL}/tutor/courses?limit=1000`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
@@ -602,7 +602,7 @@
 
     async function loadAllAssignments() {
         try {
-            const token = localStorage.getItem('token');
+            const token = sessionStorage.getItem('token');
             const response = await fetch(`${API_BASE_URL}/tutor/assignments?limit=1000`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
@@ -632,7 +632,7 @@
         container.innerHTML = '<div class="loading">Loading submissions...</div>';
         
         try {
-            const token = localStorage.getItem('token');
+            const token = sessionStorage.getItem('token');
             const urlParams = new URLSearchParams(window.location.search);
             const assignmentId = urlParams.get('assignmentId');
 
@@ -762,7 +762,7 @@
         };
 
         try {
-            const token = localStorage.getItem('token');
+            const token = sessionStorage.getItem('token');
             const response = await fetch(`${API_BASE_URL}/tutor/submissions/${submissionId}/grade`, {
                 method: 'PUT',
                 headers: {

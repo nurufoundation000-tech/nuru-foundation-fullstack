@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Introduction to Data Science - Lesson 1 of 3 - NURU Foundation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #2980b9;
+            --success: #27ae60;
+            --bg-light: #f8f9fa;
+            --text-dark: #333;
+            --text-light: #666;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg-light);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+        .lesson-container { max-width: 900px; margin: 0 auto; padding: 2rem; }
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--secondary);
+            text-decoration: none;
+            margin-bottom: 1.5rem;
+            font-weight: 500;
+        }
+        .back-link:hover { color: var(--accent); }
+        .lesson-header {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+            margin-bottom: 2rem;
+            color: white;
+        }
+        .course-breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        .course-breadcrumb a { color: white; text-decoration: none; }
+        .course-breadcrumb a:hover { text-decoration: underline; }
+        .lesson-meta {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+        .lesson-title { font-size: 2rem; margin-bottom: 1rem; }
+        .lesson-objectives {
+            background: rgba(255,255,255,0.15);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+        .lesson-objectives h3 { margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+        .lesson-objectives ul { margin-left: 1.5rem; }
+        .lesson-objectives li { margin-bottom: 0.5rem; }
+        .content-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        .content-section h2 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 3px solid var(--secondary);
+        }
+        .content-section h3 { color: var(--primary); margin: 1.5rem 0 0.75rem; }
+        .content-section p { margin-bottom: 1rem; }
+        .content-section ul, .content-section ol { margin: 1rem 0 1rem 1.5rem; }
+        .content-section li { margin-bottom: 0.5rem; }
+        .ds-logo {
+            width: 80px;
+            height: 80px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 1rem auto;
+            font-size: 2.5rem;
+            color: var(--secondary);
+            font-weight: bold;
+        }
+        .code-block {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 1.5rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1rem 0;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.95rem;
+            border-left: 4px solid var(--secondary);
+        }
+        .code-block .comment { color: #6a9955; }
+        .code-block .string { color: #ce9178; }
+        .code-block .keyword { color: #569cd6; }
+        .code-block .function { color: #dcdcaa; }
+        .code-block .number { color: #b5cea8; }
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid var(--secondary);
+            padding: 1rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1rem 0;
+        }
+        .warning-box {
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+            padding: 1rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1rem 0;
+        }
+        .tip-box {
+            background: #e8f5e9;
+            border-left: 4px solid var(--success);
+            padding: 1rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1rem 0;
+        }
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        .nav-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem 1.5rem;
+            background: white;
+            border: 2px solid var(--secondary);
+            color: var(--secondary);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            flex: 1;
+            justify-content: center;
+        }
+        .nav-btn:hover { background: var(--secondary); color: white; }
+        .nav-btn.disabled { opacity: 0.5; pointer-events: none; }
+        .nav-btn.next { background: var(--secondary); color: white; }
+        .nav-btn.next:hover { background: var(--primary); border-color: var(--primary); }
+        .progress-bar {
+            background: #e0e0e0;
+            height: 8px;
+            border-radius: 4px;
+            margin-top: 2rem;
+            overflow: hidden;
+        }
+        .progress-fill {
+            background: linear-gradient(90deg, #3498db, #2980b9);
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+        .progress-text {
+            text-align: center;
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+        @media (max-width: 768px) {
+            .lesson-container { padding: 1rem; }
+            .lesson-title { font-size: 1.5rem; }
+            .navigation-buttons { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <div class="lesson-container">
+        <a href="/student-dashboard/notes.html" class="back-link">
+            <i class="fas fa-arrow-left"></i> Back to Notes
+        </a>
+        
+        <div class="lesson-header">
+            <div class="course-breadcrumb">
+                <a href="/student-dashboard/notes.html">Notes</a> / <span>Data Science</span> / Lesson 1 of 3
+            </div>
+            <div class="lesson-meta">
+                <div class="meta-item">
+                    <i class="fas fa-book"></i>
+                    <span>Lesson 1 of 3</span>
+                </div>
+                <div class="meta-item">
+                    <i class="fas fa-clock"></i>
+                    <span>30 min</span>
+                </div>
+            </div>
+            <h1 class="lesson-title">Introduction to Data Science</h1>
+            <div class="lesson-objectives">
+                <h3><i class="fas fa-bullseye"></i> Learning Objectives</h3>
+                <ul>
+                    <li>Understand what data science is and its role in modern business</li>
+                    <li>Identify the key tools and technologies used by data scientists</li>
+                    <li>Explore career paths and opportunities in data science</li>
+                    <li>Learn the data science workflow and methodology</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="content-section">
+            <h2>What is Data Science?</h2>
+            <p>Data science is an interdisciplinary field that uses scientific methods, processes, algorithms, and systems to extract knowledge and insights from structured and unstructured data. It combines statistics, mathematics, programming, and domain expertise to solve complex problems.</p>
+            
+            <div class="info-box">
+                <strong><i class="fas fa-info-circle"></i> Key Insight:</strong> Data science is more than just数据分析—it's about turning raw data into actionable insights that drive business decisions.
+            </div>
+
+            <h3>The Data Science Lifecycle</h3>
+            <ol>
+                <li><strong>Define Problem:</strong> Understand the business question or problem to solve</li>
+                <li><strong>Collect Data:</strong> Gather data from various sources (databases, APIs, web scraping)</li>
+                <li><strong>Clean & Prepare:</strong> Transform and preprocess data for analysis</li>
+                <li><strong>Analyze Data:</strong> Apply statistical and machine learning techniques</li>
+                <li><strong>Communicate Results:</strong> Present findings through visualizations and reports</li>
+                <li><strong>Deploy & Monitor:</strong> Implement models and track performance</li>
+            </ol>
+        </div>
+
+        <div class="content-section">
+            <h2>Tools of the Trade</h2>
+            <p>Data scientists use a variety of tools across different stages of the data science lifecycle. Here are the most essential ones:</p>
+
+            <h3>Programming Languages</h3>
+            <ul>
+                <li><strong>Python:</strong> The most popular language for data science, with powerful libraries like pandas, NumPy, and scikit-learn</li>
+                <li><strong>R:</strong> Excellent for statistical analysis and visualization</li>
+                <li><strong>SQL:</strong> Essential for querying and manipulating databases</li>
+            </ul>
+
+            <h3>Key Libraries & Frameworks</h3>
+            <ul>
+                <li><strong>pandas:</strong> Data manipulation and analysis</li>
+                <li><strong>NumPy:</strong> Numerical computing with Python</li>
+                <li><strong>Matplotlib & Seaborn:</strong> Data visualization</li>
+                <li><strong>scikit-learn:</strong> Machine learning algorithms</li>
+                <li><strong>TensorFlow & PyTorch:</strong> Deep learning frameworks</li>
+            </ul>
+
+            <div class="code-block">
+<span class="comment"># Example: Basic data analysis with Python</span>
+<span class="keyword">import</span> pandas <span class="keyword">as</span> pd
+
+<span class="comment"># Load and explore data</span>
+df = pd.read_csv(<span class="string">"sales_data.csv"</span>)
+print(df.head())
+print(df.describe())
+            </div>
+        </div>
+
+        <div class="content-section">
+            <h2>Career Paths in Data Science</h2>
+            <p>The data science field offers multiple career paths, each with different focus areas and required skills:</p>
+
+            <h3>Data Scientist</h3>
+            <p>Builds predictive models and machine learning solutions. Requires strong statistics and programming skills.</p>
+
+            <h3>Data Analyst</h3>
+            <p>Focuses on interpreting data and creating reports. More emphasis on visualization and business intelligence.</p>
+
+            <h3>Machine Learning Engineer</h3>
+            <p>Deploys and maintains machine learning models in production. Requires software engineering and ML operations skills.</h3>
+
+            <h3>Data Engineer</h3>
+            <p>Builds data pipelines and infrastructure. Focuses on data architecture and ETL processes.</p>
+
+            <div class="tip-box">
+                <strong><i class="fas fa-lightbulb"></i> Tip:</strong> Start with data analysis, then specialize based on your interests. Python and SQL are essential skills for all data roles.
+            </div>
+        </div>
+
+        <div class="content-section">
+            <h2>Summary</h2>
+            <ul>
+                <li>Data science combines multiple disciplines to extract insights from data</li>
+                <li>The data science lifecycle follows a structured process from problem definition to deployment</li>
+                <li>Python is the dominant programming language, with essential libraries for every stage of analysis</li>
+                <li>Multiple career paths exist, from data analyst to machine learning engineer</li>
+            </ul>
+        </div>
+
+        <div class="navigation-buttons">
+            <a href="#" class="nav-btn disabled">
+                <i class="fas fa-chevron-left"></i> Previous Lesson
+            </a>
+            <a href="lesson-2.html" class="nav-btn next">
+                Next Lesson <i class="fas fa-chevron-right"></i>
+            </a>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-fill" style="width: 33%;"></div>
+        </div>
+        <div class="progress-text">Progress: 33% (1 of 3 lessons)</div>
+    </div>
+</body>
+</html>
