@@ -184,9 +184,19 @@
     <script src="scripts/config.js"></script>
     <script src="scripts/auth.js"></script>
     <script>
-        // Check if user is already logged in
+        // Check if user is already logged in - redirect based on role
         if (authService.isLoggedIn()) {
-            window.location.href = '/dashboard.html';
+            const user = JSON.parse(sessionStorage.getItem('user') || localStorage.getItem('user') || '{}');
+            const userRole = user.role?.name || user.role;
+            
+            // Redirect students and tutors away from registration page
+            if (userRole === 'student' || userRole === 'tutor') {
+                window.location.href = userRole === 'tutor' ? '/tutor-dashboard/index.html' : '/student-dashboard/index.html';
+            } else if (userRole === 'admin') {
+                window.location.href = '/admin-dashboard/index.html';
+            } else {
+                window.location.href = '/dashboard.html';
+            }
         }
 
         document.getElementById('registerForm').addEventListener('submit', async (e) => {

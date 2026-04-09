@@ -10,7 +10,6 @@
     <link rel="stylesheet" href="/styles/header.css">
     <link rel="stylesheet" href="/styles/footer.css">
     <link rel="stylesheet" href="/styles/dashboard.css">
-    <link rel="stylesheet" href="styles.css">
     <base href="/">
     <style>
         .profile-header { display: flex; align-items: center; gap: 30px; background: linear-gradient(135deg, var(--primary-color), var(--accent-color-1)); color: white; padding: 40px; border-radius: var(--border-radius-lg); margin-bottom: 30px; }
@@ -57,12 +56,6 @@
         .loading { text-align: center; padding: 40px; color: #666; }
         .loading i { font-size: 2rem; margin-bottom: 10px; }
         
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
-        .modal-overlay.active { display: flex; }
-        .modal-content { background: white; border-radius: 15px; padding: 30px; width: 100%; max-width: 450px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
-        .modal-content h2 { color: var(--primary-color); margin-bottom: 15px; }
-        .modal-content p { color: #666; margin-bottom: 20px; }
-        
         @media (max-width: 768px) {
             .form-row { grid-template-columns: 1fr; }
         }
@@ -72,7 +65,7 @@
     <div id="headerContainer"></div>
     
     <div class="dashboard-container" style="padding-top: 80px;">
-        <dashboard-sidebar active="profile"></dashboard-sidebar>
+        <tutor-sidebar active="profile"></tutor-sidebar>
         
         <div class="dashboard-main">
             <!-- First Login Alert -->
@@ -176,25 +169,88 @@
     <div id="footerContainer"></div>
 
     <script src="/scripts/config.js"></script>
-    <script src="/scripts/dashboard.js"></script>
     <script>
         let currentUser = null;
         
         document.addEventListener('DOMContentLoaded', async () => {
-            await DashboardUtils.loadHeader();
-            await DashboardUtils.loadFooter();
-            
-            if (!DashboardUtils.checkAuth('student')) return;
-            
+            loadHeader();
+            loadFooter();
             loadProfileData();
         });
+        
+        function loadHeader() {
+            const container = document.getElementById('headerContainer');
+            container.innerHTML = `
+                <header class="main-header">
+                    <div class="header-content">
+                        <a href="/" class="logo">
+                            <span class="logo-text">NURU</span>
+                            <span class="logo-sub">FOUNDATION</span>
+                        </a>
+                        <nav class="main-nav">
+                            <a href="/" class="nav-link">Home</a>
+                            <a href="/courses.html" class="nav-link">Courses</a>
+                            <a href="/about.html" class="nav-link">About</a>
+                            <a href="/contact.html" class="nav-link">Contact</a>
+                        </nav>
+                        <div class="header-auth">
+                            <a href="/login.html" class="btn-logout" onclick="logout()">Logout</a>
+                        </div>
+                    </div>
+                </header>
+            `;
+        }
+        
+        function loadFooter() {
+            const container = document.getElementById('footerContainer');
+            container.innerHTML = `
+                <footer class="main-footer">
+                    <p>&copy; 2024 Nuru Foundation. All rights reserved.</p>
+                </footer>
+            `;
+        }
+        
+        function checkAuth() {
+            const token = sessionStorage.getItem('token') || localStorage.getItem('token');
+            const userData = sessionStorage.getItem('user') || localStorage.getItem('user');
+            
+            if (!token || !userData) {
+                window.location.href = '/login.html';
+                return null;
+            }
+            
+            const user = JSON.parse(userData);
+            const userRole = user.role?.name || user.role;
+            
+            if (userRole !== 'tutor' && userRole !== 'teacher') {
+                window.location.href = '/login.html';
+                return null;
+            }
+            
+            return user;
+        }
         
         function getInitials(name) {
             return name ? name.split(' ').map(w => w.charAt(0)).join('').toUpperCase().substring(0, 2) : 'JD';
         }
         
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            sessionStorage.removeItem('token');
+            sessionStorage.removeItem('user');
+            window.location.href = '/login.html';
+        }
+        
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
         function loadProfileData() {
-            const userData = sessionStorage.getItem('user');
+            const userData = sessionStorage.getItem('user') || localStorage.getItem('user');
             if (!userData) {
                 window.location.href = '/login.html';
                 return;
@@ -202,7 +258,7 @@
             
             currentUser = JSON.parse(userData);
             
-            document.getElementById('userFullName').textContent = currentUser.fullName || currentUser.username || 'Student';
+            document.getElementById('userFullName').textContent = currentUser.fullName || currentUser.username || 'Tutor';
             document.getElementById('userEmail').textContent = currentUser.email || '';
             document.getElementById('userAvatar').textContent = getInitials(currentUser.fullName || currentUser.username);
             
@@ -220,7 +276,11 @@
             const container = document.getElementById('profileInfo');
             
             try {
-                const data = await DashboardUtils.fetchAPI('/users/me');
+                const token = sessionStorage.getItem('token') || localStorage.getItem('token');
+                const response = await fetch('/api/users/me', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
                 
                 if (data.success && data.user) {
                     displayProfileInfo(data.user);
@@ -251,7 +311,7 @@
                 </div>
                 <div class="info-item">
                     <div class="label">Role</div>
-                    <div class="value">${escapeHtml(user.role?.name || user.role || 'Student')}</div>
+                    <div class="value">${escapeHtml(user.role?.name || user.role || 'Tutor')}</div>
                 </div>
                 <div class="info-item">
                     <div class="label">Phone</div>
@@ -288,7 +348,7 @@
             }
             
             try {
-                const token = sessionStorage.getItem('token');
+                const token = sessionStorage.getItem('token') || localStorage.getItem('token');
                 const response = await fetch('/api/users/profile', {
                     method: 'PUT',
                     headers: {
@@ -301,7 +361,6 @@
                 const data = await response.json();
                 
                 if (data.success) {
-                    // Update local storage
                     currentUser = { ...currentUser, fullName: fullName || currentUser.fullName, username: username || currentUser.username };
                     sessionStorage.setItem('user', JSON.stringify(currentUser));
                     localStorage.setItem('user', JSON.stringify(currentUser));
@@ -341,7 +400,7 @@
             }
             
             try {
-                const token = sessionStorage.getItem('token');
+                const token = sessionStorage.getItem('token') || localStorage.getItem('token');
                 const response = await fetch('/api/users/set-password', {
                     method: 'PUT',
                     headers: {
@@ -354,7 +413,6 @@
                 const data = await response.json();
                 
                 if (data.success) {
-                    // Update user in storage
                     currentUser.mustChangePassword = false;
                     sessionStorage.setItem('user', JSON.stringify(currentUser));
                     localStorage.setItem('user', JSON.stringify(currentUser));
@@ -394,7 +452,7 @@
             }
             
             try {
-                const token = sessionStorage.getItem('token');
+                const token = sessionStorage.getItem('token') || localStorage.getItem('token');
                 const response = await fetch('/api/users/change-password', {
                     method: 'PUT',
                     headers: {
@@ -408,7 +466,6 @@
                 
                 if (data.success) {
                     alertBox.innerHTML = '<div class="alert-box success"><i class="fas fa-check-circle"></i> Password changed successfully!</div>';
-                    // Clear form
                     document.getElementById('currentPassword').value = '';
                     document.getElementById('newPassword').value = '';
                     document.getElementById('confirmNewPassword').value = '';

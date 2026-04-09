@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course Pricing - NURU FOUNDATION Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Fredoka+One&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="/styles/root.css">
+    <link rel="stylesheet" href="/styles/header.css">
+    <link rel="stylesheet" href="/styles/dashboard.css">
+    <link rel="stylesheet" href="styles.css">
+    <base href="/">
+    <style>
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+        }
+        .pricing-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .pricing-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        .pricing-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        .pricing-card h3 {
+            margin: 0;
+            font-size: 18px;
+            color: #333;
+        }
+        .pricing-card .category {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+        .pricing-status {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .pricing-status.active {
+            background: #d4edda;
+            color: #155724;
+        }
+        .pricing-status.inactive {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .pricing-amounts {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .price-item {
+            text-align: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        .price-item label {
+            display: block;
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        .price-item .amount {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+        .pricing-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .btn-edit {
+            flex: 1;
+            padding: 10px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .btn-edit:hover {
+            background: var(--secondary-color);
+        }
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            grid-column: 1 / -1;
+        }
+        .empty-state i {
+            font-size: 60px;
+            color: #ddd;
+            margin-bottom: 20px;
+        }
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-overlay.active {
+            display: flex;
+        }
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            width: 100%;
+            max-width: 450px;
+        }
+        .modal-content h2 {
+            margin-top: 0;
+            color: var(--primary-color);
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e1e1;
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 25px;
+        }
+        .modal-buttons button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .btn-save {
+            background: var(--primary-color);
+            color: white;
+        }
+        .btn-cancel {
+            background: #6c757d;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div id="app"></div>
+
+    <script src="/scripts/config.js"></script>
+    <script src="/scripts/auth.js"></script>
+    <script>
+        const API_URL = window.APP_CONFIG?.apiBaseUrl || '/api';
+        
+        document.addEventListener('DOMContentLoaded', async () => {
+            await checkAuth();
+            renderLayout();
+            await loadCoursesAndPricing();
+        });
+
+        async function checkAuth() {
+            const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+            if (!token) {
+                window.location.href = '/login.html';
+                return;
+            }
+            
+            const user = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
+            if (user.role?.name !== 'admin') {
+                window.location.href = '/login.html';
+            }
+        }
+
+        function renderLayout() {
+            document.getElementById('app').innerHTML = `
+                <div class="admin-layout">
+                    <aside class="sidebar">
+                        <div class="sidebar-header">
+                            <h2>Admin Panel</h2>
+                        </div>
+                        <nav class="sidebar-nav">
+                            <a href="/admin-dashboard/index.html"><i class="fas fa-home"></i> Dashboard</a>
+                            <a href="/admin-dashboard/users.html"><i class="fas fa-users"></i> Users</a>
+                            <a href="/admin-dashboard/courses.html"><i class="fas fa-book"></i> Courses</a>
+                            <a href="/admin-dashboard/enrollments.html"><i class="fas fa-user-plus"></i> Enrollments</a>
+                            <a href="/admin-dashboard/invoices.html"><i class="fas fa-file-invoice-dollar"></i> Invoices</a>
+                            <a href="/admin-dashboard/course-pricing.html" class="active"><i class="fas fa-tag"></i> Course Pricing</a>
+                            <a href="/admin-dashboard/settings.html"><i class="fas fa-cog"></i> Settings</a>
+                            <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                        </nav>
+                    </aside>
+                    
+                    <main class="main-content">
+                        <div class="page-header">
+                            <div>
+                                <h1 style="margin: 0; font-size: 28px; color: #333;">Course Pricing</h1>
+                                <p style="margin: 5px 0 0 0; color: #666;">Set initial payment and monthly amounts for each course</p>
+                            </div>
+                        </div>
+                        
+                        <div class="global-settings" style="background: white; padding: 20px; border-radius: 12px; margin-bottom: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                            <h3 style="margin: 0 0 15px 0; color: #333;"><i class="fas fa-cog"></i> Global Billing Settings</h3>
+                            <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+                                <div style="flex: 1; min-width: 200px;">
+                                    <label style="font-weight: 500; color: #555;">Billing Day of Month (1-28)</label>
+                                    <p style="margin: 5px 0; font-size: 12px; color: #666;">All courses will bill on this day each month</p>
+                                </div>
+                                <div style="display: flex; gap: 10px; align-items: center;">
+                                    <input type="number" id="globalBillingDay" min="1" max="28" value="1" style="width: 80px; padding: 8px; border: 1px solid #ddd; border-radius: 6px;">
+                                    <button class="btn-save" onclick="saveGlobalBillingDay()" style="padding: 8px 16px;">Save</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div id="pricingGrid" class="pricing-grid">
+                            <div class="loading">Loading...</div>
+                        </div>
+                    </main>
+                </div>
+            `;
+        }
+
+        let allCourses = [];
+        let coursePricing = {};
+        let globalSettings = { billingDay: 1, gracePeriodDays: 2 };
+
+        async function loadCoursesAndPricing() {
+            try {
+                const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+                
+                const [coursesRes, pricingRes, settingsRes] = await Promise.all([
+                    fetch(`${API_URL}/admin/courses`, { headers: { 'Authorization': `Bearer ${token}` } }),
+                    fetch(`${API_URL}/admin/course-pricing`, { headers: { 'Authorization': `Bearer ${token}` } }),
+                    fetch(`${API_URL}/admin/global-settings`, { headers: { 'Authorization': `Bearer ${token}` } })
+                ]);
+                
+                const coursesData = await coursesRes.json();
+                const pricingData = await pricingRes.json();
+                const settingsData = await settingsRes.json();
+                
+                allCourses = coursesData.data || [];
+                (pricingData.data || []).forEach(p => {
+                    coursePricing[p.courseId] = p;
+                });
+                if (settingsData.success) {
+                    globalSettings = settingsData.data;
+                    document.getElementById('globalBillingDay').value = globalSettings.billingDay || 1;
+                }
+                
+                renderPricing();
+            } catch (error) {
+                console.error('Error loading data:', error);
+            }
+        }
+
+        async function saveGlobalBillingDay() {
+            const billingDay = parseInt(document.getElementById('globalBillingDay').value);
+            if (billingDay < 1 || billingDay > 28) {
+                alert('Billing day must be between 1 and 28');
+                return;
+            }
+            try {
+                const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+                const response = await fetch(`${API_URL}/admin/global-settings`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ billingDay, gracePeriodDays: 2 })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    globalSettings = data.data;
+                    alert('Global billing day saved!');
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            } catch (error) {
+                alert('Failed to save settings');
+            }
+        }
+
+        function renderPricing() {
+            const grid = document.getElementById('pricingGrid');
+            
+            if (allCourses.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-book"></i>
+                        <p>No courses found. Create courses first.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            grid.innerHTML = allCourses.map(course => {
+                const pricing = coursePricing[course.id];
+                return `
+                    <div class="pricing-card">
+                        <div class="pricing-card-header">
+                            <div>
+                                <h3>${course.title}</h3>
+                                <div class="category">${course.category || 'Uncategorized'}</div>
+                            </div>
+                            <span class="pricing-status ${pricing?.isActive ? 'active' : 'inactive'}">
+                                ${pricing?.isActive ? 'Active' : 'Not Set'}
+                            </span>
+                        </div>
+                        
+                        <div class="pricing-amounts">
+                            <div class="price-item">
+                                <label>Initial Payment</label>
+                                <div class="amount">${pricing ? 'KES ' + pricing.initialPayment.toLocaleString() : '-'}</div>
+                            </div>
+                            <div class="price-item">
+                                <label>Monthly Amount</label>
+                                <div class="amount">${pricing ? 'KES ' + pricing.monthlyAmount.toLocaleString() : '-'}</div>
+                            </div>
+                            <div class="price-item">
+                                <label>Duration</label>
+                                <div class="amount">${pricing ? pricing.billingDuration + ' months' : '-'}</div>
+                            </div>
+                        </div>
+                        
+                        <button class="btn-edit" onclick="openPricingModal(${course.id}, '${course.title.replace(/'/g, "\\'")}')">
+                            <i class="fas fa-edit"></i> ${pricing ? 'Edit Pricing' : 'Set Pricing'}
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function openPricingModal(courseId, courseTitle) {
+            const pricing = coursePricing[courseId];
+            
+            document.getElementById('pricingModalTitle').textContent = pricing ? `Edit Pricing: ${courseTitle}` : `Set Pricing: ${courseTitle}`;
+            document.getElementById('courseId').value = courseId;
+            document.getElementById('initialPayment').value = pricing?.initialPayment || '';
+            document.getElementById('monthlyAmount').value = pricing?.monthlyAmount || '';
+            document.getElementById('billingDuration').value = pricing?.billingDuration || 1;
+            document.getElementById('pricingModal').classList.add('active');
+        }
+
+        function closePricingModal() {
+            document.getElementById('pricingModal').classList.remove('active');
+        }
+
+        async function savePricing() {
+            const courseId = parseInt(document.getElementById('courseId').value);
+            const initialPayment = parseFloat(document.getElementById('initialPayment').value);
+            const monthlyAmount = parseFloat(document.getElementById('monthlyAmount').value);
+            const billingDuration = parseInt(document.getElementById('billingDuration').value) || 1;
+            
+            if (!initialPayment || !monthlyAmount) {
+                alert('Please enter both initial payment and monthly amount');
+                return;
+            }
+            
+            if (initialPayment < 0 || monthlyAmount < 0) {
+                alert('Amounts must be positive');
+                return;
+            }
+
+            if (billingDuration < 1) {
+                alert('Billing duration must be at least 1 month');
+                return;
+            }
+            
+            try {
+                const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+                const response = await fetch(`${API_URL}/admin/course-pricing`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ courseId, initialPayment, monthlyAmount, billingDuration })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert('Pricing saved successfully!');
+                    closePricingModal();
+                    await loadCoursesAndPricing();
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            } catch (error) {
+                alert('Failed to save pricing');
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            sessionStorage.removeItem('token');
+            sessionStorage.removeItem('user');
+            window.location.href = '/login.html';
+        }
+    </script>
+</body>
+</html>
+
+<!-- Pricing Modal -->
+<div class="modal-overlay" id="pricingModal">
+    <div class="modal-content">
+        <h2 id="pricingModalTitle">Set Pricing</h2>
+        
+        <input type="hidden" id="courseId">
+        
+        <div class="form-group">
+            <label>Initial Payment (Deposit) - KES</label>
+            <input type="number" id="initialPayment" placeholder="Enter deposit amount" min="0" step="0.01">
+        </div>
+        
+        <div class="form-group">
+            <label>Monthly Amount - KES</label>
+            <input type="number" id="monthlyAmount" placeholder="Enter monthly amount" min="0" step="0.01">
+        </div>
+
+        <div class="form-group">
+            <label>Number of Monthly Payments</label>
+            <input type="number" id="billingDuration" placeholder="e.g., 3" min="1" max="24" value="1">
+            <small style="color: #666;">How many months the student will pay installments</small>
+        </div>
+        
+        <div class="modal-buttons">
+            <button class="btn-save" onclick="savePricing()">Save Pricing</button>
+            <button class="btn-cancel" onclick="closePricingModal()">Cancel</button>
+        </div>
+    </div>
+</div>

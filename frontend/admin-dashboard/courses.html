@@ -295,6 +295,11 @@
             color: white;
         }
 
+        .btn-enroll {
+            background: #28a745;
+            color: white;
+        }
+
         .btn-view {
             background: #17a2b8;
             color: white;
@@ -520,6 +525,26 @@
                         <label>Thumbnail URL</label>
                         <input type="url" id="courseThumbnail" name="thumbnailUrl" placeholder="https://example.com/image.jpg">
                     </div>
+                    
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0; border: 1px solid #e9ecef;">
+                        <h4 style="margin: 0 0 15px 0; color: #28a745;"><i class="fas fa-money-bill-wave"></i> Payment Settings</h4>
+                        <div class="form-row">
+                            <div class="form-group" style="flex: 1;">
+                                <label>Initial Payment (KES) - Deposit</label>
+                                <input type="number" id="courseInitialPayment" placeholder="e.g., 5000" min="0" step="0.01">
+                            </div>
+                            <div class="form-group" style="flex: 1;">
+                                <label>Monthly Payment (KES)</label>
+                                <input type="number" id="courseMonthlyAmount" placeholder="e.g., 2000" min="0" step="0.01">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Number of Monthly Payments</label>
+                            <input type="number" id="courseBillingDuration" placeholder="e.g., 3" min="1" max="24" value="1">
+                            <small style="color: #666; display: block; margin-top: 5px;">Leave monthly empty if no installments</small>
+                        </div>
+                    </div>
+                    
                     <div class="form-group">
                         <label>
                             <input type="checkbox" id="coursePublished" name="isPublished">
@@ -531,6 +556,34 @@
             <div class="modal-footer">
                 <button class="btn btn-secondary" onclick="closeCourseModal()">Cancel</button>
                 <button class="btn btn-primary" onclick="saveCourse()">Save Course</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Enroll Student Modal -->
+    <div class="modal" id="enrollModal" style="display: none;">
+        <div class="modal-content" style="max-width: 450px;">
+            <div class="modal-header">
+                <h3><i class="fas fa-user-plus"></i> Enroll Student</h3>
+                <button class="close-modal" onclick="closeEnrollModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p style="margin-bottom: 15px; color: #666;">
+                    Enrolling student in: <strong id="enrollCourseName"></strong>
+                </p>
+                <input type="hidden" id="enrollCourseId">
+                <div class="form-group">
+                    <label>Select Student *</label>
+                    <select id="enrollStudent" class="form-control">
+                        <option value="">-- Select Student --</option>
+                    </select>
+                </div>
+                <div id="enrollError" class="error-message" style="display: none;"></div>
+                <div id="enrollSuccess" class="success-message" style="display: none;"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeEnrollModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="enrollStudent()">Enroll Student</button>
             </div>
         </div>
     </div>
@@ -660,6 +713,7 @@
                         <th>Tutor</th>
                         <th>Category</th>
                         <th>Level</th>
+                        <th>Pricing</th>
                         <th>Status</th>
                         <th>Statistics</th>
                         <th>Actions</th>
@@ -691,6 +745,18 @@
                             <td>${course.category || 'General'}</td>
                             <td><span class="level-badge">${course.level || 'Beginner'}</span></td>
                             <td>
+                                ${course.coursePricing ? `
+                                    <div style="font-size: 0.85rem;">
+                                        <div style="color: #28a745; font-weight: 600;">
+                                            KES ${course.coursePricing.initialPayment.toLocaleString()} deposit
+                                        </div>
+                                        <div style="color: #666;">
+                                            KES ${course.coursePricing.monthlyAmount.toLocaleString()}/mo × ${course.coursePricing.billingDuration}mo
+                                        </div>
+                                    </div>
+                                ` : '<span style="color: #999;">Not set</span>'}
+                            </td>
+                            <td>
                                 <span class="status-badge ${course.isPublished ? 'status-published' : 'status-draft'}">
                                     ${course.isPublished ? 'Published' : 'Draft'}
                                 </span>
@@ -718,6 +784,9 @@
                                     </button>
                                     <button class="btn-sm btn-edit" onclick="editCourse(${course.id})" title="Edit">
                                         <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn-sm btn-enroll" onclick="showEnrollModal(${course.id}, '${course.title.replace(/'/g, "\\'")}')" title="Enroll Student">
+                                        <i class="fas fa-user-plus"></i>
                                     </button>
                                     <button class="btn-sm btn-delete" onclick="deleteCourse(${course.id})" title="Delete">
                                         <i class="fas fa-trash"></i>
@@ -816,6 +885,17 @@
 
     function closeCourseModal() {
         document.getElementById('courseModal').style.display = 'none';
+        // Clear form fields
+        document.getElementById('courseTitle').value = '';
+        document.getElementById('courseDescription').value = '';
+        document.getElementById('courseCategory').value = 'General';
+        document.getElementById('courseLevel').value = 'Beginner';
+        document.getElementById('courseThumbnail').value = '';
+        document.getElementById('coursePublished').checked = false;
+        document.getElementById('courseInitialPayment').value = '';
+        document.getElementById('courseMonthlyAmount').value = '';
+        document.getElementById('courseBillingDuration').value = '1';
+        currentEditingId = null;
     }
 
     async function saveCourse() {
@@ -828,11 +908,28 @@
             isPublished: document.getElementById('coursePublished').checked
         };
 
+        // Get pricing data
+        const initialPayment = parseFloat(document.getElementById('courseInitialPayment').value) || 0;
+        const monthlyAmount = parseFloat(document.getElementById('courseMonthlyAmount').value) || 0;
+        const billingDuration = parseInt(document.getElementById('courseBillingDuration').value) || 1;
+
+        if (initialPayment > 0 || monthlyAmount > 0) {
+            formData.pricing = {
+                initialPayment,
+                monthlyAmount,
+                billingDuration,
+                isActive: true
+            };
+        }
+
         try {
             const token = sessionStorage.getItem('token');
             const url = currentEditingId ? 
                 `${API_BASE_URL}/admin/courses/${currentEditingId}` :
                 `${API_BASE_URL}/admin/courses`;
+
+            console.log('Saving course to:', url, 'with method:', currentEditingId ? 'PUT' : 'POST');
+            console.log('Form data:', formData);
 
             const response = await fetch(url, {
                 method: currentEditingId ? 'PUT' : 'POST',
@@ -843,17 +940,25 @@
                 body: JSON.stringify(formData)
             });
 
+            console.log('Response status:', response.status);
+            console.log('Response ok:', response.ok);
+
             if (!response.ok) {
-                throw new Error('Failed to save course');
+                const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+                console.error('Error response:', errorData);
+                throw new Error(errorData.error || 'Failed to save course');
             }
 
+            const result = await response.json();
+            console.log('Save result:', result);
+            
             closeCourseModal();
             await loadCourses();
             alert(`Course ${currentEditingId ? 'updated' : 'created'} successfully!`);
 
         } catch (error) {
             console.error('Error saving course:', error);
-            alert('Error saving course. Please try again.');
+            alert('Error saving course: ' + error.message);
         }
     }
 
@@ -861,130 +966,32 @@
         const course = allCourses.find(c => c.id === courseId);
         if (!course) return;
 
-        const row = document.querySelector(`tr[data-course-id="${courseId}"]`);
-        if (!row) return;
-
-        // Store original values
-        row.dataset.originalData = JSON.stringify(course);
-
-        // Make cells editable
-        const cells = row.querySelectorAll('td');
-        const titleCell = cells[0]; // Course column (title)
-        const categoryCell = cells[2]; // Category column
-        const levelCell = cells[3]; // Level column
-        const statusCell = cells[4]; // Status column
-
-        // Replace title cell content
-        titleCell.innerHTML = `
-            <div style="display: flex; align-items: center; gap: 12px;">
-                <div class="course-thumbnail">
-                    ${course.thumbnailUrl ?
-                        `<img src="${course.thumbnailUrl}" alt="${course.title}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 6px;">` :
-                        `<i class="fas fa-book"></i>`
-                    }
-                </div>
-                <div>
-                    <input type="text" value="${course.title}" class="edit-input" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 4px; margin-bottom: 4px;">
-                    <textarea class="edit-input" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 4px; resize: vertical; min-height: 40px; font-size: 0.8rem;">${course.description || ''}</textarea>
-                </div>
-            </div>
-        `;
-
-        // Replace category cell content
-        categoryCell.innerHTML = `<input type="text" value="${course.category || 'General'}" class="edit-input" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 4px;">`;
-
-        // Replace level cell content
-        levelCell.innerHTML = `
-            <select class="edit-input" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 4px;">
-                <option value="Beginner" ${course.level === 'Beginner' ? 'selected' : ''}>Beginner</option>
-                <option value="Intermediate" ${course.level === 'Intermediate' ? 'selected' : ''}>Intermediate</option>
-                <option value="Advanced" ${course.level === 'Advanced' ? 'selected' : ''}>Advanced</option>
-            </select>
-        `;
-
-        // Replace status cell content
-        statusCell.innerHTML = `
-            <div style="display: flex; align-items: center; gap: 8px;">
-                <select class="edit-input" style="padding: 4px; border: 1px solid #ddd; border-radius: 4px;">
-                    <option value="true" ${course.isPublished ? 'selected' : ''}>Published</option>
-                    <option value="false" ${!course.isPublished ? 'selected' : ''}>Draft</option>
-                </select>
-            </div>
-        `;
-
-        // Replace action buttons with save/cancel
-        const actionsCell = cells[6];
-        actionsCell.innerHTML = `
-            <div class="action-buttons">
-                <button class="btn-sm btn-primary" onclick="saveCourseEdit(${courseId})" title="Save">
-                    <i class="fas fa-save"></i>
-                </button>
-                <button class="btn-sm btn-secondary" onclick="cancelCourseEdit(${courseId})" title="Cancel">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-        `;
-    }
-
-    async function saveCourseEdit(courseId) {
-        const row = document.querySelector(`tr[data-course-id="${courseId}"]`);
-        if (!row) return;
-
-        const inputs = row.querySelectorAll('.edit-input');
-        const title = inputs[0].value.trim();
-        const description = inputs[1].value.trim();
-        const category = inputs[2].value.trim();
-        const level = inputs[3].value;
-        const isPublished = inputs[4].value === 'true';
-
-        if (!title) {
-            alert('Course title is required');
-            return;
+        currentEditingId = courseId;
+        document.getElementById('modalTitle').textContent = 'Edit Course';
+        
+        // Populate course fields
+        document.getElementById('courseTitle').value = course.title || '';
+        document.getElementById('courseDescription').value = course.description || '';
+        document.getElementById('courseCategory').value = course.category || 'General';
+        document.getElementById('courseLevel').value = course.level || 'Beginner';
+        document.getElementById('courseThumbnail').value = course.thumbnailUrl || '';
+        document.getElementById('coursePublished').checked = course.isPublished || false;
+        
+        // Populate pricing fields
+        if (course.coursePricing) {
+            document.getElementById('courseInitialPayment').value = course.coursePricing.initialPayment || '';
+            document.getElementById('courseMonthlyAmount').value = course.coursePricing.monthlyAmount || '';
+            document.getElementById('courseBillingDuration').value = course.coursePricing.billingDuration || 1;
+        } else {
+            document.getElementById('courseInitialPayment').value = '';
+            document.getElementById('courseMonthlyAmount').value = '';
+            document.getElementById('courseBillingDuration').value = '1';
         }
 
-        try {
-            const token = sessionStorage.getItem('token');
-            const response = await fetch(`${API_BASE_URL}/admin/courses/${courseId}`, {
-                method: 'PUT',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    title,
-                    description,
-                    category,
-                    level,
-                    isPublished
-                })
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to update course');
-            }
-
-            const updatedCourse = await response.json();
-
-            // Update course in allCourses array
-            const index = allCourses.findIndex(c => c.id === courseId);
-            if (index !== -1) {
-                allCourses[index] = updatedCourse;
-            }
-
-            // Re-render the table
-            displayCourses();
-            alert('Course updated successfully!');
-
-        } catch (error) {
-            console.error('Error updating course:', error);
-            alert('Error updating course. Please try again.');
-        }
+        document.getElementById('courseModal').style.display = 'flex';
     }
 
-    function cancelCourseEdit(courseId) {
-        // Re-render the table to restore original state
-        displayCourses();
-    }
+    // OLD INLINE EDIT FUNCTIONS - REMOVED
 
     function viewCourse(courseId) {
         // Redirect to course preview or open in new tab
@@ -1025,6 +1032,87 @@
 
     function exportCourses() {
         alert('Export courses functionality to be implemented');
+    }
+
+    // Enroll Student Functions
+    function showEnrollModal(courseId, courseTitle) {
+        document.getElementById('enrollCourseId').value = courseId;
+        document.getElementById('enrollCourseName').textContent = courseTitle;
+        document.getElementById('enrollError').style.display = 'none';
+        document.getElementById('enrollSuccess').style.display = 'none';
+        document.getElementById('enrollModal').style.display = 'block';
+        loadStudentsForEnroll();
+    }
+
+    function closeEnrollModal() {
+        document.getElementById('enrollModal').style.display = 'none';
+    }
+
+    async function loadStudentsForEnroll() {
+        try {
+            const token = sessionStorage.getItem('token');
+            const response = await fetch(`${API_BASE_URL}/admin/students`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await response.json();
+
+            const select = document.getElementById('enrollStudent');
+            select.innerHTML = '<option value="">-- Select Student --</option>';
+
+            if (data.success && data.data) {
+                data.data.forEach(student => {
+                    const option = document.createElement('option');
+                    option.value = student.id;
+                    option.textContent = `${student.fullName || student.username} (${student.email})`;
+                    select.appendChild(option);
+                });
+            }
+        } catch (error) {
+            console.error('Error loading students:', error);
+        }
+    }
+
+    async function enrollStudent() {
+        const studentId = document.getElementById('enrollStudent').value;
+        const courseId = document.getElementById('enrollCourseId').value;
+        const errorEl = document.getElementById('enrollError');
+        const successEl = document.getElementById('enrollSuccess');
+
+        if (!studentId) {
+            errorEl.textContent = 'Please select a student';
+            errorEl.style.display = 'block';
+            successEl.style.display = 'none';
+            return;
+        }
+
+        try {
+            const token = sessionStorage.getItem('token');
+            const response = await fetch(`${API_BASE_URL}/admin/enrollments`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ studentId: parseInt(studentId), courseId: parseInt(courseId) })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                errorEl.style.display = 'none';
+                successEl.textContent = 'Student enrolled successfully!';
+                successEl.style.display = 'block';
+                setTimeout(() => closeEnrollModal(), 2000);
+            } else {
+                errorEl.textContent = data.error || 'Failed to enroll student';
+                errorEl.style.display = 'block';
+                successEl.style.display = 'none';
+            }
+        } catch (error) {
+            errorEl.textContent = 'An error occurred. Please try again.';
+            errorEl.style.display = 'block';
+            successEl.style.display = 'none';
+        }
     }
 
     function logout() {

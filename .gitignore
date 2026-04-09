@@ -3,3 +3,4 @@ TODO.md
 .vscode/
 .vercel
 .env*.local
+node_modules/

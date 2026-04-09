@@ -13,7 +13,7 @@ if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
   });
 }
 
-const sendWelcomeEmail = async (to, username) => {
+const sendWelcomeEmail = async (to, username, password) => {
   const loginUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
   
   if (!transporter) {
@@ -35,6 +35,7 @@ Your account has been successfully created.
 
 Email: ${to}
 Username: ${username}
+Password: ${password}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -70,6 +71,7 @@ ${loginUrl}
               .credentials-box { background: #f8f9fa; border-left: 4px solid #3498db; padding: 25px; border-radius: 8px; margin: 25px 0; }
               .label { font-weight: bold; color: #495057; }
               .value { font-family: 'Courier New', monospace; padding: 5px 10px; background: white; border-radius: 4px; border: 1px solid #ced4da; }
+              .password-value { color: #e74c3c; font-weight: bold; }
               .login-button { display: block; width: 100%; text-align: center; background: #3498db; color: white; padding: 15px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; margin: 25px 0; }
               .login-button:hover { background: #2980b9; }
               .security-box { background: #fff3cd; border: 1px solid #ffeaa7; padding: 20px; border-radius: 8px; margin: 25px 0; }
@@ -87,6 +89,7 @@ ${loginUrl}
                   <h3>Your Login Details</h3>
                   <p><span class="label">Email:</span> <span class="value">${to}</span></p>
                   <p><span class="label">Username:</span> <span class="value">${username}</span></p>
+                  <p><span class="label">Password:</span> <span class="value password-value">${password}</span></p>
               </div>
               
               <a href="${loginUrl}/login.html" class="login-button">Click Here to Login</a>

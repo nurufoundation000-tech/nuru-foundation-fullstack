@@ -9,18 +9,19 @@ datasource db {
 }
 
 model User {
-  id            Int      @id @default(autoincrement())
-  username      String   @unique
-  email         String   @unique
-  passwordHash  String
-  fullName      String?
-  bio           String?
-  profilePicUrl String?
-  roleId        Int?
-  dateJoined    DateTime @default(now())
-  isActive      Boolean  @default(true)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id                  Int      @id @default(autoincrement())
+  username            String   @unique
+  email               String   @unique
+  passwordHash        String
+  fullName            String?
+  bio                 String?
+  profilePicUrl       String?
+  roleId              Int?
+  dateJoined          DateTime @default(now())
+  isActive            Boolean  @default(true)
+  mustChangePassword  Boolean  @default(true)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
 
   // Relations
   adminActions              AdminAction[]
@@ -40,6 +41,7 @@ model User {
   submissions               Submission[]
   userBadges                UserBadge[]
   role                      Role?           @relation(fields: [roleId], references: [id])
+  invoices                  Invoice[]
 
   @@map("users")
 }
@@ -75,9 +77,52 @@ model Course {
   notes          Note[]
   moderationLogs ModerationLog[] @relation("CourseModerationLogs")
   payments       Payment[]
+  coursePricing  CoursePricing?
+  invoices       Invoice[]
 
   @@index([tutorId])
   @@map("courses")
+}
+
+model CoursePricing {
+  id              Int      @id @default(autoincrement())
+  courseId        Int      @unique
+  initialPayment  Float    // Deposit amount (required before dashboard access)
+  monthlyAmount   Float    // Monthly payment amount
+  billingDay      Int      @default(1) // Day of month for billing (1-28)
+  billingDuration Int      @default(1) // Number of months for monthly payments
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  course          Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@map("course_pricing")
+}
+
+model Invoice {
+  id                Int       @id @default(autoincrement())
+  studentId         Int
+  courseId          Int
+  type              String    // "initial" or "monthly"
+  monthNumber       Int?      // For monthly: which month (1, 2, 3, etc.)
+  amount            Float
+  status            String    // "pending", "paid", "overdue", "locked"
+  dueDate           DateTime
+  gracePeriodEnd    DateTime? // Grace period ends 2 days after due date
+  lockedAt          DateTime? // When student account was locked
+  paidAt            DateTime?
+  mpesaReceipt      String?
+  checkoutRequestId String?
+  lastBilledAt      DateTime? // Track monthly billing
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  student           User      @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  course            Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@index([studentId])
+  @@index([courseId])
+  @@index([status])
+  @@map("invoices")
 }
 
 model Note {
@@ -112,11 +157,12 @@ model Lesson {
 }
 
 model Enrollment {
-  id         Int      @id @default(autoincrement())
+  id         Int       @id @default(autoincrement())
   studentId  Int
   courseId   Int
-  enrolledAt DateTime @default(now())
-  progress   Float    @default(0.0)
+  enrolledAt DateTime  @default(now())
+  progress   Float     @default(0.0)
+  expiresAt  DateTime? // Access expires after this date (extended with payments)
 
   // Relations
   course         Course           @relation(fields: [courseId], references: [id], onDelete: Cascade)

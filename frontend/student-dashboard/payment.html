@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payments - NURU FOUNDATION</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Fredoka+One&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="/styles/root.css">
+    <link rel="stylesheet" href="/styles/header.css">
+    <link rel="stylesheet" href="/styles/footer.css">
+    <link rel="stylesheet" href="/styles/dashboard.css">
+    <link rel="stylesheet" href="styles.css">
+    <base href="/">
+    <style>
+        .payment-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .payment-card.pending {
+            border-left: 4px solid #f39c12;
+        }
+        .payment-card.overdue {
+            border-left: 4px solid #e74c3c;
+        }
+        .payment-card.paid {
+            border-left: 4px solid #27ae60;
+        }
+        .payment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+        .payment-amount {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+        .payment-status {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .payment-status.pending {
+            background: #fef3cd;
+            color: #856404;
+        }
+        .payment-status.overdue {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .payment-status.paid {
+            background: #d4edda;
+            color: #155724;
+        }
+        .payment-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .payment-detail {
+            display: flex;
+            flex-direction: column;
+        }
+        .payment-detail-label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        .payment-detail-value {
+            font-size: 16px;
+            font-weight: 500;
+            color: #333;
+        }
+        .payment-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .btn-pay {
+            background: var(--primary-color);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .btn-pay:hover {
+            background: var(--secondary-color);
+        }
+        .btn-pay:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .alert-box {
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .alert-box.warning {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            color: #856404;
+        }
+        .alert-box.danger {
+            background: #f8d7da;
+            border: 1px solid #dc3545;
+            color: #721c24;
+        }
+        .alert-box.success {
+            background: #d4edda;
+            border: 1px solid #28a745;
+            color: #155724;
+        }
+        .phone-input-group {
+            display: flex;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        .phone-input-group input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 2px solid #e1e1e1;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        .phone-input-group input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+        .phone-hint {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        .payment-history-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .payment-history-table th,
+        .payment-history-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        .payment-history-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+        .empty-state i {
+            font-size: 60px;
+            color: #ddd;
+            margin-bottom: 20px;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        .payment-card.locked {
+            border-left: 4px solid #721c24;
+            background: #fff5f5;
+        }
+        .locked-badge {
+            background: #dc3545;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .grace-period-warning {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            color: #856404;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div id="headerContainer"></div>
+    
+    <div class="dashboard-container" style="padding-top: 80px;">
+        <dashboard-sidebar active="payments"></dashboard-sidebar>
+        
+        <div class="dashboard-main">
+            <page-header title="Payments" subtitle="Manage your course payments" icon="fa-credit-card"></page-header>
+            
+            <div id="alertContainer"></div>
+            
+            <div id="pendingPaymentsSection">
+                <h2 style="margin-bottom: 20px; color: var(--primary-color);">Pending Payments</h2>
+                <div id="pendingPaymentsContainer">
+                    <div class="loading"><i class="fas fa-spinner fa-spin"></i><p>Loading payments...</p></div>
+                </div>
+            </div>
+            
+            <div id="creditBalanceSection" style="margin-top: 40px;">
+                <h2 style="margin-bottom: 20px; color: var(--primary-color);">Advance Credit</h2>
+                <div id="creditBalanceContainer">
+                    <div class="loading"><i class="fas fa-spinner fa-spin"></i><p>Loading credit info...</p></div>
+                </div>
+            </div>
+            
+            <div id="paymentHistorySection" style="margin-top: 40px;">
+                <h2 style="margin-bottom: 20px; color: var(--primary-color);">Payment History</h2>
+                <div id="paymentHistoryContainer">
+                    <div class="loading"><i class="fas fa-spinner fa-spin"></i><p>Loading history...</p></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="footerContainer"></div>
+    
+    <!-- Mpesa Payment Modal -->
+    <div class="modal-overlay" id="mpesaModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeMpesaModal()">&times;</button>
+            <h2 style="color: var(--primary-color); margin-bottom: 15px;">Pay with Mpesa</h2>
+            <p id="modalInvoiceDetails" style="color: #666; margin-bottom: 20px;"></p>
+            
+            <!-- Advance Payment Options -->
+            <div id="monthSelector" style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #333;">Select payment duration:</label>
+                <select id="monthsSelect" onchange="updatePaymentAmount()" style="width: 100%; padding: 12px; border: 2px solid #e1e1e1; border-radius: 8px; font-size: 16px; background: white;">
+                    <option value="1">1 Month</option>
+                    <option value="2">2 Months</option>
+                    <option value="3">3 Months</option>
+                    <option value="4">4 Months</option>
+                    <option value="5">5 Months</option>
+                    <option value="6">6 Months</option>
+                </select>
+                <p id="paymentAmountPreview" style="margin-top: 10px; font-size: 14px; color: #666;"></p>
+            </div>
+            
+            <div class="phone-input-group">
+                <input type="tel" id="phoneNumber" placeholder="Enter Mpesa number (e.g., 0712345678)" maxlength="10">
+            </div>
+            <p class="phone-hint">Enter the phone number registered with Mpesa. You will receive an STK push prompt.</p>
+            
+            <div id="modalError" class="error-message" style="display: none; margin-bottom: 15px;"></div>
+            
+            <button class="btn" id="payBtn" onclick="processPayment()">
+                <span id="payBtnText">Pay Now</span>
+            </button>
+        </div>
+    </div>
+
+    <script src="/scripts/config.js"></script>
+    <script src="/scripts/dashboard.js"></script>
+    <script>
+        let currentInvoice = null;
+        
+        document.addEventListener('DOMContentLoaded', async () => {
+            await DashboardUtils.loadHeader();
+            await DashboardUtils.loadFooter();
+            
+            if (!DashboardUtils.checkAuth('student')) return;
+            
+            // Check if student is locked
+            await checkLockStatus();
+            
+            await loadPayments();
+            await loadCreditBalance();
+        });
+        
+        async function loadCreditBalance() {
+            try {
+                const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+                
+                if (!token) return;
+                
+                const response = await fetch('/api/student/credit-balance', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success && data.data && data.data.length > 0) {
+                    renderCreditBalance(data.data);
+                } else {
+                    document.getElementById('creditBalanceContainer').innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-clock"></i>
+                            <p>No credit information available</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error loading credit balance:', error);
+                document.getElementById('creditBalanceContainer').innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <p>Failed to load credit information</p>
+                    </div>
+                `;
+            }
+        }
+        
+        function renderCreditBalance(creditInfo) {
+            const container = document.getElementById('creditBalanceContainer');
+            
+            container.innerHTML = creditInfo.map(info => {
+                const expiresDate = new Date(info.expiresAt);
+                const isExpired = info.isExpired;
+                
+                return `
+                    <div class="payment-card" style="border-left: 4px solid ${isExpired ? '#e74c3c' : info.advanceCredit > 0 ? '#17a2b8' : '#27ae60'}">
+                        <div class="payment-header">
+                            <div>
+                                <h3 style="margin: 0 0 5px 0;">${info.courseTitle}</h3>
+                                <p style="margin: 0; color: #666; font-size: 14px;">
+                                    Monthly: KES ${info.monthlyAmount.toLocaleString()} | Duration: ${info.billingDuration} months
+                                </p>
+                            </div>
+                            ${isExpired ? '<span class="payment-status overdue">EXPIRED</span>' : '<span class="payment-status paid">ACTIVE</span>'}
+                        </div>
+                        
+                        <div class="payment-details">
+                            <div class="payment-detail">
+                                <span class="payment-detail-label">Months Paid</span>
+                                <span class="payment-detail-value">${info.totalMonthsPaid} of ${info.billingDuration}</span>
+                            </div>
+                            <div class="payment-detail">
+                                <span class="payment-detail-label">Advance Credit</span>
+                                <span class="payment-detail-value" style="color: ${info.advanceCredit > 0 ? '#17a2b8' : '#666'}">
+                                    ${info.advanceCredit > 0 ? info.advanceCredit + ' month(s)' : 'None'}
+                                </span>
+                            </div>
+                            <div class="payment-detail">
+                                <span class="payment-detail-label">Access Expires</span>
+                                <span class="payment-detail-value" style="color: ${isExpired ? '#e74c3c' : '#27ae60'}">
+                                    ${expiresDate.toLocaleDateString()}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function checkLockStatus() {
+            try {
+                const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+                
+                if (!token) {
+                    console.error('No token found, redirecting to login');
+                    window.location.href = '/login.html';
+                    return;
+                }
+                
+                // Validate token format
+                if (!token.includes('.') || token.split('.').length !== 3) {
+                    console.error('Invalid token format, redirecting to login');
+                    localStorage.removeItem('token');
+                    sessionStorage.removeItem('token');
+                    window.location.href = '/login.html';
+                    return;
+                }
+                
+                const response = await fetch('/api/student/is-locked', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (response.status === 401 || response.status === 403) {
+                    console.error('Auth failed, redirecting to login');
+                    localStorage.removeItem('token');
+                    sessionStorage.removeItem('token');
+                    window.location.href = '/login.html';
+                    return;
+                }
+                
+                const data = await response.json();
+                
+                if (data.success && data.isLocked) {
+                    const alertContainer = document.getElementById('alertContainer');
+                    alertContainer.innerHTML = `
+                        <div class="alert-box danger">
+                            <i class="fas fa-lock"></i>
+                            <div>
+                                <strong>Account Locked</strong>
+                                <p style="margin: 5px 0 0 0;">Your account is locked due to unpaid invoices. Please pay to regain access.</p>
+                            </div>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error checking lock status:', error);
+            }
+        }
+
+        async function loadPayments() {
+            try {
+                const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+                
+                if (!token) {
+                    console.error('No token found, redirecting to login');
+                    window.location.href = '/login.html';
+                    return;
+                }
+                
+                const response = await fetch('/api/student/invoices', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (response.status === 401 || response.status === 403) {
+                    console.error('Auth failed, redirecting to login');
+                    localStorage.removeItem('token');
+                    sessionStorage.removeItem('token');
+                    window.location.href = '/login.html';
+                    return;
+                }
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Show all non-paid invoices including locked ones
+                    renderPendingPayments(data.data.filter(inv => inv.status !== 'paid'));
+                    renderPaymentHistory(data.data.filter(inv => inv.status === 'paid'));
+                }
+            } catch (error) {
+                console.error('Error loading payments:', error);
+                showAlert('Failed to load payments. Please refresh the page.', 'danger');
+            }
+        }
+
+        function renderPendingPayments(invoices) {
+            const container = document.getElementById('pendingPaymentsContainer');
+            
+            if (invoices.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-check-circle"></i>
+                        <p>No pending payments</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = invoices.map(invoice => {
+                const now = new Date();
+                const dueDate = new Date(invoice.dueDate);
+                const graceEnd = invoice.gracePeriodEnd ? new Date(invoice.gracePeriodEnd) : null;
+                const daysLeft = Math.ceil((dueDate - now) / (1000 * 60 * 60 * 24));
+                const isOverdue = daysLeft < 0;
+                const isInGracePeriod = graceEnd && now > dueDate && now < graceEnd;
+                const isLocked = invoice.status === 'locked';
+                
+                let statusBadge = invoice.status.toUpperCase();
+                if (isLocked) statusBadge = 'LOCKED';
+                
+                return `
+                    <div class="payment-card ${invoice.status}">
+                        <div class="payment-header">
+                            <div>
+                                <h3 style="margin: 0 0 5px 0;">${invoice.course.title}</h3>
+                                <p style="margin: 0; color: #666; font-size: 14px;">${invoice.type === 'initial' ? 'Initial Payment / Deposit' : 'Monthly Payment'}</p>
+                            </div>
+                            <span class="payment-status ${invoice.status}">${statusBadge}</span>
+                        </div>
+                        
+                        <div class="payment-amount">KES ${invoice.amount.toLocaleString()}</div>
+                        
+                        <div class="payment-details">
+                            <div class="payment-detail">
+                                <span class="payment-detail-label">Due Date</span>
+                                <span class="payment-detail-value">${dueDate.toLocaleDateString()}</span>
+                            </div>
+                            <div class="payment-detail">
+                                <span class="payment-detail-label">Days Remaining</span>
+                                <span class="payment-detail-value" style="color: ${isOverdue ? '#e74c3c' : daysLeft <= 3 ? '#f39c12' : '#27ae60'}">
+                                    ${isOverdue ? (isInGracePeriod ? `Grace Period (${Math.ceil((graceEnd - now) / (1000 * 60 * 60 * 24))} days left)` : 'Overdue') : (daysLeft > 0 ? daysLeft : daysLeft === 0 ? 'Due Today' : 'Overdue')}
+                                </span>
+                            </div>
+                        </div>
+                        
+                        ${isInGracePeriod && !isLocked ? `
+                            <div class="grace-period-warning">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                Payment overdue! Pay within ${Math.ceil((graceEnd - now) / (1000 * 60 * 60 * 24))} days to avoid account lockout.
+                            </div>
+                        ` : ''}
+                        
+                        ${isLocked ? `
+                            <div class="grace-period-warning" style="background: #f8d7da; border-color: #dc3545; color: #721c24;">
+                                <i class="fas fa-lock"></i>
+                                Your account has been locked. Pay now to regain access.
+                            </div>
+                        ` : ''}
+                        
+                        <div class="payment-actions">
+                            <button class="btn-pay" onclick="openMpesaModal(${invoice.id}, '${invoice.course.title}', ${invoice.amount}, ${invoice.course.coursePricing?.monthlyAmount || invoice.amount})" ${isLocked ? '' : ''}>
+                                <i class="fas fa-mobile-alt"></i> Pay with Mpesa
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderPaymentHistory(invoices) {
+            const container = document.getElementById('paymentHistoryContainer');
+            
+            if (invoices.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-receipt"></i>
+                        <p>No payment history yet</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = `
+                <div class="payment-card">
+                    <table class="payment-history-table">
+                        <thead>
+                            <tr>
+                                <th>Course</th>
+                                <th>Type</th>
+                                <th>Amount</th>
+                                <th>Paid On</th>
+                                <th>Receipt</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${invoices.map(invoice => `
+                                <tr>
+                                    <td>${invoice.course.title}</td>
+                                    <td>${invoice.type === 'initial' ? 'Initial' : 'Monthly'}</td>
+                                    <td>KES ${invoice.amount.toLocaleString()}</td>
+                                    <td>${new Date(invoice.paidAt).toLocaleDateString()}</td>
+                                    <td>${invoice.mpesaReceipt || 'N/A'}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+
+        function openMpesaModal(invoiceId, courseTitle, amount, monthlyAmount = null) {
+            console.log('[DEBUG] openMpesaModal called', { invoiceId, courseTitle, amount, monthlyAmount });
+            currentInvoice = { id: invoiceId, title: courseTitle, amount, monthlyAmount };
+            
+            const modal = document.getElementById('mpesaModal');
+            console.log('[DEBUG] Modal element:', modal);
+            console.log('[DEBUG] Modal current class:', modal.className);
+            
+            const modalInvoiceDetails = document.getElementById('modalInvoiceDetails');
+            const errorEl = document.getElementById('modalError');
+            const payBtn = document.getElementById('payBtn');
+            const payBtnText = document.getElementById('payBtnText');
+            const phoneInputGroup = document.querySelector('.phone-input-group');
+            const phoneHint = document.querySelector('.phone-hint');
+            const checkStatusBtn = document.getElementById('checkStatusBtn');
+            const monthSelector = document.getElementById('monthSelector');
+            const paymentAmountPreview = document.getElementById('paymentAmountPreview');
+            
+            // Reset modal to initial state
+            if (phoneInputGroup) phoneInputGroup.style.display = 'flex';
+            if (phoneHint) phoneHint.style.display = 'block';
+            if (monthSelector) monthSelector.style.display = 'block';
+            
+            modalInvoiceDetails.innerHTML = `
+                <strong>${courseTitle}</strong><br>
+                Invoice Amount: KES ${amount.toLocaleString()}
+            `;
+            
+            // Update payment preview
+            if (monthlyAmount && monthlyAmount > 0) {
+                const months = parseInt(document.getElementById('monthsSelect')?.value || 1);
+                const total = monthlyAmount * months;
+                paymentAmountPreview.innerHTML = `
+                    <strong>Total: KES ${total.toLocaleString()}</strong> (${months} month${months > 1 ? 's' : ''} × KES ${monthlyAmount.toLocaleString()})
+                `;
+            } else {
+                paymentAmountPreview.innerHTML = '';
+            }
+            
+            errorEl.style.display = 'none';
+            document.getElementById('phoneNumber').value = '';
+            
+            // Reset button state
+            payBtn.disabled = false;
+            payBtnText.innerHTML = 'Pay Now';
+            payBtn.onclick = processPayment;
+            
+            // Remove check status button if exists
+            if (checkStatusBtn) checkStatusBtn.remove();
+            
+            modal.classList.add('show');
+            console.log('[DEBUG] Modal class after add:', modal.className);
+        }
+        
+        function updatePaymentAmount() {
+            const months = parseInt(document.getElementById('monthsSelect').value);
+            const paymentAmountPreview = document.getElementById('paymentAmountPreview');
+            
+            if (currentInvoice && currentInvoice.monthlyAmount && currentInvoice.monthlyAmount > 0) {
+                const total = currentInvoice.monthlyAmount * months;
+                paymentAmountPreview.innerHTML = `
+                    <strong>Total: KES ${total.toLocaleString()}</strong> (${months} month${months > 1 ? 's' : ''} × KES ${currentInvoice.monthlyAmount.toLocaleString()})
+                `;
+            }
+        }
+
+        function closeMpesaModal() {
+            document.getElementById('mpesaModal').classList.remove('show');
+            currentInvoice = null;
+            // Refresh payments when modal closes
+            loadPayments();
+        }
+
+        async function processPayment() {
+            const phone = document.getElementById('phoneNumber').value.trim();
+            const errorEl = document.getElementById('modalError');
+            const payBtn = document.getElementById('payBtn');
+            const payBtnText = document.getElementById('payBtnText');
+            const modalContent = document.querySelector('#mpesaModal .modal-content');
+            const phoneInputGroup = document.querySelector('.phone-input-group');
+            const phoneHint = document.querySelector('.phone-hint');
+            
+            if (!phone) {
+                errorEl.textContent = 'Please enter your Mpesa phone number';
+                errorEl.style.display = 'block';
+                return;
+            }
+            
+            if (!phone.startsWith('07') || phone.length !== 10) {
+                errorEl.textContent = 'Please enter a valid Kenya phone number (e.g., 0712345678)';
+                errorEl.style.display = 'block';
+                return;
+            }
+            
+            // Show loading state
+            payBtn.disabled = true;
+            payBtnText.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+            errorEl.style.display = 'none';
+            
+            const months = parseInt(document.getElementById('monthsSelect').value) || 1;
+            
+            try {
+                const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+                
+                if (!token) {
+                    errorEl.textContent = 'Session expired. Please log in again.';
+                    errorEl.style.display = 'block';
+                    payBtn.disabled = false;
+                    payBtnText.textContent = 'Pay Now';
+                    window.location.href = '/login.html';
+                    return;
+                }
+                
+                const response = await fetch(`/api/student/pay/${currentInvoice.id}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ phoneNumber: phone, months: months })
+                });
+                
+                if (response.status === 401 || response.status === 403) {
+                    localStorage.removeItem('token');
+                    sessionStorage.removeItem('token');
+                    window.location.href = '/login.html';
+                    return;
+                }
+                
+                const data = await response.json();
+                console.log('[DEBUG] Payment initiation response:', data);
+                
+                if (data.success) {
+                    const isSimulated = data.simulated === true;
+                    
+                    // Show success state in modal instead of alert
+                    if (phoneInputGroup) phoneInputGroup.style.display = 'none';
+                    if (phoneHint) phoneHint.style.display = 'none';
+                    errorEl.style.display = 'none';
+                    
+                    // Replace modal content with success message
+                    const modalInvoiceDetails = document.getElementById('modalInvoiceDetails');
+                    
+                    if (isSimulated) {
+                        modalInvoiceDetails.innerHTML = `
+                            <div style="text-align: center; padding: 20px 0;">
+                                <div style="font-size: 48px; color: #17a2b8; margin-bottom: 15px;">
+                                    <i class="fas fa-flask"></i>
+                                </div>
+                                <h3 style="color: #17a2b8; margin-bottom: 15px;">Payment Simulation</h3>
+                                <p style="color: #666; margin-bottom: 10px;">
+                                    This is a <strong>test payment</strong> - no real M-Pesa STK push was sent.
+                                </p>
+                                <p style="color: #666; font-size: 14px; margin-bottom: 10px;">
+                                    Payment covers: <strong>${months} month${months > 1 ? 's' : ''}</strong>
+                                </p>
+                                <p style="color: #666; font-size: 14px; margin-bottom: 20px;">
+                                    To complete the payment, click <strong>"Check Payment Status"</strong> below.
+                                </p>
+                                <div style="background: #d1ecf1; padding: 15px; border-radius: 8px; text-align: left; margin-bottom: 20px;">
+                                    <p style="margin: 0; font-size: 14px; color: #0c5460;">
+                                        <i class="fas fa-info-circle"></i> <strong>Test Mode:</strong><br>
+                                        In real mode, you would receive an M-Pesa prompt on your phone.
+                                    </p>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        const totalAmount = data.totalAmount || currentInvoice.amount;
+                        modalInvoiceDetails.innerHTML = `
+                            <div style="text-align: center; padding: 20px 0;">
+                                <div style="font-size: 48px; color: #28a745; margin-bottom: 15px;">
+                                    <i class="fas fa-check-circle"></i>
+                                </div>
+                                <h3 style="color: #28a745; margin-bottom: 15px;">Payment Initiated!</h3>
+                                <p style="color: #666; margin-bottom: 10px;">
+                                    <i class="fas fa-mobile-alt"></i> 
+                                    Check your phone for the <strong>M-Pesa</strong> prompt
+                                </p>
+                                <p style="color: #666; font-size: 14px; margin-bottom: 10px;">
+                                    Payment covers: <strong>${months} month${months > 1 ? 's' : ''}</strong> (KES ${totalAmount.toLocaleString()})
+                                </p>
+                                <p style="color: #666; font-size: 14px; margin-bottom: 20px;">
+                                    A payment request has been sent to <strong>${phone}</strong>
+                                </p>
+                                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; text-align: left; margin-bottom: 20px;">
+                                    <p style="margin: 0; font-size: 14px; color: #666;">
+                                        <strong>Next steps:</strong>
+                                    </p>
+                                    <ol style="margin: 10px 0 0 0; padding-left: 20px; font-size: 13px; color: #666;">
+                                        <li>Check your phone for the M-Pesa prompt</li>
+                                        <li>Enter your M-Pesa PIN</li>
+                                        <li>Confirm the payment of KES ${totalAmount.toLocaleString()}</li>
+                                        <li>Wait for confirmation SMS</li>
+                                    </ol>
+                                </div>
+                                <p style="color: #666; font-size: 13px;">
+                                    <i class="fas fa-info-circle"></i> 
+                                    Payment may take a few seconds. You can check status below.
+                                </p>
+                            </div>
+                        `;
+                    }
+                    
+                    // Change button to "Done" and add status check button
+                    payBtn.disabled = false;
+                    payBtnText.innerHTML = '<i class="fas fa-check"></i> Done';
+                    payBtn.onclick = async () => {
+                        closeMpesaModal();
+                        await loadPayments();
+                    };
+                    
+                    // Add a secondary button to check payment status
+                    const existingCheckBtn = document.getElementById('checkStatusBtn');
+                    console.log('[DEBUG] existingCheckBtn:', existingCheckBtn);
+                    if (!existingCheckBtn) {
+                        const checkBtn = document.createElement('button');
+                        checkBtn.id = 'checkStatusBtn';
+                        checkBtn.className = 'btn btn-secondary';
+                        checkBtn.style.marginTop = '10px';
+                        checkBtn.style.width = '100%';
+                        checkBtn.innerHTML = '<i class="fas fa-search"></i> Check Payment Status';
+                        checkBtn.onclick = async () => {
+                            console.log('[DEBUG] Check Payment Status button clicked, invoiceId:', currentInvoice?.id);
+                            checkBtn.disabled = true;
+                            checkBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Checking...';
+                            await checkPaymentStatus(currentInvoice.id);
+                            checkBtn.disabled = false;
+                            checkBtn.innerHTML = '<i class="fas fa-search"></i> Check Payment Status';
+                        };
+                        payBtn.parentNode.insertBefore(checkBtn, payBtn.nextSibling);
+                        console.log('[DEBUG] Check Payment Status button created');
+                    }
+                    
+                    // Auto-refresh payments after 5 seconds
+                    setTimeout(async () => {
+                        await loadPayments();
+                    }, 5000);
+                    
+                } else {
+                    errorEl.textContent = data.error || 'Failed to initiate payment';
+                    errorEl.style.display = 'block';
+                    payBtn.disabled = false;
+                    payBtnText.textContent = 'Pay Now';
+                }
+            } catch (error) {
+                console.error('Payment error:', error);
+                errorEl.textContent = 'An error occurred. Please try again.';
+                errorEl.style.display = 'block';
+                payBtn.disabled = false;
+                payBtnText.textContent = 'Pay Now';
+            }
+        }
+
+        async function checkPaymentStatus(invoiceId) {
+            console.log('[DEBUG] checkPaymentStatus called with invoiceId:', invoiceId);
+            try {
+                const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+                console.log('[DEBUG] Token found:', !!token);
+                
+                if (!token) {
+                    console.error('No token found in checkPaymentStatus');
+                    alert('Session expired. Please log in again.');
+                    window.location.href = '/login.html';
+                    return;
+                }
+                
+                const checkBtn = document.getElementById('checkStatusBtn');
+                if (checkBtn) {
+                    checkBtn.disabled = true;
+                    checkBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Checking...';
+                }
+                
+                console.log('[DEBUG] Calling payment-status API for invoice:', invoiceId);
+                const response = await fetch(`/api/student/payment-status/${invoiceId}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                console.log('[DEBUG] Response status:', response.status);
+                
+                if (response.status === 401 || response.status === 403) {
+                    localStorage.removeItem('token');
+                    sessionStorage.removeItem('token');
+                    window.location.href = '/login.html';
+                    return;
+                }
+                
+                const data = await response.json();
+                console.log('[DEBUG] Payment status response:', data);
+                
+                if (checkBtn) {
+                    checkBtn.disabled = false;
+                    checkBtn.innerHTML = '<i class="fas fa-search"></i> Check Payment Status';
+                }
+                
+                if (data.success && data.status === 'paid') {
+                    showAlert('Payment successful! You can now access your courses.', 'success');
+                    await loadPayments();
+                    await loadCreditBalance();
+                    
+                    // Close modal after short delay
+                    setTimeout(() => {
+                        closeMpesaModal();
+                    }, 1500);
+                } else if (data.simulated) {
+                    showAlert('Payment simulation complete!', 'success');
+                    await loadPayments();
+                    await loadCreditBalance();
+                } else {
+                    showAlert('Payment not yet received. Please check again in a few moments.', 'warning');
+                }
+            } catch (error) {
+                console.error('[DEBUG] checkPaymentStatus error:', error);
+                alert('Error checking payment status: ' + error.message);
+            }
+        }
+
+        function showAlert(message, type) {
+            const alertContainer = document.getElementById('alertContainer');
+            alertContainer.innerHTML = `
+                <div class="alert-box ${type}">
+                    <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'warning' ? 'exclamation-triangle' : 'exclamation-circle'}"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>

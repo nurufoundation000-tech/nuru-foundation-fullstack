@@ -22,7 +22,12 @@ class AuthService {
                 this.token = data.token;
                 sessionStorage.setItem(this.config.tokenKey, this.token);
                 sessionStorage.setItem(this.config.userKey, JSON.stringify(data.user));
-                return { success: true, user: data.user };
+                return { 
+                    success: true, 
+                    user: data.user, 
+                    token: data.token,
+                    mustChangePassword: data.user?.mustChangePassword || false 
+                };
             } else {
                 return { success: false, message: data.message || data.error || 'Login failed' };
             }

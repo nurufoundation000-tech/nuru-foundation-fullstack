@@ -7,8 +7,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Fredoka+One&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="styles/root.css">
-<link rel="stylesheet" href="styles/header.css">
-<link rel="stylesheet" href="styles/footer.css">
+    <link rel="stylesheet" href="styles/header.css">
+    <link rel="stylesheet" href="styles/footer.css">
     <style>
         body {
             font-family: 'Poppins', sans-serif;
@@ -94,8 +94,23 @@
             cursor: not-allowed;
         }
 
+        .btn-secondary {
+            background: #6c757d;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
         .error-message {
             color: #e74c3c;
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .success-message {
+            color: #28a745;
             font-size: 14px;
             margin-top: 5px;
             display: none;
@@ -131,6 +146,71 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+
+        /* Modal Styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            width: 100%;
+            max-width: 450px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+
+        .modal-content h2 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+
+        .modal-content p {
+            color: #666;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+
+        .modal-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .modal-buttons .btn {
+            padding: 14px;
+        }
+
+        .modal-error {
+            color: #e74c3c;
+            font-size: 14px;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .modal-error.show {
+            display: block;
+        }
+
+        .login-form-hidden {
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -163,6 +243,31 @@
         </div>
     </div>
 
+    <!-- Password Change Modal -->
+    <div class="modal-overlay" id="passwordModal">
+        <div class="modal-content">
+            <h2>First Login - Set Up Your Password</h2>
+            <p>Your account was created with a temporary password. For security, please set your own password to continue.</p>
+            
+            <div class="form-group">
+                <label for="newPassword">New Password</label>
+                <input type="password" id="newPassword" placeholder="Enter new password (min 8 characters)" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="confirmPassword">Confirm Password</label>
+                <input type="password" id="confirmPassword" placeholder="Confirm your password" required>
+            </div>
+
+            <div class="modal-error" id="modalError"></div>
+
+            <div class="modal-buttons">
+                <button type="button" class="btn" id="changePasswordBtn">Change Password</button>
+                <button type="button" class="btn btn-secondary" id="skipPasswordBtn">Keep Current Password</button>
+            </div>
+        </div>
+    </div>
+
     <script src="scripts/config.js"></script>
     <script src="scripts/auth.js"></script>
     <script>
@@ -178,10 +283,125 @@
         } else if (userRole === 'student') {
             window.location.href = '/student-dashboard/index.html';
         } else {
-            // Default fallback
             window.location.href = '/dashboard.html';
         }
     }
+
+    // Function to redirect based on user role
+    function redirectToDashboard(userRole) {
+        if (userRole === 'admin') {
+            window.location.href = '/admin-dashboard/index.html';
+        } else if (userRole === 'tutor') {
+            window.location.href = '/tutor-dashboard/index.html';
+        } else if (userRole === 'student') {
+            window.location.href = '/student-dashboard/index.html';
+        } else {
+            window.location.href = '/dashboard.html';
+        }
+    }
+
+    // Handle password change
+    async function handlePasswordChange() {
+        const newPassword = document.getElementById('newPassword').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+        const modalError = document.getElementById('modalError');
+        const changeBtn = document.getElementById('changePasswordBtn');
+        
+        modalError.classList.remove('show');
+        
+        if (!newPassword || !confirmPassword) {
+            modalError.textContent = 'Please fill in both password fields';
+            modalError.classList.add('show');
+            return;
+        }
+        
+        if (newPassword.length < 8) {
+            modalError.textContent = 'Password must be at least 8 characters long';
+            modalError.classList.add('show');
+            return;
+        }
+        
+        if (newPassword !== confirmPassword) {
+            modalError.textContent = 'Passwords do not match';
+            modalError.classList.add('show');
+            return;
+        }
+        
+        changeBtn.disabled = true;
+        changeBtn.innerHTML = '<span class="loading"></span>Setting password...';
+        
+        try {
+            const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+            const response = await fetch('/api/users/set-password', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ newPassword })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                alert('Password changed successfully!');
+                document.getElementById('passwordModal').classList.remove('active');
+                const user = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
+                const userRole = user.role?.name || user.role;
+                redirectToDashboard(userRole);
+            } else {
+                modalError.textContent = data.error || 'Failed to change password';
+                modalError.classList.add('show');
+            }
+        } catch (error) {
+            modalError.textContent = 'An error occurred. Please try again.';
+            modalError.classList.add('show');
+        } finally {
+            changeBtn.disabled = false;
+            changeBtn.textContent = 'Change Password';
+        }
+    }
+
+    // Handle skip password change
+    async function handleSkipPasswordChange() {
+        const skipBtn = document.getElementById('skipPasswordBtn');
+        
+        skipBtn.disabled = true;
+        skipBtn.innerHTML = '<span class="loading"></span>Processing...';
+        
+        try {
+            const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+            const response = await fetch('/api/users/skip-password-change', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                // Clear stored auth data
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                sessionStorage.removeItem('token');
+                sessionStorage.removeItem('user');
+                
+                alert('You can now log in with your current password.');
+                window.location.href = '/login.html';
+            }
+        } catch (error) {
+            alert('An error occurred. Please try again.');
+        } finally {
+            skipBtn.disabled = false;
+            skipBtn.textContent = 'Keep Current Password';
+        }
+    }
+
+    // Modal button event listeners
+    document.getElementById('changePasswordBtn').addEventListener('click', handlePasswordChange);
+    document.getElementById('skipPasswordBtn').addEventListener('click', handleSkipPasswordChange);
 
     document.getElementById('loginForm').addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -192,36 +412,55 @@
         const btnText = document.getElementById('btnText');
         const errorMessage = document.getElementById('errorMessage');
 
-        // Show loading
         loginBtn.disabled = true;
-        btnText.innerHTML = '<div class="loading"></div>Logging in...';
+        btnText.innerHTML = '<span class="loading"></span>Logging in...';
         errorMessage.style.display = 'none';
 
         const result = await authService.login(email, password);
 
         if (result.success) {
-            // Get the user data from the login result
-            const user = result.user; // This should contain the user object with role
+            const user = result.user;
+            const userRole = user?.role?.name || user?.role;
             
-            // Check user role and redirect accordingly
-            if (user && user.role) {
-                // Check if role is an object with name property, or just a string
-                const userRole = user.role.name || user.role;
-                
-                console.log('User role:', userRole); // Debug log
-                
-                if (userRole === 'admin') {
-                    window.location.href = '/admin-dashboard/index.html';
-                } 
-                if (userRole === 'tutor') {
-                    window.location.href = '/tutor-dashboard/index.html';
-                } 
+            // Save user data first (before any redirects)
+            // Store in BOTH localStorage and sessionStorage for compatibility
+            sessionStorage.setItem('token', result.token);
+            sessionStorage.setItem('user', JSON.stringify(user));
+            localStorage.setItem('user', JSON.stringify(user));
+            localStorage.setItem('token', result.token);
+            
+            if (result.mustChangePassword) {
+                // First login - redirect to profile page to set password based on role
                 if (userRole === 'student') {
-                    window.location.href = '/student-dashboard/index.html';
-                } 
+                    window.location.href = '/student-dashboard/profile.html';
+                } else if (userRole === 'tutor' || userRole === 'teacher') {
+                    window.location.href = '/tutor-dashboard/profile.html';
+                } else {
+                    window.location.href = '/admin-dashboard/index.html';
+                }
+            } else if (userRole === 'student') {
+                // Check for overdue invoices and pending initial payment (for students)
+                try {
+                    const token = result.token;
+                    const invoicesRes = await fetch('/api/student/invoices', {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    const invoicesData = await invoicesRes.json();
+                    
+                    // Redirect to payment page if has overdue invoices OR pending initial payment
+                    if (invoicesData.success && (invoicesData.hasOverdue || invoicesData.pendingInitialPayment)) {
+                        window.location.href = '/student-dashboard/payment.html';
+                        return;
+                    }
+                } catch (err) {
+                    console.error('Error checking invoices:', err);
+                }
+                
+                // Normal login - redirect to dashboard
+                redirectToDashboard(userRole);
             } else {
-                console.error('User role not found:', user);
-                window.location.href = '/dashboard.html';
+                // Normal login - redirect to dashboard (for admin/tutor)
+                redirectToDashboard(userRole);
             }
         } else {
             errorMessage.textContent = result.message;
@@ -230,6 +469,6 @@
             btnText.textContent = 'Login';
         }
     });
-</script>
+    </script>
 </body>
 </html>

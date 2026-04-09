@@ -133,6 +133,103 @@
             color: white;
         }
 
+        /* Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h2 {
+            color: #2c3e50;
+            margin: 0;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .modal-body {
+            margin-bottom: 20px;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+        }
+
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+        }
+
         /* Filters */
         .filters {
             background: white;
@@ -390,9 +487,42 @@
                     <p>Manage course enrollments and student progress</p>
                 </div>
                 <div class="header-actions">
+                    <button class="btn btn-primary" onclick="showEnrollModal()">
+                        <i class="fas fa-plus"></i> Enroll Student
+                    </button>
                     <button class="btn btn-secondary" onclick="exportEnrollments()">
                         <i class="fas fa-download"></i> Export
                     </button>
+                </div>
+            </div>
+
+            <!-- Enroll Student Modal -->
+            <div class="modal-overlay" id="enrollModal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2><i class="fas fa-user-plus"></i> Enroll Student</h2>
+                        <button class="modal-close" onclick="closeEnrollModal()">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label>Select Student</label>
+                            <select id="enrollStudent" class="form-control">
+                                <option value="">-- Select Student --</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Select Course</label>
+                            <select id="enrollCourse" class="form-control">
+                                <option value="">-- Select Course --</option>
+                            </select>
+                        </div>
+                        <div id="enrollError" class="error-message" style="display: none;"></div>
+                        <div id="enrollSuccess" class="success-message" style="display: none;"></div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" onclick="closeEnrollModal()">Cancel</button>
+                        <button class="btn btn-primary" onclick="enrollStudent()">Enroll</button>
+                    </div>
                 </div>
             </div>
 
@@ -928,6 +1058,117 @@
 
         function exportEnrollments() {
             alert('Export enrollments functionality to be implemented');
+        }
+        
+        // Enroll Student Modal Functions
+        function showEnrollModal() {
+            document.getElementById('enrollModal').classList.add('active');
+            document.getElementById('enrollError').style.display = 'none';
+            document.getElementById('enrollSuccess').style.display = 'none';
+            loadStudentsForEnroll();
+            loadCoursesForEnroll();
+        }
+        
+        function closeEnrollModal() {
+            document.getElementById('enrollModal').classList.remove('active');
+        }
+        
+        async function loadStudentsForEnroll() {
+            try {
+                const token = sessionStorage.getItem('token');
+                const response = await fetch(`${API_BASE_URL}/admin/students`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+                
+                const select = document.getElementById('enrollStudent');
+                select.innerHTML = '<option value="">-- Select Student --</option>';
+                
+                if (data.success && data.data) {
+                    data.data.forEach(student => {
+                        const option = document.createElement('option');
+                        option.value = student.id;
+                        option.textContent = `${student.fullName || student.username} (${student.email})`;
+                        select.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading students:', error);
+            }
+        }
+        
+        async function loadCoursesForEnroll() {
+            try {
+                const token = sessionStorage.getItem('token');
+                const response = await fetch(`${API_BASE_URL}/admin/courses-list`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+                
+                const select = document.getElementById('enrollCourse');
+                select.innerHTML = '<option value="">-- Select Course --</option>';
+                
+                if (data.success && data.data) {
+                    data.data.forEach(course => {
+                        const option = document.createElement('option');
+                        option.value = course.id;
+                        option.textContent = `${course.title} (${course.category || 'N/A'})`;
+                        select.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading courses:', error);
+            }
+        }
+        
+        async function enrollStudent() {
+            const studentId = document.getElementById('enrollStudent').value;
+            const courseId = document.getElementById('enrollCourse').value;
+            const errorEl = document.getElementById('enrollError');
+            const successEl = document.getElementById('enrollSuccess');
+            
+            if (!studentId || !courseId) {
+                errorEl.textContent = 'Please select both a student and a course';
+                errorEl.style.display = 'block';
+                successEl.style.display = 'none';
+                return;
+            }
+            
+            try {
+                const token = sessionStorage.getItem('token');
+                const response = await fetch(`${API_BASE_URL}/admin/enrollments`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ studentId: parseInt(studentId), courseId: parseInt(courseId) })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    errorEl.style.display = 'none';
+                    successEl.textContent = 'Student enrolled successfully!';
+                    successEl.style.display = 'block';
+                    
+                    // Reload enrollments
+                    loadEnrollments();
+                    
+                    // Close modal after 2 seconds
+                    setTimeout(() => {
+                        closeEnrollModal();
+                    }, 2000);
+                } else {
+                    errorEl.textContent = data.error || 'Failed to enroll student';
+                    errorEl.style.display = 'block';
+                    successEl.style.display = 'none';
+                }
+            } catch (error) {
+                errorEl.textContent = 'An error occurred. Please try again.';
+                errorEl.style.display = 'block';
+                successEl.style.display = 'none';
+            }
         }
 
         function logout() {

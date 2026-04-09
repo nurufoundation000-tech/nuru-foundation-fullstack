@@ -251,6 +251,7 @@ class DashboardSidebar extends HTMLElement {
                 { href: '/student-dashboard/my-courses.html', icon: 'fa-book', label: 'My Courses' },
                 { href: '/student-dashboard/progress.html', icon: 'fa-chart-line', label: 'Progress' },
                 { href: '/student-dashboard/notes.html', icon: 'fa-sticky-note', label: 'My Notes' },
+                { href: '/student-dashboard/payment.html', icon: 'fa-credit-card', label: 'Payments' },
                 { href: '/student-dashboard/profile.html', icon: 'fa-user', label: 'Profile' }
             ],
             tutor: [
