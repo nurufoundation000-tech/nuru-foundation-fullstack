@@ -1,259 +1,544 @@
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Introduction to Cybersecurity - NURU Foundation</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <title>Cybersecurity Level 1 - Week 1: Introduction</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&family=Space+Mono&display=swap" rel="stylesheet">
     <style>
+        /* --- Revised CSS Variables for a Brighter, Friendlier Theme --- */
         :root {
-            --primary: #2c3e50;
-            --secondary: #e74c3c;
-            --accent: #c0392b;
-            --success: #27ae60;
-            --bg-light: #f8f9fa;
-            --text-dark: #333;
-            --text-light: #666;
+            --primary-color: #0070c0; /* Professional Ocean Blue */
+            --secondary-color: #d9534f; /* Soft Red/Alert for warnings */
+            --tertiary-color: #5cb85c; /* Success/Ethical Green */
+            --background-color: #f8f9fa; /* Light Gray/Off-White Background */
+            --text-color: #333333; /* Dark Gray Text */
+            --slide-bg: #ffffff; /* Pure White Slide Body */
+            --highlight-bg: #e9ecef; /* Subtle Gray for list items */
+            --shadow-color: rgba(0, 0, 0, 0.1);
         }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+
         body {
-            font-family: 'Poppins', sans-serif;
-            background: var(--bg-light);
-            color: var(--text-dark);
-            line-height: 1.6;
-        }
-        .lesson-container { max-width: 900px; margin: 0 auto; padding: 2rem; }
-        .lesson-header {
-            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
-            padding: 2rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
-            margin-bottom: 2rem;
-            color: white;
-        }
-        .course-breadcrumb {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
-            font-size: 0.9rem;
-            opacity: 0.9;
-        }
-        .course-breadcrumb a { color: white; text-decoration: none; }
-        .course-breadcrumb a:hover { text-decoration: underline; }
-        .lesson-meta {
-            display: flex;
-            gap: 1.5rem;
-            margin-bottom: 1rem;
-            flex-wrap: wrap;
-        }
-        .meta-item {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.9rem;
-        }
-        .lesson-title { font-size: 2rem; margin-bottom: 1rem; }
-        .lesson-objectives {
-            background: rgba(255,255,255,0.15);
-            padding: 1.5rem;
-            border-radius: 8px;
-            margin-bottom: 2rem;
-        }
-        .lesson-objectives h3 { margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
-        .lesson-objectives ul { margin-left: 1.5rem; }
-        .lesson-objectives li { margin-bottom: 0.5rem; }
-        .content-section {
-            background: white;
-            padding: 2rem;
-            border-radius: 12px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            margin-bottom: 2rem;
-        }
-        .content-section h2 {
-            color: var(--primary);
-            margin-bottom: 1rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 3px solid var(--secondary);
-        }
-        .content-section h3 { color: var(--primary); margin: 1.5rem 0 0.75rem; }
-        .content-section p { margin-bottom: 1rem; }
-        .content-section ul, .content-section ol { margin: 1rem 0 1rem 1.5rem; }
-        .content-section li { margin-bottom: 0.5rem; }
-        .course-icon {
-            width: 80px;
-            height: 80px;
-            background: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 1rem auto;
-            font-size: 2.5rem;
-            color: var(--secondary);
-        }
-        .info-box {
-            background: #e3f2fd;
-            border-left: 4px solid #3498db;
-            padding: 1rem;
-            border-radius: 0 8px 8px 0;
-            margin: 1rem 0;
-        }
-        .warning-box {
-            background: #fff3e0;
-            border-left: 4px solid #ff9800;
-            padding: 1rem;
-            border-radius: 0 8px 8px 0;
-            margin: 1rem 0;
-        }
-        .tip-box {
-            background: #e8f5e9;
-            border-left: 4px solid var(--success);
-            padding: 1rem;
-            border-radius: 0 8px 8px 0;
-            margin: 1rem 0;
-        }
-        .navigation-buttons {
-            display: flex;
-            justify-content: space-between;
-            gap: 1rem;
-            margin-top: 2rem;
-        }
-        .nav-btn {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 1rem 1.5rem;
-            background: white;
-            border: 2px solid var(--secondary);
-            color: var(--secondary);
-            text-decoration: none;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-            flex: 1;
-            justify-content: center;
-        }
-        .nav-btn:hover { background: var(--secondary); color: white; }
-        .nav-btn.disabled { opacity: 0.5; pointer-events: none; }
-        .nav-btn.next { background: var(--secondary); color: white; }
-        .nav-btn.next:hover { background: var(--accent); border-color: var(--accent); }
-        .progress-bar {
-            background: #e0e0e0;
-            height: 8px;
-            border-radius: 4px;
-            margin-top: 2rem;
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
             overflow: hidden;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 16px;
         }
-        .progress-fill {
-            background: linear-gradient(90deg, #e74c3c, #c0392b);
+
+        .presentation-container {
+            width: 100%;
             height: 100%;
-            border-radius: 4px;
-            transition: width 0.3s ease;
+            overflow: hidden;
+            position: relative;
         }
+
+        .slide {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: opacity 0.6s ease-in-out, transform 0.6s ease-in-out;
+            padding: 5vh 10vw;
+            box-sizing: border-box;
+            background-color: var(--slide-bg);
+            border-left: 8px solid var(--primary-color); /* Thicker highlight border */
+            box-shadow: 0 0 20px var(--shadow-color);
+        }
+
+        .slide.active {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* Slide Content Styling */
+        .slide-content {
+            width: 100%;
+            max-width: 1100px;
+            text-align: left;
+            overflow-y: auto;
+            max-height: 90vh;
+        }
+
+        .slide h1, .slide h2 {
+            color: var(--primary-color);
+            padding-bottom: 10px;
+            margin-bottom: 25px;
+            font-weight: 700;
+        }
+        
+        .slide h1 {
+            font-size: 3.5em;
+        }
+
+        .slide h2 {
+            font-size: 2.2em;
+            color: var(--primary-color);
+            border-bottom: 4px dashed var(--highlight-bg); /* Softer divider */
+        }
+
+        .slide p {
+            line-height: 1.7;
+            margin-bottom: 15px;
+            font-size: 1.15em;
+        }
+
+        .slide ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .slide li {
+            background: var(--highlight-bg);
+            margin-bottom: 12px;
+            padding: 15px 20px;
+            border-left: 6px solid var(--tertiary-color); /* Use green for list/key points */
+            font-size: 1.1em;
+            border-radius: 5px;
+            box-shadow: 0 1px 3px var(--shadow-color);
+            display: flex;
+            align-items: flex-start;
+            transition: background 0.3s;
+        }
+        
+        .slide li:hover {
+            background: #e0e0e0;
+        }
+        
+        .slide li strong {
+            color: var(--primary-color);
+            margin-right: 10px;
+            font-weight: 700;
+        }
+
+        /* Specific Slide Layouts */
+        .title-slide {
+            text-align: center;
+            justify-content: center;
+        }
+
+        .title-slide h1 {
+            font-size: 5em;
+            border-bottom: none;
+            color: var(--text-color);
+            text-shadow: 2px 2px 4px var(--shadow-color);
+        }
+
+        .title-slide p {
+            font-size: 1.8em;
+            color: var(--primary-color);
+            font-weight: 300;
+        }
+
+        .key-concept {
+            padding: 25px;
+            background-color: #f2f7ff; /* Lighter shade of blue-gray */
+            border-radius: 10px;
+            margin-top: 25px;
+            border: 1px solid #cce5ff;
+            border-left: 8px solid var(--primary-color);
+            box-shadow: 0 4px 10px rgba(0, 112, 192, 0.1);
+        }
+        
+        .key-concept p {
+            font-style: italic;
+            color: #555;
+            font-size: 1em;
+        }
+
+        .example-box {
+            background-color: #fff3cd; /* Light warning yellow */
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            font-family: 'Space Mono', monospace;
+            border: 2px solid #ffeeba;
+            color: #856404; /* Darker text for readability on light background */
+        }
+
+        /* Navigation Arrows */
+        .nav-arrow {
+            position: fixed; /* Use fixed for better small screen experience */
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 3em;
+            color: var(--primary-color);
+            cursor: pointer;
+            padding: 15px;
+            z-index: 10;
+            user-select: none;
+            background: rgba(255, 255, 255, 0.7); /* Light, subtle background */
+            border: 1px solid var(--primary-color);
+            border-radius: 50%;
+            line-height: 0.5;
+            transition: background 0.3s, color 0.3s, transform 0.3s;
+        }
+
+        .nav-arrow:hover {
+            background: var(--primary-color);
+            color: var(--slide-bg);
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        #prev-slide {
+            left: 20px;
+        }
+
+        #next-slide {
+            right: 20px;
+        }
+
+        /* Footer for Slide Count */
+        .slide-footer {
+            position: fixed;
+            bottom: 10px;
+            right: 20px;
+            font-size: 1em;
+            color: #6c757d; /* Muted gray */
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+        
+        /* Image Placeholder Style (Adjusted for light theme) */
+        /* .image-placeholder {
+            width: 100%;
+            height: 200px;
+            background-color: #f1f1f1;
+            border: 2px dashed #adb5bd;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 20px 0;
+            color: #6c757d;
+            font-family: 'Space Mono', monospace;
+            border-radius: 8px;
+        } */
+
+        /* Image Container Style */
+.image-placeholder {
+    width: 100%;
+    /* height: auto;  <--- Better to let content define height */
+    margin: 20px 0;
+    border-radius: 8px;
+    overflow: hidden; /* Ensures image corners match container */
+}
+
+.image-placeholder img {
+    max-width: 100%;
+    height: auto;
+    display: block; /* Important for preventing extra space below the image */
+}
+
+        /* --- Responsive Adjustments for Small Screens --- */
         @media (max-width: 768px) {
-            .lesson-container { padding: 1rem; }
-            .lesson-title { font-size: 1.5rem; }
-            .navigation-buttons { flex-direction: column; }
+            .slide {
+                padding: 5vh 5vw;
+                border-left-width: 5px;
+            }
+            
+            .slide h1 {
+                font-size: 2.5em;
+            }
+
+            .slide h2 {
+                font-size: 1.8em;
+                margin-bottom: 15px;
+            }
+
+            .slide p, .slide li {
+                font-size: 1em;
+            }
+
+            .title-slide h1 {
+                font-size: 3.5em;
+            }
+            
+            .title-slide p {
+                font-size: 1.2em;
+            }
+
+            .nav-arrow {
+                font-size: 2em;
+                padding: 10px;
+            }
+            
+            #prev-slide {
+                left: 10px;
+            }
+
+            #next-slide {
+                right: 10px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="lesson-container">
-        <div class="lesson-header">
-            <div class="course-icon"><i class="fas fa-shield-alt"></i></div>
-            <div class="course-breadcrumb">
-                <a href="/student-dashboard/notes.html"><i class="fas fa-arrow-left"></i> Back to Notes</a>
-            </div>
-            <div class="lesson-meta">
-                <span class="meta-item"><i class="fas fa-book"></i> Lesson 1 of 3</span>
-                <span class="meta-item"><i class="fas fa-clock"></i> 45 minutes</span>
-            </div>
-            <h1 class="lesson-title">Introduction to Cybersecurity</h1>
-        </div>
-        <div class="lesson-objectives">
-            <h3><i class="fas fa-bullseye"></i> Learning Objectives</h3>
-            <ul>
-                <li>Understand what cybersecurity is and why it matters</li>
-                <li>Identify common types of cyber threats</li>
-                <li>Recognize the importance of cybersecurity in daily life</li>
-                <li>Learn basic cybersecurity concepts and terminology</li>
-            </ul>
-        </div>
-        <div class="content-section">
-            <h2>What is Cybersecurity?</h2>
-            <p>Cybersecurity is the practice of protecting computers, networks, programs, and data from unauthorized access or digital attacks. It involves a set of technologies, processes, and practices designed to safeguard systems from malicious activities.</p>
-            <h3>Why Cybersecurity Matters</h3>
-            <ul>
-                <li><strong>Protection of Personal Data:</strong> Safeguards your private information from theft</li>
-                <li><strong>Financial Security:</strong> Prevents fraud and monetary losses</li>
-                <li><strong>Privacy Protection:</strong> Keeps your digital life secure</li>
-                <li><strong>Business Continuity:</strong> Ensures organizations can operate safely</li>
-            </ul>
-            <div class="info-box">
-                <strong><i class="fas fa-info-circle"></i> Did You Know?</strong>
-                <p>Cyber attacks occur every 39 seconds, affecting 1 in 3 Americans every year!</p>
-            </div>
-        </div>
-        <div class="content-section">
-            <h2>Common Cyber Threats</h2>
-            <p>Understanding the types of threats is the first step in protecting yourself.</p>
-            <h3>Types of Threats</h3>
-            <ul>
-                <li><strong>Malware:</strong> Malicious software including viruses, worms, and trojans</li>
-                <li><strong>Phishing:</strong> Deceptive emails or websites designed to steal information</li>
-                <li><strong>Ransomware:</strong> Encrypts files and demands payment for recovery</li>
-                <li><strong>Social Engineering:</strong> Manipulating people into revealing confidential information</li>
-                <li><strong>Man-in-the-Middle Attacks:</strong> Intercepting communications between two parties</li>
-                <li><strong>Denial of Service (DoS):</strong> Overloading systems to make them unavailable</li>
-            </ul>
-            <div class="warning-box">
-                <strong><i class="fas fa-exclamation-triangle"></i> Important</strong>
-                <p>Cyber criminals often target the weakest link - human users. Being aware is your first line of defense!</p>
-            </div>
-        </div>
-        <div class="content-section">
-            <h2>Basic Security Concepts</h2>
-            <p>These fundamental concepts form the foundation of cybersecurity practices.</p>
-            <h3>The CIA Triad</h3>
-            <ul>
-                <li><strong>Confidentiality:</strong> Ensuring information is accessible only to authorized individuals</li>
-                <li><strong>Integrity:</strong> Maintaining accuracy and completeness of data</li>
-                <li><strong>Availability:</strong> Ensuring systems and data are accessible when needed</li>
-            </ul>
-            <h3>Defense in Depth</h3>
-            <p>Using multiple layers of security controls throughout a system. If one layer fails, others still provide protection.</p>
-            <div class="tip-box">
-                <strong><i class="fas fa-lightbulb"></i> Pro Tip</strong>
-                <p>Think of cybersecurity like onion layers - the more layers, the harder it is for attackers to reach your data!</p>
-            </div>
-        </div>
-        <div class="content-section">
-            <h2>Your Role in Cybersecurity</h2>
-            <p>Every user plays a crucial role in maintaining security. Simple habits can make a big difference.</p>
-            <h3>Best Practices</h3>
-            <ul>
-                <li>Use strong, unique passwords for each account</li>
-                <li>Keep software and systems updated</li>
-                <li>Be cautious with email attachments and links</li>
-                <li>Use secure Wi-Fi connections</li>
-                <li>Back up important data regularly</li>
-                <li>Report suspicious activities immediately</li>
-            </ul>
-        </div>
-        <div class="navigation-buttons">
-            <a class="nav-btn disabled">
-                <i class="fas fa-arrow-left"></i>
-                <span>No Previous</span>
-            </a>
-            <a href="lesson-2.html" class="nav-btn next">
-                <span>Next: Password Security & Authentication</span>
-                <i class="fas fa-arrow-right"></i>
-            </a>
-        </div>
-        <div class="progress-bar">
-            <div class="progress-fill" style="width: 33%"></div>
+
+<div class="presentation-container">
+
+    <div class="slide title-slide active" id="slide-1">
+        <div class="slide-content">
+            <h1>CYBERSECURITY LEVEL 1</h1>
+            <p class="subtitle">WEEK 1 – CLASS 1</p>
+            <p><strong>Introduction to Cybersecurity</strong></p>
+            <hr style="width: 50%; border-color: var(--primary-color); margin-top: 30px;">
+            <p style="margin-top: 50px; color: var(--text-color);">
+                <span style="font-size: 1.2em;"><strong>👋 Welcome!</strong></span><br>
+                In this journey, we shall work with the Alex Chen Family to secure their digital lives.
+            </p>
         </div>
     </div>
+
+    <div class="slide" id="slide-2">
+        <div class="slide-content">
+            <h2>✨ 1. What is Cybersecurity?</h2>
+            <p>Cybersecurity is simply the art and science of protecting anything that lives on computers, phones, networks, or the internet.</p>
+
+            <div class="key-concept">
+                <p><strong>Think of it like this:</strong></p>
+                <ul>
+                    <li style="border-left-color: var(--tertiary-color); background: none;"><strong>⭐ Physical Security:</strong> When you lock your house, you are protecting your physical items.</li>
+                    <li style="border-left-color: var(--tertiary-color); background: none;"><strong>⭐ Digital Security:</strong> Cybersecurity is the digital version of that lock.</li>
+                    <li style="border-left-color: var(--tertiary-color); background: none;">It protects your data, identity, devices, money, privacy, and online activities.</li>
+                </ul>
+            </div>
+
+            <p><strong>A simple, formal definition:</strong></p>
+            <p>Cybersecurity is the practice of keeping computers, networks, and information safe from attacks, damage, or unauthorized access.</p>
+        </div>
+    </div>
+
+    <div class="slide" id="slide-3">
+        <div class="slide-content">
+            <h2>Who Does Cybersecurity Protect You From?</h2>
+            <div class="image-placeholder">
+                <img src="cyber-threats.png" alt="">
+            </div>
+            
+            <p>Cybersecurity protects you from bad actors (threat actors) like:</p>
+            <ul>
+                <li><strong>Hackers:</strong> Those who exploit system weaknesses.</li>
+                <li><strong>Scammers:</strong> Those who trick people (like Alex Chen) out of money or information.</li>
+                <li><strong>Malware Creators:</strong> Those who build destructive software.</li>
+                <li><strong>Online Thieves:</strong> Those who steal data or money.</li>
+                <li><strong>Data Manipulators:</strong> Those who change information for malicious gain.</li>
+            </ul>
+            <p style="text-align: center; margin-top: 30px; font-size: 1.3em; color: var(--tertiary-color);">
+                Cybersecurity = Digital Security + Privacy + Protection + <strong>Peace of Mind</strong>.
+            </p>
+        </div>
+    </div>
+
+    <div class="slide" id="slide-4">
+        <div class="slide-content">
+            <h2>✨ 2. Why is Cybersecurity Important Today?</h2>
+            <p>We live in a world where almost every critical aspect of life is online:</p>
+            <ul>
+                <li>We bank online.</li>
+                <li>We study online.</li>
+                <li>Companies store customer data digitally.</li>
+                <li>Hospitals, schools, and governments depend on computers.</li>
+            </ul>
+            <p style="color: var(--secondary-color);"><strong>If all this is online, then cyber threats are also online.</strong></p>
+            <div class="image-placeholder" style="height: 250px;width: 100%;">
+                <img src="server-room.png" alt="">
+            </div>
+        </div>
+    </div>
+    
+    <div class="slide" id="slide-5">
+        <div class="slide-content">
+            <h2>Real Reasons Cybersecurity is Important:</h2>
+            <ul>
+                <li><strong>1. Protects Personal Information:</strong> (Passwords, photos, identity) — Keeps Alex Chen's private life safe.</li>
+                <li><strong>2. Prevents Financial Loss:</strong> (Online banking fraud, mobile money scams) — Stops thieves from accessing savings.</li>
+                <li><strong>3. Protects Businesses:</strong> Companies lose millions every year due to cyber attacks.</li>
+                <li><strong>4. Prevents Data Loss:</strong> Hackers destroy systems, ransomware locks computers.</li>
+                <li><strong>5. Keeps Critical Systems Running:</strong> Hospitals, airports, electricity grids — must stay safe.</li>
+                <li><strong>6. Protects Your Privacy:</strong> Your conversations, location, and habits must remain yours.</li>
+            </ul>
+            <p style="font-size: 1.2em; text-align: center; color: var(--tertiary-color); margin-top: 20px;">
+                Cybersecurity is not optional anymore... <strong>It’s a survival skill.</strong>
+            </p>
+        </div>
+    </div>
+
+    <div class="slide" id="slide-6">
+        <div class="slide-content">
+            <h2>✨ 3. Types of Cyber Attacks (Simple Overview)</h2>
+            <p>Here are the main attack types every beginner should know:</p>
+            
+            <ul>
+                <li style="border-left-color: var(--secondary-color);"><strong>🎣 Phishing:</strong> Fake messages that try to trick you: “Click here... Your account is closing...” Designed to steal passwords & money.</li>
+                <li style="border-left-color: var(--secondary-color);"><strong>😈 Malware:</strong> Malicious software (Viruses, Worms, Ransomware) designed to harm your device.</li>
+                <li style="border-left-color: var(--secondary-color);"><strong>🔑 Password Attacks:</strong> Hackers trying to guess or steal your password. (Brute force, Credential theft).</li>
+            </ul>
+        </div>
+    </div>
+    
+    <div class="slide" id="slide-7">
+        <div class="slide-content">
+            <h2>More Common Attack Types</h2>
+            <div class="example-box">
+                <p><strong>Example of a Real Password (Used by Alex Chen's Son):</strong></p>
+                <p style="color: #0070c0;"><code>AlexChen*1234</code></p>
+                <p style="color: var(--secondary-color); font-weight: bold;">NOTE: This is a very weak password! It can be guessed easily using Brute Force and Dictionary Attacks.</p>
+            </div>
+            
+            <ul>
+                <li style="border-left-color: var(--secondary-color);"><strong>🗣️ Social Engineering:</strong> Manipulating people instead of computers. Example: Pretending to be a bank agent to make you reveal your PIN.</li>
+                <li style="border-left-color: var(--secondary-color);"><strong>🚧 Denial of Service (DoS/DDoS):</strong> Overloading a website/service so it becomes slow or crashes.</li>
+                <li style="border-left-color: var(--secondary-color);"><strong>🕵️ Man-in-the-Middle (MITM):</strong> A hacker secretly intercepts messages between two people.</li>
+                <li style="border-left-color: var(--secondary-color);"><strong>📁 Data Breaches:</strong> Unauthorized persons accessing sensitive company information.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="slide" id="slide-8">
+        <div class="slide-content">
+            <h2>✨ 4. Cybersecurity Career Paths</h2>
+            <p>One of the fastest-growing and highest-paying tech fields worldwide.</p>
+            
+            <div style="display: flex; flex-wrap: wrap; gap: 15px;">
+                <div style="flex: 1 1 45%; padding: 15px; background-color: #e3f2fd; border-radius: 8px; border: 1px solid #bbdefb;">
+                    <h3 style="color: var(--primary-color); border-bottom: 2px solid #a4c7f0; margin-top: 0; padding-bottom: 5px; font-size: 1.5em;">💻 Ethical Hacker / Pen Tester</h3>
+                    <p style="margin-bottom: 0;">Find vulnerabilities before real hackers do.</p>
+                </div>
+                <div style="flex: 1 1 45%; padding: 15px; background-color: #e3f2fd; border-radius: 8px; border: 1px solid #bbdefb;">
+                    <h3 style="color: var(--primary-color); border-bottom: 2px solid #a4c7f0; margin-top: 0; padding-bottom: 5px; font-size: 1.5em;">🛡️ Security Analyst</h3>
+                    <p style="margin-bottom: 0;">Monitors systems, detects attacks, handles alerts.</p>
+                </div>
+                <div style="flex: 1 1 45%; padding: 15px; background-color: #e3f2fd; border-radius: 8px; border: 1px solid #bbdefb;">
+                    <h3 style="color: var(--primary-color); border-bottom: 2px solid #a4c7f0; margin-top: 0; padding-bottom: 5px; font-size: 1.5em;">🔬 Digital Forensics Expert</h3>
+                    <p style="margin-bottom: 0;">Investigates crimes, recovers evidence, analyzes hacks.</p>
+                </div>
+                <div style="flex: 1 1 45%; padding: 15px; background-color: #e3f2fd; border-radius: 8px; border: 1px solid #bbdefb;">
+                    <h3 style="color: var(--primary-color); border-bottom: 2px solid #a4c7f0; margin-top: 0; padding-bottom: 5px; font-size: 1.5em;">☁️ Cloud Security Specialist</h3>
+                    <p style="margin-bottom: 0;">Protects cloud platforms (AWS, Azure, Google Cloud).</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide" id="slide-9">
+        <div class="slide-content">
+            <h2>✨ 5. Ethical Security Practices & Mindset</h2>
+            <p>To be a good professional, your mindset matters more than your tools.</p>
+            
+            <ul>
+                <li style="border-left-color: var(--tertiary-color);"><strong>✅ Integrity:</strong> You must use knowledge ethically.</li>
+                <li style="border-left-color: var(--tertiary-color);"><strong>🔒 Confidentiality:</strong> Whatever you see during testing should remain private.</li>
+                <li style="border-left-color: var(--tertiary-color);"><strong>🤝 Respect:</strong> Never attack a system without permission.</li>
+                <li style="border-left-color: var(--tertiary-color);"><strong>📚 Continuous Learning:</strong> Cybersecurity changes every day. You must stay updated.</li>
+                <li style="border-left-color: var(--tertiary-color);"><strong>👨‍💼 Professionalism:</strong> Always document, communicate clearly, and act with discipline.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="slide" id="slide-10">
+        <div class="slide-content">
+            <h2>📝 Summary of Today’s Class</h2>
+            <div class="key-concept" style="border-left-color: var(--primary-color); background-color: #e9f5ff; padding: 30px;">
+                <p style="color: var(--text-color); font-style: normal; font-weight: bold; font-size: 1.2em;">You have learned the solid foundation of everything you will learn next:</p>
+                <ul style="margin-top: 15px;">
+                    <li style="border-left: 3px solid var(--tertiary-color); background: #ffffff;">✔ What cybersecurity is</li>
+                    <li style="border-left: 3px solid var(--tertiary-color); background: #ffffff;">✔ Why it is extremely important today</li>
+                    <li style="border-left: 3px solid var(--tertiary-color); background: #ffffff;">✔ Common cyber attack types</li>
+                    <li style="border-left: 3px solid var(--tertiary-color); background: #ffffff;">✔ Cybersecurity career paths</li>
+                    <li style="border-left: 3px solid var(--tertiary-color); background: #ffffff;">✔ Ethical principles of a cybersecurity professional</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <div class="slide" id="slide-11">
+        <div class="slide-content">
+            <h2>📚 Class Assignment (Simple & Practical)</h2>
+            <p>Write a one–page explanation (in your own words) on the following:</p>
+            
+            <div class="key-concept" style="border-left-color: var(--secondary-color); background-color: #fcebeb;">
+                <ul style="margin-top: 15px;">
+                    <li style="border-left: 4px solid var(--secondary-color); background: #ffffff;">1. What cybersecurity means to you personally.</li>
+                    <li style="border-left: 4px solid var(--secondary-color); background: #ffffff;">2. One cyber attack you have seen or heard about.</li>
+                    <li style="border-left: 4px solid var(--secondary-color); background: #ffffff;">3. The cybersecurity career path that interests you and why.</li>
+                </ul>
+                <p style="text-align: center; color: #8a3f3f; margin-top: 20px;">
+                    Goal: To understand your thinking. You can write in simple English.
+                </p>
+            </div>
+            
+            <p style="text-align: center; margin-top: 40px; font-size: 1.5em; color: var(--primary-color);">
+                END OF CLASS 1
+            </p>
+        </div>
+    </div>
+
+    <div id="prev-slide" class="nav-arrow" onclick="changeSlide(-1)">&#10094;</div>
+    <div id="next-slide" class="nav-arrow" onclick="changeSlide(1)">&#10095;</div>
+    <div class="slide-footer">Slide <span id="current-slide-num">1</span> of <span id="total-slides-num">11</span></div>
+
+</div>
+
+<script>
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.slide');
+    const totalSlides = slides.length;
+
+    // Set the total slide number in the footer
+    document.getElementById('total-slides-num').textContent = totalSlides;
+
+    function showSlide(index) {
+        if (index >= totalSlides) {
+            index = 0; // Loop back to the start
+        } else if (index < 0) {
+            index = totalSlides - 1; // Loop back to the end
+        }
+        
+        // Deactivate all slides
+        slides.forEach((slide) => {
+            slide.classList.remove('active');
+        });
+
+        // Activate the current slide
+        slides[index].classList.add('active');
+        currentSlide = index;
+        
+        // Update the footer number
+        document.getElementById('current-slide-num').textContent = currentSlide + 1;
+    }
+
+    function changeSlide(n) {
+        showSlide(currentSlide + n);
+    }
+
+    // Initialize the first slide
+    showSlide(currentSlide);
+    
+    // Allow keyboard navigation
+    document.addEventListener('keydown', function(event) {
+        if (event.key === "ArrowRight" || event.key === " ") {
+            changeSlide(1);
+        } else if (event.key === "ArrowLeft") {
+            changeSlide(-1);
+        }
+    });
+
+</script>
 </body>
 </html>

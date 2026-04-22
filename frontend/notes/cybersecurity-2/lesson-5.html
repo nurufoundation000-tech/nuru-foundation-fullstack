@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cybersecurity Level 2 – Bash Scripting & Automation | Class 2</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,600;14..32,700&family=Source+Code+Pro:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-dark: #050a14;
+            --bg-card: #0c1122;
+            --bg-elevated: #111827;
+            --primary: #00e5ff;
+            --primary-dim: rgba(0, 229, 255, 0.2);
+            --success: #2ecc71;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --text-main: #edf2f8;
+            --text-muted: #94a3b8;
+            --border-subtle: #1e2a3a;
+            --glow: 0 0 12px rgba(0, 229, 255, 0.3);
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: radial-gradient(ellipse at 30% 20%, #0f172a, #020617 80%);
+            color: var(--text-main);
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .presentation-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        .slide {
+            position: absolute;
+            inset: 0;
+            padding: 4vh 6vw;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transform: translateX(40px) scale(0.98);
+            transition: opacity 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1), transform 0.4s ease;
+            pointer-events: none;
+            overflow-y: auto;
+        }
+
+        .slide.active {
+            opacity: 1;
+            transform: translateX(0) scale(1);
+            pointer-events: auto;
+        }
+
+        /* custom scroll */
+        .slide::-webkit-scrollbar {
+            width: 5px;
+        }
+        .slide::-webkit-scrollbar-track {
+            background: var(--bg-card);
+        }
+        .slide::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 10px;
+        }
+
+        /* .slide-content {
+            max-width: 1280px;
+            width: 100%;
+            margin: 0 auto;
+            background: rgba(5, 10, 20, 0.75);
+            backdrop-filter: blur(6px);
+            border-radius: 32px;
+            padding: 2rem 2.2rem;
+            border: 1px solid rgba(0, 229, 255, 0.2);
+            box-shadow: 0 25px 40px -12px rgba(0, 0, 0, 0.6);
+        } */
+
+        h1 {
+            font-size: 2.8rem;
+            font-weight: 700;
+            background: linear-gradient(120deg, #fff, var(--primary), #a0f0ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: -0.02em;
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            border-left: 5px solid var(--primary);
+            padding-left: 1rem;
+            margin: 1.2rem 0 1rem 0;
+            color: var(--primary);
+        }
+
+        h3 {
+            font-size: 1.3rem;
+            font-weight: 500;
+            margin: 1.2rem 0 0.6rem 0;
+            color: var(--success);
+        }
+
+        p {
+            line-height: 1.65;
+            color: var(--text-muted);
+            margin: 0.75rem 0;
+            font-size: 1rem;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--primary-dim);
+            border: 1px solid var(--primary);
+            border-radius: 40px;
+            padding: 4px 16px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            margin: 1.2rem 0;
+        }
+
+        .card {
+            background: linear-gradient(145deg, rgba(12, 17, 34, 0.9), rgba(8, 12, 24, 0.95));
+            border-radius: 20px;
+            padding: 1.3rem;
+            border: 1px solid rgba(0, 229, 255, 0.15);
+            transition: all 0.2s;
+        }
+        .card:hover {
+            border-color: var(--primary);
+            box-shadow: 0 5px 18px rgba(0, 229, 255, 0.1);
+        }
+
+        .card-header {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--primary);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .code-block {
+            background: #0a0e1a;
+            border-radius: 18px;
+            padding: 1rem 1.2rem;
+            font-family: 'Source Code Pro', monospace;
+            font-size: 0.85rem;
+            border: 1px solid #1e2a3a;
+            margin: 1rem 0;
+            overflow-x: auto;
+        }
+        .code-line {
+            color: #cbd5e6;
+            line-height: 1.5;
+        }
+        .cmd {
+            color: var(--primary);
+        }
+        .comment {
+            color: #6c8faa;
+        }
+
+        .step-list {
+            list-style: none;
+            padding-left: 0;
+        }
+        .step-list li {
+            margin-bottom: 14px;
+            padding-left: 26px;
+            position: relative;
+            color: var(--text-muted);
+        }
+        .step-list li::before {
+            content: "▹";
+            position: absolute;
+            left: 4px;
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        .outcome-box {
+            background: rgba(46, 204, 113, 0.08);
+            border-left: 3px solid var(--success);
+            border-radius: 18px;
+            padding: 1.2rem;
+            margin: 1.5rem 0;
+        }
+
+        .inline-code {
+            font-family: 'Source Code Pro', monospace;
+            background: #0f172a;
+            padding: 2px 8px;
+            border-radius: 8px;
+            color: var(--primary);
+            font-size: 0.85rem;
+            border: 1px solid #253445;
+        }
+
+        .nav-arrow {
+            position: fixed;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 48px;
+            height: 48px;
+            background: rgba(12, 17, 34, 0.9);
+            border: 1px solid var(--primary);
+            border-radius: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: var(--primary);
+            cursor: pointer;
+            transition: 0.2s;
+            z-index: 30;
+            backdrop-filter: blur(8px);
+        }
+        .nav-arrow:hover {
+            background: var(--primary);
+            color: #020617;
+            transform: translateY(-50%) scale(1.05);
+        }
+        #prev-slide { left: 20px; }
+        #next-slide { right: 20px; }
+
+        .slide-footer {
+            position: fixed;
+            bottom: 12px;
+            right: 24px;
+            background: rgba(5, 10, 20, 0.85);
+            padding: 4px 14px;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            font-family: monospace;
+            border: 1px solid var(--primary-dim);
+            z-index: 30;
+        }
+        .progress-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--success));
+            width: 0%;
+            transition: width 0.3s;
+            z-index: 40;
+        }
+        .title-slide .slide-content {
+            text-align: center;
+        }
+        @media (max-width: 800px) {
+            .slide { padding: 1.5rem; }
+            .grid-2 { grid-template-columns: 1fr; }
+            h1 { font-size: 2rem; }
+            h2 { font-size: 1.4rem; }
+            .nav-arrow { width: 38px; height: 38px; font-size: 1.3rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="presentation-container">
+
+    <!-- SLIDE 1: TITLE -->
+    <div class="slide title-slide active" id="slide-1">
+        <div class="slide-content">
+            <!-- <div class="badge">🧪CLASS 2</div> -->
+            <h1>Bash Scripting & Automation</h1>
+            <p style="font-size: 1.2rem; color: var(--success); margin-top: 0.5rem;"> Objective: Create scripts to automate tasks</p>
+            <p style="max-width: 700px; margin: 1rem auto;">From repetitive commands to repeatable weapons — automation transforms a good pentester into an efficient one.</p>
+            <div class="code-block" style="margin-top: 1.8rem; text-align: left;">
+                <div class="code-line"><span class="comment"># automation is not laziness — it's strategy</span></div>
+                <div class="code-line"><span class="cmd">$></span> echo "Welcome to real-world Bash automation"</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 2: LAB 1 - CREATE SCRIPT (detailed steps) -->
+    <div class="slide" id="slide-2">
+        <div class="slide-content">
+            <h2>🔧 Lab 1: Create a Simple Script</h2>
+            <p>We'll build a script from scratch — to understand the anatomy of automation.</p>
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-header">📝 STEP 1 — Create the file</div>
+                    <div class="code-block">
+                        <div class="code-line"><span class="cmd">nano script.sh</span></div>
+                    </div>
+                    <p>Always use the <span class="inline-code">.sh</span> extension for clarity. <span class="inline-code">nano</span> is beginner-friendly, but you can also use <span class="inline-code">vim</span> or <span class="inline-code">code</span>.</p>
+                </div>
+                <div class="card">
+                    <div class="card-header">✍️ STEP 2 — Add content (shebang + commands)</div>
+                    <div class="code-block">
+                        <div class="code-line"><span class="comment">#!/bin/bash</span></div>
+                        <div class="code-line">echo "System Scan Started"</div>
+                        <div class="code-line">date</div>
+                    </div>
+                    <p>The <span class="inline-code">#!/bin/bash</span> (shebang) tells the system which interpreter to use.</p>
+                </div>
+            </div>
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-header">🔐 STEP 3 — Make executable</div>
+                    <div class="code-block">
+                        <div class="code-line"><span class="cmd">chmod +x script.sh</span></div>
+                    </div>
+                    <p>Without execute permission, the script is just a text file. <span class="inline-code">chmod +x</span> adds execution rights.</p>
+                </div>
+                <div class="card">
+                    <div class="card-header">🚀 STEP 4 — Run the script</div>
+                    <div class="code-block">
+                        <div class="code-line"><span class="cmd">./script.sh</span></div>
+                    </div>
+                    <p>The <span class="inline-code">./</span> means "look in the current directory". Your terminal will then execute each line in order.</p>
+                </div>
+            </div>
+            <div class="outcome-box">
+                <strong>✅ Expected output:</strong> "System Scan Started" followed by the current date. Simple, but you've just automated your first task.
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 3: LAB 2 - AUTOMATION SCRIPT (practical example) -->
+    <div class="slide" id="slide-3">
+        <div class="slide-content">
+            <h2>🔧 Lab 2: Automation Script </h2>
+            <p>Automation shines when you combine multiple commands that you'd otherwise type manually every day.</p>
+            <div class="card" style="margin-bottom: 1rem;">
+                <div class="card-header">⚙️ Example: System Quick-Status Script</div>
+                <div class="code-block">
+                    <div class="code-line"><span class="comment">#!/bin/bash</span></div>
+                    <div class="code-line">echo "===== System Quick Report ====="</div>
+                    <div class="code-line">echo "Listing files in current directory:"</div>
+                    <div class="code-line"><span class="cmd">ls -lah</span></div>
+                    <div class="code-line">echo ""</div>
+                    <div class="code-line">echo "Current user:"</div>
+                    <div class="code-line"><span class="cmd">whoami</span></div>
+                    <div class="code-line">echo ""</div>
+                    <div class="code-line">echo "Current working directory:"</div>
+                    <div class="code-line"><span class="cmd">pwd</span></div>
+                </div>
+            </div>
+            <ul class="step-list">
+                <li><strong>Why this matters:</strong> Instead of typing <span class="inline-code">ls</span>, <span class="inline-code">whoami</span>, <span class="inline-code">pwd</span> separately, you run one script and get a structured report.</li>
+                <li><strong>Extend it:</strong> Add <span class="inline-code">df -h</span> for disk usage or <span class="inline-code">free -h</span> for memory — build your own diagnostic toolkit.</li>
+            </ul>
+            <div class="highlight" style="background: rgba(0,229,255,0.05); border-left: 3px solid var(--primary); padding: 1rem; border-radius: 14px; margin-top: 1rem;">
+                <span class="inline-code">💡 Pro tip:</span> Use absolute paths inside scripts if you plan to run them from different locations. <br>
+                Example: <span class="inline-code">/home/user/scripts/audit.sh</span> instead of relying on relative paths.
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 4: EXTENDING AUTOMATION (variables, conditions) -->
+    <div class="slide" id="slide-4">
+        <div class="slide-content">
+            <h2>🔁 Making Scripts Smarter</h2>
+            <p>Real automation uses variables and basic logic. Let's upgrade our lab script.</p>
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-header">📦 Using variables</div>
+                    <div class="code-block">
+                        <div class="code-line"><span class="comment">#!/bin/bash</span></div>
+                        <div class="code-line">target_dir="/var/log"</div>
+                        <div class="code-line">echo "Inspecting $target_dir"</div>
+                        <div class="code-line"><span class="cmd">ls $target_dir | head -5</span></div>
+                    </div>
+                    <p>Variables store information and make scripts reusable.</p>
+                </div>
+                <div class="card">
+                    <div class="card-header">⚖️ Simple conditions</div>
+                    <div class="code-block">
+                        <div class="code-line"><span class="comment">#!/bin/bash</span></div>
+                        <div class="code-line">if [ -f "/etc/passwd" ]; then</div>
+                        <div class="code-line">  echo "Password file exists."</div>
+                        <div class="code-line">else</div>
+                        <div class="line">  echo "Missing critical file."</div>
+                        <div class="code-line">fi</div>
+                    </div>
+                </div>
+            </div>
+            <p class="outcome-box" style="margin-top: 0.5rem;"><strong>🧠 Why this matters for pentesters:</strong> Conditional logic lets you build scripts that react to the environment — for example, checking if a port is open before launching an exploit.</p>
+        </div>
+    </div>
+
+    <!-- SLIDE 5: PRACTICAL AUTOMATION PATTERNS -->
+    <div class="slide" id="slide-5">
+        <div class="slide-content">
+            <h2>📌 Common Automation Patterns in Cybersecurity</h2>
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-header">🔄 Loops for reconnaissance</div>
+                    <div class="code-block">
+                        <div class="code-line"><span class="cmd">for ip in 192.168.1.{1..254}; do</span></div>
+                        <div class="code-line">  ping -c 1 $ip | grep "64 bytes"</div>
+                        <div class="code-line"><span class="cmd">done</span></div>
+                    </div>
+                    <p>Simple host discovery loop — scans a /24 subnet and shows live hosts.</p>
+                </div>
+                <div class="card">
+                    <div class="card-header">📂 Batch log analysis</div>
+                    <div class="code-block">
+                        <div class="code-line"><span class="cmd">grep "Failed password" /var/log/auth.log | awk '{print $11}' | sort | uniq -c</span></div>
+                    </div>
+                    <p>One-liner that extracts and counts failed SSH login attempts by IP — pure automation gold.</p>
+                </div>
+            </div>
+            <div class="outcome-box">
+                <strong>🎯 Outcome mindset:</strong> Once you write a script, you never have to manually repeat that task again. This is the difference between a junior and a senior operator.
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 6: OUTCOME / SUMMARY -->
+    <div class="slide" id="slide-6">
+        <div class="slide-content">
+            <h2>🧾 Outcome</h2>
+            <div class="outcome-box">
+                <ul style="list-style: none; padding-left: 0;">
+                    <li>✓ <strong>Ability to create and run scripts</strong> — from idea to execution in the Linux environment.</li>
+                    <li>✓ <strong>Understanding of automation in Linux</strong> — you can now chain commands, add execution rights, and design scripts that save hours.</li>
+                    <li>✓ <strong>Practical lab experience</strong> with shebang, variables, conditions, and loops.</li>
+                </ul>
+            </div>
+            <div class="card" style="margin-top: 0.8rem;">
+                <div class="card-header">🎓 Real‑world capability</div>
+                <p>After this class, you're able to:</p>
+                <ul class="step-list" style="margin-top: 0.2rem;">
+                    <li>Write custom enumeration scripts for CTFs or bug bounty.</li>
+                    <li>Automate log checks to spot anomalies without manual grep every time.</li>
+                    <li>Build your own “toolbox” of bash utilities for reconnaissance.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 7: ASSIGNMENT (applied, natural) -->
+    <div class="slide" id="slide-7">
+        <div class="slide-content">
+            <h2>📝 Assignment – Build Your First Automation Toolkit</h2>
+            <p>Create a script that solves a real (or simulated) repetitive task. Write it clearly, test it, then document.</p>
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-header">📌 Task A: System Health Script</div>
+                    <p>Write a script named <span class="inline-code">health_check.sh</span> that displays:</p>
+                    <ul class="step-list">
+                        <li>Current date & time</li>
+                        <li>Logged-in users (<span class="inline-code">who</span>)</li>
+                        <li>System uptime (<span class="inline-code">uptime</span>)</li>
+                        <li>Free memory in MB (<span class="inline-code">free -m</span>)</li>
+                    </ul>
+                    <p>Make it executable and run it. Capture the output.</p>
+                </div>
+                <div class="card">
+                    <div class="card-header">🛡️ Task B: Security Helper</div>
+                    <p>Write <span class="inline-code">failed_logins.sh</span> that:</p>
+                    <ul class="step-list">
+                        <li>Checks <span class="inline-code">/var/log/auth.log</span> (or <span class="inline-code">journalctl</span>)</li>
+                        <li>Counts how many "Failed password" attempts occurred today</li>
+                        <li>Prints "⚠️ high failure rate" if more than 5 attempts</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="outcome-box" style="margin-top: 0.5rem;">
+                <strong>📄 Deliverable (short write‑up):</strong><br>
+                1. Paste the full content of both scripts.<br>
+                2. Explain one line from each script that was new to you.<br>
+                3. Run <span class="inline-code">./health_check.sh</span> and paste the result — what does the output tell you about the system?<br>
+                4. One paragraph: how would you use automation in a real penetration test?
+            </div>
+            <p style="text-align: center; margin-top: 1.5rem; font-family: monospace; color: var(--primary);">END OF CLASS 2 – BASH SCRIPTING & AUTOMATION</p>
+        </div>
+    </div>
+
+    <!-- NAVIGATION -->
+    <div id="prev-slide" class="nav-arrow" onclick="changeSlide(-1)">‹</div>
+    <div id="next-slide" class="nav-arrow" onclick="changeSlide(1)">›</div>
+    <div class="slide-footer">
+        <span id="current-slide-num">1</span> / <span id="total-slides-num">7</span>
+    </div>
+    <div class="progress-bar" id="progress-bar"></div>
+</div>
+
+<script>
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.slide');
+    const total = slides.length;
+    const currentSpan = document.getElementById('current-slide-num');
+    const totalSpan = document.getElementById('total-slides-num');
+    const progressFill = document.getElementById('progress-bar');
+    totalSpan.textContent = total;
+
+    function showSlide(index) {
+        if (index >= total) index = 0;
+        if (index < 0) index = total - 1;
+        slides.forEach(s => s.classList.remove('active'));
+        slides[index].classList.add('active');
+        currentSlide = index;
+        currentSpan.textContent = currentSlide + 1;
+        const percent = ((currentSlide + 1) / total) * 100;
+        progressFill.style.width = percent + '%';
+    }
+    function changeSlide(step) {
+        showSlide(currentSlide + step);
+    }
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight' || e.key === ' ') {
+            e.preventDefault();
+            changeSlide(1);
+        } else if (e.key === 'ArrowLeft') {
+            e.preventDefault();
+            changeSlide(-1);
+        }
+    });
+    showSlide(0);
+</script>
+</body>
+</html>

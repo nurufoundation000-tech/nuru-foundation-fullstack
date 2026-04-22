@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cybersecurity Level 1 - Week 2: Port Security & Fortification</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&family=Space+Mono&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #0070c0; 
+            --secondary-color: #d9534f; 
+            --tertiary-color: #5cb85c; 
+            --background-color: #f8f9fa; 
+            --text-color: #333333; 
+            --slide-bg: #ffffff; 
+            --highlight-bg: #e9ecef; 
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            --terminal-bg: #1e1e1e;
+            --terminal-text: #00ff00;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .presentation-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        .slide {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.6s ease-in-out;
+            padding: 5vh 10vw;
+            box-sizing: border-box;
+            background-color: var(--slide-bg);
+            border-left: 10px solid var(--tertiary-color);
+        }
+
+        .slide.active {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .slide-content {
+            width: 100%;
+            max-width: 1100px;
+            text-align: left;
+            overflow-y: auto;
+            max-height: 90vh;
+        }
+
+        h1 { font-size: 3em; color: var(--text-color); margin-bottom: 10px; }
+        h2 { font-size: 2em; color: var(--primary-color); border-bottom: 2px solid var(--highlight-bg); padding-bottom: 10px; margin-top: 0;}
+        h3 { color: var(--secondary-color); margin-top: 15px; font-size: 1.4em;}
+        
+        p { line-height: 1.6; font-size: 1.1em; }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            font-size: 0.95em;
+        }
+        th { background: var(--primary-color); color: white; padding: 12px; text-align: left; }
+        td { padding: 10px; border-bottom: 1px solid #ddd; }
+        tr:nth-child(even) { background: #f9f9f9; }
+
+        /* Terminal Style */
+        .terminal {
+            background: var(--terminal-bg);
+            color: var(--terminal-text);
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Space Mono', monospace;
+            font-size: 1em;
+            margin: 15px 0;
+        }
+
+        /* Lists */
+        .slide ul { list-style: none; padding: 0; }
+        .slide li { 
+            background: var(--highlight-bg); 
+            margin: 6px 0; 
+            padding: 8px 12px; 
+            border-left: 4px solid var(--primary-color);
+            border-radius: 4px;
+        }
+
+        /* Highlight Box */
+        .info-box {
+            background: #e7f3ff;
+            border-left: 5px solid var(--primary-color);
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+
+        /* Nav Arrows */
+        .nav-arrow {
+            position: fixed; top: 50%; transform: translateY(-50%);
+            font-size: 2.5em; color: var(--primary-color);
+            cursor: pointer; padding: 20px; z-index: 100;
+            background: rgba(255,255,255,0.8); border-radius: 50%;
+            transition: 0.3s;
+        }
+        .nav-arrow:hover { background: var(--primary-color); color: white; }
+        #prev { left: 20px; }
+        #next { right: 20px; }
+
+        .footer {
+            position: fixed; bottom: 15px; right: 25px;
+            font-size: 0.9em; color: #777;
+        }
+    </style>
+</head>
+<body>
+
+<div class="presentation-container">
+
+    <div class="slide active">
+        <div class="slide-content" style="text-align:center;">
+            <h1>UNLOCKING PORT SECURITY</h1>
+            <p style="font-size:1.5em; color:var(--tertiary-color);">Week 2 — Class 3 (Network Fortification)</p>
+            <div style="margin-top:40px; padding:30px; background:#e8f5e9; border-radius:10px; border-left: 10px solid var(--tertiary-color);">
+                <p><strong>⭐ Today's Mission:</strong> You transform from a Network Detective to a <strong>Network Defender</strong>. We will identify the "open doors" on your devices and learn the professional ways to lock them.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="slide-content">
+            <h2>1. Discovering Open Ports</h2>
+            <p>Ports are like doors into your computer. Some stay open for valid reasons, but every open door is a potential entry point for a hacker.</p>
+            
+            <div style="display:flex; gap:10px;">
+                <div style="flex:1; background:#fff3cd; padding:10px; border-radius:5px;">
+                    <strong>⚠️ Open Port:</strong> Accepting connections. (A potential risk).
+                </div>
+                <div style="flex:1; background:#d4edda; padding:10px; border-radius:5px;">
+                    <strong>✅ Closed Port:</strong> Ignoring knocks. (The safe default).
+                </div>
+                <div style="flex:1; background:#d1ecf1; padding:10px; border-radius:5px;">
+                    <strong>🛡️ Filtered Port:</strong> A firewall guard is checking IDs.
+                </div>
+            </div>
+            <h3 style="color:var(--primary-color);">LAB: Finding Open Ports on YOUR Device</h3>
+            <p>Use the <strong>netstat</strong> command to see what is "Listening" for a connection.</p>
+            <div class="terminal">
+                Windows: netstat -an | find "LISTENING"<br>
+                Mac/Linux: netstat -tuln
+            </div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="slide-content">
+            <h2>Understanding Your Netstat Output</h2>
+            <p>When you run the command, you will see a table of connections. Here is how to read it like a professional:</p>
+            
+            <table>
+                <tr>
+                    <th>Proto</th>
+                    <th>Local Address</th>
+                    <th>Foreign Address</th>
+                    <th>State</th>
+                </tr>
+                <tr>
+                    <td>TCP</td>
+                    <td>0.0.0.0:445</td>
+                    <td>0.0.0.0:*</td>
+                    <td style="color:var(--secondary-color);"><strong>LISTENING</strong></td>
+                </tr>
+            </table>
+            <ul>
+                <li><strong>Local Address:</strong> Your IP and the Port number (e.g., :445).</li>
+                <li><strong>Foreign Address:</strong> Who is connecting to you (* means anyone).</li>
+                <li><strong>State:</strong> LISTENING means the port is open and waiting for data.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="slide-content">
+            <h2>2. Advanced Port Scanning</h2>
+            <p>Sometimes you need to see your network from the <strong>outside</strong>. This is exactly what a hacker does during the reconnaissance phase.</p>
+            <div class="info-box">
+                <strong>Try an Online Scan:</strong> Visit <strong>yougetsignal.com</strong> to see which ports are visible to the entire internet through your public IP.
+            </div>
+            <h3 style="color:var(--secondary-color);">⚠️ The Golden Rule of Scanning</h3>
+            <p>NEVER scan a network or an IP address that you do not own or have explicit written permission to test. Unauthorized scanning can be flagged as an attack!</p>
+            <p><strong>Safe Scanning Target:</strong> Use <strong>127.0.0.1</strong> (Localhost) to scan your own machine only.</p>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="slide-content">
+            <h2>3. The "Why It Matters" Exercise</h2>
+            <p>Every port serves a purpose, but many are "classic" targets for automated hacker bots.</p>
+            
+            <table>
+                <tr>
+                    <th>Port</th>
+                    <th>Service</th>
+                    <th>The Hacker's Goal</th>
+                </tr>
+                <tr>
+                    <td>21</td>
+                    <td>FTP</td>
+                    <td>Steal files or upload malware.</td>
+                </tr>
+                <tr>
+                    <td>22</td>
+                    <td>SSH</td>
+                    <td>Brute force the password to take full control.</td>
+                </tr>
+                <tr>
+                    <td>23</td>
+                    <td>Telnet</td>
+                    <td>"Sniff" the password because it isn't encrypted.</td>
+                </tr>
+                <tr>
+                    <td>3389</td>
+                    <td>RDP</td>
+                    <td>Remotely log in and view your desktop screen.</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="slide-content">
+            <h2>4. Securing Your Open Ports</h2>
+            <p>Defense happens in layers. Determine which level you are currently at and how to reach the next one.</p>
+            <div style="display:flex; gap:15px; flex-wrap:wrap;">
+                <div style="flex:1 1 300px; background:#f8f9fa; padding:15px; border-top: 5px solid var(--tertiary-color);">
+                    <h4>Level 1: Basic User</h4>
+                    <p>- Keep Firewall ON.<br>- Turn off unused "Sharing" settings.<br>- Install all OS updates.</p>
+                </div>
+                <div style="flex:1 1 300px; background:#f8f9fa; padding:15px; border-top: 5px solid var(--primary-color);">
+                    <h4>Level 2: Power User</h4>
+                    <p>- Set custom Firewall Rules.<br>- Change default Port numbers.<br>- Use a VPN for remote access.</p>
+                </div>
+                <div style="flex:1 1 300px; background:#f8f9fa; padding:15px; border-top: 5px solid var(--secondary-color);">
+                    <h4>Level 3: Professional</h4>
+                    <p>- Intrusion Detection (IDS).<br>- Port Knocking (Hidden ports).<br>- Regular Vulnerability Scans.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="slide-content">
+            <h2>Hands-On: Port Hardening</h2>
+            <p>Let's look at the "Guard" of your computer: The Firewall.</p>
+            <h3 style="color:var(--primary-color);">For Windows Users:</h3>
+            <ul>
+                <li>Open the Run dialog (Win + R) and type <strong>wf.msc</strong>.</li>
+                <li>Explore <strong>Inbound Rules</strong> to see every app allowed to "listen" for connections.</li>
+            </ul>
+            <h3 style="color:var(--primary-color);">For Mac Users:</h3>
+            <ul>
+                <li>Go to System Preferences -> Security & Privacy -> Firewall.</li>
+                <li>Check <strong>Firewall Options</strong> to see which applications are allowed to accept incoming data.</li>
+            </ul>
+            <div class="info-box">
+                <strong>Challenge:</strong> Identify one app on your list that you no longer use and disable its rule.
+            </div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="slide-content">
+            <h2>🛡️ Your Personal Port Audit Checklist</h2>
+            <div style="column-count: 2; gap: 40px;">
+                <h4 style="color:var(--tertiary-color);">Immediate Actions</h4>
+                <ul>
+                    <li>Run netstat & identify ports.</li>
+                    <li>Verify Firewall is active.</li>
+                    <li>Close Bluetooth/File sharing.</li>
+                </ul>
+                <h4 style="color:var(--primary-color);">Ongoing Habits</h4>
+                <ul>
+                    <li>Monthly port scans of local devices.</li>
+                    <li>Review firewall rules every 3 months.</li>
+                    <li>Check router firmware for updates.</li>
+                </ul>
+            </div>
+            <p style="margin-top:20px; font-style:italic;">"My job is to know my network better than any hacker could."</p>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="slide-content">
+            <h2>🚀 Week 2 Summary</h2>
+            <p>You have covered the core of networking security this week:</p>
+            <ul>
+                <li><strong>Class 1:</strong> Digital Addressing (IPs & MACs).</li>
+                <li><strong>Class 2:</strong> Investigation Tools (Ping, Tracert, NSLookup).</li>
+                <li><strong>Class 3:</strong> Port Security & Fortification.</li>
+            </ul>
+            <div class="info-box" style="text-align:center;">
+                <p><strong>Your Mini-Assignment is due before Week 3 begins!</strong><br>Discovery + Analysis + Action Plan.</p>
+            </div>
+            <p style="text-align:center; font-weight:bold; font-size:1.4em;">Class 4 Complete. Welcome to the world of Defense!</p>
+        </div>
+    </div>
+
+    <div id="prev" class="nav-arrow" onclick="moveSlide(-1)">&#10094;</div>
+    <div id="next" class="nav-arrow" onclick="moveSlide(1)">&#10095;</div>
+    <div class="footer">Slide <span id="snum">1</span> of 9</div>
+
+</div>
+
+<script>
+    let current = 0;
+    const slides = document.querySelectorAll('.slide');
+    function moveSlide(n) {
+        slides[current].classList.remove('active');
+        current = (current + n + slides.length) % slides.length;
+        slides[current].classList.add('active');
+        document.getElementById('snum').innerText = current + 1;
+    }
+    document.addEventListener('keydown', (e) => {
+        if(e.key === "ArrowRight") moveSlide(1);
+        if(e.key === "ArrowLeft") moveSlide(-1);
+    });
+</script>
+
+</body>
+</html>

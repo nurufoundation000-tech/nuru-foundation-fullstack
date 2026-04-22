@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cybersecurity Level 2 – Recon Analysis & Reporting | Week 4 Class 3</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,600;14..32,700&family=Source+Code+Pro:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-deep: #050a14;
+            --bg-card: #0c1122;
+            --bg-elevated: #111827;
+            --primary: #00e5ff;
+            --primary-dim: rgba(0, 229, 255, 0.2);
+            --success: #2ecc71;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --text-main: #edf2f8;
+            --text-muted: #94a3b8;
+            --border-subtle: #1e2a3a;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: radial-gradient(ellipse at 30% 20%, #0f172a, #020617 80%);
+            color: var(--text-main);
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .presentation-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        .slide {
+            position: absolute;
+            inset: 0;
+            padding: 4vh 6vw;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transform: translateX(40px) scale(0.98);
+            transition: opacity 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1), transform 0.4s ease;
+            pointer-events: none;
+            overflow-y: auto;
+        }
+
+        .slide.active {
+            opacity: 1;
+            transform: translateX(0) scale(1);
+            pointer-events: auto;
+        }
+
+        .slide::-webkit-scrollbar { width: 5px; }
+        .slide::-webkit-scrollbar-track { background: var(--bg-card); }
+        .slide::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
+
+        /* .slide-content {
+            max-width: 1400px;
+            width: 100%;
+            margin: 0 auto;
+            background: rgba(5, 10, 20, 0.85);
+            backdrop-filter: blur(6px);
+            border-radius: 32px;
+            padding: 2rem 2.2rem;
+            border: 1px solid rgba(0, 229, 255, 0.2);
+            box-shadow: 0 25px 40px -12px rgba(0, 0, 0, 0.6);
+        } */
+
+        h1 {
+            font-size: 2.8rem;
+            font-weight: 700;
+            background: linear-gradient(120deg, #fff, var(--primary), #a0f0ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: -0.02em;
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            border-left: 5px solid var(--primary);
+            padding-left: 1rem;
+            margin: 0 0 1.2rem 0;
+            color: var(--primary);
+            display: block;
+        }
+
+        h3 {
+            font-size: 1.3rem;
+            font-weight: 500;
+            margin: 1rem 0 0.6rem 0;
+            color: var(--success);
+        }
+
+        p {
+            line-height: 1.7;
+            color: var(--text-muted);
+            margin: 0.75rem 0;
+            font-size: 1rem;
+        }
+
+        .concept-box {
+            background: rgba(0, 229, 255, 0.08);
+            border-radius: 16px;
+            padding: 1.2rem;
+            margin: 1rem 0;
+            border-left: 4px solid var(--primary);
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            margin: 1.2rem 0;
+        }
+
+        .card {
+            background: linear-gradient(145deg, rgba(12, 17, 34, 0.95), rgba(8, 12, 24, 0.98));
+            border-radius: 20px;
+            padding: 1.3rem;
+            border: 1px solid rgba(0, 229, 255, 0.15);
+            transition: all 0.2s;
+        }
+        .card:hover { border-color: var(--primary); box-shadow: 0 5px 18px rgba(0, 229, 255, 0.1); }
+
+        .card-header {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--primary);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .code-block {
+            background: #0a0e1a;
+            border-radius: 18px;
+            padding: 1rem 1.2rem;
+            font-family: 'Source Code Pro', monospace;
+            font-size: 0.85rem;
+            border: 1px solid #1e2a3a;
+            margin: 1rem 0;
+            overflow-x: auto;
+        }
+        .code-line { color: #cbd5e6; line-height: 1.6; }
+        .cmd { color: var(--primary); }
+        .comment { color: #6c8faa; }
+        .output { color: #a5d6ff; }
+
+        .step-list {
+            list-style: none;
+            padding-left: 0;
+        }
+        .step-list li {
+            margin-bottom: 10px;
+            padding-left: 24px;
+            position: relative;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+        .step-list li::before {
+            content: "▹";
+            position: absolute;
+            left: 4px;
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        .numbered-steps {
+            list-style: none;
+            padding-left: 0;
+            counter-reset: step-counter;
+        }
+        .numbered-steps li {
+            counter-increment: step-counter;
+            margin-bottom: 16px;
+            padding-left: 32px;
+            position: relative;
+            color: var(--text-muted);
+        }
+        .numbered-steps li::before {
+            content: counter(step-counter);
+            position: absolute;
+            left: 0;
+            background: var(--primary);
+            color: #020617;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+
+        .outcome-box {
+            background: rgba(46, 204, 113, 0.08);
+            border-left: 3px solid var(--success);
+            border-radius: 18px;
+            padding: 1.2rem;
+            margin: 1.5rem 0;
+        }
+
+        .warning-box {
+            background: rgba(243, 156, 18, 0.08);
+            border-left: 3px solid var(--warning);
+            border-radius: 18px;
+            padding: 1.2rem;
+            margin: 1.5rem 0;
+        }
+
+        .report-template {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 16px;
+            padding: 1.2rem;
+            font-family: 'Source Code Pro', monospace;
+            font-size: 0.85rem;
+            border: 1px solid var(--primary-dim);
+            margin: 1rem 0;
+        }
+        .report-section {
+            color: var(--primary);
+            font-weight: bold;
+            margin-top: 12px;
+            margin-bottom: 6px;
+        }
+
+        .inline-code {
+            font-family: 'Source Code Pro', monospace;
+            background: #0f172a;
+            padding: 2px 8px;
+            border-radius: 8px;
+            color: var(--primary);
+            font-size: 0.85rem;
+            border: 1px solid #253445;
+        }
+
+        .risk-high { color: var(--danger); }
+        .risk-med { color: var(--warning); }
+        .risk-low { color: var(--success); }
+
+        .nav-arrow {
+            position: fixed;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 48px;
+            height: 48px;
+            background: rgba(12, 17, 34, 0.9);
+            border: 1px solid var(--primary);
+            border-radius: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: var(--primary);
+            cursor: pointer;
+            transition: 0.2s;
+            z-index: 30;
+            backdrop-filter: blur(8px);
+        }
+        .nav-arrow:hover { background: var(--primary); color: #020617; transform: translateY(-50%) scale(1.05); }
+        #prev-slide { left: 20px; }
+        #next-slide { right: 20px; }
+
+        .slide-footer {
+            position: fixed;
+            bottom: 12px;
+            right: 24px;
+            background: rgba(5, 10, 20, 0.85);
+            padding: 4px 14px;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            font-family: monospace;
+            border: 1px solid var(--primary-dim);
+            z-index: 30;
+        }
+        .progress-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--success));
+            width: 0%;
+            transition: width 0.3s;
+            z-index: 40;
+        }
+        .title-slide .slide-content { text-align: center; }
+        @media (max-width: 900px) { .grid-2 { grid-template-columns: 1fr; } }
+        @media (max-width: 800px) {
+            .slide { padding: 1.5rem; }
+            h1 { font-size: 2rem; }
+            h2 { font-size: 1.4rem; }
+            .nav-arrow { width: 38px; height: 38px; font-size: 1.3rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="presentation-container">
+
+    <!-- SLIDE 1: TITLE -->
+    <div class="slide title-slide active" id="slide-1">
+        <div class="slide-content">
+            <h1>Recon Analysis & Reporting</h1>
+            <p style="font-size: 1.2rem; color: var(--success); margin-top: 0.5rem;">🎯 Objective: Analyze collected data and prepare a reconnaissance report</p>
+            <p style="max-width: 800px; margin: 1rem auto; text-align: center;">Data without analysis is just noise. A professional report transforms raw scan results into actionable intelligence for decision-makers.</p>
+            <div class="concept-box" style="text-align: left;">
+                <strong>📌 Why Reporting Matters:</strong>
+                <ul class="step-list">
+                    <li>Organizes chaotic scan data into clear findings</li>
+                    <li>Communicates risks to non-technical stakeholders</li>
+                    <li>Provides documentation for remediation teams</li>
+                    <li>Serves as legal evidence if needed</li>
+                    <li>Demonstrates professional competence</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 2: WHAT IS RECON ANALYSIS (Explanation) -->
+    <div class="slide" id="slide-2">
+        <div class="slide-content">
+            <h2>🔍 Understanding Recon Analysis</h2>
+            
+            <div class="concept-box">
+                <strong>🤔 WHAT is Recon Analysis?</strong>
+                <p>Recon analysis is the process of taking raw data from your OSINT and Nmap scans and turning it into meaningful, organized information. You're not just listing open ports — you're understanding what those ports mean for the target's security posture.</p>
+            </div>
+
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-header">📋 What to Organize in Your Findings</div>
+                    <ul class="step-list">
+                        <li><strong>Domain information</strong> — WHOIS data, registrar, name servers, registration/expiration dates</li>
+                        <li><strong>IP addresses</strong> — Target IP ranges, resolved IPs from DNS queries</li>
+                        <li><strong>Open ports</strong> — Which ports are accepting connections? (21, 22, 80, 443, 445, etc.)</li>
+                        <li><strong>Services running</strong> — Software names and version numbers (Apache 2.2.8, vsftpd 2.3.4, OpenSSH 4.7p1)</li>
+                        <li><strong>Potential vulnerabilities</strong> — Known CVEs for detected versions, weak configurations</li>
+                        <li><strong>Subdomains discovered</strong> — admin., mail., dev., test., api.</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <div class="card-header">💡 How to Analyze Each Finding</div>
+                    <ul class="step-list">
+                        <li><strong>Port 21 (FTP):</strong> Is anonymous login allowed? Is it outdated vsftpd 2.3.4 (has backdoor)?</li>
+                        <li><strong>Port 22 (SSH):</strong> Is it using weak key exchange? Allow password authentication? Old version vulnerable to CVE-2016-6210?</li>
+                        <li><strong>Port 80 (HTTP):</strong> What web server and version? Any directory listing? Admin panels exposed?</li>
+                        <li><strong>Port 443 (HTTPS):</strong> SSL/TLS version? Weak ciphers? Certificate expiry?</li>
+                        <li><strong>Port 445 (SMB):</strong> Vulnerable to EternalBlue (MS17-010)?</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="warning-box">
+                <strong>💡 Pro Tip:</strong> Always verify findings with multiple tools. Nmap might misidentify a service. Use <span class="inline-code">nc -nv &lt;IP&gt; &lt;port&gt;</span> to manually grab banners and confirm.
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 3: RECON REPORT STRUCTURE - Sections 1-3 -->
+    <div class="slide" id="slide-3">
+        <div class="slide-content">
+            <h2>📄 Recon Report Structure (Part 1)</h2>
+            <p>A professional reconnaissance report follows a standard structure that executives, technical teams, and legal departments can all understand.</p>
+
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-header">1️⃣ Introduction</div>
+                    <p><strong>What to include:</strong></p>
+                    <ul class="step-list">
+                        <li><strong>Target description:</strong> What system or organization was assessed? (e.g., "Metasploitable 2 VM at 192.168.56.102")</li>
+                        <li><strong>Scope:</strong> What was included in the assessment? (e.g., "External reconnaissance only, no exploitation")</li>
+                        <li><strong>Authorization:</strong> Statement confirming permission to test</li>
+                        <li><strong>Assessment dates:</strong> When was the reconnaissance performed?</li>
+                        <li><strong>Classification:</strong> Confidential, Internal, Public</li>
+                    </ul>
+                    <div class="report-template">
+                        <div class="report-section">📋 Example:</div>
+                        "This report documents reconnaissance performed against the Metasploitable 2 lab environment on April 4, 2026. The assessment was authorized as part of Cybersecurity Level 2 training and was conducted within an isolated lab network."
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">2️⃣ Methodology</div>
+                    <p><strong>What to include:</strong></p>
+                    <ul class="step-list">
+                        <li><strong>Tools used:</strong> WHOIS, DIG, Nmap, etc. (include version numbers)</li>
+                        <li><strong>Techniques applied:</strong> Passive OSINT, active port scanning, service version detection, vulnerability scripts</li>
+                        <li><strong>Commands executed:</strong> Show the exact commands run</li>
+                        <li><strong>Scan parameters:</strong> Timing, port ranges, evasion techniques used</li>
+                    </ul>
+                    <div class="code-block">
+                        <div class="code-line"><span class="comment"># Example methodology section:</span></div>
+                        <div class="code-line">1. WHOIS lookup via command line</div>
+                        <div class="code-line">2. DIG DNS enumeration (A, MX, NS, TXT records)</div>
+                        <div class="code-line">3. Nmap basic scan: nmap -sS 192.168.56.102</div>
+                        <div class="code-line">4. Nmap version scan: nmap -sV 192.168.56.102</div>
+                        <div class="code-line">5. Nmap vuln scripts: nmap --script vuln 192.168.56.102</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 4: RECON REPORT STRUCTURE - Sections 3-5 -->
+    <div class="slide" id="slide-4">
+        <div class="slide-content">
+            <h2>📄 Recon Report Structure (Part 2)</h2>
+
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-header">3️⃣ Findings</div>
+                    <p><strong>Organize findings into clear categories:</strong></p>
+                    <ul class="step-list">
+                        <li><strong>Domain/Network Information:</strong> IP addresses, DNS records, WHOIS data</li>
+                        <li><strong>Open Ports Table:</strong> Port number, protocol, service, version</li>
+                        <li><strong>Service Details:</strong> Banner information, configuration notes</li>
+                        <li><strong>Vulnerability Findings:</strong> CVE numbers, severity, description</li>
+                    </ul>
+                    <div class="code-block">
+                        <div class="code-line"><span class="comment">| Port | Service  | Version          | Status |</span></div>
+                        <div class="code-line"><span class="comment">|------|----------|------------------|--------|</span></div>
+                        <div class="code-line"><span class="comment">| 21   | FTP      | vsftpd 2.3.4     | Open   |</span></div>
+                        <div class="code-line"><span class="comment">| 22   | SSH      | OpenSSH 4.7p1    | Open   |</span></div>
+                        <div class="code-line"><span class="comment">| 80   | HTTP     | Apache 2.2.8     | Open   |</span></div>
+                        <div class="code-line"><span class="comment">| 445  | SMB      | Samba 3.0.20     | Open   |</span></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">4️⃣ Risk Analysis & 5️⃣ Conclusion</div>
+                    <p><strong>Risk Analysis:</strong></p>
+                    <ul class="step-list">
+                        <li>For each finding, explain the <strong>potential impact</strong> if exploited</li>
+                        <li>Assign <strong>risk level</strong> (Critical/High/Medium/Low)</li>
+                        <li>Provide <strong>remediation recommendations</strong></li>
+                    </ul>
+                    <div class="report-template">
+                        <div class="report-section">📋 Example Risk Assessment:</div>
+                        "vsftpd 2.3.4 contains a known backdoor (CVE-2011-2523). This allows remote attackers to gain root access. <span class="risk-high">Risk: CRITICAL</span>. Recommendation: Upgrade vsftpd to version 2.3.5+."
+                    </div>
+                    <p><strong>Conclusion:</strong></p>
+                    <ul class="step-list">
+                        <li>Summarize key findings (2-3 sentences)</li>
+                        <li>State the overall security posture</li>
+                        <li>List priority remediation actions</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 5: COMPLETE REPORT TEMPLATE -->
+    <div class="slide" id="slide-5">
+        <div class="slide-content">
+            <h2 style="margin-top: 350px;">📄 Complete Recon Report Template</h2>
+            <p>Use this template as a starting point for your assignment. Fill in your actual findings from scanning Metasploitable.</p>
+
+            <div class="report-template">
+                <div class="report-section"># RECONNAISSANCE ASSESSMENT REPORT</div>
+                <div class="report-section">## 1. INTRODUCTION</div>
+                <p><strong>Target:</strong> [Insert target IP or domain]<br>
+                <strong>Assessment Date:</strong> [Date]<br>
+                <strong>Authorized By:</strong> [Name/Organization]<br>
+                <strong>Classification:</strong> INTERNAL USE ONLY</p>
+
+                <div class="report-section">## 2. METHODOLOGY</div>
+                <p><strong>Tools Used:</strong> WHOIS, DIG, Nmap [version]<br>
+                <strong>Scan Commands:</strong><br>
+                - <span class="inline-code">whois [target]</span><br>
+                - <span class="inline-code">dig [target]</span><br>
+                - <span class="inline-code">nmap -sV [target-IP]</span><br>
+                - <span class="inline-code">nmap --script vuln [target-IP]</span></p>
+
+                <div class="report-section">## 3. FINDINGS</div>
+                <p><strong>Domain Information:</strong><br>
+                - [Add WHOIS results]<br>
+                <strong>DNS Records:</strong><br>
+                - [Add DIG results]<br>
+                <strong>Open Ports & Services:</strong><br>
+                [Create a table of open ports, services, and versions]</p>
+
+                <div class="report-section">## 4. RISK ANALYSIS</div>
+                <p>[For each vulnerable service, describe the risk and recommend a fix]</p>
+
+                <div class="report-section">## 5. CONCLUSION</div>
+                <p>[2-3 sentences summarizing the security posture and next steps]</p>
+                
+                <div class="report-section">## APPENDIX A: RAW SCAN OUTPUT</div>
+                <p>[Paste full Nmap scan results here for reference]</p>
+            </div>
+
+            <div class="outcome-box" style="margin-top: 0.8rem;">
+                <strong>✅ Downloadable Template:</strong> Copy this template into your own document (Word, Google Docs, or Markdown) and fill in your actual findings.
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 6: EXAMPLE FINDINGS (Metasploitable 2) -->
+    <div class="slide" id="slide-6">
+        <div class="slide-content">
+            <h2>📋 Example Findings (Metasploitable 2)</h2>
+            <p>Here's what you might find when scanning the Metasploitable 2 VM. Use this as reference for your own analysis.</p>
+
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-header">🔓 High Risk Findings</div>
+                    <ul class="step-list">
+                        <li><strong>vsftpd 2.3.4 (port 21)</strong> — Contains backdoor allowing root access. <span class="risk-high">CRITICAL</span></li>
+                        <li><strong>SMB 3.0.20 (port 445)</strong> — Vulnerable to EternalBlue/ms17-010. <span class="risk-high">CRITICAL</span></li>
+                        <li><strong>Apache 2.2.8 (port 80)</strong> — Outdated, multiple vulnerabilities. <span class="risk-high">HIGH</span></li>
+                        <li><strong>OpenSSH 4.7p1 (port 22)</strong> — Old version, various CVEs. <span class="risk-med">MEDIUM</span></li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <div class="card-header">📋 Other Open Ports</div>
+                    <ul class="step-list">
+                        <li><strong>Port 23:</strong> Telnet (unencrypted, sends passwords in plain text)</li>
+                        <li><strong>Port 25:</strong> SMTP (mail server, possible open relay)</li>
+                        <li><strong>Port 53:</strong> DNS (possible zone transfer)</li>
+                        <li><strong>Port 80:</strong> HTTP (Apache web server)</li>
+                        <li><strong>Port 443:</strong> HTTPS (self-signed certificate)</li>
+                        <li><strong>Port 3306:</strong> MySQL (default credentials?)</li>
+                        <li><strong>Port 5432:</strong> PostgreSQL</li>
+                        <li><strong>Port 5900:</strong> VNC (default password?)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="concept-box">
+                <strong>💡 How to Document Vulnerabilities:</strong>
+                <div class="code-block" style="margin-top: 8px;">
+                    <div class="code-line"><span class="comment">### Finding: vsftpd 2.3.4 Backdoor</span></div>
+                    <div class="code-line"><span class="comment">- Port: 21/tcp</span></div>
+                    <div class="code-line"><span class="comment">- Version: vsftpd 2.3.4</span></div>
+                    <div class="code-line"><span class="comment">- Vulnerability: CVE-2011-2523 - Backdoor allows root access</span></div>
+                    <div class="code-line"><span class="comment">- Risk: CRITICAL</span></div>
+                    <div class="code-line"><span class="comment">- Remediation: Upgrade to vsftpd 2.3.5+ or remove service</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 7: OUTCOME & ASSIGNMENT -->
+    <div class="slide" id="slide-7">
+        <div class="slide-content">
+            <h2  style="margin-top: 350px;">🧾 Outcome & Final Assignment</h2>
+            
+            <div class="outcome-box">
+                <strong>✅ By the end of this class, you can:</strong>
+                <ul class="step-list">
+                    <li>✔ Perform complete reconnaissance using OSINT and Nmap</li>
+                    <li>✔ Analyze scan results to identify security weaknesses</li>
+                    <li>✔ Organize findings into a professional reconnaissance report</li>
+                    <li>✔ Communicate risks effectively to different audiences</li>
+                </ul>
+            </div>
+
+            <h3>📝 Final Assignment: Reconnaissance Mini-Project</h3>
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-header">📌 Task</div>
+                    <p>Perform complete reconnaissance on a <strong>safe, authorized target</strong> (your Metasploitable VM or a designated test machine).</p>
+                    <p><strong>Requirements:</strong></p>
+                    <ul class="step-list">
+                        <li>Use OSINT techniques (WHOIS, DIG if applicable)</li>
+                        <li>Perform Nmap scans (basic, version detection, vulnerability scripts)</li>
+                        <li>Identify and document:
+                            <ul style="margin-left: 20px; margin-top: 5px;">
+                                <li>Open ports</li>
+                                <li>Running services with versions</li>
+                                <li>Possible vulnerabilities (CVEs)</li>
+                            </ul>
+                        </li>
+                        <li>Submit a complete recon report following the template</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <div class="card-header">📄 Report Must Include</div>
+                    <ul class="step-list">
+                        <li>Introduction (target, scope, dates)</li>
+                        <li>Methodology (tools and commands used)</li>
+                        <li>Findings (organized table of ports/services/vulnerabilities)</li>
+                        <li>Risk Analysis (impact + remediation for each finding)</li>
+                        <li>Conclusion (summary and priority actions)</li>
+                        <li>Appendix (raw scan outputs)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="warning-box">
+                <strong>🎯 Focus Areas for Grading:</strong>
+                <ul class="step-list">
+                    <li><strong>Accuracy of findings</strong> — Are the ports and versions correctly identified?</li>
+                    <li><strong>Proper use of tools</strong> — Did you use appropriate Nmap flags?</li>
+                    <li><strong>Clear reporting</strong> — Is the report professional, organized, and readable?</li>
+                    <li><strong>Risk understanding</strong> — Do you explain WHY each finding matters?</li>
+                </ul>
+            </div>
+
+            <p style="text-align: center; margin-top: 1.5rem; font-family: monospace; color: var(--primary);">END OF CLASS 3 – RECON ANALYSIS & REPORTING</p>
+        </div>
+    </div>
+
+    <!-- NAVIGATION -->
+    <div id="prev-slide" class="nav-arrow" onclick="changeSlide(-1)">‹</div>
+    <div id="next-slide" class="nav-arrow" onclick="changeSlide(1)">›</div>
+    <div class="slide-footer"><span id="current-slide-num">1</span> / <span id="total-slides-num">7</span></div>
+    <div class="progress-bar" id="progress-bar"></div>
+</div>
+
+<script>
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.slide');
+    const total = slides.length;
+    const currentSpan = document.getElementById('current-slide-num');
+    const totalSpan = document.getElementById('total-slides-num');
+    const progressFill = document.getElementById('progress-bar');
+    totalSpan.textContent = total;
+
+    function showSlide(index) {
+        if (index >= total) index = 0;
+        if (index < 0) index = total - 1;
+        slides.forEach(s => s.classList.remove('active'));
+        slides[index].classList.add('active');
+        currentSlide = index;
+        currentSpan.textContent = currentSlide + 1;
+        progressFill.style.width = ((currentSlide + 1) / total) * 100 + '%';
+    }
+
+    function changeSlide(step) { showSlide(currentSlide + step); }
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); changeSlide(1); }
+        else if (e.key === 'ArrowLeft') { e.preventDefault(); changeSlide(-1); }
+    });
+    showSlide(0);
+</script>
+</body>
+</html>

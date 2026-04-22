@@ -3,287 +3,876 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Malware & Cyber Threats - NURU Foundation</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <title>Cybersecurity Level 2 – Week 1: Packet Capture Using Wireshark</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Source+Code+Pro:wght@400;600&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --primary: #2c3e50;
-            --secondary: #9b59b6;
-            --accent: #8e44ad;
-            --success: #27ae60;
-            --bg-light: #f8f9fa;
-            --text-dark: #333;
-            --text-light: #666;
+        /* Same dark theme CSS as previous template - reusing the advanced Level 2 styling */
+            :root {
+            --bg-color: #050816;
+            --bg-elevated: #0b1020;
+            --accent: #00e0ff;
+            --accent-soft: rgba(0, 224, 255, 0.25);
+            --accent-strong: #4effa5;
+            --danger: #ff4b81;
+            --text-main: #f5f5f5;
+            --text-muted: #9ca3af;
+            --border-soft: #1f2933;
+            --shadow-soft: 0 0 40px rgba(0, 0, 0, 0.5);
         }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        * {
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: 'Poppins', sans-serif;
-            background: var(--bg-light);
-            color: var(--text-dark);
+            margin: 0;
+            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+            background: radial-gradient(circle at top, #111827 0, #020617 45%, #000 100%);
+            color: var(--text-main);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .presentation-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        .slide {
+            position: absolute;
+            inset: 0;
+            padding: 5vh 8vw;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transform: translateX(60px) scale(0.97);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+            pointer-events: none;
+        }
+
+        .slide.active {
+            opacity: 1;
+            transform: translateX(0) scale(1);
+            pointer-events: auto;
+        }
+
+       
+
+        .slide-content::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: 18px;
+            border: 1px solid rgba(0, 224, 255, 0.08);
+            pointer-events: none;
+        }
+
+        h1, h2, h3 {
+            font-weight: 700;
+            margin-top: 0;
+            letter-spacing: 0.03em;
+        }
+
+        h1 {
+            font-size: 2.8rem;
+        }
+
+        h2 {
+            font-size: 2rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding-bottom: 6px;
+            border-bottom: 2px solid var(--accent-soft);
+        }
+
+        h3 {
+            font-size: 1.45rem;
+            margin-bottom: 10px;
+        }
+
+        p {
+            line-height: 1.7;
+            font-size: 1.03rem;
+            color: var(--text-muted);
+            margin: 8px 0 14px;
+        }
+
+        ul {
+            list-style: none;
+            padding-left: 0;
+            margin: 10px 0;
+        }
+
+        li {
+            margin-bottom: 10px;
+        }
+
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            padding: 4px 10px;
+            border-radius: 999px;
+            border: 1px solid var(--accent-soft);
+            color: var(--accent);
+            background: rgba(15,23,42,0.9);
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: var(--accent-strong);
+            margin-bottom: 4px;
+        }
+
+        .meta {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 18px;
+            margin-top: 16px;
+        }
+
+        .card {
+            background: radial-gradient(circle at top left, rgba(0,224,255,0.14), rgba(15,23,42,0.95));
+            border-radius: 14px;
+            padding: 14px 16px;
+            border: 1px solid rgba(148,163,184,0.2);
+        }
+
+        .card-header {
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--accent);
+            margin-bottom: 6px;
+        }
+
+        .card-badge {
+            display: inline-block;
+            font-size: 0.8rem;
+            padding: 2px 8px;
+            border-radius: 999px;
+            border: 1px solid rgba(148,163,184,0.4);
+            color: var(--text-muted);
+            margin-left: 6px;
+        }
+
+        .tag-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 6px;
+        }
+
+        .tag {
+            font-size: 0.78rem;
+            padding: 3px 8px;
+            border-radius: 999px;
+            border: 1px solid rgba(148,163,184,0.35);
+            color: var(--text-muted);
+        }
+
+        .highlight-box {
+            border-radius: 14px;
+            padding: 14px 16px;
+            border: 1px dashed rgba(148,163,184,0.5);
+            background: radial-gradient(circle at top left, rgba(0,224,255,0.12), rgba(15,23,42,0.98));
+            margin-top: 10px;
+        }
+
+        .highlight-title {
+            font-size: 0.9rem;
+            color: var(--accent-strong);
+            text-transform: uppercase;
+            letter-spacing: 0.09em;
+            margin-bottom: 6px;
+        }
+
+        .danger {
+            border-color: rgba(248, 113, 113, 0.5);
+            background: radial-gradient(circle at top left, rgba(248,113,113,0.18), rgba(15,23,42,0.98));
+        }
+
+        .danger-title {
+            color: var(--danger);
+        }
+
+        .code-inline {
+            font-family: 'Source Code Pro', monospace;
+            font-size: 0.92rem;
+            background: rgba(15,23,42, 0.95);
+            padding: 2px 6px;
+            border-radius: 4px;
+            border: 1px solid rgba(148,163,184,0.4);
+            color: #e5e7eb;
+        }
+
+        .flow-steps {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 12px 0;
+        }
+
+        .flow-step {
+            flex: 1 1 130px;
+            border-radius: 999px;
+            padding: 6px 10px;
+            border: 1px solid rgba(148,163,184,0.4);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.88rem;
+            color: var(--text-muted);
+        }
+
+        .flow-step span {
+            width: 22px;
+            height: 22px;
+            border-radius: 999px;
+            border: 1px solid var(--accent-soft);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            color: var(--accent);
+        }
+
+        .callout {
+            margin-top: 14px;
+            font-size: 0.96rem;
+            color: var(--accent-strong);
+        }
+
+        .callout span {
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        .nav-arrow {
+            position: fixed;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 2.6rem;
+            width: 52px;
+            height: 52px;
+            border-radius: 999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent);
+            border: 1px solid var(--accent-soft);
+            background: rgba(15,23,42,0.94);
+            cursor: pointer;
+            user-select: none;
+            box-shadow: var(--shadow-soft);
+            transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease, color 0.2s ease;
+            z-index: 20;
+        }
+
+        .nav-arrow:hover {
+            transform: translateY(-50%) scale(1.06);
+            background: var(--accent);
+            color: #020617;
+            box-shadow: 0 0 30px rgba(56,189,248,0.6);
+        }
+
+        #prev-slide {
+            left: 18px;
+        }
+
+        #next-slide {
+            right: 18px;
+        }
+
+        .slide-footer {
+            position: fixed;
+            bottom: 12px;
+            right: 24px;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            background: rgba(15,23,42,0.96);
+            padding: 6px 12px;
+            border-radius: 999px;
+            border: 1px solid rgba(148,163,184,0.4);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .slide-footer span {
+            color: var(--accent);
+        }
+
+        .progress-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            height: 3px;
+            width: 0;
+            background: linear-gradient(90deg, var(--accent), var(--accent-strong));
+            box-shadow: 0 0 12px rgba(56,189,248,0.9);
+            transition: width 0.3s ease;
+            z-index: 15;
+        }
+
+        .title-slide h1 {
+            font-size: 3.2rem;
+        }
+
+        .title-slide .slide-content {
+            text-align: center;
+        }
+
+        .title-grid {
+            display: grid;
+            grid-template-columns: 2fr 1.3fr;
+            gap: 24px;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        .title-right {
+            text-align: left;
+        }
+
+        .title-list {
+            margin-top: 10px;
+        }
+
+        .title-list li {
+            margin-bottom: 6px;
+            font-size: 0.95rem;
+        }
+
+        .badge-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            margin-top: 16px;
+        }
+
+        .badge {
+            font-size: 0.8rem;
+            padding: 4px 10px;
+            border-radius: 999px;
+            border: 1px solid rgba(148,163,184,0.4);
+            color: var(--text-muted);
+        }
+
+        .summary-list li {
+            background: rgba(15,23,42,0.9);
+            border-radius: 12px;
+            border: 1px solid rgba(148,163,184,0.35);
+            padding: 8px 10px;
+            font-size: 0.95rem;
+        }
+
+        @media (max-width: 900px) {
+            body {
+                overflow: auto;
+            }
+            .slide {
+                padding: 4vh 4vw;
+            }
+            .slide-content {
+                max-height: none;
+                height: auto;
+            }
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+            .title-grid {
+                grid-template-columns: 1fr;
+                text-align: left;
+            }
+            .nav-arrow {
+                font-size: 2.1rem;
+                width: 44px;
+                height: 44px;
+            }
+            .title-slide h1 {
+                font-size: 2.4rem;
+            }
+        }
+        /* [All the same CSS from previous template goes here - I'll include the key additions for this specific content] */
+
+        /* Terminal-style styling for Wireshark lab */
+        .terminal {
+            background: linear-gradient(135deg, #0f111a, #1a1b2e);
+            border: 1px solid rgba(148,163,184,0.3);
+            border-radius: 12px;
+            padding: 20px;
+            font-family: 'Source Code Pro', monospace;
+            margin: 16px 0;
+            position: relative;
+        }
+
+        .terminal::before {
+            content: "wireshark@cybersec-l2:~ $";
+            position: absolute;
+            top: 12px;
+            left: 20px;
+            color: var(--accent);
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .terminal-content {
+            margin-left: 200px;
+            margin-top: 20px;
+            font-size: 0.95rem;
             line-height: 1.6;
         }
-        .lesson-container { max-width: 900px; margin: 0 auto; padding: 2rem; }
-        .lesson-header {
-            background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
-            padding: 2rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(155, 89, 182, 0.3);
-            margin-bottom: 2rem;
-            color: white;
+
+        .terminal-content code {
+            background: rgba(15,23,42, 0.7);
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: #e5e7eb;
         }
-        .course-breadcrumb {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
-            font-size: 0.9rem;
-            opacity: 0.9;
-        }
-        .course-breadcrumb a { color: white; text-decoration: none; }
-        .course-breadcrumb a:hover { text-decoration: underline; }
-        .lesson-meta {
-            display: flex;
-            gap: 1.5rem;
-            margin-bottom: 1rem;
-            flex-wrap: wrap;
-        }
-        .meta-item {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.9rem;
-        }
-        .lesson-title { font-size: 2rem; margin-bottom: 1rem; }
-        .lesson-objectives {
-            background: rgba(255,255,255,0.15);
-            padding: 1.5rem;
-            border-radius: 8px;
-            margin-bottom: 2rem;
-        }
-        .lesson-objectives h3 { margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
-        .lesson-objectives ul { margin-left: 1.5rem; }
-        .lesson-objectives li { margin-bottom: 0.5rem; }
-        .content-section {
-            background: white;
-            padding: 2rem;
-            border-radius: 12px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            margin-bottom: 2rem;
-        }
-        .content-section h2 {
-            color: var(--primary);
-            margin-bottom: 1rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 3px solid var(--secondary);
-        }
-        .content-section h3 { color: var(--primary); margin: 1.5rem 0 0.75rem; }
-        .content-section p { margin-bottom: 1rem; }
-        .content-section ul, .content-section ol { margin: 1rem 0 1rem 1.5rem; }
-        .content-section li { margin-bottom: 0.5rem; }
-        .course-icon {
-            width: 80px;
-            height: 80px;
-            background: white;
-            border-radius: 50%;
-            display: flex;
+
+        .step-number {
+            display: inline-flex;
+            width: 28px;
+            height: 28px;
+            border-radius: 999px;
+            background: var(--accent);
+            color: #020617;
             align-items: center;
             justify-content: center;
-            margin: 1rem auto;
-            font-size: 2.5rem;
-            color: var(--secondary);
+            font-weight: 700;
+            font-size: 0.85rem;
+            margin-right: 12px;
+            flex-shrink: 0;
         }
-        .info-box {
-            background: #e3f2fd;
-            border-left: 4px solid #3498db;
-            padding: 1rem;
-            border-radius: 0 8px 8px 0;
-            margin: 1rem 0;
-        }
-        .warning-box {
-            background: #fff3e0;
-            border-left: 4px solid #ff9800;
-            padding: 1rem;
-            border-radius: 0 8px 8px 0;
-            margin: 1rem 0;
-        }
-        .tip-box {
-            background: #e8f5e9;
-            border-left: 4px solid var(--success);
-            padding: 1rem;
-            border-radius: 0 8px 8px 0;
-            margin: 1rem 0;
-        }
-        .navigation-buttons {
+
+        .step {
             display: flex;
-            justify-content: space-between;
-            gap: 1rem;
-            margin-top: 2rem;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 14px;
         }
-        .nav-btn {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 1rem 1.5rem;
-            background: white;
-            border: 2px solid var(--secondary);
-            color: var(--secondary);
-            text-decoration: none;
+
+        .wireshark-screenshot {
+            background: linear-gradient(135deg, rgba(0,224,255,0.1), rgba(78,255,165,0.08));
+            border: 2px dashed rgba(0,224,255,0.4);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            margin: 18px 0;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .observation-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .observation-item {
+            background: rgba(15,23,42,0.9);
+            border: 1px solid rgba(148,163,184,0.3);
             border-radius: 8px;
-            transition: all 0.3s ease;
-            flex: 1;
-            justify-content: center;
+            padding: 12px;
+            text-align: center;
         }
-        .nav-btn:hover { background: var(--secondary); color: white; }
-        .nav-btn.disabled { opacity: 0.5; pointer-events: none; }
-        .nav-btn.next { background: var(--secondary); color: white; }
-        .nav-btn.next:hover { background: var(--accent); border-color: var(--accent); }
-        .progress-bar {
-            background: #e0e0e0;
-            height: 8px;
-            border-radius: 4px;
-            margin-top: 2rem;
-            overflow: hidden;
+
+        .observation-item strong {
+            color: var(--accent);
+            display: block;
+            margin-bottom: 4px;
         }
-        .progress-fill {
-            background: linear-gradient(90deg, #9b59b6, #8e44ad);
-            height: 100%;
-            border-radius: 4px;
-            transition: width 0.3s ease;
+
+        .protocol-badge {
+            display: inline-block;
+            background: rgba(0,224,255,0.2);
+            color: var(--accent);
+            padding: 2px 8px;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin: 2px;
         }
-        @media (max-width: 768px) {
-            .lesson-container { padding: 1rem; }
-            .lesson-title { font-size: 1.5rem; }
-            .navigation-buttons { flex-direction: column; }
-        }
+
+        /* Rest of the same responsive and animation styles from previous template */
     </style>
 </head>
 <body>
-    <div class="lesson-container">
-        <div class="lesson-header">
-            <div class="course-icon"><i class="fas fa-bug"></i></div>
-            <div class="course-breadcrumb">
-                <a href="/student-dashboard/notes.html"><i class="fas fa-arrow-left"></i> Back to Notes</a>
+
+<div class="presentation-container">
+
+    <!-- SLIDE 1: TITLE -->
+    <div class="slide title-slide active" id="slide-1">
+        <div class="slide-content">
+            <div class="pill">CYBERSECURITY LEVEL 2 · WEEK 1</div>
+            <h1>Packet Capture Using Wireshark</h1>
+            <p class="subtitle">Class 2 – Seeing Packets in Real Time</p>
+            <p class="meta">
+                Today you will install Wireshark, capture live network traffic, and learn to read what packets reveal about network activity.
+            </p>
+
+            <div class="title-grid">
+                <div>
+                    <div class="highlight-box">
+                        <div class="highlight-title">Learning Objective</div>
+                        <p><strong>Master the skill:</strong> Capture and observe live network traffic using Wireshark – the most widely used packet analysis tool in cybersecurity.</p>
+                    </div>
+                    <div class="badge-row">
+                        <div class="badge">Live Packet Capture</div>
+                        <div class="badge">Wireshark Interface</div>
+                        <div class="badge">Network Traffic Analysis</div>
+                    </div>
+                </div>
+                <div class="title-right">
+                    <div class="card">
+                        <div class="card-header">Alex Chen Context</div>
+                        <p>Alex Chen's son just connected to public WiFi at a coffee shop. What packets are flying around? Can you see if someone is watching?</p>
+                    </div>
+                </div>
             </div>
-            <div class="lesson-meta">
-                <span class="meta-item"><i class="fas fa-book"></i> Lesson 2 of 3</span>
-                <span class="meta-item"><i class="fas fa-clock"></i> 45 minutes</span>
-            </div>
-            <h1 class="lesson-title">Malware & Cyber Threats</h1>
-        </div>
-        <div class="lesson-objectives">
-            <h3><i class="fas fa-bullseye"></i> Learning Objectives</h3>
-            <ul>
-                <li>Understand different types of malware</li>
-                <li>Recognize how viruses and ransomware work</li>
-                <li>Identify signs of malware infection</li>
-                <li>Learn prevention and removal strategies</li>
-            </ul>
-        </div>
-        <div class="content-section">
-            <h2>What is Malware?</h2>
-            <p>Malware (malicious software) is any software designed to cause damage, steal data, or gain unauthorized access to computer systems. It's one of the most common cyber threats.</p>
-            <h3>How Malware Spreads</h3>
-            <ul>
-                <li><strong>Email Attachments:</strong> Infected files from suspicious emails</li>
-                <li><strong>Malicious Downloads:</strong> Software from untrusted sources</li>
-                <li><strong>Infected Websites:</strong> Compromised sites that exploit vulnerabilities</li>
-                <li><strong>Removable Media:</strong> USB drives and external hard drives</li>
-                <li><strong>Social Engineering:</strong> Tricking users into installing malware</li>
-            </ul>
-            <div class="info-box">
-                <strong><i class="fas fa-info-circle"></i> Did You Know?</strong>
-                <p>Over 350,000 new malware samples are discovered every day!</p>
-            </div>
-        </div>
-        <div class="content-section">
-            <h2>Types of Malware</h2>
-            <h3>Viruses</h3>
-            <p>Programs that replicate themselves by attaching to other programs. They require user action to spread and can cause various damages.</p>
-            <h3>Worms</h3>
-            <p>Self-replicating programs that spread across networks without user intervention. They can consume bandwidth and spread rapidly.</p>
-            <h3>Trojans</h3>
-            <p>Disguised as legitimate software, Trojans create backdoors, steal data, or allow remote control by attackers.</p>
-            <h3>Spyware</h3>
-            <p>Secretly monitors user activity, collecting passwords, browsing history, and personal information.</p>
-            <h3>Adware</h3>
-            <p>Displays unwanted advertisements and may track browsing habits to deliver targeted ads.</p>
-            <div class="warning-box">
-                <strong><i class="fas fa-exclamation-triangle"></i> Important</strong>
-            </div>
-        </div>
-        <div class="content-section">
-            <h2>Ransomware</h2>
-            <p>Ransomware encrypts a victim's files and demands payment for the decryption key. It's one of the most profitable and damaging malware types.</p>
-            <h3>How Ransomware Works</h3>
-            <ol>
-                <li>Infection through email, website, or vulnerability</li>
-                <li>Silent encryption of files on the system</li>
-                <li>Display of ransom note with payment instructions</li>
-                <li>Demand for payment (often in cryptocurrency)</li>
-                <li>Threat of data deletion if not paid</li>
-            </ol>
-            <h3>Types of Ransomware</h3>
-            <ul>
-                <li><strong>Encrypting Ransomware:</strong> Encrypts files and demands payment</li>
-                <li><strong>Locker Ransomware:</strong> Locks users out of their devices</li>
-                <li><strong>Double Extortion:</strong> Threatens to leak stolen data</li>
-            </ul>
-            <div class="tip-box">
-                <strong><i class="fas fa-lightbulb"></i> Pro Tip</strong>
-                <p>The best protection against ransomware is regular, offline backups. If your files are backed up, you don't need to pay the ransom!</p>
-            </div>
-        </div>
-        <div class="content-section">
-            <h2>Signs of Malware Infection</h2>
-            <ul>
-                <li>Computer runs slower than usual</li>
-                <li>Unexpected pop-ups and browser redirects</li>
-                <li>New toolbars or programs you didn't install</li>
-                <li>System crashes or frequent error messages</li>
-                <li>High network usage without explanation</li>
-                <li>Disabled antivirus software</li>
-                <li>Files are missing or encrypted</li>
-            </ul>
-        </div>
-        <div class="content-section">
-            <h2>Prevention and Removal</h2>
-            <h3>Prevention Best Practices</h3>
-            <ul>
-                <li>Keep all software updated with latest patches</li>
-                <li>Use reputable antivirus and anti-malware software</li>
-                <li>Be cautious with email attachments and links</li>
-                <li>Only download software from trusted sources</li>
-                <li>Use strong passwords and enable 2FA</li>
-                <li>Backup important data regularly</li>
-            </ul>
-            <h3>If Infected</h3>
-            <ol>
-                <li>Disconnect from the network immediately</li>
-                <li>Run a full antivirus scan</li>
-                <li>Identify and remove the malware</li>
-                <li>Restore files from backup if needed</li>
-                <li>Change all passwords</li>
-                <li>Report the incident if necessary</li>
-            </ol>
-            <div class="warning-box">
-                <strong><i class="fas fa-exclamation-triangle"></i> Never Pay Ransom</strong>
-                <p>Paying doesn't guarantee you'll get your files back. Always report to authorities and restore from backups.</p>
-            </div>
-        </div>
-        <div class="navigation-buttons">
-            <a href="lesson-1.html" class="nav-btn">
-                <i class="fas fa-arrow-left"></i>
-                <span>Previous: Network Security</span>
-            </a>
-            <a href="lesson-3.html" class="nav-btn next">
-                <span>Next: Incident Response & Recovery</span>
-                <i class="fas fa-arrow-right"></i>
-            </a>
-        </div>
-        <div class="progress-bar">
-            <div class="progress-fill" style="width: 66%"></div>
         </div>
     </div>
+
+    <!-- SLIDE 2: WHAT IS WIRESHARK -->
+    <div class="slide" id="slide-2">
+        <div class="slide-content">
+            <h2>🛠️ Introducing Wireshark</h2>
+            <p>Wireshark is the world's most popular network protocol analyzer. It captures packets from your network interfaces and lets you inspect them in detail.</p>
+
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-header">What Wireshark Does</div>
+                    <ul>
+                        <li>Captures live network traffic from any interface (WiFi, Ethernet, etc.)</li>
+                        <li>Displays packets with full details (headers, payload, timestamps)</li>
+                        <li>Decodes 2000+ protocols (TCP, HTTP, DNS, ARP, etc.)</li>
+                        <li>Filters traffic to focus on specific conversations</li>
+                        <li>Saves captures for later analysis</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <div class="card-header">Why Cybersecurity Pros Use It</div>
+                    <ul>
+                        <li><strong>Debug network issues</strong> – Why is the connection slow?</li>
+                        <li><strong>Investigate attacks</strong> – What did the malware send?</li>
+                        <li><strong>Baseline normal traffic</strong> – What does "healthy" look like?</li>
+                        <li><strong>Forensic analysis</strong> – What happened during the breach?</li>
+                    </ul>
+                </div>
+            </div>
+
+            <p class="callout"><span>Key mindset:</span> Wireshark shows you what is <em>actually</em> happening on the wire, not what you think is happening.</p>
+        </div>
+    </div>
+
+    <!-- SLIDE 3: LAB SETUP -->
+    <div class="slide" id="slide-3">
+        <div class="slide-content">
+            <h2>🔧 Hands-On Lab: Capturing Traffic</h2>
+            <p>Follow these exact steps on your machine.</p>
+
+            <div class="terminal">
+                <div class="terminal-content">
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <p><strong>Download & Install Wireshark</strong><br>
+                        Get it from <a href="https://www.wireshark.org/" style="color: var(--accent);">wireshark.org</a> (Windows/Mac/Linux).</p>
+                    </div>
+
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <p><strong>Launch Wireshark</strong><br>
+                        <code>wireshark</code> (Linux/Mac terminal) or double-click the icon (Windows).</p>
+                    </div>
+
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <p><strong>Select Network Interface</strong><br>
+                        Look for your active interface:<br>
+                        <code>eth0</code> (Ethernet) | <code>wlan0</code>/<code>Wi-Fi</code> (Wireless)</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="wireshark-screenshot">
+                📸 <strong>Expected:</strong> You should see a list of interfaces with packet rates. Choose the one with traffic!
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 4: CAPTURE PROCESS -->
+    <div class="slide" id="slide-4">
+        <div class="slide-content">
+            <h2>📡 Complete Capture Process</h2>
+
+            <div class="terminal">
+                <div class="terminal-content">
+                    <div class="step">
+                        <div class="step-number">4</div>
+                        <p><strong>Start Capture</strong><br>Click the blue shark fin 🦈 button or press Ctrl+E.</p>
+                    </div>
+
+                    <div class="step">
+                        <div class="step-number">5</div>
+                        <p><strong>Generate Traffic</strong><br>Open a new terminal and run:<br>
+                        <code>ping google.com</code></p>
+                    </div>
+
+                    <div class="step">
+                        <div class="step-number">6</div>
+                        <p><strong>Stop Capture</strong><br>Click the red square ⏹️ or Ctrl+E again after 10-15 seconds.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="highlight-box">
+                <div class="highlight-title">What Just Happened?</div>
+                <p>Your ping command created ICMP packets that traveled to Google's servers and back. Wireshark captured every single one!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 5: ANALYZING PACKETS -->
+    <div class="slide" id="slide-5">
+        <div class="slide-content">
+            <h2>🔍 What You See in Wireshark</h2>
+            <p>Your capture now shows three columns of information about every packet:</p>
+
+            <div class="observation-grid">
+                <div class="observation-item">
+                    <strong>Source IP</strong>
+                    <div>192.168.1.100 (your laptop)</div>
+                </div>
+                <div class="observation-item">
+                    <strong>Destination IP</strong>
+                    <div>142.250.190.14 (Google DNS)</div>
+                </div>
+                <div class="observation-item">
+                    <strong>Protocol</strong>
+                    <div><span class="protocol-badge">ICMP</span></div>
+                </div>
+                <div class="observation-item">
+                    <strong>Packet Size</strong>
+                    <div>84 bytes</div>
+                </div>
+            </div>
+
+            <p class="callout"><span>First discovery:</span> Even a simple <code>ping</code> generates dozens of packets with precise details about timing, size, and routing!</p>
+        </div>
+    </div>
+
+    <!-- SLIDE 6: PACKET DETAILS -->
+    <div class="slide" id="slide-6">
+        <div class="slide-content">
+            <h2>🧬 Drilling Into Packet Details</h2>
+            <p>Click any packet row to see the magic. Wireshark shows three panes:</p>
+
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-header">Packet List (Top Pane)</div>
+                    <ul>
+                        <li>Summary of all captured packets</li>
+                        <li>Color-coded by protocol</li>
+                        <li>Shows packet number, time, source, destination</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <div class="card-header">Packet Details (Middle Pane)</div>
+                    <ul>
+                        <li>Folded tree view of headers</li>
+                        <li>Click to expand Ethernet → IP → ICMP layers</li>
+                        <li>Protocol-specific information decoded</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card" style="grid-column: 1/-1;">
+                <div class="card-header">Packet Bytes (Bottom Pane)</div>
+                <p>Raw hexadecimal and ASCII dump of the packet. This is what travels on the wire!</p>
+            </div>
+
+            <div class="wireshark-screenshot">
+                📸 <strong>Pro tip:</strong> Right-click → "Follow → TCP Stream" to see complete conversations!
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 7: COMMON FILTERS -->
+    <div class="slide" id="slide-7">
+        <div class="slide-content">
+            <h2>🎛️ Essential Wireshark Filters</h2>
+            <p>Filters let you focus on specific traffic. Type in the filter bar and press Enter:</p>
+
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-header">Traffic Filters</div>
+                    <ul>
+                        <li><code>ip.src == 192.168.1.100</code> – Your machine only</li>
+                        <li><code>ip.dst == 8.8.8.8</code> – Traffic to Google DNS</li>
+                        <li><code>tcp.port == 80</code> – HTTP web traffic</li>
+                        <li><code>dns</code> – All DNS queries</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <div class="card-header">Attack Investigation Filters</div>
+                    <ul>
+                        <li><code>arp</code> – ARP spoofing detection</li>
+                        <li><code>bootp</code> – DHCP traffic</li>
+                        <li><code>icmp</code> – Ping sweeps/scans</li>
+                        <li><code>http contains "password"</code> – Cleartext credentials</li>
+                    </ul>
+                </div>
+            </div>
+
+            <p style="text-align: center; font-size: 1.1rem; color: var(--accent-strong); margin-top: 16px;">
+                💡 <strong>Filter power:</strong> Turn millions of packets into 10 relevant ones instantly!
+            </p>
+        </div>
+    </div>
+
+    <!-- SLIDE 8: LAB VARIATIONS -->
+    <div class="slide" id="slide-8">
+        <div class="slide-content">
+            <h2>🧪 Lab Variations (Try These)</h2>
+            <p>Practice different capture scenarios to build pattern recognition:</p>
+
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-header">HTTP Traffic</div>
+                    <p>Open browser → visit <code>http://example.com</code> → capture → filter <code>http</code></p>
+                </div>
+                <div class="card">
+                    <div class="card-header">DNS Queries</div>
+                    <p><code>nslookup google.com</code> → capture → filter <code>dns</code></p>
+                </div>
+                <div class="card">
+                    <div class="card-header">ARP Activity</div>
+                    <p>Connect/disconnect WiFi → capture → filter <code>arp</code></p>
+                </div>
+                <div class="card">
+                    <div class="card-header">Ping Sweep</div>
+                    <p><code>ping 192.168.1.1-254</code> → capture → filter <code>icmp</code></p>
+                </div>
+            </div>
+
+            <div class="highlight-box danger">
+                <div class="highlight-title danger-title">⚠️ Legal/Ethical Note</div>
+                <p>Only capture traffic on networks you own or have explicit permission to analyze. Never capture in public without authorization.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 9: SUMMARY -->
+    <div class="slide" id="slide-9">
+        <div class="slide-content">
+            <h2>🧾 Summary: What You Gained</h2>
+
+            <div class="highlight-box">
+                <div class="highlight-title">Core Skills Mastered</div>
+                <ul class="summary-list">
+                    <li>✔ Installing and launching Wireshark</li>
+                    <li>✔ Selecting interfaces and starting/stopping captures</li>
+                    <li>✔ Reading packet details (source/destination/protocol/size)</li>
+                    <li>✔ Applying basic filters to focus analysis</li>
+                    <li>✔ Understanding real packet structure vs theory</li>
+                </ul>
+            </div>
+
+            <p style="text-align: center; font-size: 1.15rem; color: var(--accent-strong); margin-top: 20px;">
+                You can now see the invisible network conversations happening all around you!
+            </p>
+        </div>
+    </div>
+
+    <!-- SLIDE 10: ASSIGNMENT -->
+    <div class="slide" id="slide-10">
+        <div class="slide-content">
+            <h2>📚 Class Assignment: Packet Detective</h2>
+            <p>Capture and analyze traffic, then answer these questions with screenshots:</p>
+
+            <div class="highlight-box danger">
+                <div class="highlight-title danger-title">Investigation Tasks</div>
+                <ul class="summary-list">
+                    <li>1. Capture your own <code>ping google.com</code>. Screenshot source/destination IPs and ICMP protocol details.</li>
+                    <li>2. Visit <code>http://httpbin.org/ip</code>. Filter <code>http</code> and screenshot the request/response.</li>
+                    <li>3. Run <code>nslookup cyberciti.biz</code>. Filter <code>dns</code> and identify the DNS server IP.</li>
+                    <li>4. Explain: Why did some packets have the same IPs but different protocols?</li>
+                </ul>
+                <p style="margin-top: 12px; font-size: 0.95rem; color: var(--text-muted);">
+                    Submit: 4 screenshots + 1 paragraph explaining what surprised you about real traffic.
+                </p>
+            </div>
+
+            <p style="text-align: center; margin-top: 28px; font-size: 1.4rem; color: var(--accent);">
+                END OF CLASS 2 – PACKET CAPTURE MASTERY
+            </p>
+        </div>
+    </div>
+
+    <!-- Navigation, footer, and script same as previous template -->
+    <div id="prev-slide" class="nav-arrow" onclick="changeSlide(-1)">&#10094;</div>
+    <div id="next-slide" class="nav-arrow" onclick="changeSlide(1)">&#10095;</div>
+    <div class="slide-footer">
+        Slide <span id="current-slide-num">1</span> of <span id="total-slides-num">10</span>
+    </div>
+    <div class="progress-bar" id="progress-bar"></div>
+
+</div>
+
+<!-- Same JavaScript as previous template -->
+<script>
+    // [Same slide navigation script as previous template]
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.slide');
+    const totalSlides = slides.length;
+    const currentSlideNum = document.getElementById('current-slide-num');
+    const totalSlidesNum = document.getElementById('total-slides-num');
+    const progressBar = document.getElementById('progress-bar');
+
+    totalSlidesNum.textContent = totalSlides;
+
+    function showSlide(index) {
+        if (index >= totalSlides) index = 0;
+        if (index < 0) index = totalSlides - 1;
+
+        slides.forEach(slide => slide.classList.remove('active'));
+        slides[index].classList.add('active');
+        currentSlide = index;
+        currentSlideNum.textContent = currentSlide + 1;
+
+        const progress = ((currentSlide + 1) / totalSlides) * 100;
+        progressBar.style.width = progress + '%';
+    }
+
+    function changeSlide(step) {
+        showSlide(currentSlide + step);
+    }
+
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'ArrowRight' || event.key === ' ') {
+            changeSlide(1);
+        } else if (event.key === 'ArrowLeft') {
+            changeSlide(-1);
+        }
+    });
+
+    showSlide(currentSlide);
+</script>
+
 </body>
 </html>

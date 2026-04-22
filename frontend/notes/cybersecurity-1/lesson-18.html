@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cybersecurity Level 1 - Week 6: Malware Detection Tools</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&family=Space+Mono&display=swap" rel="stylesheet">
+    <style>
+        /* --- Using Your Brighter, Friendlier Theme --- */
+        :root {
+            --primary-color: #0070c0; 
+            --secondary-color: #d9534f; 
+            --tertiary-color: #5cb85c; 
+            --background-color: #f8f9fa; 
+            --text-color: #333333; 
+            --slide-bg: #ffffff; 
+            --highlight-bg: #e9ecef; 
+            --shadow-color: rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 16px;
+        }
+
+        .presentation-container {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .slide {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: opacity 0.6s ease-in-out, transform 0.6s ease-in-out;
+            padding: 5vh 10vw;
+            box-sizing: border-box;
+            background-color: var(--slide-bg);
+            border-left: 8px solid var(--primary-color);
+            box-shadow: 0 0 20px var(--shadow-color);
+        }
+
+        .slide.active { opacity: 1; transform: translateX(0); }
+
+        .slide-content {
+            width: 100%;
+            max-width: 1100px;
+            text-align: left;
+            overflow-y: auto;
+            max-height: 90vh;
+        }
+
+        .slide h1, .slide h2 {
+            color: var(--primary-color);
+            padding-bottom: 10px;
+            margin-bottom: 25px;
+            font-weight: 700;
+        }
+        
+        .slide h1 { font-size: 3.5em; }
+        .slide h2 { font-size: 2.2em; border-bottom: 4px dashed var(--highlight-bg); }
+
+        .slide p { line-height: 1.7; margin-bottom: 15px; font-size: 1.15em; }
+        .slide ul { list-style-type: none; padding: 0; }
+
+        .slide li {
+            background: var(--highlight-bg);
+            margin-bottom: 12px;
+            padding: 15px 20px;
+            border-left: 6px solid var(--tertiary-color);
+            font-size: 1.1em;
+            border-radius: 5px;
+            box-shadow: 0 1px 3px var(--shadow-color);
+            display: flex;
+            align-items: flex-start;
+        }
+        
+        .slide li strong { color: var(--primary-color); margin-right: 10px; }
+
+        .title-slide { text-align: center; justify-content: center; }
+        .title-slide h1 { font-size: 5em; border-bottom: none; color: var(--text-color); }
+        .title-slide p { font-size: 1.8em; color: var(--primary-color); }
+
+        .key-concept {
+            padding: 25px;
+            background-color: #f2f7ff;
+            border-radius: 10px;
+            margin-top: 25px;
+            border: 1px solid #cce5ff;
+            border-left: 8px solid var(--primary-color);
+        }
+
+        .example-box {
+            background-color: #fff3cd;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            font-family: 'Space Mono', monospace;
+            border: 2px solid #ffeeba;
+            color: #856404;
+        }
+
+        .nav-arrow {
+            position: fixed;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 3em;
+            color: var(--primary-color);
+            cursor: pointer;
+            padding: 15px;
+            z-index: 10;
+            background: rgba(255, 255, 255, 0.7);
+            border: 1px solid var(--primary-color);
+            border-radius: 50%;
+            line-height: 0.5;
+            transition: all 0.3s;
+        }
+
+        .nav-arrow:hover { background: var(--primary-color); color: var(--slide-bg); }
+        #prev-slide { left: 20px; }
+        #next-slide { right: 20px; }
+
+        .slide-footer {
+            position: fixed;
+            bottom: 10px;
+            right: 20px;
+            font-size: 1em;
+            color: #6c757d;
+        }
+
+        .image-placeholder { width: 100%; margin: 20px 0; border-radius: 8px; overflow: hidden; }
+        .image-placeholder img { max-width: 100%; height: auto; display: block; border: 1px solid #ddd; }
+    </style>
+</head>
+<body>
+
+<div class="presentation-container">
+
+    <div class="slide title-slide active" id="slide-1">
+        <div class="slide-content">
+            <h1>🧪 WEEK 6 — CLASS 3</h1>
+            <p class="subtitle">PRACTICAL LAB: MALWARE DETECTION</p>
+            <p><strong>Using Professional Investigation Tools</strong></p>
+            <hr style="width: 50%; border-color: var(--primary-color); margin-top: 30px;">
+            <p style="margin-top: 50px; color: var(--text-color);">
+                <span style="font-size: 1.2em;"><strong>🔍 Trust, But Verify.</strong></span><br>
+                In the digital world, appearances are deceiving. Today, we learn how to see the truth.
+            </p>
+        </div>
+    </div>
+
+    <div class="slide" id="slide-2">
+        <div class="slide-content">
+            <h2>⭐ 1. Today’s Mission</h2>
+            <p>Today, you officially become a <strong>Malware Detector</strong>.</p>
+            <div class="key-concept">
+                <p><strong>Your objectives for this session:</strong></p>
+                <ul>
+                    <li style="border-left-color: var(--tertiary-color);"><strong>Safe Analysis:</strong> Learn to investigate files without opening them.</li>
+                    <li style="border-left-color: var(--tertiary-color);"><strong>Tool Mastery:</strong> Use real-world industry tools like VirusTotal.</li>
+                    <li style="border-left-color: var(--tertiary-color);"><strong>Threat Identification:</strong> Distinguish between safe files and clever traps.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide" id="slide-3">
+        <div class="slide-content">
+            <h2>🛠️ 2. Lab 1 — Using VirusTotal</h2>
+            <p><strong>What is VirusTotal?</strong></p>
+            <p>It is a free online service that analyzes suspicious files and URLs. It uses over <strong>70 different antivirus engines</strong> (like McAfee, Kaspersky, Symantec) to check if a file is dangerous.</p>
+            
+            <div class="image-placeholder">
+                
+            </div>
+
+            <p><strong>How it works:</strong> It creates a "Hash" (a unique digital fingerprint) of the file and compares it to a global database of known malware.</p>
+        </div>
+    </div>
+
+    <div class="slide" id="slide-4">
+        <div class="slide-content">
+            <h2>🧪 Lab 1: Step-by-Step Analysis</h2>
+            <p>Follow these steps to analyze a file safely:</p>
+            <div class="example-box">
+                <ol>
+                    <li>1. Open your browser and go to <code>https://www.virustotal.com</code></li>
+                    <li>2. Choose the <strong>"File"</strong> tab for documents or the <strong>"URL"</strong> tab for links.</li>
+                    <li>3. Upload a file (use the sample provided by the instructor) OR paste a suspicious link.</li>
+                    <li>4. Wait for the engines to process the scan.</li>
+                </ol>
+            </div>
+            <p><em>*Note: Never upload sensitive personal documents to public scanners!</em></p>
+        </div>
+    </div>
+
+    <div class="slide" id="slide-5">
+        <div class="slide-content">
+            <h2>📊 3. Understanding the Results</h2>
+            <p>Once the scan is finished, VirusTotal provides a detailed report:</p>
+            
+            <ul>
+                <li><strong>Detection Ratio:</strong> (e.g., 5/70). This means 5 out of 70 engines flagged the file.</li>
+                <li><strong>Behavior Tab:</strong> Shows what the file *tries* to do (e.g., "Attempts to delete system files").</li>
+                <li><strong>Details Tab:</strong> Shows the file type, size, and the "MD5/SHA" fingerprints.</li>
+            </ul>
+
+            <div class="image-placeholder">
+                
+            </div>
+        </div>
+    </div>
+
+    <div class="slide" id="slide-6">
+        <div class="slide-content">
+            <h2>🚨 Interpretation: Making the Call</h2>
+            <p>As an analyst, you must interpret the data:</p>
+            <ul>
+                <li style="border-left-color: var(--tertiary-color);"><strong>0 Detections:</strong> Likely safe (or very new "Zero-Day" malware).</li>
+                <li style="border-left-color: var(--warning-color);"><strong>1-3 Detections:</strong> Suspicious. Could be a <strong>False Positive</strong> (a safe file mistakenly flagged).</li>
+                <li style="border-left-color: var(--secondary-color);"><strong>4+ Detections:</strong> High probability of being malicious. <strong>Do not open!</strong></li>
+            </ul>
+            <div class="key-concept">
+                <strong>Technician Tip:</strong> Check the names given by the engines. If you see "Trojan" or "Ransom," stay away!
+            </div>
+        </div>
+    </div>
+
+    <div class="slide" id="slide-7">
+        <div class="slide-content">
+            <h2>🧠 4. Lab 2 — URL Analysis</h2>
+            <p>Malware often starts with a <strong>link</strong>, not a file. We use URL analysis to check websites before visiting them.</p>
+            <div class="image-placeholder">
+                [Image showing a suspicious URL like "bank-secure-login-update.cc" being scanned]
+            </div>
+            <p><strong>🎯 Lab Goal:</strong></p>
+            <ul>
+                <li>Identify if a website is used for <strong>Phishing</strong> (stealing credentials).</li>
+                <li>Check if a site performs <strong>Drive-by Downloads</strong>.</li>
+                <li>Practice "Safe Investigation" by analyzing the link <em>from the outside</em>.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="slide" id="slide-8">
+        <div class="slide-content">
+            <h2>📌 5. Assignment: Case Study Documentation</h2>
+            <div class="example-box" style="border-left: 8px solid var(--secondary-color);">
+                <p><strong>📝 Document 3 Real Malware Cases:</strong></p>
+                <p>Research three major historical attacks (e.g., WannaCry, Stuxnet, Emotet) and write:</p>
+                <ul>
+                    <li>1. <strong>Malware Name & Type:</strong> (e.g., Ransomware, Worm).</li>
+                    <li>2. <strong>Infection Vector:</strong> How did it spread?</li>
+                    <li>3. <strong>Impact:</strong> Damage caused to people or businesses.</li>
+                    <li>4. <strong>The "Cure":</strong> How was it eventually stopped or patched?</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide" id="slide-9">
+        <div class="slide-content">
+            <h2>🧠 6. Reflection & Discussion</h2>
+            <p>Take 5 minutes to answer these questions in your notes:</p>
+            <ul>
+                <li style="background:none; border:none;">💡 <strong>Question 1:</strong> Based on what you've seen, which type of malware do you think is hardest to detect?</li>
+                <li style="background:none; border:none;">💡 <strong>Question 2:</strong> What surprised you most about how many "engines" are checking a single file?</li>
+                <li style="background:none; border:none;">💡 <strong>Question 3:</strong> How will you change your behavior next time you receive an "unknown" file?</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="slide" id="slide-10">
+        <div class="slide-content">
+            <h2>🏁 End of Week 6 Outcome</h2>
+            <div class="key-concept" style="background-color: #f0fff4; border-left-color: var(--tertiary-color);">
+                <p><strong>Congratulations! You have completed the Malware module. You can now:</strong></p>
+                <ul>
+                    <li style="background:white;">✅ Identify malware types (Virus, Worm, Trojan, etc.).</li>
+                    <li style="background:white;">✅ Understand attack methods and delivery vectors.</li>
+                    <li style="background:white;">✅ Analyze suspicious behaviors (IOCs).</li>
+                    <li style="background:white;">✅ Use professional tools like VirusTotal safely.</li>
+                    <li style="background:white;">✅ Think with the mindset of a Junior Malware Analyst.</li>
+                </ul>
+            </div>
+            <p style="text-align: center; margin-top: 40px; font-size: 1.5em; color: var(--primary-color);">
+                WEEK 6 COMPLETE. PREPARE FOR WEEK 7!
+            </p>
+        </div>
+    </div>
+
+    <div id="prev-slide" class="nav-arrow" onclick="changeSlide(-1)">&#10094;</div>
+    <div id="next-slide" class="nav-arrow" onclick="changeSlide(1)">&#10095;</div>
+    <div class="slide-footer">Slide <span id="current-slide-num">1</span> of <span id="total-slides-num">10</span></div>
+
+</div>
+
+<script>
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.slide');
+    const totalSlides = slides.length;
+    document.getElementById('total-slides-num').textContent = totalSlides;
+
+    function showSlide(index) {
+        if (index >= totalSlides) index = 0;
+        else if (index < 0) index = totalSlides - 1;
+        slides.forEach((slide) => slide.classList.remove('active'));
+        slides[index].classList.add('active');
+        currentSlide = index;
+        document.getElementById('current-slide-num').textContent = currentSlide + 1;
+    }
+
+    function changeSlide(n) { showSlide(currentSlide + n); }
+    showSlide(currentSlide);
+    
+    document.addEventListener('keydown', function(event) {
+        if (event.key === "ArrowRight" || event.key === " ") changeSlide(1);
+        else if (event.key === "ArrowLeft") changeSlide(-1);
+    });
+</script>
+</body>
+</html>

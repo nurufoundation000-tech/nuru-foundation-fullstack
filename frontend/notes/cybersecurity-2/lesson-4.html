@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cybersecurity Level 2 – Week 2: Linux Mastery for Pentesters</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Source+Code+Pro:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-deep: #050816;
+            --bg-elevated: #0b1020;
+            --accent-cyan: #00e0ff;
+            --accent-green: #4effa5;
+            --danger: #ff4b81;
+            --text-light: #f5f5f5;
+            --text-muted: #9ca3af;
+            --border-dim: #1f2933;
+            --glow: rgba(0, 224, 255, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: radial-gradient(circle at 20% 0%, #0f172a 0%, #020617 70%, #000000 100%);
+            color: var(--text-light);
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .presentation-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        .slide {
+            position: absolute;
+            inset: 0;
+            padding: 4vh 6vw;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transform: translateX(45px) scale(0.97);
+            transition: opacity 0.45s ease, transform 0.45s ease;
+            pointer-events: none;
+            overflow-y: auto;
+        }
+
+        .slide.active {
+            opacity: 1;
+            transform: translateX(0) scale(1);
+            pointer-events: auto;
+        }
+
+        /* .slide-content {
+            max-width: 1300px;
+            width: 100%;
+            margin: 0 auto;
+            background: rgba(5, 8, 22, 0.7);
+            backdrop-filter: blur(4px);
+            border-radius: 2rem;
+            padding: 2rem 2.2rem;
+            border: 1px solid rgba(0, 224, 255, 0.25);
+            box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.6);
+        } */
+
+        h1, h2, h3 {
+            font-weight: 700;
+            letter-spacing: -0.01em;
+        }
+
+        h1 {
+            font-size: 2.8rem;
+            background: linear-gradient(125deg, #ffffff, var(--accent-cyan), var(--accent-green));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        h2 {
+            font-size: 1.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            border-left: 4px solid var(--accent-cyan);
+            padding-left: 1rem;
+            margin: 1.2rem 0 1rem 0;
+        }
+
+        h3 {
+            font-size: 1.4rem;
+            color: var(--accent-green);
+            margin: 1rem 0 0.6rem 0;
+        }
+
+        p {
+            line-height: 1.65;
+            color: var(--text-muted);
+            margin: 12px 0;
+            font-size: 1rem;
+        }
+
+        ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        li {
+            margin-bottom: 8px;
+            position: relative;
+            padding-left: 22px;
+            font-size: 0.96rem;
+            color: #cbd5e1;
+        }
+
+        li::before {
+            content: "›";
+            position: absolute;
+            left: 6px;
+            color: var(--accent-cyan);
+            font-weight: bold;
+        }
+
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0, 224, 255, 0.12);
+            border: 1px solid var(--accent-cyan);
+            border-radius: 40px;
+            padding: 4px 16px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--accent-cyan);
+            margin-bottom: 1rem;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.2rem;
+            margin: 1.2rem 0;
+        }
+
+        .card {
+            background: radial-gradient(ellipse at top left, rgba(0,224,255,0.1), rgba(15,23,42,0.95));
+            border-radius: 1.2rem;
+            padding: 1.2rem 1.3rem;
+            border: 1px solid rgba(148,163,184,0.2);
+            transition: all 0.2s;
+        }
+
+        .card:hover {
+            border-color: var(--accent-cyan);
+            transform: translateY(-2px);
+        }
+
+        .card-header {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--accent-cyan);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .code-block {
+            background: #0a0e1a;
+            border-radius: 16px;
+            padding: 14px 18px;
+            font-family: 'Source Code Pro', monospace;
+            font-size: 0.85rem;
+            border: 1px solid #1e2a3a;
+            margin: 16px 0;
+        }
+
+        .code-line {
+            color: #a5f3c3;
+            margin-bottom: 4px;
+            font-family: 'Source Code Pro', monospace;
+        }
+
+        .cmd {
+            color: var(--accent-cyan);
+        }
+
+        .highlight {
+            background: rgba(78, 255, 165, 0.08);
+            border-left: 3px solid var(--accent-green);
+            padding: 0.8rem 1.2rem;
+            border-radius: 14px;
+            margin: 1rem 0;
+        }
+
+        .danger-highlight {
+            background: rgba(255, 75, 129, 0.08);
+            border-left: 3px solid var(--danger);
+        }
+
+        .inline-code {
+            font-family: 'Source Code Pro', monospace;
+            background: #0f172a;
+            padding: 2px 8px;
+            border-radius: 8px;
+            color: var(--accent-cyan);
+            font-size: 0.85rem;
+            border: 1px solid #1e293b;
+        }
+
+        .summary-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .summary-item {
+            background: rgba(0, 224, 255, 0.05);
+            border-radius: 16px;
+            padding: 12px 16px;
+            border: 1px solid rgba(0, 224, 255, 0.2);
+        }
+
+        .nav-arrow {
+            position: fixed;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 48px;
+            height: 48px;
+            background: rgba(15, 23, 42, 0.95);
+            border: 1px solid var(--accent-cyan);
+            border-radius: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: var(--accent-cyan);
+            cursor: pointer;
+            transition: 0.2s;
+            z-index: 30;
+        }
+
+        .nav-arrow:hover {
+            background: var(--accent-cyan);
+            color: #020617;
+            transform: translateY(-50%) scale(1.05);
+        }
+
+        #prev-slide { left: 20px; }
+        #next-slide { right: 20px; }
+
+        .slide-footer {
+            position: fixed;
+            bottom: 12px;
+            right: 24px;
+            background: rgba(5, 8, 22, 0.9);
+            padding: 5px 14px;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            border: 1px solid var(--accent-cyan);
+            z-index: 30;
+            font-family: monospace;
+        }
+
+        .progress-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-green));
+            width: 0%;
+            transition: width 0.3s;
+            z-index: 40;
+        }
+
+        .title-slide .slide-content {
+            text-align: center;
+        }
+
+        @media (max-width: 800px) {
+            .slide {
+                padding: 2rem;
+            }
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+            h1 {
+                font-size: 2rem;
+            }
+            h2 {
+                font-size: 1.5rem;
+            }
+            .nav-arrow {
+                width: 40px;
+                height: 40px;
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="presentation-container">
+
+    <!-- SLIDE 1 - TITLE -->
+    <div class="slide title-slide active" id="slide-1">
+        <div class="slide-content">
+            <!-- <div class="pill">WEEK 2</div> -->
+            <h1>Linux Mastery for Pentesters</h1>
+            <p class="subtitle" style="color: var(--accent-green); font-size: 1.2rem;">Shell, Scripting, Permissions, Logs</p>
+            <p style="max-width: 700px; margin: 1.2rem auto;">The command line is your digital battlefield. Mastery over Linux = precision, speed, and stealth in penetration testing.</p>
+            <div class="highlight" style="margin-top: 1.8rem;">
+                <span class="inline-code"># whoami && pwd</span> — understand the system before you break it.
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 2 - SHELL MASTERY -->
+    <div class="slide" id="slide-2">
+        <div class="slide-content">
+            <h2> 1. Shell Mastery (Bash & Zsh)</h2>
+            <p>A shell is a program that allows a user to interact with the operating system using commands. In cybersecurity, the shell is one of the most powerful tools because most tasks are performed through command-line interfaces.</p>
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-header">🐚 Common shells</div>
+                    <ul>
+                        <li><strong>Bash</strong> (Bourne Again Shell) – default on most Linux distros</li>
+                        <li><strong>Zsh</strong> (Z Shell) – extended with plugins, used by pros</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <div class="card-header">📌 Basic Command Structure</div>
+                    <p><span class="inline-code">command [options] [arguments]</span></p>
+                    <p>Example: <span class="inline-code">ls -l /home</span></p>
+                </div>
+            </div>
+            <div class="code-block">
+                <div class="code-line"><span class="cmd">pwd</span>     → Shows current directory</div>
+                <div class="code-line"><span class="cmd">ls</span>      → Lists files and directories</div>
+                <div class="code-line"><span class="cmd">cd</span>      → Changes directory</div>
+                <div class="code-line"><span class="cmd">mkdir</span>   → Creates a directory</div>
+                <div class="code-line"><span class="cmd">rm</span>      → Deletes files</div>
+                <div class="code-line"><span class="cmd">cp</span>      → Copies files</div>
+                <div class="code-line"><span class="cmd">mv</span>      → Moves or renames files</div>
+                <div class="code-line"><span class="cmd">cat</span>     → Displays file content</div>
+                <div class="code-line"><span class="cmd">nano</span>   → Opens file editor</div>
+            </div>
+            <div class="highlight">
+                <strong>🔗 Command chaining:</strong> <span class="inline-code">&&</span> (runs next if previous succeeds) · <span class="inline-code">;</span> (runs sequentially).<br>
+                Example: <span class="inline-code">mkdir test && cd test</span>
+            </div>
+            <p><strong>Importance in Cybersecurity:</strong> automation, penetration testing, system control and analysis.</p>
+        </div>
+    </div>
+
+    <!-- SLIDE 3 - BASH SCRIPTING BASICS -->
+    <div class="slide" id="slide-3">
+        <div class="slide-content">
+            <h2> 2. Bash Scripting Basics</h2>
+            <p>A Bash script is a file containing a sequence of commands that are executed automatically — force multiplier for any pentester.</p>
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-header">📜 Basic Script Structure</div>
+                    <div class="code-block" style="margin-top: 0;">
+                        <div class="code-line">#!/bin/bash</div>
+                        <div class="code-line">echo "Hello, World"</div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">📦 Variables</div>
+                    <div class="code-block" style="margin-top: 0;">
+                        <div class="code-line">name="Daniel"</div>
+                        <div class="code-line">echo $name</div>
+                    </div>
+                </div>
+            </div>
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-header">⚖️ Simple Conditions</div>
+                    <div class="code-block" style="margin-top: 0;">
+                        <div class="code-line">if [ $name = "Daniel" ]; then</div>
+                        <div class="code-line">  echo "Access granted"</div>
+                        <div class="code-line">fi</div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">🔄 Loops</div>
+                    <div class="code-block" style="margin-top: 0;">
+                        <div class="code-line">for i in {1..5}</div>
+                        <div class="code-line">do</div>
+                        <div class="code-line">  echo $i</div>
+                        <div class="code-line">done</div>
+                    </div>
+                </div>
+            </div>
+            <div class="highlight">
+                <strong>🎯 Importance:</strong> Automates repetitive tasks, reconnaissance, scanning — saves hours during penetration testing.
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 4 - PERMISSIONS, SUDO, SSH -->
+    <div class="slide" id="slide-4">
+        <div class="slide-content">
+            <h2> 3. Permissions, Sudo, and SSH</h2>
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-header">🔐 File Permissions</div>
+                    <p>Each file has three types of permissions: <strong>Read (r)</strong>, <strong>Write (w)</strong>, <strong>Execute (x)</strong>.</p>
+                    <div class="code-block" style="margin: 10px 0;">
+                        <div class="code-line"><span class="cmd">ls -l</span>   → view permissions</div>
+                        <div class="code-line"><span class="cmd">chmod +x script.sh</span>   → make executable</div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">👑 Sudo – Superuser Do</div>
+                    <p><span class="inline-code">sudo</span> allows a user to execute commands with administrative privileges.</p>
+                    <div class="code-block" style="margin: 10px 0;">
+                        <div class="code-line">sudo apt update</div>
+                    </div>
+                </div>
+            </div>
+            <div class="card" style="margin-top: 8px;">
+                <div class="card-header">🔌 SSH (Secure Shell)</div>
+                <p>SSH is used to connect to remote systems securely. Essential for remote access and pivoting.</p>
+                <div class="code-block">
+                    <div class="code-line">ssh user@192.168.1.10</div>
+                </div>
+                <p><strong>Importance:</strong> remote system access, secure communication, heavily used in real-world environments and red teaming.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 5 - LOG FILES & ANALYSIS -->
+    <div class="slide" id="slide-5">
+        <div class="slide-content">
+            <h2> 4. Log Files & Log Analysis</h2>
+            <p>Log files record system activities. They are crucial for detecting attacks, monitoring systems, and investigating incidents.</p>
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-header">📂 Common Log Location</div>
+                    <div class="code-block"><div class="code-line">/var/log/</div></div>
+                    <ul>
+                        <li><span class="inline-code">auth.log</span> → Login attempts</li>
+                        <li><span class="inline-code">syslog</span> → System events</li>
+                        <li><span class="inline-code">kern.log</span> → Kernel activities</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <div class="card-header">🔍 Viewing & Searching Logs</div>
+                    <div class="code-block">
+                        <div class="code-line">cat /var/log/auth.log</div>
+                        <div class="code-line">grep "failed" /var/log/auth.log</div>
+                    </div>
+                    <p>Use <span class="inline-code">tail -f</span> for real-time monitoring.</p>
+                </div>
+            </div>
+            <div class="highlight danger-highlight" style="margin-top: 0.5rem;">
+                <strong>🚨 Importance for Blue & Purple Teams:</strong><br>
+                • Detect unauthorized access<br>
+                • Identify suspicious activity (brute force, privilege escalation)<br>
+                • Support forensic investigations
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 6 - SUMMARY -->
+    <div class="slide" id="slide-6">
+        <div class="slide-content">
+            <h2>🧾 Summary of Class 1</h2>
+            <p><strong>You have learned:</strong></p>
+            <div class="summary-list">
+                <div class="summary-item">✔ How to use the Linux shell effectively (Bash/Zsh)</div>
+                <div class="summary-item">✔ Basic Bash scripting concepts (variables, loops, conditions)</div>
+                <div class="summary-item">✔ File permissions and administrative control (chmod, sudo)</div>
+                <div class="summary-item">✔ How to connect to remote systems using SSH</div>
+                <div class="summary-item">✔ How to read and analyze system logs (/var/log)</div>
+            </div>
+            <div class="highlight" style="margin-top: 1.8rem;">
+                <span class="inline-code">“In Linux, everything is a file — and mastery starts with the shell.”</span><br>
+                Next: real-world automation scripts, privilege escalation labs, and log forensics.
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 7 - HANDS-ON ASSIGNMENT (EXTENDED) -->
+    <div class="slide" id="slide-7">
+        <div class="slide-content">
+            <h2>📝 Assignment – Linux Mastery Lab</h2>
+            <p>Reinforce your skills by completing the following tasks in a Linux VM (Kali/Ubuntu) or WSL.</p>
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-header">🖥️ Shell & scripting</div>
+                    <ul>
+                        <li>Create a directory <span class="inline-code">~/pentest_lab</span> and navigate into it.</li>
+                        <li>Write a Bash script <span class="inline-code">scan_ports.sh</span> that loops through ports 1–1024 and echoes "checking port X".</li>
+                        <li>Make the script executable with <span class="inline-code">chmod +x</span> and run it.</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <div class="card-header">🔍 Permissions & SSH</div>
+                    <ul>
+                        <li>Create a dummy user (adduser testuser) and set a file with 600 permissions.</li>
+                        <li>Practice <span class="inline-code">sudo</span> to view restricted logs.</li>
+                        <li>SSH into localhost (ssh testuser@localhost) and run <span class="inline-code">whoami</span>.</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="highlight danger-highlight">
+                <strong>📋 Deliverable (one page):</strong><br>
+                1. Provide the content of your <span class="inline-code">scan_ports.sh</span> script and explain each line.<br>
+                2. Run <span class="inline-code">ls -l</span> on the script and paste the output — what does the permission string mean?<br>
+                3. From <span class="inline-code">/var/log/auth.log</span> (or journalctl), find three failed login attempts and write the timestamp & IP.<br>
+                4. Brief reflection: why is Linux mastery non‑negotiable for pentesters?
+            </div>
+            <p style="text-align: center; margin-top: 24px; color: var(--accent-cyan); font-family: monospace;">END OF CLASS 1 – LINUX MASTERY FOR PENTESTERS</p>
+        </div>
+    </div>
+
+    <!-- NAVIGATION -->
+    <div id="prev-slide" class="nav-arrow" onclick="changeSlide(-1)">‹</div>
+    <div id="next-slide" class="nav-arrow" onclick="changeSlide(1)">›</div>
+    <div class="slide-footer">
+        <span id="current-slide-num">1</span> / <span id="total-slides-num">7</span>
+    </div>
+    <div class="progress-bar" id="progress-bar"></div>
+</div>
+
+<script>
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.slide');
+    const total = slides.length;
+    const currentSpan = document.getElementById('current-slide-num');
+    const totalSpan = document.getElementById('total-slides-num');
+    const progressFill = document.getElementById('progress-bar');
+
+    totalSpan.textContent = total;
+
+    function showSlide(index) {
+        if (index >= total) index = 0;
+        if (index < 0) index = total - 1;
+        slides.forEach(slide => slide.classList.remove('active'));
+        slides[index].classList.add('active');
+        currentSlide = index;
+        currentSpan.textContent = currentSlide + 1;
+        const percent = ((currentSlide + 1) / total) * 100;
+        progressFill.style.width = percent + '%';
+    }
+
+    function changeSlide(step) {
+        showSlide(currentSlide + step);
+    }
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight' || e.key === ' ') {
+            e.preventDefault();
+            changeSlide(1);
+        } else if (e.key === 'ArrowLeft') {
+            e.preventDefault();
+            changeSlide(-1);
+        }
+    });
+
+    showSlide(0);
+</script>
+</body>
+</html>

@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cybersecurity Level 1 - Week 4: OS Basics</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&family=Space+Mono&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #0070c0; 
+            --secondary-color: #d9534f; 
+            --tertiary-color: #5cb85c; 
+            --background-color: #f8f9fa; 
+            --text-color: #333333; 
+            --slide-bg: #ffffff; 
+            --highlight-bg: #e9ecef; 
+            --shadow-color: rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .presentation-container {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .slide {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: opacity 0.6s ease-in-out, transform 0.6s ease-in-out;
+            padding: 5vh 10vw;
+            box-sizing: border-box;
+            background-color: var(--slide-bg);
+            border-left: 8px solid var(--primary-color);
+            box-shadow: 0 0 20px var(--shadow-color);
+        }
+
+        .slide.active {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .slide-content {
+            width: 100%;
+            max-width: 1100px;
+            text-align: left;
+            overflow-y: auto;
+            max-height: 90vh;
+        }
+
+        .slide h1, .slide h2 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+        
+        .slide h1 { font-size: 3.5em; text-align: center; }
+        .slide h2 { font-size: 2.2em; border-bottom: 4px dashed var(--highlight-bg); }
+
+        .slide p { line-height: 1.6; margin-bottom: 15px; font-size: 1.2em; }
+        .slide ul { list-style-type: none; padding: 0; }
+        .slide li {
+            background: var(--highlight-bg);
+            margin-bottom: 10px;
+            padding: 12px 18px;
+            border-left: 6px solid var(--tertiary-color);
+            font-size: 1.1em;
+            border-radius: 5px;
+        }
+
+        .key-concept {
+            padding: 20px;
+            background-color: #f2f7ff;
+            border-radius: 10px;
+            margin-top: 20px;
+            border-left: 8px solid var(--primary-color);
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .comparison-table th, .comparison-table td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+
+        .comparison-table th { background-color: var(--primary-color); color: white; }
+
+        .nav-arrow {
+            position: fixed;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 3em;
+            color: var(--primary-color);
+            cursor: pointer;
+            padding: 15px;
+            z-index: 10;
+            background: rgba(255, 255, 255, 0.7);
+            border: 1px solid var(--primary-color);
+            border-radius: 50%;
+            line-height: 0.5;
+        }
+
+        #prev-slide { left: 20px; }
+        #next-slide { right: 20px; }
+
+        .slide-footer {
+            position: fixed;
+            bottom: 10px;
+            right: 20px;
+            font-size: 1em;
+            color: #6c757d;
+        }
+
+        code {
+            background: #333;
+            color: #fff;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Space Mono', monospace;
+        }
+    </style>
+</head>
+<body>
+
+<div class="presentation-container">
+
+    <div class="slide active" id="slide-1">
+        <div class="slide-content">
+            <h1>🌐 WEEK 4 — CLASS 1</h1>
+            <p style="text-align: center; font-size: 1.8em; color: var(--primary-color); font-weight: bold;">OPERATING SYSTEMS BASICS</p>
+            <div class="key-concept" style="text-align: center;">
+                <p><strong>Security Foundation:</strong> Understanding the "Boss" of the computer to become a System Defender.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide" id="slide-2">
+        <div class="slide-content">
+            <h2>⭐ 1. Today’s Mission</h2>
+            <p>Cybersecurity isn't just about stopping hackers; it's about <strong>controlling the rules</strong> of the computer.</p>
+            <p><strong>Today you will learn who can:</strong></p>
+            <ul>
+                <li>📂 <strong>Access Files:</strong> Who is allowed to open and see data?</li>
+                <li>🚀 <strong>Run Programs:</strong> Who is allowed to start software?</li>
+                <li>⚙️ <strong>Change Settings:</strong> Who can mess with the rules?</li>
+            </ul>
+            <p><em>By the end, you'll think like a system defender!</em></p>
+        </div>
+    </div>
+
+    <div class="slide" id="slide-3">
+        <div class="slide-content">
+            <h2>💻 2. What Is an Operating System (OS)?</h2>
+            <p>The OS is the <strong>BOSS</strong> of the computer. It makes all the big decisions.</p>
+            
+            
+            
+            <p><strong>The Boss controls:</strong></p>
+            <ul>
+                <li>🔌 <strong>Hardware:</strong> The Brain (CPU), Memory (RAM), and Storage (Disk).</li>
+                <li>💾 <strong>Software:</strong> All the apps you use.</li>
+                <li>👤 <strong>Users:</strong> Keeping people's accounts separate.</li>
+                <li>📁 <strong>Files:</strong> Organizing all your data.</li>
+                <li>🛡️ <strong>Security:</strong> Setting the rules of the house.</li>
+            </ul>
+            <p><em>Examples: Windows, Linux, and macOS. Without an OS, a computer is useless.</em></p>
+        </div>
+    </div>
+
+    <div class="slide" id="slide-4">
+        <div class="slide-content">
+            <h2>🪟 3. Windows Security Introduction</h2>
+            <p>Windows is the most used OS, which makes it the <strong>#1 target</strong> for hackers.</p>
+            <ul>
+                <li>👤 <strong>User Accounts:</strong> Each user has a name, password, and "Access Level." <strong>Administrators</strong> have full control—this is what hackers want!</li>
+                <li>🛡️ <strong>Windows Defender:</strong> Built-in police that hunts for viruses, ransomware, and spyware. Keep it updated!</li>
+                <li>🧱 <strong>Windows Firewall:</strong> Controls traffic. It blocks hackers from entering through the internet.</li>
+                <li>🔄 <strong>Windows Updates:</strong> Fixes "holes" (vulnerabilities). <strong>Unpatched systems are easy targets.</strong></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="slide" id="slide-5">
+        <div class="slide-content">
+            <h2>🐧 4. Linux Security Introduction</h2>
+            <p>Pros love Linux because it is strict and transparent (Open-Source). Examples: <strong>Ubuntu</strong> (Easy) or <strong>Kali Linux</strong> (Security testing).</p>
+            <ul>
+                <li>👑 <strong>Root vs Normal User:</strong> The <strong>Root</strong> user is the "System God" with total power. Normal users have very limited access.</li>
+                <li>⚠️ <strong>Safety Rule:</strong> Never work as "Root" all the time! It's too dangerous.</li>
+                <li>🛠️ <strong>Sudo Command:</strong> Type <code>sudo</code> before a command to get temporary admin power. It limits the damage if something goes wrong.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="slide" id="slide-6">
+        <div class="slide-content">
+            <h2>📁 5. File System Basics</h2>
+            <p>How the Boss organizes your data in the storage cabinet.</p>
+            
+            [Image showing the hierarchy of Windows drive letters vs Linux root directory]
+            
+            <table class="comparison-table">
+                <tr>
+                    <th>Windows File System</th>
+                    <th>Linux File System</th>
+                </tr>
+                <tr>
+                    <td>Uses <strong>Drive Letters</strong></td>
+                    <td>Starts from <strong>Root ( / )</strong></td>
+                </tr>
+                <tr>
+                    <td><code>C:\Users\Daniel\Documents</code></td>
+                    <td><code>/home/daniel/documents</code></td>
+                </tr>
+                <tr>
+                    <td>Easy for casual users</td>
+                    <td>No drive letters—everything is a file!</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <div class="slide" id="slide-7">
+        <div class="slide-content">
+            <h2>🐧 Linux Common Directories</h2>
+            <p>You must know these folders to find where the "secrets" and "tools" are kept:</p>
+            <ul>
+                <li>📂 <code>/home</code> &rarr; Where your personal user files live.</li>
+                <li>⚙️ <code>/etc</code> &rarr; Where the <strong>Settings</strong> (configuration) are.</li>
+                <li>📜 <code>/var</code> &rarr; Where the <strong>Logs</strong> (history of what happened) are.</li>
+                <li>🔧 <code>/bin</code> &rarr; Where the <strong>System Programs</strong> live.</li>
+                <li>👑 <code>/root</code> &rarr; The private folder for the "System God."</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="slide" id="slide-8">
+        <div class="slide-content">
+            <h2>🔑 6. Users, Groups & Permissions</h2>
+            <p>Security is simply asking: <strong>"Who can do what?"</strong></p>
+            <ul>
+                <li>👤 <strong>Users:</strong> Each person has a name, password, and home folder.</li>
+                <li>👥 <strong>Groups:</strong> Users are put in teams (like Admins, Staff, or Students). It's easier to give rules to a whole team at once!</li>
+            </ul>
+            <div class="key-concept">
+                <p><strong>The 3 Powers (Permissions):</strong></p>
+                <p>1. 📖 <strong>Read (r):</strong> Can you look at the file?<br>
+                2. ✍️ <strong>Write (w):</strong> Can you change or delete it?<br>
+                3. 🏃 <strong>Execute (x):</strong> Can you run it as a program?</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide" id="slide-9">
+        <div class="slide-content">
+            <h2>🔐 Decoding the Secret Code</h2>
+            <p>In Linux, permissions look like a string of letters. This is core security knowledge!</p>
+            
+            <div class="example-box" style="background: #333; color: #0f0; padding: 20px; font-family: 'Space Mono'; border-radius: 10px; font-size: 1.5em; text-align: center;">
+                - rwx r-x ---
+            </div>
+            
+            <p><strong>How to read it:</strong></p>
+            <ul>
+                <li>🥇 <strong>Owner (rwx):</strong> Can Read, Write, and Run.</li>
+                <li>🥈 <strong>Group (r-x):</strong> Can Read and Run, but NOT change.</li>
+                <li>🥉 <strong>Others (---):</strong> No access at all! This is very safe.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="slide" id="slide-10">
+        <div class="slide-content">
+            <h2>🧠 7. Why This Matters</h2>
+            <p>When hackers attack, they have 4 main goals:</p>
+            <ul>
+                <li>❌ <strong>Gain Admin/Root access</strong> (to become the "Boss").</li>
+                <li>❌ <strong>Steal important files.</strong></li>
+                <li>❌ <strong>Install Malware</strong> (viruses).</li>
+                <li>❌ <strong>Disable Security Tools</strong> (like the Firewall).</li>
+            </ul>
+            <p><em>If you master OS security, you can build a defense that is too hard for them to break!</em></p>
+        </div>
+    </div>
+
+    <div class="slide" id="slide-11">
+        <div class="slide-content">
+            <h2>🎯 8. End of Class 1 Outcome</h2>
+            <div class="key-concept">
+                <strong>You should now be able to:</strong>
+                <ul>
+                    <li>✔ Explain the OS role in security.</li>
+                    <li>✔ Explain the difference between Windows and Linux.</li>
+                    <li>✔ Understand how folders (File Systems) are organized.</li>
+                    <li>✔ Explain Users, Groups, and Permissions.</li>
+                </ul>
+            </div>
+            <p><strong>🏠 Small Assignment:</strong> Go to your computer settings. Look for "Users" or "Accounts." Find out: Is your current account an <strong>Administrator</strong> or a <strong>Standard User</strong>? Write it down!</p>
+        </div>
+    </div>
+
+    <div id="prev-slide" class="nav-arrow" onclick="changeSlide(-1)">&#10094;</div>
+    <div id="next-slide" class="nav-arrow" onclick="changeSlide(1)">&#10095;</div>
+    
+    <div class="slide-footer">Slide <span id="current-slide-num">1</span> of <span id="total-slides-num">11</span></div>
+
+</div>
+
+<script>
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.slide');
+    const totalSlides = slides.length;
+    document.getElementById('total-slides-num').textContent = totalSlides;
+
+    function showSlide(index) {
+        if (index >= totalSlides) index = 0;
+        else if (index < 0) index = totalSlides - 1;
+        
+        slides.forEach((slide) => slide.classList.remove('active'));
+        slides[index].classList.add('active');
+        currentSlide = index;
+        document.getElementById('current-slide-num').textContent = currentSlide + 1;
+    }
+
+    function changeSlide(n) { showSlide(currentSlide + n); }
+    showSlide(currentSlide);
+    
+    document.addEventListener('keydown', function(event) {
+        if (event.key === "ArrowRight" || event.key === " ") changeSlide(1);
+        else if (event.key === "ArrowLeft") changeSlide(-1);
+    });
+</script>
+</body>
+</html>

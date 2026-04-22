@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cybersecurity Level 1 - Week 2: Networking 101</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&family=Space+Mono&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #0070c0; 
+            --secondary-color: #d9534f; 
+            --tertiary-color: #5cb85c; 
+            --background-color: #f8f9fa; 
+            --text-color: #333333; 
+            --slide-bg: #ffffff; 
+            --highlight-bg: #e9ecef; 
+            --shadow-color: rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .presentation-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        .slide {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.6s ease-in-out;
+            padding: 5vh 10vw;
+            box-sizing: border-box;
+            background-color: var(--slide-bg);
+            border-left: 10px solid var(--primary-color);
+        }
+
+        .slide.active {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .slide-content {
+            width: 100%;
+            max-width: 1100px;
+            text-align: left;
+            overflow-y: auto;
+            max-height: 90vh;
+        }
+
+        h1 { font-size: 3.5em; color: var(--text-color); margin-bottom: 10px; }
+        h2 { font-size: 2.2em; color: var(--primary-color); border-bottom: 2px solid var(--highlight-bg); padding-bottom: 10px; }
+        h3 { color: var(--secondary-color); margin-top: 20px; }
+        
+        p { line-height: 1.6; font-size: 1.2em; }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: #fff;
+            box-shadow: 0 2px 5px var(--shadow-color);
+        }
+
+        th { background: var(--primary-color); color: white; padding: 15px; text-align: left; }
+        td { padding: 12px; border-bottom: 1px solid #ddd; }
+        tr:nth-child(even) { background: #f2f2f2; }
+
+        /* Improved Image Container */
+        .image-box {
+            width: 100%;
+            margin: 20px 0;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 2px solid var(--highlight-bg);
+            background: #fdfdfd;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .image-box img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .image-caption {
+            padding: 10px;
+            font-size: 0.9em;
+            color: #666;
+            font-style: italic;
+            border-top: 1px solid #eee;
+            width: 100%;
+            text-align: center;
+        }
+
+        /* Bullet Points */
+        .slide ul { list-style: none; padding: 0; }
+        .slide li { 
+            background: var(--highlight-bg); 
+            margin: 8px 0; 
+            padding: 12px 15px; 
+            border-left: 5px solid var(--tertiary-color);
+            border-radius: 4px;
+        }
+
+        /* Nav Arrows */
+        .nav-arrow {
+            position: fixed; top: 50%; transform: translateY(-50%);
+            font-size: 2.5em; color: var(--primary-color);
+            cursor: pointer; padding: 20px; z-index: 100;
+            background: rgba(255,255,255,0.8); border-radius: 50%;
+            transition: 0.3s;
+        }
+        .nav-arrow:hover { background: var(--primary-color); color: white; }
+        #prev { left: 20px; }
+        #next { right: 20px; }
+
+        .footer {
+            position: fixed; bottom: 15px; right: 25px;
+            font-size: 0.9em; color: #777;
+        }
+    </style>
+</head>
+<body>
+
+<div class="presentation-container">
+
+    <div class="slide active">
+        <div class="slide-content" style="text-align:center;">
+            <h1>NETWORKING 101</h1>
+            <p style="font-size:1.8em; color:var(--primary-color);">Deep Dive Into Digital Identity</p>
+            <p><strong>Week 2 — Class 1 (Theory Session)</strong></p>
+            <div style="margin-top:40px; padding:20px; background:#e3f2fd; border-radius:10px;">
+                <p><strong>⭐ Today's Mission:</strong> You cannot protect what you don't understand. By the end of this class, the Internet will no longer be magic—it will be a system of addresses, doors, and rules.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="slide-content">
+            <h2>1. What is a Network?</h2>
+            <p>A network is simply two or more computers connected to share information. Think of it as a <strong>Digital Neighborhood</strong>.</p>
+            
+            <table>
+                <tr>
+                    <th>Type</th>
+                    <th>What it is</th>
+                    <th>Real-World Example</th>
+                </tr>
+                <tr>
+                    <td><strong>LAN</strong></td>
+                    <td>Local Area Network</td>
+                    <td>Your home Wi-Fi or office network</td>
+                </tr>
+                <tr>
+                    <td><strong>WAN</strong></td>
+                    <td>Wide Area Network</td>
+                    <td>The Internet connecting countries</td>
+                </tr>
+                <tr>
+                    <td><strong>VLAN</strong></td>
+                    <td>Virtual LAN</td>
+                    <td>Slicing one network into secure virtual rooms</td>
+                </tr>
+            </table>
+            <p><strong>Analogy:</strong> Your house is a LAN. The city roads are the WAN. Locking yourself in your bedroom to work is like a VLAN.</p>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="slide-content">
+            <h2>2. IP Addressing: Your Home Address</h2>
+            <p>Every device needs an address so data knows where to go. The most common format is <strong>IPv4</strong>.</p>
+            <div style="background:#333; color:#0f0; padding:20px; font-family:'Space Mono'; border-radius:8px; text-align:center; font-size:1.5em;">
+                Example IPv4: 192.168.1.1
+            </div>
+            
+            <h3 style="color:var(--primary-color);">Public vs. Private IP</h3>
+            <ul>
+                <li><strong>Public IP:</strong> Your external address seen by the whole world. (Like the street address of an apartment building).</li>
+                <li><strong>Private IP:</strong> Your internal address used inside your network. (Like your specific room number inside that building).</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="slide-content">
+            <h2>🛡️ IP Address: The Security Perspective</h2>
+            <p>Understanding IP addresses allows you to build a defense wall around <strong>Maca's</strong> digital life.</p>
+            <div style="display:flex; gap:20px;">
+                <div style="flex:1; background:#e8f5e9; padding:15px; border-radius:8px;">
+                    <h4 style="color:var(--tertiary-color);">For You (The Defender)</h4>
+                    <p style="font-size:0.9em;">- Set up firewalls to block unknown IPs.<br>- Track where connection requests come from.<br>- Secure internal services using Private IPs.</p>
+                </div>
+                <div style="flex:1; background:#ffebee; padding:15px; border-radius:8px;">
+                    <h4 style="color:var(--secondary-color);">For Hackers (The Attacker)</h4>
+                    <p style="font-size:0.9em;">- Scan your Public IP for "open doors" (ports).<br>- Use your Public IP to find your general location.<br>- Move between your home devices once inside.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="slide-content">
+            <h2>3. MAC Addresses: The Digital DNA</h2>
+            <p>While an IP can change (if you move houses), a <strong>MAC Address</strong> is permanent—burned into the hardware of your device.</p>
+            <div class="image-box">
+                <div style="padding:20px; font-family:'Space Mono'; font-size:1.3em; color:var(--primary-color);">
+                    Format: 00:1A:2B:3C:4D:5E
+                </div>
+                <div class="image-caption">MAC Addresses use Hexadecimal (Numbers 0-9 and Letters A-F)</div>
+            </div>
+            [Image comparing a person's fingerprint (MAC Address) with their business card (IP Address)]
+            <p><strong>Security Tip:</strong> Admins use "MAC Filtering" to ensure only recognized devices (like Maca's laptop) can join the Wi-Fi. However, hackers can <strong>Spoof</strong> (fake) a MAC address to bypass these filters.</p>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="slide-content">
+            <h2>4. Ports & Protocols: Doors and Languages</h2>
+            <p>If the IP is the building, <strong>Ports</strong> are the doors, and <strong>Protocols</strong> are the languages spoken inside.</p>
+            
+            <table>
+                <tr>
+                    <th>Port</th>
+                    <th>Protocol</th>
+                    <th>Security Status</th>
+                </tr>
+                <tr>
+                    <td>80</td>
+                    <td>HTTP</td>
+                    <td style="color:var(--secondary-color);"><strong>❌ DANGER</strong> - Plain text data</td>
+                </tr>
+                <tr>
+                    <td>443</td>
+                    <td>HTTPS</td>
+                    <td style="color:var(--tertiary-color);"><strong>✅ SAFE</strong> - Encrypted data</td>
+                </tr>
+                <tr>
+                    <td>53</td>
+                    <td>DNS</td>
+                    <td>⚠️ RISKY - Can be poisoned</td>
+                </tr>
+                <tr>
+                    <td>22</td>
+                    <td>SSH</td>
+                    <td>🔒 SECURE - Used for remote control</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="slide-content">
+            <h2>Delivery Methods: TCP vs. UDP</h2>
+            <p>Computers choose how to send data based on how important "accuracy" is versus "speed".</p>
+            [Image showing the difference between a handshake (TCP) and someone throwing a paper airplane (UDP)]
+            <ul>
+                <li><strong>TCP (Transmission Control Protocol):</strong> Like registered mail with a receipt. It checks if the data arrived. (Used for: Emails, Web pages).</li>
+                <li><strong>UDP (User Datagram Protocol):</strong> Like shouting across a room. Fast, but some words might be missed. (Used for: Video calls, Gaming).</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="slide-content">
+            <h2>5. Subnetting: Dividing the Neighborhood</h2>
+            <p>Subnetting is the act of dividing a large network into smaller, manageable segments.</p>
+            <div style="background:#fff3cd; padding:20px; border-left:5px solid #ffc107; border-radius:5px;">
+                <strong>Why it matters for Security:</strong>
+                <p>If a hacker breaks into the "Guest Wi-Fi" segment, subnetting prevents them from jumping into the "Server" or "Finance" segment. It <strong>contains the breach</strong>.</p>
+            </div>
+            <p><strong>Example:</strong> A school network where students cannot access the teacher's grade server, even though they are in the same building.</p>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="slide-content">
+            <h2>🧠 7. Mini Knowledge Check</h2>
+            <p>Test your networking 101 knowledge:</p>
+            <div style="background:var(--highlight-bg); padding:20px; border-radius:10px;">
+                <p><strong>1. Which protocol is used for secure, encrypted web browsing?</strong></p>
+                <p style="color:var(--primary-color);">Answer: HTTPS (Port 443)</p>
+                <hr>
+                <p><strong>2. Which address is permanent and "burned" into your device?</strong></p>
+                <p style="color:var(--primary-color);">Answer: MAC Address</p>
+                <hr>
+                <p><strong>3. If you are watching a Live Stream and the video glitches for a second, which delivery method is likely being used?</strong></p>
+                <p style="color:var(--primary-color);">Answer: UDP (Speed over Accuracy)</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="slide-content" style="text-align:center;">
+            <h2>Next Class Preview 🚀</h2>
+            <p>In our next session, we go <strong>Practical</strong>!</p>
+            <ul style="display:inline-block; text-align:left;">
+                <li>Find your own IP, Gateway, and MAC address.</li>
+                <li>Use tools: <code>ping</code>, <code>ipconfig</code>, and <code>tracert</code>.</li>
+                <li>Start thinking like a network defender.</li>
+            </ul>
+            <div style="margin-top:50px; font-style:italic; color:var(--secondary-color);">
+                "Hackers don't break in—they walk through open doors."
+            </div>
+            <p><strong>Class 1 Complete. See you in the Lab!</strong></p>
+        </div>
+    </div>
+
+    <div id="prev" class="nav-arrow" onclick="moveSlide(-1)">&#10094;</div>
+    <div id="next" class="nav-arrow" onclick="moveSlide(1)">&#10095;</div>
+    <div class="footer">Slide <span id="snum">1</span> of 10</div>
+
+</div>
+
+<script>
+    let current = 0;
+    const slides = document.querySelectorAll('.slide');
+    function moveSlide(n) {
+        slides[current].classList.remove('active');
+        current = (current + n + slides.length) % slides.length;
+        slides[current].classList.add('active');
+        document.getElementById('snum').innerText = current + 1;
+    }
+    document.addEventListener('keydown', (e) => {
+        if(e.key === "ArrowRight") moveSlide(1);
+        if(e.key === "ArrowLeft") moveSlide(-1);
+    });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cybersecurity Level 2 – OSINT & Nmap Scanning | Week 4 Class 2</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,600;14..32,700&family=Source+Code+Pro:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-deep: #050a14;
+            --bg-card: #0c1122;
+            --bg-elevated: #111827;
+            --primary: #00e5ff;
+            --primary-dim: rgba(0, 229, 255, 0.2);
+            --success: #2ecc71;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --text-main: #edf2f8;
+            --text-muted: #94a3b8;
+            --border-subtle: #1e2a3a;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: radial-gradient(ellipse at 30% 20%, #0f172a, #020617 80%);
+            color: var(--text-main);
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .presentation-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        .slide {
+            position: absolute;
+            inset: 0;
+            padding: 4vh 6vw;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transform: translateX(40px) scale(0.98);
+            transition: opacity 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1), transform 0.4s ease;
+            pointer-events: none;
+            overflow-y: auto;
+        }
+
+        .slide.active {
+            opacity: 1;
+            transform: translateX(0) scale(1);
+            pointer-events: auto;
+        }
+
+        .slide::-webkit-scrollbar { width: 5px; }
+        .slide::-webkit-scrollbar-track { background: var(--bg-card); }
+        .slide::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
+
+        /* .slide-content {
+            max-width: 1400px;
+            width: 100%;
+            margin: 0 auto;
+            background: rgba(5, 10, 20, 0.85);
+            backdrop-filter: blur(6px);
+            border-radius: 32px;
+            padding: 2rem 2.2rem;
+            border: 1px solid rgba(0, 229, 255, 0.2);
+            box-shadow: 0 25px 40px -12px rgba(0, 0, 0, 0.6);
+        } */
+
+        h1 {
+            font-size: 2.8rem;
+            font-weight: 700;
+            background: linear-gradient(120deg, #fff, var(--primary), #a0f0ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: -0.02em;
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            border-left: 5px solid var(--primary);
+            padding-left: 1rem;
+            margin: 0 0 1.2rem 0;
+            color: var(--primary);
+            display: block;
+        }
+
+        h3 {
+            font-size: 1.3rem;
+            font-weight: 500;
+            margin: 1rem 0 0.6rem 0;
+            color: var(--success);
+        }
+
+        p {
+            line-height: 1.7;
+            color: var(--text-muted);
+            margin: 0.75rem 0;
+            font-size: 1rem;
+        }
+
+        .concept-box {
+            background: rgba(0, 229, 255, 0.08);
+            border-radius: 16px;
+            padding: 1.2rem;
+            margin: 1rem 0;
+            border-left: 4px solid var(--primary);
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            margin: 1.2rem 0;
+        }
+
+        .card {
+            background: linear-gradient(145deg, rgba(12, 17, 34, 0.95), rgba(8, 12, 24, 0.98));
+            border-radius: 20px;
+            padding: 1.3rem;
+            border: 1px solid rgba(0, 229, 255, 0.15);
+            transition: all 0.2s;
+        }
+        .card:hover { border-color: var(--primary); box-shadow: 0 5px 18px rgba(0, 229, 255, 0.1); }
+
+        .card-header {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--primary);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .code-block {
+            background: #0a0e1a;
+            border-radius: 18px;
+            padding: 1rem 1.2rem;
+            font-family: 'Source Code Pro', monospace;
+            font-size: 0.85rem;
+            border: 1px solid #1e2a3a;
+            margin: 1rem 0;
+            overflow-x: auto;
+        }
+        .code-line { color: #cbd5e6; line-height: 1.6; }
+        .cmd { color: var(--primary); }
+        .comment { color: #6c8faa; }
+        .output { color: #a5d6ff; }
+
+        .step-list {
+            list-style: none;
+            padding-left: 0;
+        }
+        .step-list li {
+            margin-bottom: 10px;
+            padding-left: 24px;
+            position: relative;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+        .step-list li::before {
+            content: "▹";
+            position: absolute;
+            left: 4px;
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        .numbered-steps {
+            list-style: none;
+            padding-left: 0;
+            counter-reset: step-counter;
+        }
+        .numbered-steps li {
+            counter-increment: step-counter;
+            margin-bottom: 16px;
+            padding-left: 32px;
+            position: relative;
+            color: var(--text-muted);
+        }
+        .numbered-steps li::before {
+            content: counter(step-counter);
+            position: absolute;
+            left: 0;
+            background: var(--primary);
+            color: #020617;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+
+        .outcome-box {
+            background: rgba(46, 204, 113, 0.08);
+            border-left: 3px solid var(--success);
+            border-radius: 18px;
+            padding: 1.2rem;
+            margin: 1.5rem 0;
+        }
+
+        .warning-box {
+            background: rgba(243, 156, 18, 0.08);
+            border-left: 3px solid var(--warning);
+            border-radius: 18px;
+            padding: 1.2rem;
+            margin: 1.5rem 0;
+        }
+
+        .inline-code {
+            font-family: 'Source Code Pro', monospace;
+            background: #0f172a;
+            padding: 2px 8px;
+            border-radius: 8px;
+            color: var(--primary);
+            font-size: 0.85rem;
+            border: 1px solid #253445;
+        }
+
+        .nav-arrow {
+            position: fixed;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 48px;
+            height: 48px;
+            background: rgba(12, 17, 34, 0.9);
+            border: 1px solid var(--primary);
+            border-radius: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: var(--primary);
+            cursor: pointer;
+            transition: 0.2s;
+            z-index: 30;
+            backdrop-filter: blur(8px);
+        }
+        .nav-arrow:hover { background: var(--primary); color: #020617; transform: translateY(-50%) scale(1.05); }
+        #prev-slide { left: 20px; }
+        #next-slide { right: 20px; }
+
+        .slide-footer {
+            position: fixed;
+            bottom: 12px;
+            right: 24px;
+            background: rgba(5, 10, 20, 0.85);
+            padding: 4px 14px;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            font-family: monospace;
+            border: 1px solid var(--primary-dim);
+            z-index: 30;
+        }
+        .progress-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--success));
+            width: 0%;
+            transition: width 0.3s;
+            z-index: 40;
+        }
+        .title-slide .slide-content { text-align: center; }
+        @media (max-width: 900px) { .grid-2 { grid-template-columns: 1fr; } }
+        @media (max-width: 800px) {
+            .slide { padding: 1.5rem; }
+            h1 { font-size: 2rem; }
+            h2 { font-size: 1.4rem; }
+            .nav-arrow { width: 38px; height: 38px; font-size: 1.3rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="presentation-container">
+
+    <!-- SLIDE 1: TITLE -->
+    <div class="slide title-slide active" id="slide-1">
+        <div class="slide-content">
+            <h1>OSINT & Nmap Scanning</h1>
+            <p style="font-size: 1.2rem; color: var(--success); margin-top: 0.5rem;">🎯 Objective: Gather information about a target using passive and active techniques</p>
+            <p style="max-width: 800px; margin: 1rem auto; text-align: center;">Today, you'll run real OSINT commands and Nmap scans against safe, authorized targets to discover what information is exposed.</p>
+            <div class="warning-box" style="margin-top: 1rem;">
+                <strong>⚠️ Legal Notice:</strong> All scans in this class must be performed against YOUR own lab machines (Metasploitable) or authorized test targets only. Scanning random websites or IPs without permission is illegal.
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 2: LAB 1 - OSINT ON A DOMAIN (WHAT & WHY) -->
+    <div class="slide" id="slide-2">
+        <div class="slide-content">
+            <h2 style="margin-top: 90px;">🔧 Lab 1: OSINT on a Domain</h2>
+            
+            <div class="concept-box">
+                <strong>🤔 WHAT are we doing in this lab?</strong>
+                <p>We will use command-line tools to query public databases and DNS servers. These queries are completely passive — the target domain never knows we're looking. Think of it as reading public records and phone books.</p>
+                <p><strong>Safe target for practice:</strong> We'll use <span class="inline-code">example.com</span> (a real domain owned by IANA specifically for documentation and testing). You can also practice on your own domain if you own one.</p>
+            </div>
+
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-header">📋 Step 1: WHOIS Lookup</div>
+                    <p><strong>What this command does:</strong> Queries the global WHOIS database to retrieve registration information about a domain name.</p>
+                    <div class="code-block">
+                        <div class="code-line"><span class="cmd">whois example.com</span></div>
+                    </div>
+                    <p><strong>What to look for in the output:</strong></p>
+                    <ul class="step-list">
+                        <li><strong>Registrant:</strong> Who owns the domain?</li>
+                        <li><strong>Creation/Expiration dates:</strong> When was it registered? When does it expire?</li>
+                        <li><strong>Name Servers:</strong> Which DNS servers handle this domain?</li>
+                        <li><strong>Registrar:</strong> Which company sold the domain?</li>
+                    </ul>
+                    <p><strong>Why this matters:</strong> Attackers use WHOIS to identify domain owners for targeted phishing, find expired domains to buy, or discover related domains owned by the same person.</p>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">📡 Step 2: DNS Lookup (DIG)</div>
+                    <p><strong>What this command does:</strong> Queries DNS servers to retrieve specific records for a domain. DNS is the "phonebook of the internet" — it translates human-readable names (google.com) to IP addresses.</p>
+                    <div class="code-block">
+                        <div class="code-line"><span class="cmd">dig example.com</span></div>
+                    </div>
+                    <p><strong>What to look for:</strong></p>
+                    <ul class="step-list">
+                        <li><strong>A Record:</strong> IPv4 address of the domain</li>
+                        <li><strong>AAAA Record:</strong> IPv6 address</li>
+                        <li><strong>MX Record:</strong> Mail servers (target for email attacks)</li>
+                        <li><strong>NS Record:</strong> Name servers</li>
+                        <li><strong>TXT Record:</strong> Text information (SPF, DKIM, verification codes)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 3: LAB 1 CONTINUED - SUBDOMAINS & EXPECTED OUTCOME -->
+    <div class="slide" id="slide-3">
+        <div class="slide-content">
+            <h2>🔧 Lab 1: OSINT on a Domain (Continued)</h2>
+            
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-header">🔍 Step 3: Identify Subdomains</div>
+                    <p><strong>What are subdomains?</strong> Subdomains are prefixes added to a domain name (e.g., <span class="inline-code">admin.example.com</span>, <span class="inline-code">mail.example.com</span>, <span class="inline-code">dev.example.com</span>). They often reveal hidden or internal services.</p>
+                    <p><strong>Manual discovery methods:</strong></p>
+                    <ul class="step-list">
+                        <li>Look at Name Servers in WHOIS output — sometimes they hint at subdomain structure</li>
+                        <li>Check Related Domains — domains owned by the same registrant</li>
+                        <li>Try common subdomains: <span class="inline-code">www, mail, ftp, admin, dev, test, api, vpn, remote</span></li>
+                    </ul>
+                    <div class="code-block">
+                        <div class="code-line"><span class="comment"># Quick test for common subdomain</span></div>
+                        <div class="code-line"><span class="cmd">dig admin.example.com</span></div>
+                    </div>
+                    <p><strong>More advanced (future class):</strong> Tools like <span class="inline-code">sublist3r</span>, <span class="inline-code">amass</span>, or <span class="inline-code">dnsrecon</span> automate subdomain discovery.</p>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">🧾 Expected Outcome</div>
+                    <div class="outcome-box" style="margin: 0;">
+                        <strong>✅ After completing Lab 1, you will have:</strong>
+                        <ul class="step-list">
+                            <li>Basic domain information (owner, registrar, dates)</li>
+                            <li>DNS records (A, MX, NS, TXT records)</li>
+                            <li>Public data about the target without ever contacting their servers</li>
+                            <li>Understanding of what information is publicly available about ANY domain</li>
+                        </ul>
+                    </div>
+                    <div class="code-block" style="margin-top: 12px;">
+                        <div class="code-line"><span class="comment"># Example DIG output interpretation:</span></div>
+                        <div class="code-line"><span class="output">;; ANSWER SECTION:</span></div>
+                        <div class="code-line"><span class="output">example.com. 86400 IN A 93.184.216.34</span></div>
+                        <div class="code-line"><span class="comment"># This means: example.com resolves to IP 93.184.216.34</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="warning-box">
+                <strong>💡 Pro Tip:</strong> Use <span class="inline-code">dig +short example.com</span> to get just the IP address without extra details. Use <span class="inline-code">dig example.com ANY</span> to get ALL record types (though many DNS servers restrict this).
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 4: LAB 2 - NMAP ADVANCED SCANS (INTRODUCTION) -->
+    <div class="slide" id="slide-4">
+        <div class="slide-content">
+            <h2 style="margin-top: 90px;">🔧 Lab 2: Nmap Advanced Scans</h2>
+            
+            <div class="concept-box">
+                <strong>🤔 WHAT are we doing in this lab?</strong>
+                <p>We will use Nmap (Network Mapper) to actively scan a target and discover open ports, running services, and potential vulnerabilities. Unlike OSINT, this IS active reconnaissance — the target will see these probes in their logs.</p>
+                <p><strong>Safe target for practice:</strong> We will scan YOUR Metasploitable VM (192.168.56.102) — a deliberately vulnerable machine designed for this exact purpose.</p>
+            </div>
+
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-header">🔍 Scan 1: Basic Port Scan</div>
+                    <p><strong>What this does:</strong> Scans the most common 1,000 ports to see which are open and listening for connections.</p>
+                    <div class="code-block">
+                        <div class="code-line"><span class="cmd">nmap 192.168.56.102</span></div>
+                    </div>
+                    <p><strong>What to observe:</strong></p>
+                    <ul class="step-list">
+                        <li><strong>Open ports:</strong> 21 (FTP), 22 (SSH), 80 (HTTP), 443 (HTTPS), 445 (SMB), etc.</li>
+                        <li><strong>Service names:</strong> What each port typically runs</li>
+                        <li><strong>State:</strong> "open" means the port accepts connections</li>
+                    </ul>
+                    <div class="code-block">
+                        <div class="code-line"><span class="comment"># Example output:</span></div>
+                        <div class="code-line"><span class="output">21/tcp   open  ftp</span></div>
+                        <div class="code-line"><span class="output">22/tcp   open  ssh</span></div>
+                        <div class="code-line"><span class="output">80/tcp   open  http</span></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">🔧 Scan 2: Service Version Detection</div>
+                    <p><strong>What this does:</strong> Connects to open ports and analyzes responses to determine exact software and version numbers.</p>
+                    <div class="code-block">
+                        <div class="code-line"><span class="cmd">nmap -sV 192.168.56.102</span></div>
+                    </div>
+                    <p><strong>Why version detection is critical:</strong> Knowing the exact version tells you which known vulnerabilities exist. For example, Apache 2.4.49 has a critical path traversal vulnerability that 2.4.50 fixed.</p>
+                    <div class="code-block">
+                        <div class="code-line"><span class="comment"># Example output with versions:</span></div>
+                        <div class="code-line"><span class="output">21/tcp open  ftp     vsftpd 2.3.4</span></div>
+                        <div class="code-line"><span class="output">22/tcp open  ssh     OpenSSH 4.7p1</span></div>
+                        <div class="code-line"><span class="output">80/tcp open  http    Apache httpd 2.2.8</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 5: NMAP - VULNERABILITY SCRIPTS & FIREWALL EVASION -->
+    <div class="slide" id="slide-5">
+        <div class="slide-content">
+            <h2 style="margin-top: 90px;">🔧 Lab 2: Nmap Advanced Scans (Continued)</h2>
+            
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-header">⚠️ Scan 3: Vulnerability Scripts</div>
+                    <p><strong>What this does:</strong> Runs Nmap's built-in vulnerability detection scripts against discovered services. These scripts check for known CVEs and common misconfigurations.</p>
+                    <div class="code-block">
+                        <div class="code-line"><span class="cmd">nmap --script vuln 192.168.56.102</span></div>
+                    </div>
+                    <p><strong>What to look for:</strong></p>
+                    <ul class="step-list">
+                        <li>Script output showing potential vulnerabilities</li>
+                        <li>CVE identifiers (e.g., CVE-2011-2523)</li>
+                        <li>Warning messages about insecure configurations</li>
+                    </ul>
+                    <p><strong>Note:</strong> Vulnerability scripts can be noisy and may crash unstable services. Use cautiously.</p>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">🛡️ Scan 4: Firewall Evasion Techniques</div>
+                    <p><strong>What this does:</strong> Uses packet fragmentation to bypass simple firewalls and intrusion detection systems.</p>
+                    <div class="code-block">
+                        <div class="code-line"><span class="cmd">nmap -f 192.168.56.102</span></div>
+                    </div>
+                    <p><strong>How it works:</strong> The <span class="inline-code">-f</span> flag splits TCP packets into smaller fragments. Some firewalls only inspect the first fragment and let others pass through.</p>
+                    <p><strong>Other evasion techniques:</strong></p>
+                    <ul class="step-list">
+                        <li><span class="inline-code">-D RND:10</span> → Decoy scan (masks your real IP with decoys)</li>
+                        <li><span class="inline-code">-T0</span> → Paranoid slow scan (avoids IDS detection)</li>
+                        <li><span class="inline-code">--source-port 53</span> → Spoof source port as DNS (some firewalls trust port 53)</li>
+                        <li><span class="inline-code">--mtu 24</span> → Custom MTU size for fragmentation</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="outcome-box">
+                <strong>🧾 Expected Outcome of Lab 2:</strong>
+                <ul class="step-list">
+                    <li>✅ Open ports identified (which services are reachable)</li>
+                    <li>✅ Running services detected (with version numbers)</li>
+                    <li>✅ Possible vulnerabilities listed (from vulnerability scripts)</li>
+                    <li>✅ Understanding of how to adjust scans for different network conditions</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 6: ADDITIONAL NMAP TECHNIQUES & COMMAND REFERENCE -->
+    <div class="slide" id="slide-6">
+        <div class="slide-content">
+            <h2>📚 Nmap Command Reference & Best Practices</h2>
+            
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-header">🔧 Useful Nmap Options</div>
+                    <ul class="step-list">
+                        <li><span class="inline-code">-sS</span> → SYN stealth scan (faster, less logging)</li>
+                        <li><span class="inline-code">-sT</span> → TCP connect scan (more reliable, more detectable)</li>
+                        <li><span class="inline-code">-sU</span> → UDP scan (slow, but finds UDP services)</li>
+                        <li><span class="inline-code">-p-</span> → Scan ALL 65535 ports (takes time!)</li>
+                        <li><span class="inline-code">-p 22,80,443</span> → Scan specific ports only</li>
+                        <li><span class="inline-code">-T4</span> → Aggressive timing (faster scans)</li>
+                        <li><span class="inline-code">-A</span> → Aggressive scan (OS detection + version + traceroute + scripts)</li>
+                        <li><span class="inline-code">-oN output.txt</span> → Save results to file</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <div class="card-header">⚠️ Nmap Best Practices</div>
+                    <ul class="step-list">
+                        <li><strong>Always get permission first</strong> — Scanning without authorization is illegal</li>
+                        <li><strong>Start slow</strong> — Use <span class="inline-code">-T2</span> or <span class="inline-code">-T3</span> on production networks</li>
+                        <li><strong>Save your output</strong> — <span class="inline-code">-oA scan_name</span> saves in all formats</li>
+                        <li><strong>Know your target</strong> — Scanning local lab vs internet target is very different</li>
+                        <li><strong>Understand what you're doing</strong> — Some scans can crash vulnerable services</li>
+                    </ul>
+                    <div class="code-block" style="margin-top: 12px;">
+                        <div class="code-line"><span class="comment"># Comprehensive scan example:</span></div>
+                        <div class="code-line"><span class="cmd">nmap -sS -sV -O -p- --script vuln -T4 192.168.56.102 -oA metasploitable_scan</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="warning-box">
+                <strong>📌 REMEMBER:</strong> In your lab, Metasploitable is DESIGNED to be vulnerable. On real networks, aggressive scanning can trigger security alerts, crash services, and get your IP blocked or reported. Always practice in isolated environments first.
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 7: SUMMARY & NEXT STEPS -->
+    <div class="slide" id="slide-7">
+        <div class="slide-content">
+            <h2>🧾 Class Summary & What's Next</h2>
+            
+            <div class="outcome-box">
+                <strong>✅ You have learned to:</strong>
+                <ul class="step-list">
+                    <li>✔ Perform passive OSINT reconnaissance using WHOIS and DIG</li>
+                    <li>✔ Identify domain registration details and DNS records</li>
+                    <li>✔ Run active Nmap scans against a target (Metasploitable)</li>
+                    <li>✔ Detect open ports, service versions, and potential vulnerabilities</li>
+                    <li>✔ Use firewall evasion techniques and understand when to use them</li>
+                </ul>
+            </div>
+
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-header">📝 Before Next Class</div>
+                    <ul class="step-list">
+                        <li>Practice the WHOIS and DIG commands on example.com</li>
+                        <li>Run basic Nmap scans against your Metasploitable VM</li>
+                        <li>Try the <span class="inline-code">-sV</span> flag and note the version numbers you find</li>
+                        <li>Save scan outputs for your records</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <div class="card-header">🎯 Next Class Preview</div>
+                    <ul class="step-list">
+                        <li><strong>Class 3:</strong> Create a professional recon report</li>
+                        <li>Document your findings in a structured format</li>
+                        <li>Learn how to present reconnaissance results to stakeholders</li>
+                        <li><strong>Assignment:</strong> Reconnaissance mini-project on a safe target</li>
+                    </ul>
+                </div>
+            </div>
+
+            <p style="text-align: center; margin-top: 1.5rem; font-family: monospace; color: var(--primary);">END OF CLASS 2 – OSINT & NMAP SCANNING</p>
+        </div>
+    </div>
+
+    <!-- NAVIGATION -->
+    <div id="prev-slide" class="nav-arrow" onclick="changeSlide(-1)">‹</div>
+    <div id="next-slide" class="nav-arrow" onclick="changeSlide(1)">›</div>
+    <div class="slide-footer"><span id="current-slide-num">1</span> / <span id="total-slides-num">7</span></div>
+    <div class="progress-bar" id="progress-bar"></div>
+</div>
+
+<script>
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.slide');
+    const total = slides.length;
+    const currentSpan = document.getElementById('current-slide-num');
+    const totalSpan = document.getElementById('total-slides-num');
+    const progressFill = document.getElementById('progress-bar');
+    totalSpan.textContent = total;
+
+    function showSlide(index) {
+        if (index >= total) index = 0;
+        if (index < 0) index = total - 1;
+        slides.forEach(s => s.classList.remove('active'));
+        slides[index].classList.add('active');
+        currentSlide = index;
+        currentSpan.textContent = currentSlide + 1;
+        progressFill.style.width = ((currentSlide + 1) / total) * 100 + '%';
+    }
+
+    function changeSlide(step) { showSlide(currentSlide + step); }
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); changeSlide(1); }
+        else if (e.key === 'ArrowLeft') { e.preventDefault(); changeSlide(-1); }
+    });
+    showSlide(0);
+</script>
+</body>
+</html>

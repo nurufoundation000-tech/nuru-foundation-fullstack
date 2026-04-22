@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cybersecurity Level 2 – Network Configuration & Snapshots | Week 3 Class 3</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,600;14..32,700&family=Source+Code+Pro:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-deep: #050a14;
+            --bg-card: #0c1122;
+            --bg-elevated: #111827;
+            --primary: #00e5ff;
+            --primary-dim: rgba(0, 229, 255, 0.2);
+            --success: #2ecc71;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --text-main: #edf2f8;
+            --text-muted: #94a3b8;
+            --border-subtle: #1e2a3a;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: radial-gradient(ellipse at 30% 20%, #0f172a, #020617 80%);
+            color: var(--text-main);
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .presentation-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        .slide {
+            position: absolute;
+            inset: 0;
+            padding: 4vh 6vw;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transform: translateX(40px) scale(0.98);
+            transition: opacity 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1), transform 0.4s ease;
+            pointer-events: none;
+            overflow-y: auto;
+        }
+
+        .slide.active {
+            opacity: 1;
+            transform: translateX(0) scale(1);
+            pointer-events: auto;
+        }
+
+        .slide::-webkit-scrollbar { width: 5px; }
+        .slide::-webkit-scrollbar-track { background: var(--bg-card); }
+        .slide::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
+
+        /* .slide-content {
+            max-width: 1400px;
+            width: 100%;
+            margin: 0 auto;
+            background: rgba(5, 10, 20, 0.85);
+            backdrop-filter: blur(6px);
+            border-radius: 32px;
+            padding: 2rem 2.2rem;
+            border: 1px solid rgba(0, 229, 255, 0.2);
+            box-shadow: 0 25px 40px -12px rgba(0, 0, 0, 0.6);
+        } */
+        
+
+        h1 {
+            font-size: 2.8rem;
+            font-weight: 700;
+            background: linear-gradient(120deg, #fff, var(--primary), #a0f0ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: -0.02em;
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            border-left: 5px solid var(--primary);
+            padding-left: 1rem;
+            margin: 0 0 1.2rem 0;
+            color: var(--primary);
+            display: block;
+        }
+
+        h3 {
+            font-size: 1.3rem;
+            font-weight: 500;
+            margin: 1rem 0 0.6rem 0;
+            color: var(--success);
+        }
+
+        p {
+            line-height: 1.7;
+            color: var(--text-muted);
+            margin: 0.75rem 0;
+            font-size: 1rem;
+        }
+
+        .concept-box {
+            background: rgba(0, 229, 255, 0.08);
+            border-radius: 16px;
+            padding: 1.2rem;
+            margin: 1rem 0;
+            border-left: 4px solid var(--primary);
+        }
+
+        .platform-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            border-bottom: 1px solid var(--border-subtle);
+            padding-bottom: 0.5rem;
+        }
+        .tab-btn {
+            background: transparent;
+            border: none;
+            padding: 0.6rem 1.2rem;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            border-radius: 30px;
+            transition: all 0.2s;
+        }
+        .tab-btn:hover { background: var(--primary-dim); color: var(--primary); }
+        .tab-btn.active { background: var(--primary); color: #020617; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            margin: 1.2rem 0;
+        }
+
+        .card {
+            background: linear-gradient(145deg, rgba(12, 17, 34, 0.95), rgba(8, 12, 24, 0.98));
+            border-radius: 20px;
+            padding: 1.3rem;
+            border: 1px solid rgba(0, 229, 255, 0.15);
+            transition: all 0.2s;
+        }
+        .card:hover { border-color: var(--primary); box-shadow: 0 5px 18px rgba(0, 229, 255, 0.1); }
+
+        .card-header {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--primary);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .code-block {
+            background: #0a0e1a;
+            border-radius: 18px;
+            padding: 1rem 1.2rem;
+            font-family: 'Source Code Pro', monospace;
+            font-size: 0.85rem;
+            border: 1px solid #1e2a3a;
+            margin: 1rem 0;
+            overflow-x: auto;
+        }
+        .code-line { color: #cbd5e6; line-height: 1.5; }
+        .cmd { color: var(--primary); }
+        .comment { color: #6c8faa; }
+
+        .step-list {
+            list-style: none;
+            padding-left: 0;
+        }
+        .step-list li {
+            margin-bottom: 12px;
+            padding-left: 26px;
+            position: relative;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+        .step-list li::before {
+            content: "▹";
+            position: absolute;
+            left: 4px;
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        .numbered-steps {
+            list-style: none;
+            padding-left: 0;
+            counter-reset: step-counter;
+        }
+        .numbered-steps li {
+            counter-increment: step-counter;
+            margin-bottom: 16px;
+            padding-left: 32px;
+            position: relative;
+            color: var(--text-muted);
+        }
+        .numbered-steps li::before {
+            content: counter(step-counter);
+            position: absolute;
+            left: 0;
+            background: var(--primary);
+            color: #020617;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+
+        .outcome-box {
+            background: rgba(46, 204, 113, 0.08);
+            border-left: 3px solid var(--success);
+            border-radius: 18px;
+            padding: 1.2rem;
+            margin: 1.5rem 0;
+        }
+
+        .warning-box {
+            background: rgba(243, 156, 18, 0.08);
+            border-left: 3px solid var(--warning);
+            border-radius: 18px;
+            padding: 1.2rem;
+            margin: 1.5rem 0;
+        }
+
+        .inline-code {
+            font-family: 'Source Code Pro', monospace;
+            background: #0f172a;
+            padding: 2px 8px;
+            border-radius: 8px;
+            color: var(--primary);
+            font-size: 0.85rem;
+            border: 1px solid #253445;
+        }
+
+        .video-container {
+            position: relative;
+            width: 100%;
+            padding-bottom: 56.25%;
+            margin: 1rem 0;
+            border-radius: 16px;
+            overflow: hidden;
+        }
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+            border-radius: 16px;
+        }
+
+        .nav-arrow {
+            position: fixed;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 48px;
+            height: 48px;
+            background: rgba(12, 17, 34, 0.9);
+            border: 1px solid var(--primary);
+            border-radius: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: var(--primary);
+            cursor: pointer;
+            transition: 0.2s;
+            z-index: 30;
+            backdrop-filter: blur(8px);
+        }
+        .nav-arrow:hover { background: var(--primary); color: #020617; transform: translateY(-50%) scale(1.05); }
+        #prev-slide { left: 20px; }
+        #next-slide { right: 20px; }
+
+        .slide-footer {
+            position: fixed;
+            bottom: 12px;
+            right: 24px;
+            background: rgba(5, 10, 20, 0.85);
+            padding: 4px 14px;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            font-family: monospace;
+            border: 1px solid var(--primary-dim);
+            z-index: 30;
+        }
+        .progress-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--success));
+            width: 0%;
+            transition: width 0.3s;
+            z-index: 40;
+        }
+        .title-slide .slide-content { text-align: center; }
+        @media (max-width: 900px) { .grid-2 { grid-template-columns: 1fr; } }
+        @media (max-width: 800px) {
+            .slide { padding: 1.5rem; }
+            h1 { font-size: 2rem; }
+            h2 { font-size: 1.4rem; }
+            .nav-arrow { width: 38px; height: 38px; font-size: 1.3rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="presentation-container">
+
+    <!-- SLIDE 1: TITLE -->
+    <div class="slide title-slide active" id="slide-1">
+        <div class="slide-content">
+            <h1>Network Configuration & Snapshots</h1>
+            <p style="font-size: 1.2rem; color: var(--success); margin-top: 0.5rem;">🎯 Objective: Connect your lab machines safely and protect your work</p>
+            <p style="max-width: 800px; margin: 1rem auto; text-align: center;">Two critical skills: making your VMs talk to each other (safely) + saving your progress so you never lose work.</p>
+            <div class="platform-tabs" style="justify-content: center; margin-top: 1.5rem;">
+                <button class="tab-btn active" onclick="switchPlatform('windows')">🪟 Windows</button>
+                <button class="tab-btn" onclick="switchPlatform('macos')">🍎 macOS</button>
+                <button class="tab-btn" onclick="switchPlatform('linux')">🐧 Linux</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 2: WHAT IS HOST-ONLY NETWORKING (Explanation) -->
+    <div class="slide" id="slide-2">
+        <div class="slide-content">
+            <h2>📡 Understanding Host-Only Networking</h2>
+            
+            <div class="concept-box">
+                <strong>🤔 WHAT is a Host-Only Network?</strong>
+                <p>A Host-Only network is a private, isolated network that exists ONLY between your host computer and the virtual machines you create. Traffic on this network cannot reach the internet, and the internet cannot reach it.</p>
+            </div>
+
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-header">❓ WHY do we need this?</div>
+                    <ul class="step-list">
+                        <li><strong>Safety:</strong> Metasploitable is intentionally vulnerable. If connected to the internet, hackers could compromise YOUR computer or attack others.</li>
+                        <li><strong>Isolation:</strong> Your lab attacks stay contained — they won't accidentally hit real websites or devices on your home network.</li>
+                        <li><strong>Communication:</strong> Kali and Metasploitable need to "see" each other to simulate attacks. Host-Only creates a private playground.</li>
+                        <li><strong>Legal protection:</strong> You never accidentally scan or attack systems you don't own.</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <div class="card-header">🔧 HOW does it work?</div>
+                    <ul class="step-list">
+                        <li>VirtualBox creates a virtual "network cable" connecting your VMs</li>
+                        <li>IP addresses are assigned automatically (usually 192.168.56.x)</li>
+                        <li>Your host computer gets 192.168.56.1 (the "gateway")</li>
+                        <li>Kali might get 192.168.56.101, Metasploitable 192.168.56.102</li>
+                        <li>They can ping each other, but NOT access Google.com or your home WiFi devices</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="warning-box">
+                <strong>⚠️ Important Warning:</strong> Never set Metasploitable to "Bridged" or "NAT" mode. That would give it internet access — extremely dangerous! Always use "Host-Only" for vulnerable machines.
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 3: LAB 1 - CONFIGURE HOST-ONLY (Detailed Steps) -->
+    <div class="slide" id="slide-3">
+        <div class="slide-content">
+            <h2>🔧 Lab 1: Configure Host-Only Network</h2>
+            <p><strong>What we're doing:</strong> Creating a private, isolated network between your Kali and Metasploitable VMs so they can communicate safely.</p>
+            
+            <div class="platform-tabs">
+                <button class="tab-btn active" onclick="switchLabPlatform('network', 'windows', event)">🪟 Windows (VirtualBox)</button>
+                <button class="tab-btn" onclick="switchLabPlatform('network', 'macos', event)">🍎 macOS (UTM/VirtualBox)</button>
+                <button class="tab-btn" onclick="switchLabPlatform('network', 'linux', event)">🐧 Linux (VirtualBox/KVM)</button>
+            </div>
+            
+            <div id="network-windows" class="tab-content active">
+                <div class="grid-2">
+                    <div class="card">
+                        <div class="card-header">📋 Step-by-Step Instructions</div>
+                        <ol class="numbered-steps">
+                            <li><strong>Open VirtualBox</strong> — the main window showing your VMs</li>
+                            <li><strong>Create Host-Only Network:</strong> File → Preferences → Network → Host-Only Networks → Click the "+" icon (green plus). This creates vboxnet0.</li>
+                            <li><strong>Configure Kali VM:</strong> Right-click Kali VM → Settings → Network → Adapter 1 → Enable Network Adapter → Attached to: "Host-Only Adapter" → Name: "vboxnet0" → OK</li>
+                            <li><strong>Configure Metasploitable VM:</strong> Repeat step 3 for Metasploitable VM</li>
+                            <li><strong>Start both VMs</strong> — boot them up normally</li>
+                            <li><strong>Find IP addresses:</strong> In each VM, open terminal and type <span class="inline-code">ip a</span> (or <span class="inline-code">ifconfig</span>). Look for "eth0" or "enp0s3" — the IP should be 192.168.56.x</li>
+                        </ol>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">🎥 Video Walkthrough</div>
+                        <div class="video-container">
+                            <iframe src="https://www.youtube.com/embed/EGch2_3Ppxg" title="Host-Only Network Setup" frameborder="0" allowfullscreen></iframe>
+                        </div>
+                        <p style="font-size: 0.8rem;">Watch: Setting up Host-Only network in VirtualBox</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="network-macos" class="tab-content">
+                <div class="grid-2">
+                    <div class="card">
+                        <div class="card-header">📋 Step-by-Step (macOS)</div>
+                        <ol class="numbered-steps">
+                            <li><strong>VirtualBox (Intel Macs):</strong> Same as Windows steps above</li>
+                            <li><strong>UTM (Apple Silicon M1/M2/M3):</strong> Open UTM → Select VM → Edit → Network</li>
+                            <li>Change Network Mode to <strong>"Shared Network"</strong> — this creates an isolated network between UTM VMs</li>
+                            <li>For multiple VMs: UTM Preferences → Network → Create "Shared Network" → Assign both VMs to it</li>
+                            <li>Start both VMs → Run <span class="inline-code">ip a</span> to see their IP addresses</li>
+                        </ol>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">🎥 Video Walkthrough</div>
+                        <div class="video-container">
+                            <iframe src="https://www.youtube.com/embed/II46rF9K5jI" title="UTM Network Setup" frameborder="0" allowfullscreen></iframe>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="network-linux" class="tab-content">
+                <div class="grid-2">
+                    <div class="card">
+                        <div class="card-header">📋 Step-by-Step (Linux)</div>
+                        <ol class="numbered-steps">
+                            <li><strong>VirtualBox:</strong> Same Windows steps apply</li>
+                            <li><strong>KVM/QEMU:</strong> Open virt-manager → Select VM → Add Hardware → Network</li>
+                            <li>Create isolated network: <span class="inline-code">virsh net-define</span> and <span class="inline-code">virsh net-start isolated</span></li>
+                            <li>Assign both VMs to the same isolated network</li>
+                            <li>Start VMs → <span class="inline-code">ip a</span> to verify IPs (usually 192.168.122.x)</li>
+                        </ol>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">🎥 Video Walkthrough</div>
+                        <div class="video-container">
+                            <iframe src="https://www.youtube.com/embed/FqI4UXuTdMQ" title="KVM Network Setup" frameborder="0" allowfullscreen></iframe>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 4: TEST CONNECTIVITY (With explanations) -->
+    <div class="slide" id="slide-4">
+        <div class="slide-content">
+            <h2>📡 Testing Your Network Connection</h2>
+            <p><strong>What we're doing:</strong> Verifying that Kali and Metasploitable can "see" each other by sending test packets (pings).</p>
+
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-header">✅ From Kali Linux (Attacker Machine)</div>
+                    <div class="code-block">
+                        <div class="code-line"><span class="cmd">ping 192.168.56.102</span>  <span class="comment"># Replace with Metasploitable's actual IP </span></div>
+                    </div>
+                    <p><strong>What you should see:</strong></p>
+                    <div class="code-block">
+                        <div class="code-line">64 bytes from 192.168.56.102: icmp_seq=1 ttl=64 time=0.5 ms</div>
+                        <div class="code-line">64 bytes from 192.168.56.102: icmp_seq=2 ttl=64 time=0.4 ms</div>
+                    </div>
+                    <p><strong>This means:</strong> Your VMs are connected! Press <span class="inline-code">Ctrl+C</span> to stop pinging.</p>
+                </div>
+                <div class="card">
+                    <div class="card-header">🔧 If Ping Fails (Troubleshooting)</div>
+                    <ul class="step-list">
+                        <li><strong>No IP address?</strong> On Metasploitable, run: <span class="inline-code">sudo dhclient eth0</span> to request an IP</li>
+                        <li><strong>Firewall blocking?</strong> On Metasploitable: <span class="inline-code">sudo ufw disable</span></li>
+                        <li><strong>Wrong network?</strong> Check both VMs are on Host-Only, not NAT or Bridged</li>
+                        <li><strong>Network restart:</strong> <span class="inline-code">sudo systemctl restart networking</span></li>
+                        <li><strong>Discover IPs:</strong> <span class="inline-code">nmap -sn 192.168.56.0/24</span> from Kali</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="concept-box">
+                <strong>💡 Understanding the Ping Command:</strong>
+                <p>Ping sends ICMP Echo Request packets. If the destination receives them, it replies with Echo Reply. This confirms: (1) The network path works, (2) The destination is alive, (3) Your lab is correctly configured. Think of it as knocking on a door and hearing "Come in!"</p>
+            </div>
+
+            <div class="outcome-box">
+                <strong>✅ Success Criteria:</strong> You see replies from Metasploitable's IP address. This means your isolated lab network is ready for attacks!
+                <br>
+               
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 5: WHAT ARE SNAPSHOTS (Explanation) -->
+    <div class="slide" id="slide-5">
+        <div class="slide-content">
+            <h2>💾 Understanding Snapshots</h2>
+            
+            <div class="concept-box">
+                <strong>🤔 WHAT is a Snapshot?</strong>
+                <p>A snapshot is like a "save point" in a video game. It captures the complete state of your virtual machine — the operating system, installed software, files, and even the current memory (RAM). You can instantly revert back to this saved state at any time.</p>
+            </div>
+
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-header">❓ WHY are Snapshots Critical?</div>
+                    <ul class="step-list">
+                        <li><strong>Recovery from failures:</strong> Try an exploit that crashes Metasploitable? Just restore snapshot — back to clean state in seconds.</li>
+                        <li><strong>Multiple save points:</strong> Save "Before scanning", "After exploit", "Clean install" — jump between them freely.</li>
+                        <li><strong>Fearless learning:</strong> Experiment without worry. Break things on purpose! You can always revert.</li>
+                        <li><strong>Time savings:</strong> Instead of reinstalling Linux after a mistake, restore snapshot (5 seconds vs 30 minutes).</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <div class="card-header">🔧 HOW to Use Snapshots Effectively</div>
+                    <ul class="step-list">
+                        <li><strong>Baseline snapshot:</strong> Take one right after installation — clean, working system</li>
+                        <li><strong>Pre-attack snapshot:</strong> Before trying a new exploit, save current state</li>
+                        <li><strong>Post-config snapshot:</strong> After setting up tools, save so you don't reconfigure</li>
+                        <li><strong>Name clearly:</strong> "Kali_Fresh_Install", "MSF_Before_Exploit", "Post_Nmap_Scan"</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="warning-box">
+                <strong>⚠️ Important Note:</strong> Snapshots take disk space. Delete old ones when you don't need them. Never rely on snapshots as your ONLY backup — they can get corrupted.
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 6: LAB 2 - CREATE SNAPSHOTS (Practical) -->
+    <div class="slide" id="slide-6">
+        <div class="slide-content">
+            <h2 style="margin-top: 170px;">🔧 Lab 2: Create Snapshots</h2>
+            <p><strong>What we're doing:</strong> Saving the current state of your VMs so you can always revert to a clean, working configuration.</p>
+
+            <div class="platform-tabs">
+                <button class="tab-btn active" onclick="switchLabPlatform('snapshots', 'windows', event)">🪟 VirtualBox</button>
+                <button class="tab-btn" onclick="switchLabPlatform('snapshots', 'macos', event)">🍎 UTM / Fusion</button>
+                <button class="tab-btn" onclick="switchLabPlatform('snapshots', 'linux', event)">🐧 KVM / VirtualBox</button>
+            </div>
+
+            <div id="snapshots-windows" class="tab-content active">
+                <div class="grid-2">
+                    <div class="card">
+                        <div class="card-header">📸 Taking a Snapshot (VirtualBox)</div>
+                        <ol class="numbered-steps">
+                            <li>Select your VM (Kali or Metasploitable) in VirtualBox main window</li>
+                            <li>Click the <strong>"Snapshots"</strong> tab (right side, next to Details)</li>
+                            <li>Click the <strong>camera icon "Take"</strong> (or Machine → Take Snapshot)</li>
+                            <li>Name your snapshot: <strong>"Clean Install - Kali"</strong> or <strong>"Before First Exploit"</strong></li>
+                            <li>Add description (optional): "Fresh Kali install, updated packages, ready for labs"</li>
+                            <li>Click OK — wait 10-30 seconds for completion</li>
+                            <li><strong>To restore:</strong> Select snapshot → Click "Restore" → Confirm</li>
+                        </ol>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">🎥 Video Tutorial</div>
+                        <div class="video-container">
+                            <iframe src="https://www.youtube.com/embed/PUbKqNmnf3I" title="VirtualBox Snapshots" frameborder="0" allowfullscreen></iframe>
+                        </div>
+                        <p style="font-size: 0.8rem;">How to take and restore snapshots in VirtualBox</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="snapshots-macos" class="tab-content">
+                <div class="grid-2">
+                    <div class="card">
+                        <div class="card-header">📸 Taking a Snapshot (macOS)</div>
+                        <ol class="numbered-steps">
+                            <li><strong>UTM:</strong> Select VM → Click "Save" (disk icon with +) → Name snapshot → Save</li>
+                            <li><strong>VMware Fusion:</strong> VM menu → Snapshots → Take Snapshot</li>
+                            <li><strong>VirtualBox (Intel):</strong> Same as Windows steps</li>
+                            <li>Name clearly and add description</li>
+                            <li>To restore: Select snapshot → Restore</li>
+                        </ol>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">🎥 Video Tutorial</div>
+                        <div class="video-container">
+                            <iframe src="https://www.youtube.com/embed/qUO9H1vYdZc" title="UTM Snapshots" frameborder="0" allowfullscreen></iframe>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="snapshots-linux" class="tab-content">
+                <div class="grid-2">
+                    <div class="card">
+                        <div class="card-header">📸 Taking a Snapshot (Linux)</div>
+                        <ol class="numbered-steps">
+                            <li><strong>VirtualBox:</strong> Same as Windows steps</li>
+                            <li><strong>KVM (virt-manager):</strong> Select VM → Manage VM Snapshots (camera icon) → Create</li>
+                            <li><strong>Command line:</strong> <span class="inline-code">virsh snapshot-create-as [VM-name] --name "snapshot-name"</span></li>
+                            <li>List snapshots: <span class="inline-code">virsh snapshot-list [VM-name]</span></li>
+                            <li>Restore: <span class="inline-code">virsh snapshot-revert [VM-name] [snapshot-name]</span></li>
+                        </ol>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">🎥 Video Tutorial</div>
+                        <div class="video-container">
+                            <iframe src="https://www.youtube.com/embed/HeBQhrs15IM" title="KVM Snapshots" frameborder="0" allowfullscreen></iframe>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="concept-box">
+                <strong>💡 Recommended Snapshots for Your Lab:</strong>
+                <ul class="step-list">
+                    <li><strong>Kali Baseline:</strong> Fresh install + updates + tools ready</li>
+                    <li><strong>Metasploitable Baseline:</strong> Fresh import + default credentials working</li>
+                    <li><strong>Network Configured:</strong> After setting Host-Only network and verifying ping</li>
+                    <li><strong>Before Each Attack:</strong> Take a snapshot before trying new exploits</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 7: OUTCOME SUMMARY -->
+    <div class="slide" id="slide-7">
+        <div class="slide-content">
+            <h2>🧾 Class Summary: What You've Accomplished</h2>
+            
+            <div class="outcome-box">
+                <strong>✅ By the end of this class, you can:</strong>
+                <ul class="step-list">
+                    <li><strong>Understand Host-Only Networking:</strong> You know WHY isolation matters and HOW to configure it for safe practice</li>
+                    <li><strong>Connect Lab Machines:</strong> Kali and Metasploitable can communicate via ping — your attack lab is ready</li>
+                    <li><strong>Use Snapshots:</strong> You can save, name, and restore VM states — protecting your progress</li>
+                    <li><strong>Troubleshoot:</strong> When something breaks, you know where to look and what commands to try</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <div class="card-header">🎯 Your Lab is Now Production-Ready</div>
+                <ul class="step-list">
+                    <li>✓ Attacker (Kali) and Victim (Metasploitable) on isolated network</li>
+                    <li>✓ DVWA accessible for web app testing</li>
+                    <li>✓ Snapshots protect your work</li>
+                    <li>✓ Ready for scanning, exploitation, and privilege escalation labs</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 8: ASSIGNMENT -->
+    <div class="slide" id="slide-8">
+        <div class="slide-content">
+            <h2>📝 Assignment: Complete Lab Setup</h2>
+            
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-header">📌 Task List</div>
+                    <ul class="step-list">
+                        <li>Install Kali Linux (if not already done)</li>
+                        <li>Import Metasploitable 2</li>
+                        <li>Verify DVWA is accessible</li>
+                        <li>Configure Host-Only network on both VMs</li>
+                        <li>Test connectivity with ping from Kali</li>
+                        <li>Take at least ONE snapshot of each VM</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <div class="card-header">📄 Report Requirements</div>
+                    <ul class="step-list">
+                        <li>Installation steps you followed</li>
+                        <li>Screenshots of both VMs running</li>
+                        <li>IP addresses from <span class="inline-code">ip a</span> (both VMs)</li>
+                        <li>Screenshot of successful ping</li>
+                        <li>Snapshots you created (names and reasons)</li>
+                        <li>Any problems you faced and how you solved them</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="warning-box">
+                <strong>🎯 Focus for Grading:</strong>
+                <ul class="step-list">
+                    <li>Proper setup — both VMs boot without errors</li>
+                    <li>Working environment — ping successful</li>
+                    <li>Clear documentation — someone else could follow your steps</li>
+                    <li>Understanding shown — explain WHY you did each step</li>
+                </ul>
+            </div>
+
+            <p style="text-align: center; margin-top: 1.5rem; font-family: monospace; color: var(--primary);">END OF CLASS 3 – NETWORK CONFIGURATION & SNAPSHOTS</p>
+        </div>
+    </div>
+
+    <!-- NAVIGATION -->
+    <div id="prev-slide" class="nav-arrow" onclick="changeSlide(-1)">‹</div>
+    <div id="next-slide" class="nav-arrow" onclick="changeSlide(1)">›</div>
+    <div class="slide-footer"><span id="current-slide-num">1</span> / <span id="total-slides-num">8</span></div>
+    <div class="progress-bar" id="progress-bar"></div>
+</div>
+
+<script>
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.slide');
+    const total = slides.length;
+    const currentSpan = document.getElementById('current-slide-num');
+    const totalSpan = document.getElementById('total-slides-num');
+    const progressFill = document.getElementById('progress-bar');
+    totalSpan.textContent = total;
+
+    function showSlide(index) {
+        if (index >= total) index = 0;
+        if (index < 0) index = total - 1;
+        slides.forEach(s => s.classList.remove('active'));
+        slides[index].classList.add('active');
+        currentSlide = index;
+        currentSpan.textContent = currentSlide + 1;
+        progressFill.style.width = ((currentSlide + 1) / total) * 100 + '%';
+    }
+
+    function changeSlide(step) { showSlide(currentSlide + step); }
+
+    function switchPlatform(platform) {
+        const btns = document.querySelectorAll('#slide-1 .platform-tabs .tab-btn');
+        btns.forEach(btn => btn.classList.remove('active'));
+        if (event && event.target) event.target.classList.add('active');
+    }
+    
+    function switchLabPlatform(lab, platform, evt) {
+        const sectionMap = { 'network': 3, 'snapshots': 6 };
+        const sectionId = sectionMap[lab];
+        if (!sectionId) return;
+        
+        const container = document.getElementById(`slide-${sectionId}`);
+        if (container) {
+            const allContents = container.querySelectorAll('.tab-content');
+            allContents.forEach(t => t.classList.remove('active'));
+            const target = document.getElementById(`${lab}-${platform}`);
+            if (target) target.classList.add('active');
+            
+            const btns = container.querySelectorAll('.platform-tabs .tab-btn');
+            btns.forEach(btn => btn.classList.remove('active'));
+            if (evt && evt.target) evt.target.classList.add('active');
+        }
+    }
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); changeSlide(1); }
+        else if (e.key === 'ArrowLeft') { e.preventDefault(); changeSlide(-1); }
+    });
+    showSlide(0);
+</script>
+</body>
+</html>

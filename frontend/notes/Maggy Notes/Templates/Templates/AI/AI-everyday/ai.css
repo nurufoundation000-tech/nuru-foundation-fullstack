@@ -1,0 +1,244 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Inter, "Segoe UI", system-ui, sans-serif;
+  background: #1a1a1a;
+  color: #000000;
+  line-height: 1.7;
+}
+
+.notes-wrapper {
+  max-width: 900px;
+  margin: 60px auto;
+  background: #ffffff;
+  padding: 60px;
+  border-radius: 16px;
+  box-shadow: 0 8px 25px rgba(147, 51, 234, 0.3);
+  border: 2px solid #a855f7;
+}
+
+/* Header */
+.notes-header h1 {
+  font-size: 2.8rem;
+  font-weight: 800;
+  margin-bottom: 10px;
+  color: #000000;
+}
+
+.subtitle {
+  font-size: 1.1rem;
+  color: #000000;
+}
+
+/* Sections */
+.note-section {
+  margin-top: 50px;
+  background: #f8f8f8;
+  padding: 25px 30px;
+  border-radius: 12px;
+  font-weight: 500;
+  color: #000000;
+  border: 2px solid #a855f7;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.note-section h2 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin-bottom: 15px;
+  color: #000000;
+}
+
+.note-section h3 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-top: 20px;
+  margin-bottom: 10px;
+  color: #000000;
+}
+
+.note-section p {
+  font-size: 1rem;
+  color: #000000;
+}
+
+/* Lists */
+.step-list {
+  margin-top: 15px;
+  padding-left: 20px;
+}
+
+.step-list li {
+  margin-bottom: 12px;
+  color: #000000;
+}
+
+/* Highlight / Callout */
+.note-highlight {
+  margin-top: 50px;
+  background: linear-gradient(135deg, #f0f0f0 0%, #e8e8e8 100%);
+  padding: 25px 30px;
+  border-radius: 12px;
+  font-weight: 500;
+  color: #000000;
+  border: 3px solid #a855f7;
+  box-shadow: 0 6px 20px rgba(168, 85, 247, 0.2);
+}
+
+.note-highlight h2 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin-bottom: 15px;
+  color: #000000;
+}
+
+.note-highlight h3 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-top: 20px;
+  margin-bottom: 10px;
+  color: #000000;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .notes-wrapper {
+    margin: 20px;
+    padding: 30px;
+  }
+  
+  .notes-header h1 {
+    font-size: 2.2rem;
+  }
+  
+  .note-section,
+  .note-highlight {
+    padding: 20px;
+  }
+}
+
+/* Sections */
+.note-section {
+  margin-top: 50px;
+  background: #eef2ff;
+  padding: 25px 30px;
+  border-radius: 12px;
+  font-weight: 500;
+  color: #312e81;
+}
+
+.note-section h2 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin-bottom: 15px;
+  color: #4338ca;
+}
+
+.note-section h3 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-top: 20px;
+  margin-bottom: 10px;
+  color: #4c1d95;
+}
+
+.note-section p {
+  font-size: 1rem;
+}
+
+/* Lists */
+.step-list {
+  margin-top: 15px;
+  padding-left: 20px;
+}
+
+.step-list li {
+  margin-bottom: 12px;
+}
+
+/* Highlight / Callout */
+.note-highlight {
+  margin-top: 50px;
+  background: #eef2ff;
+  padding: 25px 30px;
+  border-radius: 12px;
+  font-weight: 500;
+  color: #312e81;
+}
+
+.note-highlight h2 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin-bottom: 15px;
+  color: #4338ca;
+}
+
+.note-highlight h3 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-top: 20px;
+  margin-bottom: 10px;
+  color: #4c1d95;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .notes-wrapper {
+    margin: 20px;
+    padding: 30px;
+  }
+  
+  .notes-header h1 {
+    font-size: 2.2rem;
+  }
+  
+  .note-section,
+  .note-highlight {
+    padding: 20px;
+  }
+}
+
+/* Sections */
+.note-section {
+  margin-top: 50px;
+  background: #eef2ff;
+  padding: 25px 30px;
+  border-radius: 12px;
+  font-weight: 500;
+  color: #312e81;
+}
+
+.note-section h2 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin-bottom: 15px;
+  color: #4338ca;
+}
+
+.note-section p {
+  font-size: 1rem;
+}
+
+/* Lists */
+.step-list {
+  margin-top: 15px;
+  padding-left: 20px;
+}
+
+.step-list li {
+  margin-bottom: 12px;
+}
+
+/* Highlight / Callout */
+.note-highlight {
+  margin-top: 50px;
+  background: #eef2ff;
+  padding: 25px 30px;
+  border-radius: 12px;
+  font-weight: 500;
+  color: #312e81;
+}

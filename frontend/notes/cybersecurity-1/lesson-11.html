@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cybersecurity Level 1 - Week 4: Linux Practical</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&family=Space+Mono&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #0070c0; 
+            --secondary-color: #d9534f; 
+            --tertiary-color: #5cb85c; 
+            --background-color: #f8f9fa; 
+            --text-color: #333333; 
+            --slide-bg: #ffffff; 
+            --highlight-bg: #e9ecef; 
+            --shadow-color: rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .presentation-container {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .slide {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: opacity 0.6s ease-in-out, transform 0.6s ease-in-out;
+            padding: 5vh 10vw;
+            box-sizing: border-box;
+            background-color: var(--slide-bg);
+            border-left: 8px solid var(--primary-color);
+            box-shadow: 0 0 20px var(--shadow-color);
+        }
+
+        .slide.active {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .slide-content {
+            width: 100%;
+            max-width: 1100px;
+            text-align: left;
+            overflow-y: auto;
+            max-height: 90vh;
+        }
+
+        .slide h1, .slide h2 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+        
+        .slide h1 { font-size: 3.5em; text-align: center; }
+        .slide h2 { font-size: 2.2em; border-bottom: 4px dashed var(--highlight-bg); }
+
+        .slide p { line-height: 1.6; margin-bottom: 15px; font-size: 1.2em; }
+        .slide ul { list-style-type: none; padding: 0; }
+        .slide li {
+            background: var(--highlight-bg);
+            margin-bottom: 10px;
+            padding: 12px 18px;
+            border-left: 6px solid var(--tertiary-color);
+            font-size: 1.1em;
+            border-radius: 5px;
+        }
+
+        .key-concept {
+            padding: 20px;
+            background-color: #f2f7ff;
+            border-radius: 10px;
+            margin-top: 20px;
+            border-left: 8px solid var(--primary-color);
+        }
+
+        .nav-arrow {
+            position: fixed;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 3em;
+            color: var(--primary-color);
+            cursor: pointer;
+            padding: 15px;
+            z-index: 10;
+            background: rgba(255, 255, 255, 0.7);
+            border: 1px solid var(--primary-color);
+            border-radius: 50%;
+            line-height: 0.5;
+        }
+
+        #prev-slide { left: 20px; }
+        #next-slide { right: 20px; }
+
+        .slide-footer {
+            position: fixed;
+            bottom: 10px;
+            right: 20px;
+            font-size: 1em;
+            color: #6c757d;
+        }
+
+        code {
+            background: #333;
+            color: #5cb85c;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: 'Space Mono', monospace;
+            font-weight: bold;
+        }
+
+        .step-number {
+            background: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            padding: 2px 10px;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="presentation-container">
+
+    <div class="slide active" id="slide-1">
+        <div class="slide-content">
+            <h1>🧪 WEEK 4 — CLASS 2</h1>
+            <p style="text-align: center; font-size: 1.8em; color: var(--primary-color); font-weight: bold;">PRACTICAL: INSTALLING LINUX & FIRST COMMANDS</p>
+            <div class="key-concept" style="text-align: center;">
+                <p><strong>Hands-On Day:</strong> Today, you stop reading and start doing. You will build your own Linux lab!</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide" id="slide-2">
+        <div class="slide-content">
+            <h2>⭐ 1. Today’s Mission</h2>
+            <p>Today you become hands-on. By the end of this class, you will:</p>
+            <ul>
+                <li>✅ <strong>Install Linux Safely:</strong> Using a secret "computer-inside-a-computer."</li>
+                <li>✅ <strong>Use a Virtual Machine:</strong> The #1 tool for cyber professionals.</li>
+                <li>✅ <strong>Master the Terminal:</strong> Speak directly to the OS boss using commands.</li>
+            </ul>
+            <p style="color: var(--secondary-color); font-weight: bold;">🛡️ No risk! Your main computer (Windows/Mac) will stay perfectly safe.</p>
+        </div>
+    </div>
+
+    <div class="slide" id="slide-3">
+        <div class="slide-content">
+            <h2>🖥️ 2. What is a Virtual Machine (VM)?</h2>
+            <p>Imagine you want to practice painting a wall, but you don't want to ruin your house. You buy a <strong>toy house</strong> to practice on first. A VM is that toy house!</p>
+            
+            
+
+            <p><strong>Benefits of VMs:</strong></p>
+            <ul>
+                <li>🛡️ <strong>Safe Testing:</strong> If you break the VM, your real computer is fine.</li>
+                <li>☣️ <strong>Malware Lab:</strong> You can open "dangerous" files inside a VM safely.</li>
+                <li>🐧 <strong>Try Anything:</strong> You can run Linux, Windows, or old systems all at once.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="slide" id="slide-4">
+        <div class="slide-content">
+            <h2>🛠️ 3. Lab 1 — The Toolbox</h2>
+            <p>Before we start, we need to download two things (They are free!):</p>
+            <ul>
+                <li>📦 <strong>VirtualBox:</strong> This is the "Engine" that runs the virtual computer. <br> <a href="https://www.virtualbox.org/" target="_blank">Download here</a></li>
+                <li>💿 <strong>Linux ISO (Ubuntu or Kali):</strong> This is the "Software Disc" for the OS. <br> <a href="https://ubuntu.com/download/desktop" target="_blank">Get Ubuntu here</a></li>
+            </ul>
+            <div class="key-concept">
+                <strong>Pro Tip:</strong> An <strong>ISO file</strong> is just a digital version of a DVD. Don't double-click it yet! We will "plug it in" to VirtualBox.
+            </div>
+        </div>
+    </div>
+
+    <div class="slide" id="slide-5">
+        <div class="slide-content">
+            <h2>🧪 Step-by-Step Installation</h2>
+            <p>Follow these steps exactly to build your Linux machine:</p>
+            
+            
+
+            <p><span class="step-number">1</span> <strong>Open VirtualBox</strong> and click the <strong>"New"</strong> (blue star) button.</p>
+            <p><span class="step-number">2</span> <strong>Name it:</strong> Type "My Linux Lab." Choose your ISO file in the dropdown.</p>
+            <p><span class="step-number">3</span> <strong>The Brain (RAM):</strong> Give it 2GB or 4GB (Slide the bar to the green zone).</p>
+            <p><span class="step-number">4</span> <strong>The Closet (Storage):</strong> Give it 25GB or 40GB of "Virtual Disk Space."</p>
+            <p><span class="step-number">5</span> <strong>Start:</strong> Click the Green Arrow! Follow the on-screen prompts (Choose Language > Install).</p>
+        </div>
+    </div>
+
+    <div class="slide" id="slide-6">
+        <div class="slide-content">
+            <h2>⌨️ Lab 2 — Speaking "Terminal"</h2>
+            <p>Open the app called <strong>Terminal</strong> in Linux. This is where you type commands to the Boss.</p>
+            <p><strong>🔹 Navigation Commands:</strong></p>
+            <ul>
+                <li><code>pwd</code> &rarr; <strong>"Where am I?"</strong> (Print Working Directory)</li>
+                <li><code>ls</code> &rarr; <strong>"Show me the stuff!"</strong> (List files in the folder)</li>
+                <li><code>cd</code> &rarr; <strong>"Move me!"</strong> (Change Directory to another folder)</li>
+                <li><code>clear</code> &rarr; <strong>"Clean the desk!"</strong> (Wipes the screen clean)</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="slide" id="slide-7">
+        <div class="slide-content">
+            <h2>📂 Managing Files</h2>
+            <p>In the terminal, you can create and destroy files instantly!</p>
+
+            
+
+            <ul>
+                <li><code>mkdir MyFolder</code> &rarr; Creates a new <strong>Folder</strong>.</li>
+                <li><code>touch secret.txt</code> &rarr; Creates a new <strong>Empty File</strong>.</li>
+                <li><code>rm secret.txt</code> &rarr; <strong>Deletes</strong> a file (Careful! No recycle bin here).</li>
+                <li><code>cp file.txt backup.txt</code> &rarr; <strong>Copies</strong> a file.</li>
+                <li><code>mv file.txt Documents/</code> &rarr; <strong>Moves</strong> a file to a folder.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="slide" id="slide-8">
+        <div class="slide-content">
+            <h2>🔍 System & Info Commands</h2>
+            <p>Use these to see how "healthy" your Linux machine is:</p>
+            <ul>
+                <li><code>whoami</code> &rarr; Shows which user you are logged in as.</li>
+                <li><code>uname -a</code> &rarr; Tells you the version of Linux you are running.</li>
+                <li><code>df -h</code> &rarr; Shows how much <strong>Disk Space</strong> is left.</li>
+                <li><code>free -h</code> &rarr; Shows how much <strong>Memory (RAM)</strong> is being used.</li>
+                <li><code>history</code> &rarr; Shows every command you have typed so far!</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="slide" id="slide-9">
+        <div class="slide-content">
+            <h2>🎯 Practice Task: The Linux Scavenger Hunt</h2>
+            <p>Complete these steps in your new Linux Terminal:</p>
+            <ol>
+                <li>Type <code>pwd</code> to see where you are starting.</li>
+                <li>Use <code>mkdir CyberLab</code> to create a practice folder.</li>
+                <li>Use <code>cd CyberLab</code> to enter that folder.</li>
+                <li>Use <code>touch student.txt</code> to create a file.</li>
+                <li>Type <code>ls</code> to prove your file is there.</li>
+                <li>Use <code>whoami</code> and <code>history</code> to finish!</li>
+            </ol>
+            <div class="key-concept">
+                <strong>Goal:</strong> Confidently navigate folders and create files without using a mouse!
+            </div>
+        </div>
+    </div>
+
+    <div class="slide" id="slide-10">
+        <div class="slide-content">
+            <h2>🏁 End of Class 2 Outcome</h2>
+            <div class="key-concept" style="background-color: #e8f5e9; border-left-color: var(--tertiary-color);">
+                <p><strong>You are now a Linux User! You can:</strong></p>
+                <ul>
+                    <li>✔ Set up a Virtual Machine from scratch.</li>
+                    <li>✔ Install a complete Operating System (Linux).</li>
+                    <li>✔ Use the Terminal to control files and folders.</li>
+                    <li>✔ Check system health using pro commands.</li>
+                </ul>
+            </div>
+            <p style="text-align: center; font-size: 1.5em;"><strong>Great job, Defender!</strong></p>
+        </div>
+    </div>
+
+    <div id="prev-slide" class="nav-arrow" onclick="changeSlide(-1)">&#10094;</div>
+    <div id="next-slide" class="nav-arrow" onclick="changeSlide(1)">&#10095;</div>
+    
+    <div class="slide-footer">Slide <span id="current-slide-num">1</span> of <span id="total-slides-num">10</span></div>
+
+</div>
+
+<script>
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.slide');
+    const totalSlides = slides.length;
+    document.getElementById('total-slides-num').textContent = totalSlides;
+
+    function showSlide(index) {
+        if (index >= totalSlides) index = 0;
+        else if (index < 0) index = totalSlides - 1;
+        
+        slides.forEach((slide) => slide.classList.remove('active'));
+        slides[index].classList.add('active');
+        currentSlide = index;
+        document.getElementById('current-slide-num').textContent = currentSlide + 1;
+    }
+
+    function changeSlide(n) { showSlide(currentSlide + n); }
+    showSlide(currentSlide);
+    
+    document.addEventListener('keydown', function(event) {
+        if (event.key === "ArrowRight" || event.key === " ") changeSlide(1);
+        else if (event.key === "ArrowLeft") changeSlide(-1);
+    });
+</script>
+</body>
+</html>

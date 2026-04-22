@@ -3,271 +3,796 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Network Security Fundamentals - NURU Foundation</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <title>Cybersecurity Level 2 – Week 1: Advanced Networking & Traffic Behavior</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Source+Code+Pro:wght@400;600&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #2c3e50;
-            --secondary: #9b59b6;
-            --accent: #8e44ad;
-            --success: #27ae60;
-            --bg-light: #f8f9fa;
-            --text-dark: #333;
-            --text-light: #666;
+            --bg-color: #050816;
+            --bg-elevated: #0b1020;
+            --accent: #00e0ff;
+            --accent-soft: rgba(0, 224, 255, 0.25);
+            --accent-strong: #4effa5;
+            --danger: #ff4b81;
+            --text-main: #f5f5f5;
+            --text-muted: #9ca3af;
+            --border-soft: #1f2933;
+            --shadow-soft: 0 0 40px rgba(0, 0, 0, 0.5);
         }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        * {
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: 'Poppins', sans-serif;
-            background: var(--bg-light);
-            color: var(--text-dark);
-            line-height: 1.6;
-        }
-        .lesson-container { max-width: 900px; margin: 0 auto; padding: 2rem; }
-        .lesson-header {
-            background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
-            padding: 2rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(155, 89, 182, 0.3);
-            margin-bottom: 2rem;
-            color: white;
-        }
-        .course-breadcrumb {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
-            font-size: 0.9rem;
-            opacity: 0.9;
-        }
-        .course-breadcrumb a { color: white; text-decoration: none; }
-        .course-breadcrumb a:hover { text-decoration: underline; }
-        .lesson-meta {
-            display: flex;
-            gap: 1.5rem;
-            margin-bottom: 1rem;
-            flex-wrap: wrap;
-        }
-        .meta-item {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.9rem;
-        }
-        .lesson-title { font-size: 2rem; margin-bottom: 1rem; }
-        .lesson-objectives {
-            background: rgba(255,255,255,0.15);
-            padding: 1.5rem;
-            border-radius: 8px;
-            margin-bottom: 2rem;
-        }
-        .lesson-objectives h3 { margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
-        .lesson-objectives ul { margin-left: 1.5rem; }
-        .lesson-objectives li { margin-bottom: 0.5rem; }
-        .content-section {
-            background: white;
-            padding: 2rem;
-            border-radius: 12px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            margin-bottom: 2rem;
-        }
-        .content-section h2 {
-            color: var(--primary);
-            margin-bottom: 1rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 3px solid var(--secondary);
-        }
-        .content-section h3 { color: var(--primary); margin: 1.5rem 0 0.75rem; }
-        .content-section p { margin-bottom: 1rem; }
-        .content-section ul, .content-section ol { margin: 1rem 0 1rem 1.5rem; }
-        .content-section li { margin-bottom: 0.5rem; }
-        .course-icon {
-            width: 80px;
-            height: 80px;
-            background: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 1rem auto;
-            font-size: 2.5rem;
-            color: var(--secondary);
-        }
-        .info-box {
-            background: #e3f2fd;
-            border-left: 4px solid #3498db;
-            padding: 1rem;
-            border-radius: 0 8px 8px 0;
-            margin: 1rem 0;
-        }
-        .warning-box {
-            background: #fff3e0;
-            border-left: 4px solid #ff9800;
-            padding: 1rem;
-            border-radius: 0 8px 8px 0;
-            margin: 1rem 0;
-        }
-        .tip-box {
-            background: #e8f5e9;
-            border-left: 4px solid var(--success);
-            padding: 1rem;
-            border-radius: 0 8px 8px 0;
-            margin: 1rem 0;
-        }
-        .navigation-buttons {
-            display: flex;
-            justify-content: space-between;
-            gap: 1rem;
-            margin-top: 2rem;
-        }
-        .nav-btn {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 1rem 1.5rem;
-            background: white;
-            border: 2px solid var(--secondary);
-            color: var(--secondary);
-            text-decoration: none;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-            flex: 1;
-            justify-content: center;
-        }
-        .nav-btn:hover { background: var(--secondary); color: white; }
-        .nav-btn.disabled { opacity: 0.5; pointer-events: none; }
-        .nav-btn.next { background: var(--secondary); color: white; }
-        .nav-btn.next:hover { background: var(--accent); border-color: var(--accent); }
-        .progress-bar {
-            background: #e0e0e0;
-            height: 8px;
-            border-radius: 4px;
-            margin-top: 2rem;
+            margin: 0;
+            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+            background: radial-gradient(circle at top, #111827 0, #020617 45%, #000 100%);
+            color: var(--text-main);
+            height: 100vh;
             overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
-        .progress-fill {
-            background: linear-gradient(90deg, #9b59b6, #8e44ad);
+
+        .presentation-container {
+            width: 100%;
             height: 100%;
-            border-radius: 4px;
-            transition: width 0.3s ease;
+            position: relative;
         }
-        @media (max-width: 768px) {
-            .lesson-container { padding: 1rem; }
-            .lesson-title { font-size: 1.5rem; }
-            .navigation-buttons { flex-direction: column; }
+
+        .slide {
+            position: absolute;
+            inset: 0;
+            padding: 5vh 8vw;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transform: translateX(60px) scale(0.97);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+            pointer-events: none;
+        }
+
+        .slide.active {
+            opacity: 1;
+            transform: translateX(0) scale(1);
+            pointer-events: auto;
+        }
+
+       
+
+        .slide-content::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: 18px;
+            border: 1px solid rgba(0, 224, 255, 0.08);
+            pointer-events: none;
+        }
+
+        h1, h2, h3 {
+            font-weight: 700;
+            margin-top: 0;
+            letter-spacing: 0.03em;
+        }
+
+        h1 {
+            font-size: 2.8rem;
+        }
+
+        h2 {
+            font-size: 2rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding-bottom: 6px;
+            border-bottom: 2px solid var(--accent-soft);
+        }
+
+        h3 {
+            font-size: 1.45rem;
+            margin-bottom: 10px;
+        }
+
+        p {
+            line-height: 1.7;
+            font-size: 1.03rem;
+            color: var(--text-muted);
+            margin: 8px 0 14px;
+        }
+
+        ul {
+            list-style: none;
+            padding-left: 0;
+            margin: 10px 0;
+        }
+
+        li {
+            margin-bottom: 10px;
+        }
+
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            padding: 4px 10px;
+            border-radius: 999px;
+            border: 1px solid var(--accent-soft);
+            color: var(--accent);
+            background: rgba(15,23,42,0.9);
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: var(--accent-strong);
+            margin-bottom: 4px;
+        }
+
+        .meta {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 18px;
+            margin-top: 16px;
+        }
+
+        .card {
+            background: radial-gradient(circle at top left, rgba(0,224,255,0.14), rgba(15,23,42,0.95));
+            border-radius: 14px;
+            padding: 14px 16px;
+            border: 1px solid rgba(148,163,184,0.2);
+        }
+
+        .card-header {
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--accent);
+            margin-bottom: 6px;
+        }
+
+        .card-badge {
+            display: inline-block;
+            font-size: 0.8rem;
+            padding: 2px 8px;
+            border-radius: 999px;
+            border: 1px solid rgba(148,163,184,0.4);
+            color: var(--text-muted);
+            margin-left: 6px;
+        }
+
+        .tag-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 6px;
+        }
+
+        .tag {
+            font-size: 0.78rem;
+            padding: 3px 8px;
+            border-radius: 999px;
+            border: 1px solid rgba(148,163,184,0.35);
+            color: var(--text-muted);
+        }
+
+        .highlight-box {
+            border-radius: 14px;
+            padding: 14px 16px;
+            border: 1px dashed rgba(148,163,184,0.5);
+            background: radial-gradient(circle at top left, rgba(0,224,255,0.12), rgba(15,23,42,0.98));
+            margin-top: 10px;
+        }
+
+        .highlight-title {
+            font-size: 0.9rem;
+            color: var(--accent-strong);
+            text-transform: uppercase;
+            letter-spacing: 0.09em;
+            margin-bottom: 6px;
+        }
+
+        .danger {
+            border-color: rgba(248, 113, 113, 0.5);
+            background: radial-gradient(circle at top left, rgba(248,113,113,0.18), rgba(15,23,42,0.98));
+        }
+
+        .danger-title {
+            color: var(--danger);
+        }
+
+        .code-inline {
+            font-family: 'Source Code Pro', monospace;
+            font-size: 0.92rem;
+            background: rgba(15,23,42, 0.95);
+            padding: 2px 6px;
+            border-radius: 4px;
+            border: 1px solid rgba(148,163,184,0.4);
+            color: #e5e7eb;
+        }
+
+        .flow-steps {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 12px 0;
+        }
+
+        .flow-step {
+            flex: 1 1 130px;
+            border-radius: 999px;
+            padding: 6px 10px;
+            border: 1px solid rgba(148,163,184,0.4);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.88rem;
+            color: var(--text-muted);
+        }
+
+        .flow-step span {
+            width: 22px;
+            height: 22px;
+            border-radius: 999px;
+            border: 1px solid var(--accent-soft);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            color: var(--accent);
+        }
+
+        .callout {
+            margin-top: 14px;
+            font-size: 0.96rem;
+            color: var(--accent-strong);
+        }
+
+        .callout span {
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        .nav-arrow {
+            position: fixed;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 2.6rem;
+            width: 52px;
+            height: 52px;
+            border-radius: 999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent);
+            border: 1px solid var(--accent-soft);
+            background: rgba(15,23,42,0.94);
+            cursor: pointer;
+            user-select: none;
+            box-shadow: var(--shadow-soft);
+            transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease, color 0.2s ease;
+            z-index: 20;
+        }
+
+        .nav-arrow:hover {
+            transform: translateY(-50%) scale(1.06);
+            background: var(--accent);
+            color: #020617;
+            box-shadow: 0 0 30px rgba(56,189,248,0.6);
+        }
+
+        #prev-slide {
+            left: 18px;
+        }
+
+        #next-slide {
+            right: 18px;
+        }
+
+        .slide-footer {
+            position: fixed;
+            bottom: 12px;
+            right: 24px;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            background: rgba(15,23,42,0.96);
+            padding: 6px 12px;
+            border-radius: 999px;
+            border: 1px solid rgba(148,163,184,0.4);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .slide-footer span {
+            color: var(--accent);
+        }
+
+        .progress-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            height: 3px;
+            width: 0;
+            background: linear-gradient(90deg, var(--accent), var(--accent-strong));
+            box-shadow: 0 0 12px rgba(56,189,248,0.9);
+            transition: width 0.3s ease;
+            z-index: 15;
+        }
+
+        .title-slide h1 {
+            font-size: 3.2rem;
+        }
+
+        .title-slide .slide-content {
+            text-align: center;
+        }
+
+        .title-grid {
+            display: grid;
+            grid-template-columns: 2fr 1.3fr;
+            gap: 24px;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        .title-right {
+            text-align: left;
+        }
+
+        .title-list {
+            margin-top: 10px;
+        }
+
+        .title-list li {
+            margin-bottom: 6px;
+            font-size: 0.95rem;
+        }
+
+        .badge-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            margin-top: 16px;
+        }
+
+        .badge {
+            font-size: 0.8rem;
+            padding: 4px 10px;
+            border-radius: 999px;
+            border: 1px solid rgba(148,163,184,0.4);
+            color: var(--text-muted);
+        }
+
+        .summary-list li {
+            background: rgba(15,23,42,0.9);
+            border-radius: 12px;
+            border: 1px solid rgba(148,163,184,0.35);
+            padding: 8px 10px;
+            font-size: 0.95rem;
+        }
+
+        @media (max-width: 900px) {
+            body {
+                overflow: auto;
+            }
+            .slide {
+                padding: 4vh 4vw;
+            }
+            .slide-content {
+                max-height: none;
+                height: auto;
+            }
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+            .title-grid {
+                grid-template-columns: 1fr;
+                text-align: left;
+            }
+            .nav-arrow {
+                font-size: 2.1rem;
+                width: 44px;
+                height: 44px;
+            }
+            .title-slide h1 {
+                font-size: 2.4rem;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="lesson-container">
-        <div class="lesson-header">
-            <div class="course-icon"><i class="fas fa-network-wired"></i></div>
-            <div class="course-breadcrumb">
-                <a href="/student-dashboard/notes.html"><i class="fas fa-arrow-left"></i> Back to Notes</a>
+
+<div class="presentation-container">
+
+    <!-- SLIDE 1: TITLE -->
+    <div class="slide title-slide active" id="slide-1">
+        <div class="slide-content">
+            <div class="pill">CYBERSECURITY LEVEL 2 · WEEK 1</div>
+            <h1>Advanced Networking & Traffic Behavior</h1>
+            <p class="subtitle">Class 1 – Seeing the Network Like an Attacker</p>
+            <p class="meta">
+                In Level 1, you learned what attacks look like from the outside. In this class, we start looking **inside** the network itself – packets, layers, and protocols.
+            </p>
+
+            <div class="title-grid">
+                <div>
+                    <div class="highlight-box">
+                        <div class="highlight-title">Learning Focus</div>
+                        <p>By the end of this class, you should be able to mentally “trace” how a single packet travels from one device to another and where attackers can interfere.</p>
+                    </div>
+                    <div class="badge-row">
+                        <div class="badge">OSI Model (Deep Dive)</div>
+                        <div class="badge">TCP Handshake</div>
+                        <div class="badge">ARP · DHCP · ICMP · BGP · NAT</div>
+                    </div>
+                </div>
+                <div class="title-right">
+                    <div class="card">
+                        <div class="card-header">Story Context: Alex Chen’s Network</div>
+                        <p>We now zoom into the Alex Chen family’s home network: WiFi router, phones, laptops, smart TV, and cloud services.</p>
+                        <ul class="title-list">
+                            <li>Where do packets actually go?</li>
+                            <li>Which layers can a hacker abuse?</li>
+                            <li>What does “trust” look like in network protocols?</li>
+                        </ul>
+                    </div>
+                </div>
             </div>
-            <div class="lesson-meta">
-                <span class="meta-item"><i class="fas fa-book"></i> Lesson 1 of 3</span>
-                <span class="meta-item"><i class="fas fa-clock"></i> 45 minutes</span>
-            </div>
-            <h1 class="lesson-title">Network Security Fundamentals</h1>
-        </div>
-        <div class="lesson-objectives">
-            <h3><i class="fas fa-bullseye"></i> Learning Objectives</h3>
-            <ul>
-                <li>Understand the basics of computer networks</li>
-                <li>Learn how firewalls protect networks</li>
-                <li>Understand Virtual Private Networks (VPNs)</li>
-                <li>Identify common network security threats</li>
-            </ul>
-        </div>
-        <div class="content-section">
-            <h2>Understanding Computer Networks</h2>
-            <p>A computer network is a group of interconnected devices that share resources and information. Understanding networks is essential for securing them.</p>
-            <h3>Key Network Concepts</h3>
-            <ul>
-                <li><strong>LAN (Local Area Network):</strong> Connected devices in a small area like home or office</li>
-                <li><strong>WAN (Wide Area Network):</strong> Larger networks connecting multiple LANs</li>
-                <li><strong>IP Address:</strong> Unique identifier for each device on a network</li>
-                <li><strong>Ports:</strong> Communication endpoints for specific services</li>
-                <li><strong>Protocols:</strong> Rules governing data communication (TCP/IP, HTTP, etc.)</li>
-            </ul>
-            <div class="info-box">
-                <strong><i class="fas fa-info-circle"></i> Did You Know?</strong>
-                <p>The average home network has 10+ connected devices, from smartphones to smart TVs!</p>
-            </div>
-        </div>
-        <div class="content-section">
-            <h2>Firewalls: Your Network Guardian</h2>
-            <p>A firewall is a security system that monitors and controls incoming and outgoing network traffic based on predetermined security rules.</p>
-            <h3>Types of Firewalls</h3>
-            <ul>
-                <li><strong>Hardware Firewalls:</strong> Physical devices that filter traffic at the network boundary</li>
-                <li><strong>Software Firewalls:</strong> Programs running on individual computers</li>
-                <li><strong>Packet-Filtering:</strong> Examines data packets and blocks suspicious ones</li>
-                <li><strong>Stateful Inspection:</strong> Tracks active connections for better security</li>
-                <li><strong>Application-Level:</strong> Filters traffic for specific applications</li>
-            </ul>
-            <div class="warning-box">
-                <strong><i class="fas fa-exclamation-triangle"></i> Important</strong>
-                <p>Firewalls are your first line of defense - always keep them enabled and properly configured!</p>
-            </div>
-        </div>
-        <div class="content-section">
-            <h2>Virtual Private Networks (VPNs)</h2>
-            <p>A VPN creates a secure, encrypted connection over a less secure network, such as the internet. It protects your data from eavesdropping.</p>
-            <h3>Benefits of Using a VPN</h3>
-            <ul>
-                <li><strong>Encryption:</strong> Protects data from being intercepted</li>
-                <li><strong>Privacy:</strong> Masks your IP address and location</li>
-                <li><strong>Secure Remote Access:</strong> Access company resources safely from anywhere</li>
-                <li><strong>Public Wi-Fi Protection:</strong> Secures connections on unsecured networks</li>
-            </ul>
-            <h3>VPN Protocols</h3>
-            <ul>
-                <li><strong>OpenVPN:</strong> Open-source, highly secure</li>
-                <li><strong>IPSec:</strong> Built-in security for IP communications</li>
-                <li><strong>WireGuard:</strong> Modern, fast, and secure</li>
-                <li><strong>SSL/TLS:</strong> Used for browser-based VPNs</li>
-            </ul>
-            <div class="tip-box">
-                <strong><i class="fas fa-lightbulb"></i> Pro Tip</strong>
-                <p>Always use a reputable VPN when connecting to public Wi-Fi networks to protect your data!</p>
-            </div>
-        </div>
-        <div class="content-section">
-            <h2>Common Network Threats</h2>
-            <ul>
-                <li><strong>Port Scanning:</strong> Attackers scan for open ports to find vulnerabilities</li>
-                <li><strong>Man-in-the-Middle (MitM):</strong> Intercepting communication between two parties</li>
-                <li><strong>Denial of Service (DoS):</strong> Overwhelming systems to make them unavailable</li>
-                <li><strong>ARP Spoofing:</strong> Faking ARP messages to intercept traffic</li>
-                <li><strong>DNS Spoofing:</strong> Redirecting users to malicious websites</li>
-            </ul>
-        </div>
-        <div class="content-section">
-            <h2>Network Security Best Practices</h2>
-            <ul>
-                <li>Use strong, unique passwords for network devices</li>
-                <li>Keep router firmware updated</li>
-                <li>Disable remote management from the internet</li>
-                <li>Use WPA3 or WPA2 encryption for Wi-Fi</li>
-                <li>Segment your network (guest, IoT, main)</li>
-                <li>Monitor network traffic for suspicious activity</li>
-            </ul>
-        </div>
-        <div class="navigation-buttons">
-            <a class="nav-btn disabled">
-                <i class="fas fa-arrow-left"></i>
-                <span>No Previous</span>
-            </a>
-            <a href="lesson-2.html" class="nav-btn next">
-                <span>Next: Malware & Cyber Threats</span>
-                <i class="fas fa-arrow-right"></i>
-            </a>
-        </div>
-        <div class="progress-bar">
-            <div class="progress-fill" style="width: 33%"></div>
+
         </div>
     </div>
+
+    <!-- SLIDE 2: OSI OVERVIEW -->
+    <div class="slide" id="slide-2">
+        <div class="slide-content">
+            <h2>🧠 1. Deep Understanding of the OSI Model</h2>
+            <p>The OSI Model (Open Systems Interconnection) describes how data moves from one device to another across a network in 7 logical layers.</p>
+
+            <div class="highlight-box">
+                <div class="highlight-title">Mental Model</div>
+                <p>Think of sending a package: you write a message, wrap it, label it, choose a route, and hand it over to a delivery service, which finally transports it physically.</p>
+            </div>
+
+            <p>Each layer of OSI is responsible for one part of this “delivery pipeline”. When something breaks or gets attacked, we can often map it to a specific layer.</p>
+
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-header">Upper Layers (Closer to the User)</div>
+                    <ul>
+                        <li><strong>Application Layer</strong> – Where users interact with the network (web browsers, email clients, file transfer apps).</li>
+                        <li><strong>Presentation Layer</strong> – Formats, compresses, and encrypts data so that applications can understand each other.</li>
+                        <li><strong>Session Layer</strong> – Opens, maintains, and closes communication sessions between devices.</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <div class="card-header">Lower Layers (Closer to the Wire)</div>
+                    <ul>
+                        <li><strong>Transport Layer</strong> – Controls how data is sent (reliable vs fast delivery, TCP vs UDP).</li>
+                        <li><strong>Network Layer</strong> – Handles logical addressing and routing (IP addresses, routers).</li>
+                        <li><strong>Data Link Layer</strong> – Handles communication between devices on the same local network (MAC addresses, switches).</li>
+                        <li><strong>Physical Layer</strong> – Deals with electricity, light, radio waves, cables, and WiFi signals.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <p class="callout"><span>Key idea:</span> Every cyber attack touches at least one OSI layer. Knowing the layers makes you better at locating and defending against attacks.</p>
+        </div>
+    </div>
+
+    <!-- SLIDE 3: OSI SECURITY VIEW -->
+    <div class="slide" id="slide-3">
+        <div class="slide-content">
+            <h2>🔐 OSI Model from a Security View</h2>
+            <p>From a security perspective, we think of the OSI model as 7 “attack surfaces”. Different types of attacks live at different layers.</p>
+
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-header">Common Attack Examples</div>
+                    <ul>
+                        <li><strong>Application Layer</strong> – Web attacks such as SQL Injection, Cross-Site Scripting (XSS), and insecure APIs.</li>
+                        <li><strong>Transport Layer</strong> – SYN flood attacks that abuse the TCP handshake to overload a server.</li>
+                        <li><strong>Network Layer</strong> – IP spoofing where an attacker forges source IP addresses.</li>
+                        <li><strong>Data Link Layer</strong> – ARP spoofing to redirect traffic inside a local network.</li>
+                    </ul>
+                </div>
+                <div class="highlight-box danger">
+                    <div class="highlight-title danger-title">Important Note</div>
+                    <p>Cyber attacks are not random; they usually target a specific layer with a specific weakness.</p>
+                    <p>If you can say “this is a Layer 7 problem” or “this is a Layer 2 attack”, you are already thinking like a security analyst.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 4: PACKET FLOW -->
+    <div class="slide" id="slide-4">
+        <div class="slide-content">
+            <h2>✨ 2. Packet Flow Inside a Network</h2>
+            <p>A packet is a small unit of data sent across a network. It is like one “envelope” in a larger conversation.</p>
+
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-header">Packet Basics</div>
+                    <ul>
+                        <li><strong>Source address</strong> – Where the packet is coming from (IP).</li>
+                        <li><strong>Destination address</strong> – Where the packet is going (IP).</li>
+                        <li><strong>Data (payload)</strong> – The actual content being delivered (HTTP request, email content, etc.).</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <div class="card-header">From Browser to Server</div>
+                    <p>Example: A user enters <span class="code-inline">google.com</span> in the browser.</p>
+                    <ul>
+                        <li>DNS converts the human-readable name into an IP address.</li>
+                        <li>The client and server agree to communicate using TCP.</li>
+                        <li>Packets are then created, addressed, and sent through routers on the internet.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <p class="callout"><span>For defenders:</span> If you can follow a packet hop-by-hop, you can also imagine how an attacker might intercept or modify it.</p>
+        </div>
+    </div>
+
+    <!-- SLIDE 5: TCP HANDSHAKE -->
+    <div class="slide" id="slide-5">
+        <div class="slide-content">
+            <h2>📡 TCP Three-Way Handshake</h2>
+            <p>Before two devices exchange data using TCP, they first “shake hands” to agree on how to communicate reliably.</p>
+
+            <div class="highlight-box">
+                <div class="highlight-title">Three Steps</div>
+                <div class="flow-steps">
+                    <div class="flow-step">
+                        <span>1</span>
+                        <div><strong>SYN</strong> – Client sends a request to connect.</div>
+                    </div>
+                    <div class="flow-step">
+                        <span>2</span>
+                        <div><strong>SYN-ACK</strong> – Server acknowledges and agrees to connect.</div>
+                    </div>
+                    <div class="flow-step">
+                        <span>3</span>
+                        <div><strong>ACK</strong> – Client confirms the connection is established.</div>
+                    </div>
+                </div>
+                <p>After this three-way handshake, data can flow in both directions using the agreed sequence numbers.</p>
+            </div>
+
+            <div class="highlight-box danger">
+                <div class="highlight-title danger-title">Security Angle</div>
+                <p>Attackers can abuse this handshake with attacks like SYN floods, where they start thousands of connections but never finish them, overloading the server.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 6: RISKS IN PACKET FLOW -->
+    <div class="slide" id="slide-6">
+        <div class="slide-content">
+            <h2>⚠️ Security Risks in Packet Flow</h2>
+            <p>Once you understand how packets move, you can see where attackers may insert themselves in the path.</p>
+
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-header">Common Risks</div>
+                    <ul>
+                        <li><strong>DNS spoofing</strong> – DNS responses are manipulated so users are sent to fake websites.</li>
+                        <li><strong>Traffic interception</strong> – Man-in-the-Middle (MITM) attacks where an attacker sits between the user and the destination.</li>
+                        <li><strong>Packet capture</strong> – Attackers sniff and analyze traffic to steal credentials or session tokens.</li>
+                    </ul>
+                </div>
+                <div class="highlight-box danger">
+                    <div class="highlight-title danger-title">Reality Check</div>
+                    <p>Network communication is always a target. Every time data moves, there is a chance for someone to listen, modify, or block it.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 7: KEY PROTOCOLS -->
+    <div class="slide" id="slide-7">
+        <div class="slide-content">
+            <h2>✨ 3. Important Network Protocols</h2>
+            <p>Some protocols are especially important in both normal operation and in many attacks.</p>
+
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-header">ARP – Address Resolution Protocol</div>
+                    <p>ARP maps IP addresses to MAC addresses within a local network.</p>
+                    <p>Informally, ARP asks: “Who has this IP? Tell me your physical (MAC) address.”</p>
+                    <div class="highlight-box danger">
+                        <div class="highlight-title danger-title">Weakness & Attack</div>
+                        <p>ARP does not verify identity. An attacker can respond pretending to be another device – this is <strong>ARP spoofing</strong>.</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">DHCP – Dynamic Host Configuration Protocol</div>
+                    <p>DHCP automatically assigns IP addresses and other network settings to devices when they join a network.</p>
+                    <div class="highlight-box danger">
+                        <div class="highlight-title danger-title">Risk</div>
+                        <p>A fake DHCP server can give wrong IP/gateway/DNS settings and silently redirect traffic through the attacker.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-header">ICMP – Internet Control Message Protocol</div>
+                    <p>ICMP is used for network diagnostics, such as the <span class="code-inline">ping</span> command.</p>
+                    <div class="highlight-box danger">
+                        <div class="highlight-title danger-title">Risk</div>
+                        <p>ICMP can be abused in flooding attacks or to map out live hosts and network structure.</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">BGP – Border Gateway Protocol</div>
+                    <p>BGP decides how data is routed between large networks (ISPs) across the internet.</p>
+                    <div class="highlight-box danger">
+                        <div class="highlight-title danger-title">Risk</div>
+                        <p>Attackers can perform <strong>BGP hijacking</strong>, redirecting large amounts of traffic to the wrong location.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 8: NAT -->
+    <div class="slide" id="slide-8">
+        <div class="slide-content">
+            <h2>🔁 NAT – Network Address Translation</h2>
+            <p>NAT converts private IP addresses (inside a local network) into a public IP address that is visible on the internet.</p>
+
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-header">How NAT Helps</div>
+                    <ul>
+                        <li>Hides internal IP addresses from the public internet.</li>
+                        <li>Allows many devices in a home or office to share a single public IP.</li>
+                        <li>Adds a basic layer of isolation between internal devices and the outside world.</li>
+                    </ul>
+                </div>
+
+                <div class="highlight-box danger">
+                    <div class="highlight-title danger-title">But Be Careful</div>
+                    <p>NAT is not a full security solution. It hides internal addresses, but it does not stop application-level attacks or prevent exploitation of vulnerable devices.</p>
+                </div>
+            </div>
+
+            <p class="callout"><span>Takeaway:</span> NAT helps, but you still need firewalls, secure configurations, and good application security.</p>
+        </div>
+    </div>
+
+    <!-- SLIDE 9: HOW ATTACKERS USE BEHAVIOR -->
+    <div class="slide" id="slide-9">
+        <div class="slide-content">
+            <h2>✨ 4. How Attackers Use Network Behavior</h2>
+            <p>Attackers exploit the “trust” built into protocols and devices. They often do not attack the hardware, but the assumptions behind the communication.</p>
+
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-header">Common Techniques</div>
+                    <ul>
+                        <li><strong>Packet sniffing</strong> – Capturing traffic to read unencrypted data.</li>
+                        <li><strong>ARP poisoning</strong> – Corrupting ARP tables to redirect traffic.</li>
+                        <li><strong>Man-in-the-Middle (MITM)</strong> – Sitting between two parties to intercept and modify data.</li>
+                        <li><strong>Session hijacking</strong> – Stealing a valid session token to take over a logged-in session.</li>
+                        <li><strong>Traffic replay</strong> – Recording valid traffic and replaying it later to bypass checks.</li>
+                    </ul>
+                </div>
+
+                <div class="highlight-box">
+                    <div class="highlight-title">Example – Public WiFi</div>
+                    <ul>
+                        <li>An attacker connects to the same public WiFi as Alex Chen’s son.</li>
+                        <li>They perform ARP spoofing to become the “middle” between the victim and the router.</li>
+                        <li>They capture unencrypted logins, cookies, or other sensitive data while traffic passes through them.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <p class="callout"><span>Mindset shift:</span> Every “normal” network behavior (ARP requests, DHCP offers, TCP handshakes) can also become a weapon in the wrong hands.</p>
+        </div>
+    </div>
+
+    <!-- SLIDE 10: SUMMARY -->
+    <div class="slide" id="slide-10">
+        <div class="slide-content">
+            <h2>🧾 Summary of Class 1</h2>
+            <p>Today, you moved from just recognizing attacks to understanding the network behavior that makes those attacks possible.</p>
+
+            <div class="highlight-box">
+                <div class="highlight-title">You Have Learned</div>
+                <ul class="summary-list">
+                    <li>✔ How the OSI model works and how each layer plays a role in real networks.</li>
+                    <li>✔ How data travels as packets and how TCP uses a three-way handshake.</li>
+                    <li>✔ Key network protocols (ARP, DHCP, ICMP, BGP, NAT) and their security weaknesses.</li>
+                    <li>✔ How attackers abuse normal network behavior to sniff, hijack, and redirect traffic.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 11: ASSIGNMENT -->
+    <div class="slide" id="slide-11">
+        <div class="slide-content">
+            <h2>📚 Class Assignment (Applied)</h2>
+            <p>Write a short technical reflection (about one page) in your own words:</p>
+
+            <div class="highlight-box danger">
+                <div class="highlight-title danger-title">Questions</div>
+                <ul class="summary-list">
+                    <li>1. Pick one OSI layer and explain how you would defend it in Alex Chen’s home network.</li>
+                    <li>2. Describe a network-based attack (e.g., ARP spoofing, MITM, SYN flood) and which layer(s) it targets.</li>
+                    <li>3. Explain how understanding packets and the TCP handshake changes the way you look at “normal” internet usage.</li>
+                </ul>
+                <p style="margin-top: 10px; font-size: 0.95rem; color: var(--text-muted); text-align: center;">
+                    Goal: To see if you can connect theory (OSI, packets, protocols) to real-life scenarios like home WiFi and public networks.
+                </p>
+            </div>
+
+            <p style="text-align: center; margin-top: 26px; font-size: 1.4rem; color: var(--accent);">
+                END OF CYBERSECURITY LEVEL 2 – CLASS 1
+            </p>
+        </div>
+    </div>
+
+    <!-- NAVIGATION & FOOTER -->
+    <div id="prev-slide" class="nav-arrow" onclick="changeSlide(-1)">&#10094;</div>
+    <div id="next-slide" class="nav-arrow" onclick="changeSlide(1)">&#10095;</div>
+    <div class="slide-footer">
+        Slide <span id="current-slide-num">1</span> of <span id="total-slides-num">11</span>
+    </div>
+    <div class="progress-bar" id="progress-bar"></div>
+
+</div>
+
+<script>
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.slide');
+    const totalSlides = slides.length;
+    const currentSlideNum = document.getElementById('current-slide-num');
+    const totalSlidesNum = document.getElementById('total-slides-num');
+    const progressBar = document.getElementById('progress-bar');
+
+    totalSlidesNum.textContent = totalSlides;
+
+    function showSlide(index) {
+        if (index >= totalSlides) index = 0;
+        if (index < 0) index = totalSlides - 1;
+
+        slides.forEach(slide => slide.classList.remove('active'));
+        slides[index].classList.add('active');
+        currentSlide = index;
+        currentSlideNum.textContent = currentSlide + 1;
+
+        const progress = ((currentSlide + 1) / totalSlides) * 100;
+        progressBar.style.width = progress + '%';
+    }
+
+    function changeSlide(step) {
+        showSlide(currentSlide + step);
+    }
+
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'ArrowRight' || event.key === ' ') {
+            changeSlide(1);
+        } else if (event.key === 'ArrowLeft') {
+            changeSlide(-1);
+        }
+    });
+
+    showSlide(currentSlide);
+</script>
+
 </body>
 </html>

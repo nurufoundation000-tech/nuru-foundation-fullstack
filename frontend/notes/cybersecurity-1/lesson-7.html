@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cybersecurity Level 1 - Week 3: Network Devices</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&family=Space+Mono&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #0070c0; 
+            --secondary-color: #d9534f; 
+            --tertiary-color: #5cb85c; 
+            --background-color: #f4f7f9; 
+            --text-color: #2c3e50; 
+            --slide-bg: #ffffff; 
+            --highlight-bg: #eef2f7; 
+            --shadow-color: rgba(0, 0, 0, 0.08);
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .presentation-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        .slide {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transform: scale(0.95);
+            transition: all 0.5s ease-in-out;
+            padding: 5vh 8vw;
+            box-sizing: border-box;
+            background-color: var(--slide-bg);
+            border-top: 12px solid var(--primary-color);
+        }
+
+        .slide.active {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .slide-content {
+            width: 100%;
+            max-width: 1050px;
+            text-align: left;
+            overflow-y: auto;
+            max-height: 85vh;
+        }
+
+        h1 { font-size: 3.2em; color: var(--text-color); margin-bottom: 0.2em; border-left: 8px solid var(--primary-color); padding-left: 20px;}
+        h2 { font-size: 2.2em; color: var(--primary-color); margin-bottom: 0.8em; }
+        h3 { color: var(--secondary-color); font-size: 1.5em; margin-top: 1em; }
+        
+        p { line-height: 1.7; font-size: 1.15em; color: #444; }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px var(--shadow-color);
+        }
+        th { background: var(--primary-color); color: white; padding: 18px; text-align: left; font-weight: 700; }
+        td { padding: 15px; border-bottom: 1px solid #eee; }
+        tr:hover { background: #fdfdfd; }
+
+        /* Journey/Path Styling */
+        .path-step {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 10px;
+            background: var(--highlight-bg);
+            border-radius: 6px;
+            font-size: 0.95em;
+        }
+        .step-num {
+            background: var(--primary-color);
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            flex-shrink: 0;
+            font-weight: bold;
+        }
+
+        /* Nav Arrows */
+        .nav-arrow {
+            position: fixed; top: 50%; transform: translateY(-50%);
+            font-size: 2em; color: var(--primary-color);
+            cursor: pointer; padding: 15px; z-index: 100;
+            background: white; border-radius: 50%;
+            box-shadow: 0 4px 10px var(--shadow-color);
+            transition: 0.3s;
+        }
+        .nav-arrow:hover { background: var(--primary-color); color: white; }
+        #prev { left: 25px; }
+        #next { right: 25px; }
+
+        .footer {
+            position: fixed; bottom: 15px; right: 25px;
+            font-size: 0.9em; color: #999;
+        }
+        
+        .security-tag {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-right: 10px;
+        }
+        .tag-strength { background: #e8f5e9; color: #2e7d32; }
+        .tag-weakness { background: #ffebee; color: #c62828; }
+    </style>
+</head>
+<body>
+
+<div class="presentation-container">
+
+    <div class="slide active">
+        <div class="slide-content" style="text-align:center;">
+            <h1>NETWORK DEVICES</h1>
+            <p style="font-size:1.8em; color:var(--primary-color); font-weight: 300;">The Digital Traffic Controllers</p>
+            <p><strong>Week 3 — Class 1 (Theory Session)</strong></p>
+            <div style="margin-top:50px; padding:30px; background:white; border-radius:15px; box-shadow: 0 10px 30px var(--shadow-color); border-bottom: 5px solid var(--primary-color);">
+                <p><strong>⭐ Today's Mission:</strong> Move from "user" to <strong>"architect."</strong> Today, you meet the hardware that powers the internet. You will learn how data travels, what devices control it, and where the secret vulnerabilities hide.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="slide-content">
+            <h2>1. The Three Pillars of Infrastructure</h2>
+            <p>Every professional network is built on these three essential devices. Without them, the digital world stops moving.</p>
+            
+            <table>
+                <tr>
+                    <th>Device</th>
+                    <th>The Role</th>
+                    <th>Security Analogy</th>
+                </tr>
+                <tr>
+                    <td><strong>Switch</strong></td>
+                    <td>Traffic Director</td>
+                    <td>Air Traffic Controller</td>
+                </tr>
+                <tr>
+                    <td><strong>Router</strong></td>
+                    <td>Network Connector</td>
+                    <td>Border Patrol</td>
+                </tr>
+                <tr>
+                    <td><strong>Firewall</strong></td>
+                    <td>Security Guardian</td>
+                    <td>Security Checkpoint</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="slide-content">
+            <h2>2. Switches: Internal Directors</h2>
+            <p>A Switch connects devices within the <strong>same network (LAN)</strong>. It is "smart" because it uses MAC addresses to talk directly to the right device.</p>
+            
+            <div style="margin: 20px 0;">
+                <p><span class="security-tag tag-strength">Strength</span>Limits traffic to intended recipients; allows for <strong>VLAN segmentation</strong>.</p>
+                <p><span class="security-tag tag-weakness">Weakness</span>Susceptible to <strong>MAC flooding</strong> and spoofing if not configured correctly.</p>
+            </div>
+            <blockquote style="border-left: 5px solid var(--primary-color); padding-left: 20px; font-style: italic;">
+                "A switch ensures that your print job goes to the printer, not to your colleague's screen."
+            </blockquote>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="slide-content">
+            <h2>3. Routers: The Bridge Builders</h2>
+            <p>Routers connect different networks together (LAN to WAN). They use <strong>IP addresses</strong> to decide where data goes globally.</p>
+            
+            <h3 style="color:var(--primary-color);">Critical Security Settings:</h3>
+            <ul style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; list-style: none; padding: 0;">
+                <li style="background:var(--highlight-bg); padding:10px; border-radius:5px;">🔑 <strong>Admin Password:</strong> Change from default!</li>
+                <li style="background:var(--highlight-bg); padding:10px; border-radius:5px;">🛡️ <strong>Encryption:</strong> Use WPA3 or WPA2.</li>
+                <li style="background:var(--highlight-bg); padding:10px; border-radius:5px;">🚦 <strong>Firewall Rules:</strong> Control what enters.</li>
+                <li style="background:var(--highlight-bg); padding:10px; border-radius:5px;">🔄 <strong>Firmware:</strong> Patch security holes.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="slide-content">
+            <h2>4. Firewalls: The Digital Guards</h2>
+            <p>Firewalls filter traffic based on a set of rules. They are the primary defense against unauthorized access.</p>
+            
+            <div style="background:var(--terminal-bg); color:var(--text-color); padding:20px; border-radius:10px; border: 1px solid #ddd;">
+                <strong>How Decisions are Made:</strong>
+                <p>1. <strong>ALLOW:</strong> Pass through ✓<br>
+                2. <strong>DENY:</strong> Block immediately ✗<br>
+                3. <strong>LOG:</strong> Record for review 📝</p>
+            </div>
+            <p><strong>Professional Tip:</strong> Always follow the "Principle of Least Privilege"—block everything by default, and only allow exactly what you need.</p>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="slide-content">
+            <h2>5. The Journey of a Single Packet</h2>
+            <p>When you type <strong>google.com</strong>, your data takes a precise 12-step journey.</p>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div class="path-step"><div class="step-num">1</div> Browser creates request</div>
+                <div class="path-step"><div class="step-num">2</div> Computer sends to Switch</div>
+                <div class="path-step"><div class="step-num">3</div> Router checks Firewall</div>
+                <div class="path-step"><div class="step-num">4</div> Router finds Internet path</div>
+                <div class="path-step"><div class="step-num">5</div> Packet travels global hops</div>
+                <div class="path-step"><div class="step-num">6</div> Destination Firewall checks</div>
+            </div>
+            <p style="margin-top:15px; color:var(--secondary-color); font-weight:bold;">⚠️ Vulnerability Point: Man-in-the-Middle (MitM) attacks can occur anywhere along this path!</p>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="slide-content">
+            <h2>6. Top Network Vulnerabilities</h2>
+            <p>Hackers don't always "break in"—they often look for the easiest mistakes.</p>
+            <div style="display: flex; gap: 20px;">
+                <div style="flex:1; background:#fff3cd; padding:20px; border-radius:10px;">
+                    <h4>Home Risks</h4>
+                    <p>• <strong>Default Passwords:</strong> admin/admin.<br>
+                       • <strong>Outdated Firmware:</strong> Unpatched holes.<br>
+                       • <strong>WEP Encryption:</strong> Cracked in minutes.</p>
+                </div>
+                <div style="flex:1; background:#d1ecf1; padding:20px; border-radius:10px;">
+                    <h4>Enterprise Risks</h4>
+                    <p>• <strong>VLAN Hopping:</strong> Bad switch config.<br>
+                       • <strong>Permissive Rules:</strong> Firewall too open.<br>
+                       • <strong>Physical Access:</strong> Unauthorized devices.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="slide-content">
+            <h2>🧠 Quick Knowledge Check</h2>
+            <div style="background:var(--highlight-bg); padding:25px; border-radius:12px;">
+                <p><strong>1. What is the main difference between a switch and a router?</strong><br>
+                <span style="color:var(--primary-color);">Answer: Switch connects devices in a LAN; Router connects the LAN to other networks (WAN).</span></p>
+                <hr>
+                <p><strong>2. Why is "WPA3" better than "WEP"?</strong><br>
+                <span style="color:var(--primary-color);">Answer: Encryption strength. WEP is easily cracked; WPA3 is the modern, secure standard.</span></p>
+                <hr>
+                <p><strong>3. If you want to block a specific IP from entering your network, which device do you configure?</strong><br>
+                <span style="color:var(--primary-color);">Answer: The Firewall.</span></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="slide-content" style="text-align:center;">
+            <h2>Next Class: Hands-On Fortification 🚀</h2>
+            <p>We move from theory to action. Get ready to configure a network.</p>
+            <div style="display:inline-block; text-align:left; background:var(--highlight-bg); padding:30px; border-radius:15px; margin-top:20px;">
+                <p>✅ Safely configure a home router simulation</p>
+                <p>✅ Create a Guest Network (Isolation)</p>
+                <p>✅ Set up your first Firewall Rule</p>
+            </div>
+            <p style="margin-top:40px;"><strong>Bring:</strong> Your router model number and your Week 2 network map!</p>
+            <p style="color:var(--tertiary-color); font-weight:bold; font-size:1.2em;">"Network devices define security boundaries. Configure them wisely."</p>
+        </div>
+    </div>
+
+    <div id="prev" class="nav-arrow" onclick="moveSlide(-1)">&#10094;</div>
+    <div id="next" class="nav-arrow" onclick="moveSlide(1)">&#10095;</div>
+    <div class="footer">Week 3 | Class 1 | Slide <span id="snum">1</span> of 9</div>
+
+</div>
+
+<script>
+    let current = 0;
+    const slides = document.querySelectorAll('.slide');
+    function moveSlide(n) {
+        slides[current].classList.remove('active');
+        current = (current + n + slides.length) % slides.length;
+        slides[current].classList.add('active');
+        document.getElementById('snum').innerText = current + 1;
+    }
+    document.addEventListener('keydown', (e) => {
+        if(e.key === "ArrowRight") moveSlide(1);
+        if(e.key === "ArrowLeft") moveSlide(-1);
+    });
+</script>
+
+</body>
+</html>

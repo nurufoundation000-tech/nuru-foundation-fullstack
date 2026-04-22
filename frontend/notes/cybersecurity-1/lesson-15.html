@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cybersecurity Level 1 - Week 5: Full System Hardening</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&family=Space+Mono&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2c3e50; 
+            --accent-color: #e67e22; 
+            --success-color: #27ae60; 
+            --danger-color: #c0392b;
+            --background-color: #ecf0f1; 
+            --slide-bg: #ffffff; 
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--background-color);
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .presentation-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        .slide {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transform: scale(0.95);
+            transition: all 0.5s ease-in-out;
+            padding: 5vh 10vw;
+            box-sizing: border-box;
+            background-color: var(--slide-bg);
+            border-top: 10px solid var(--accent-color);
+        }
+
+        .slide.active {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .slide-content {
+            width: 100%;
+            max-width: 1000px;
+            overflow-y: auto;
+            max-height: 85vh;
+        }
+
+        h1 { color: var(--primary-color); font-size: 3em; text-align: center; margin-bottom: 10px; }
+        h2 { color: var(--accent-color); border-left: 5px solid var(--accent-color); padding-left: 15px; }
+
+        .pro-tip {
+            background: #fff3e0;
+            border-right: 5px solid var(--accent-color);
+            padding: 15px;
+            margin: 15px 0;
+            font-style: italic;
+        }
+
+        .check-item {
+            display: flex;
+            align-items: center;
+            background: #f9f9f9;
+            margin: 8px 0;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+
+        .check-item::before {
+            content: '🛡️';
+            margin-right: 15px;
+        }
+
+        .nav-btn {
+            position: fixed;
+            bottom: 30px;
+            padding: 10px 20px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            font-weight: bold;
+            z-index: 100;
+        }
+
+        #prev-btn { left: 50px; }
+        #next-btn { right: 50px; }
+
+        .image-placeholder {
+            width: 100%;
+            height: 200px;
+            background: #eee;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #777;
+            border: 2px dashed #ccc;
+            margin: 15px 0;
+            border-radius: 10px;
+        }
+
+        code { font-family: 'Space Mono', monospace; background: #2c3e50; color: #ecf0f1; padding: 3px 6px; border-radius: 3px; }
+    </style>
+</head>
+<body>
+
+<div class="presentation-container">
+
+    <div class="slide active">
+        <div class="slide-content">
+            <h1>🧪 WEEK 5 — CLASS 3</h1>
+            <h2 style="text-align: center;">PRACTICAL: THE FULL SYSTEM HARDENING</h2>
+            <div class="pro-tip" style="text-align: center;">
+                "Security is a process, not a product." Today, you aren't just a student; you are a <strong>Security Technician</strong> auditing a live system.
+            </div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="slide-content">
+            <h2>⭐ 1. Today’s Mission</h2>
+            <p>Your goal is to transform a standard, "lazy" computer into a <strong>Hardened Fortress</strong>. You will:</p>
+            <ul>
+                <li>🛠️ <strong>Seal the Holes:</strong> Perform a deep-dive system update.</li>
+                <li>🔍 <strong>Audit Vulnerabilities:</strong> Check if your software "cracks" are visible.</li>
+                <li>🛡️ <strong>Apply the Checklist:</strong> Follow the 8-Point Professional Hardening Guide.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="slide-content">
+            <h2>🛠️ 2. Lab 1 — System Updates (Deep Dive)</h2>
+            <p>Updating isn't just about clicking a button. It's about ensuring <em>nothing</em> is left behind.</p>
+            
+            <div class="image-placeholder"> [IMAGE: Screenshot showing Windows Update Settings with "Check for Updates" highlighted] </div>
+
+            <p><strong>The Pro Routine:</strong></p>
+            <ol>
+                <li>Open <strong>Settings > Windows Update</strong>.</li>
+                <li>Click <strong>Check for updates</strong>.</li>
+                <li><strong>Crucial:</strong> Click "Advanced Options" > "Optional Updates." Check for <strong>Driver updates</strong> here. (Outdated drivers are a common hacker entry point!)</li>
+                <li>Install all and <strong>Restart</strong>.</li>
+            </ol>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="slide-content">
+            <h2>🔍 3. Lab 2 — Checking Patch Level</h2>
+            <p>A professional technician always verifies the work. You need to know exactly how "modern" your defense is.</p>
+            
+            <p><strong>Execution:</strong></p>
+            <ul>
+                <li>Type <code>winver</code> in the Start Menu and press Enter. </li>
+                <li><strong>Record your Version:</strong> (e.g., Version 22H2 or 23H2).</li>
+                <li>Check <strong>Update History</strong>: Look for any "Failed to install" messages. If an update fails, your system is still vulnerable!</li>
+            </ul>
+            <div class="pro-tip">
+                <strong>Why?</strong> If a hacker knows you are on Version 21H1, they can use an exploit from 2022 that hasn't been patched on your machine yet.
+            </div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="slide-content">
+            <h2>🛡️ 4. Lab 3 — Full Hardening Checklist (The Clean-up)</h2>
+            <p>Now we reduce the <strong>Attack Surface</strong>. If you don't use it, remove it!</p>
+            
+            <div class="check-item"><strong>Remove Bloatware:</strong> Go to "Add or Remove Programs." Uninstall games, trial software, and apps you don't use. Each one is a potential door for a hacker.</div>
+            <div class="check-item"><strong>Disable Startup Apps:</strong> Open Task Manager (Ctrl+Shift+Esc). Disable apps that don't need to start automatically.</div>
+            
+            <div class="image-placeholder"> [IMAGE: Task Manager showing the "Startup" tab and disabling unnecessary apps] </div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="slide-content">
+            <h2>🔐 4. Lab 3 — Full Hardening Checklist (The Locks)</h2>
+            <p>Configure the "Active" defenses of your machine.</p>
+
+            <div class="check-item"><strong>User Account Control (UAC):</strong> Set to "Always Notify." This stops apps from installing themselves without your permission.</div>
+            <div class="check-item"><strong>Screen Lock:</strong> Set your screen to lock after 2–5 minutes of inactivity. Physical security is cybersecurity!</div>
+            <div class="check-item"><strong>Privacy Settings:</strong> Disable "Advertising ID" and "Location" for apps that don't need it.</div>
+            <div class="check-item"><strong>Auto-Updates:</strong> Ensure "Pause updates" is NOT active.</div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="slide-content">
+            <h2>🧠 5. Security Reflection</h2>
+            <p>A technician doesn't just work; they think. Write down your thoughts on the following:</p>
+            <ul>
+                <li>📝 <strong>The Change:</strong> What was the most significant setting you changed today?</li>
+                <li>📝 <strong>The Surprise:</strong> Did you find any "bloatware" or failed updates you didn't know were there?</li>
+                <li>📝 <strong>The Truth:</strong> Honestly, before this class, would your computer have survived a professional scan?</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="slide-content">
+            <h2>📌 6. Assignment: HARDEN YOUR DEVICE</h2>
+            <p>This is your "Final Exam" for System Hardening. Perform these steps on your personal laptop or lab machine:</p>
+            
+            <div class="pro-tip">
+                <strong>Task:</strong> Create a 1-page "Hardening Report."
+            </div>
+            <ul>
+                <li>📸 <strong>Evidence:</strong> Take a screenshot of your "Windows is Up to Date" screen.</li>
+                <li>📸 <strong>Evidence:</strong> Take a screenshot of your Firewall status (Green).</li>
+                <li>📄 <strong>Report:</strong> List 3 apps you uninstalled and 2 settings you changed to improve security.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="slide-content">
+            <h2>🎯 End of Week 5 Outcome</h2>
+            <p>You have successfully completed the <strong>System Hardening Phase</strong>. You are now capable of:</p>
+            <div class="check-item" style="background: #e8f5e9;">Performing a full security audit on a Windows machine.</div>
+            <div class="check-item" style="background: #e8f5e9;">Managing patches and identifying "failed" security updates.</div>
+            <div class="check-item" style="background: #e8f5e9;">Reducing the attack surface by removing "digital clutter."</div>
+            <div class="check-item" style="background: #e8f5e9;">Creating a professional security report.</div>
+            
+            <h1 style="font-size: 2em; margin-top: 30px; color: var(--success-color);">YOU ARE NOW A SYSTEM DEFENDER!</h1>
+        </div>
+    </div>
+
+    <button class="nav-btn" id="prev-btn" onclick="changeSlide(-1)">PREVIOUS</button>
+    <button class="nav-btn" id="next-btn" onclick="changeSlide(1)">NEXT</button>
+
+</div>
+
+<script>
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.slide');
+
+    function showSlide(n) {
+        slides[currentSlide].classList.remove('active');
+        currentSlide = (n + slides.length) % slides.length;
+        slides[currentSlide].classList.add('active');
+    }
+
+    function changeSlide(n) {
+        showSlide(currentSlide + n);
+    }
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight') changeSlide(1);
+        if (e.key === 'ArrowLeft') changeSlide(-1);
+    });
+</script>
+
+</body>
+</html>

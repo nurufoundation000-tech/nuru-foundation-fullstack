@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cybersecurity Level 1 - Week 3: Router Fortress</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&family=Space+Mono&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #0070c0; 
+            --secondary-color: #d9534f; 
+            --tertiary-color: #5cb85c; 
+            --background-color: #f8f9fa; 
+            --text-color: #333333; 
+            --slide-bg: #ffffff; 
+            --highlight-bg: #e9ecef; 
+            --shadow-color: rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 16px;
+        }
+
+        .presentation-container {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .slide {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: opacity 0.6s ease-in-out, transform 0.6s ease-in-out;
+            padding: 5vh 10vw;
+            box-sizing: border-box;
+            background-color: var(--slide-bg);
+            border-left: 8px solid var(--primary-color);
+            box-shadow: 0 0 20px var(--shadow-color);
+        }
+
+        .slide.active {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .slide-content {
+            width: 100%;
+            max-width: 1100px;
+            text-align: left;
+            overflow-y: auto;
+            max-height: 90vh;
+        }
+
+        .slide h1, .slide h2 {
+            color: var(--primary-color);
+            padding-bottom: 10px;
+            margin-bottom: 25px;
+            font-weight: 700;
+        }
+        
+        .slide h1 { font-size: 3.5em; }
+        .slide h2 { font-size: 2.2em; border-bottom: 4px dashed var(--highlight-bg); }
+
+        .slide p { line-height: 1.7; margin-bottom: 15px; font-size: 1.15em; }
+        .slide ul { list-style-type: none; padding: 0; }
+        .slide li {
+            background: var(--highlight-bg);
+            margin-bottom: 12px;
+            padding: 15px 20px;
+            border-left: 6px solid var(--tertiary-color);
+            font-size: 1.1em;
+            border-radius: 5px;
+            display: flex;
+            align-items: flex-start;
+        }
+        
+        .slide li strong { color: var(--primary-color); margin-right: 10px; }
+
+        .title-slide { text-align: center; }
+        .title-slide h1 { font-size: 5em; color: var(--text-color); }
+        .title-slide p { font-size: 1.8em; color: var(--primary-color); font-weight: 300; }
+
+        .key-concept {
+            padding: 25px;
+            background-color: #f2f7ff;
+            border-radius: 10px;
+            margin-top: 25px;
+            border: 1px solid #cce5ff;
+            border-left: 8px solid var(--primary-color);
+        }
+
+        .example-box {
+            background-color: #fff3cd;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            font-family: 'Space Mono', monospace;
+            border: 2px solid #ffeeba;
+            color: #856404;
+        }
+
+        .nav-arrow {
+            position: fixed;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 3em;
+            color: var(--primary-color);
+            cursor: pointer;
+            padding: 15px;
+            z-index: 10;
+            background: rgba(255, 255, 255, 0.7);
+            border: 1px solid var(--primary-color);
+            border-radius: 50%;
+            line-height: 0.5;
+            transition: 0.3s;
+        }
+
+        .nav-arrow:hover { background: var(--primary-color); color: var(--slide-bg); }
+        #prev-slide { left: 20px; }
+        #next-slide { right: 20px; }
+
+        .slide-footer {
+            position: fixed;
+            bottom: 10px;
+            right: 20px;
+            font-size: 1em;
+            color: #6c757d;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+
+        .image-placeholder { width: 100%; margin: 20px 0; border-radius: 8px; overflow: hidden; }
+        .image-placeholder img { max-width: 100%; height: auto; display: block; border: 1px solid #ddd; }
+
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th { background-color: var(--primary-color); color: white; padding: 12px; text-align: left; }
+        td { padding: 12px; border: 1px solid #ddd; }
+
+        @media (max-width: 768px) {
+            .slide h1 { font-size: 2.5em; }
+            .nav-arrow { font-size: 2em; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="presentation-container">
+
+    <div class="slide title-slide active" id="slide-1">
+        <div class="slide-content">
+            <h1>ROUTER FORTRESS</h1>
+            <p class="subtitle">WEEK 3 – CLASS 2</p>
+            <p><strong>Building Your First Secure Network</strong></p>
+            <hr style="width: 50%; border-color: var(--primary-color); margin-top: 30px;">
+            <p style="margin-top: 50px; color: var(--text-color);">
+                <span style="font-size: 1.2em;"><strong>🏰 Maca's Digital Defense</strong></span><br>
+                Today, we help Maca's family transform their home router from a simple device into an unbreakable fortress.
+            </p>
+        </div>
+    </div>
+
+    <div class="slide" id="slide-2">
+        <div class="slide-content">
+            <h2>⭐ Today's Mission</h2>
+            <p>Today, you become a <strong>Network Architect</strong>. This isn't just about clicking buttons—you're building security that protects Maca's family from real-world threats.</p>
+            
+            <div class="key-concept">
+                <p><strong>By the end of this class, you will:</strong></p>
+                <ul>
+                    <li>Understand how to enter the router's "Command Center."</li>
+                    <li>Apply enterprise-level security to a home environment.</li>
+                    <li>Configure firewalls, guest networks, and strong encryption.</li>
+                </ul>
+            </div>
+            <p style="color: var(--secondary-color); font-weight: bold; margin-top: 20px;">
+                ⚠️ SAFETY NOTE: Use simulators for practice. Never experiment on a live production network!
+            </p>
+        </div>
+    </div>
+
+    <div class="slide" id="slide-3">
+        <div class="slide-content">
+            <h2>1. Accessing the Control Panel</h2>
+            <p>To secure Maca's network, we first need to find the "Default Gateway"—the router's home address.</p>
+            
+            
+
+            <div class="example-box">
+                <strong>How to find it:</strong><br>
+                Windows: Type <code>ipconfig</code> in Command Prompt.<br>
+                Mac/Linux: Type <code>ifconfig</code> in Terminal.
+            </div>
+
+            <p><strong>Common Gateways:</strong> 192.168.0.1, 192.168.1.1, 10.0.0.1</p>
+        </div>
+    </div>
+
+    <div class="slide" id="slide-4">
+        <div class="slide-content">
+            <h2>Step-by-Step Access</h2>
+            <p>Maca opens his browser and enters the Gateway IP. Now, he faces the login screen.</p>
+            
+            <ul>
+                <li><strong>1. Open Browser:</strong> Enter the IP in the URL bar.</li>
+                <li><strong>2. Login Prompt:</strong> Routers ship with "Public Knowledge" passwords.</li>
+            </ul>
+
+            <div class="example-box">
+                <strong>Dangerous Default Credentials:</strong><br>
+                Username: <code>admin</code> / Password: <code>admin</code><br>
+                Username: <code>admin</code> / Password: <code>password</code>
+            </div>
+            <p style="color: var(--secondary-color);">If these aren't changed, Maca's network is open to anyone!</p>
+        </div>
+    </div>
+
+    <div class="slide" id="slide-5">
+        <div class="slide-content">
+            <h2>🛡️ Config 1 & 2: The Foundation</h2>
+            
+            <li style="border-left-color: var(--primary-color);">
+                <strong>1. Change Admin Credentials:</strong> Replace the factory password with something unique.<br>
+                <em>Example:</em> <code>Router!Fortress@2024#Secure</code>
+            </li>
+
+            <li style="border-left-color: var(--primary-color);">
+                <strong>2. Update Firmware:</strong> Think of this as the router's "Vaccine." It patches security holes.<br>
+                <em>Pro Tip:</em> Always backup settings before updating firmware!
+            </li>
+
+            
+        </div>
+    </div>
+
+    <div class="slide" id="slide-6">
+        <div class="slide-content">
+            <h2>🛡️ Config 3: Wi-Fi Shielding</h2>
+            <p>Maca’s kids need Wi-Fi, but it must be encrypted. Here is how we choose:</p>
+
+            <table>
+                <tr>
+                    <th>Setting</th>
+                    <th>Secure Choice</th>
+                    <th>Why?</th>
+                </tr>
+                <tr>
+                    <td>SSID Name</td>
+                    <td>HiddenVortex (No names!)</td>
+                    <td>Prevents targeted attacks.</td>
+                </tr>
+                <tr>
+                    <td>Encryption</td>
+                    <td><strong>WPA3</strong> or WPA2 (AES)</td>
+                    <td>WEP is crackable in minutes.</td>
+                </tr>
+                <tr>
+                    <td>Password</td>
+                    <td>12+ Characters</td>
+                    <td>Resists brute-force guessing.</td>
+                </tr>
+                <tr>
+                    <td>WPS</td>
+                    <td><strong>DISABLE</strong></td>
+                    <td>WPS has massive security flaws.</td>
+                </tr>
+            </table>
+            
+            
+        </div>
+    </div>
+
+    <div class="slide" id="slide-7">
+        <div class="slide-content">
+            <h2>🛡️ Config 4: The Firewall Guard</h2>
+            <p>The firewall acts as Maca's digital security guard, checking every "visitor" (data packet) at the door.</p>
+            
+            <ul>
+                <li><strong>✅ SPI Firewall:</strong> Only allows traffic you specifically asked for.</li>
+                <li><strong>✅ DoS Protection:</strong> Prevents attackers from "flooding" and crashing Maca's internet.</li>
+                <li><strong>✅ Block WAN Ping:</strong> Makes the router "invisible" to hackers scanning the web.</li>
+            </ul>
+
+            
+        </div>
+    </div>
+
+    <div class="slide" id="slide-8">
+        <div class="slide-content">
+            <h2>🛡️ Config 5: Guest Isolation</h2>
+            <p>When Maca has visitors, he shouldn't give them his main password. Why?</p>
+            
+            <div class="key-concept">
+                <strong>The "Guest House" Strategy:</strong>
+                <p>Creating a Guest Network isolates visitors. If a visitor's phone has malware, it cannot "jump" to Maca's private family computers.</p>
+            </div>
+
+            
+
+            <p><strong>Check:</strong> Ensure "AP Isolation" is enabled so guests can't see each other either.</p>
+        </div>
+    </div>
+
+    <div class="slide" id="slide-9">
+        <div class="slide-content">
+            <h2>🌐 Practical 3: The Lab</h2>
+            <p>Since we are professionals, we use safe environments to practice our skills.</p>
+            
+            <div style="display: flex; gap: 20px;">
+                <div style="flex: 1; background: #e3f2fd; padding: 15px; border-radius: 8px;">
+                    <h3>Cisco Simulator</h3>
+                    <p>Practice Wi-Fi security and admin password changes.</p>
+                </div>
+                <div style="flex: 1; background: #e8f5e9; padding: 15px; border-radius: 8px;">
+                    <h3>TP-Link Demo</h3>
+                    <p>Practice Guest Network setup and MAC filtering.</p>
+                </div>
+            </div>
+
+            <p style="margin-top: 20px;"><strong>Task:</strong> Configure a router in a simulator, enable the firewall, and take a screenshot for your report.</p>
+        </div>
+    </div>
+
+    <div class="slide" id="slide-10">
+        <div class="slide-content">
+            <h2>⚠️ Real-World Attack Scenario</h2>
+            <p>A hacker finds Maca's router on <strong>Shodan.io</strong>. They try the default password <code>admin</code>.</p>
+            
+            <div class="example-box" style="background-color: #fce8e8; color: #a94442; border-color: #ebccd1;">
+                <strong>If Maca Fails:</strong> Hacker redirects traffic -> Captures bank logins -> Installs ransomware.
+            </div>
+
+            <div class="example-box" style="background-color: #dff0d8; color: #3c763d; border-color: #d6e9c6;">
+                <strong>If Maca Succeeds:</strong> Hacker finds a closed door -> Moves to an easier target.
+            </div>
+        </div>
+    </div>
+
+    <div class="slide" id="slide-11">
+        <div class="slide-content">
+            <h2>📝 Mini Lab Assignment</h2>
+            <p>Maca needs a final report. Complete these sections based on your lab work:</p>
+            
+            <ul>
+                <li><strong>Part A: Documentation:</strong> List the router model and encryption level you chose.</li>
+                <li><strong>Part B: Security Justification:</strong> Explain <em>why</em> you disabled WPS and enabled the SPI Firewall.</li>
+                <li><strong>Part C: Risk Assessment:</strong> List 3 things that could still go wrong (e.g., physical theft of the router).</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="slide" id="slide-12">
+        <div class="slide-content" style="text-align: center;">
+            <h2>🛡️ SECURITY MINDSET</h2>
+            <p style="font-size: 1.5em; color: var(--tertiary-color);">"A secure router isn't just configured—it's maintained."</p>
+            
+            <div class="key-concept">
+                <p>You've done what 90% of home users never do. You've protected the gateway. Maca's family is now safer because of your work.</p>
+            </div>
+
+            <p style="margin-top: 50px; font-weight: bold; color: var(--primary-color);">NEXT CLASS: Wireless Security Analysis - How hackers try to break what you just built!</p>
+            <h1>END OF CLASS 2</h1>
+        </div>
+    </div>
+
+    <div id="prev-slide" class="nav-arrow" onclick="changeSlide(-1)">&#10094;</div>
+    <div id="next-slide" class="nav-arrow" onclick="changeSlide(1)">&#10095;</div>
+    <div class="slide-footer">Slide <span id="current-slide-num">1</span> of <span id="total-slides-num">12</span></div>
+
+</div>
+
+<script>
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.slide');
+    const totalSlides = slides.length;
+    document.getElementById('total-slides-num').textContent = totalSlides;
+
+    function showSlide(index) {
+        if (index >= totalSlides) index = 0;
+        else if (index < 0) index = totalSlides - 1;
+        
+        slides.forEach((slide) => slide.classList.remove('active'));
+        slides[index].classList.add('active');
+        currentSlide = index;
+        document.getElementById('current-slide-num').textContent = currentSlide + 1;
+    }
+
+    function changeSlide(n) { showSlide(currentSlide + n); }
+    showSlide(currentSlide);
+    
+    document.addEventListener('keydown', function(event) {
+        if (event.key === "ArrowRight" || event.key === " ") changeSlide(1);
+        else if (event.key === "ArrowLeft") changeSlide(-1);
+    });
+</script>
+</body>
+</html>

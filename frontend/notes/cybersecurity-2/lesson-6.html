@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cybersecurity Level 2 – SSH & Log Analysis | Class 3</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,600;14..32,700&family=Source+Code+Pro:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-deep: #050a14;
+            --bg-card: #0c1122;
+            --bg-elevated: #111827;
+            --primary: #00e5ff;
+            --primary-dim: rgba(0, 229, 255, 0.2);
+            --success: #2ecc71;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --text-main: #edf2f8;
+            --text-muted: #94a3b8;
+            --border-subtle: #1e2a3a;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: radial-gradient(ellipse at 30% 20%, #0f172a, #020617 80%);
+            color: var(--text-main);
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .presentation-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        .slide {
+            position: absolute;
+            inset: 0;
+            padding: 4vh 6vw;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transform: translateX(40px) scale(0.98);
+            transition: opacity 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1), transform 0.4s ease;
+            pointer-events: none;
+            overflow-y: auto;
+        }
+
+        .slide.active {
+            opacity: 1;
+            transform: translateX(0) scale(1);
+            pointer-events: auto;
+        }
+
+        .slide::-webkit-scrollbar {
+            width: 5px;
+        }
+        .slide::-webkit-scrollbar-track {
+            background: var(--bg-card);
+        }
+        .slide::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 10px;
+        }
+
+        /* .slide-content {
+            max-width: 1280px;
+            width: 100%;
+            margin: 0 auto;
+            background: rgba(5, 10, 20, 0.75);
+            backdrop-filter: blur(6px);
+            border-radius: 32px;
+            padding: 2rem 2.2rem;
+            border: 1px solid rgba(0, 229, 255, 0.2);
+            box-shadow: 0 25px 40px -12px rgba(0, 0, 0, 0.6);
+        } */
+
+        h1 {
+            font-size: 2.8rem;
+            font-weight: 700;
+            background: linear-gradient(120deg, #fff, var(--primary), #a0f0ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: -0.02em;
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            border-left: 5px solid var(--primary);
+            padding-left: 1rem;
+            margin: 1.2rem 0 1rem 0;
+            color: var(--primary);
+        }
+
+        h3 {
+            font-size: 1.3rem;
+            font-weight: 500;
+            margin: 1.2rem 0 0.6rem 0;
+            color: var(--success);
+        }
+
+        p {
+            line-height: 1.65;
+            color: var(--text-muted);
+            margin: 0.75rem 0;
+            font-size: 1rem;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--primary-dim);
+            border: 1px solid var(--primary);
+            border-radius: 40px;
+            padding: 4px 16px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            margin: 1.2rem 0;
+        }
+
+        .card {
+            background: linear-gradient(145deg, rgba(12, 17, 34, 0.9), rgba(8, 12, 24, 0.95));
+            border-radius: 20px;
+            padding: 1.3rem;
+            border: 1px solid rgba(0, 229, 255, 0.15);
+            transition: all 0.2s;
+        }
+        .card:hover {
+            border-color: var(--primary);
+            box-shadow: 0 5px 18px rgba(0, 229, 255, 0.1);
+        }
+
+        .card-header {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--primary);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .code-block {
+            background: #0a0e1a;
+            border-radius: 18px;
+            padding: 1rem 1.2rem;
+            font-family: 'Source Code Pro', monospace;
+            font-size: 0.85rem;
+            border: 1px solid #1e2a3a;
+            margin: 1rem 0;
+            overflow-x: auto;
+        }
+        .code-line {
+            color: #cbd5e6;
+            line-height: 1.5;
+        }
+        .cmd {
+            color: var(--primary);
+        }
+        .comment {
+            color: #6c8faa;
+        }
+        .danger-text {
+            color: var(--danger);
+        }
+
+        .step-list {
+            list-style: none;
+            padding-left: 0;
+        }
+        .step-list li {
+            margin-bottom: 12px;
+            padding-left: 26px;
+            position: relative;
+            color: var(--text-muted);
+        }
+        .step-list li::before {
+            content: "▹";
+            position: absolute;
+            left: 4px;
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        .outcome-box {
+            background: rgba(46, 204, 113, 0.08);
+            border-left: 3px solid var(--success);
+            border-radius: 18px;
+            padding: 1.2rem;
+            margin: 1.5rem 0;
+        }
+
+        .inline-code {
+            font-family: 'Source Code Pro', monospace;
+            background: #0f172a;
+            padding: 2px 8px;
+            border-radius: 8px;
+            color: var(--primary);
+            font-size: 0.85rem;
+            border: 1px solid #253445;
+        }
+
+        .observe-box {
+            background: rgba(243, 156, 18, 0.08);
+            border-left: 3px solid var(--warning);
+            border-radius: 18px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+
+        .nav-arrow {
+            position: fixed;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 48px;
+            height: 48px;
+            background: rgba(12, 17, 34, 0.9);
+            border: 1px solid var(--primary);
+            border-radius: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: var(--primary);
+            cursor: pointer;
+            transition: 0.2s;
+            z-index: 30;
+            backdrop-filter: blur(8px);
+        }
+        .nav-arrow:hover {
+            background: var(--primary);
+            color: #020617;
+            transform: translateY(-50%) scale(1.05);
+        }
+        #prev-slide { left: 20px; }
+        #next-slide { right: 20px; }
+
+        .slide-footer {
+            position: fixed;
+            bottom: 12px;
+            right: 24px;
+            background: rgba(5, 10, 20, 0.85);
+            padding: 4px 14px;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            font-family: monospace;
+            border: 1px solid var(--primary-dim);
+            z-index: 30;
+        }
+        .progress-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--success));
+            width: 0%;
+            transition: width 0.3s;
+            z-index: 40;
+        }
+        .title-slide .slide-content {
+            text-align: center;
+        }
+        @media (max-width: 800px) {
+            .slide { padding: 1.5rem; }
+            .grid-2 { grid-template-columns: 1fr; }
+            h1 { font-size: 2rem; }
+            h2 { font-size: 1.4rem; }
+            .nav-arrow { width: 38px; height: 38px; font-size: 1.3rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="presentation-container">
+
+    <!-- SLIDE 1: TITLE -->
+    <div class="slide title-slide active" id="slide-1">
+        <div class="slide-content">
+            <!-- <div class="badge">🔐 CYBERSECURITY LEVEL 2 · WEEK 2 · CLASS 3</div> -->
+            <h1>SSH & Log Analysis</h1>
+            <p style="font-size: 1.2rem; color: var(--success); margin-top: 0.5rem;"> Objective: Connect to remote systems and analyze logs</p>
+            <p style="max-width: 700px; margin: 1rem auto;">Remote access is a core skill. Log analysis turns raw data into threat intelligence.</p>
+            <div class="code-block" style="margin-top: 1.8rem; text-align: left;">
+                <div class="code-line"><span class="comment"># Every connection leaves a trace. Every trace tells a story.</span></div>
+                <div class="code-line"><span class="cmd">$></span> ssh analyst@target && grep "Failed" /var/log/auth.log</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 2: SSH CONNECTION LAB -->
+    <div class="slide" id="slide-2">
+        <div class="slide-content">
+            <h2>🔧 Lab 1: SSH Connection</h2>
+            <p>SSH (Secure Shell) is the standard protocol for encrypted remote administration. It replaces older, insecure protocols like Telnet and rlogin.</p>
+            
+            <div class="card" style="margin-bottom: 1rem;">
+                <div class="card-header">📡 Basic SSH Command</div>
+                <div class="code-block">
+                    <div class="code-line"><span class="cmd">ssh user@target_ip</span></div>
+                </div>
+                <p><span class="inline-code">user</span> = the account you want to connect as on the remote machine.<br>
+                <span class="inline-code">target_ip</span> = IP address or hostname of the remote system.</p>
+            </div>
+
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-header">🔐 What happens behind the scenes?</div>
+                    <ul class="step-list">
+                        <li>Client and server negotiate encryption algorithms</li>
+                        <li>Server presents its host key (fingerprint)</li>
+                        <li>Client verifies the key (first connection prompts for acceptance)</li>
+                        <li>User authentication (password or SSH key)</li>
+                        <li>Encrypted session established</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <div class="card-header">📌 Expected Result</div>
+                    <div class="outcome-box" style="margin-top: 0.5rem; padding: 0.8rem;">
+                        ✅ <strong>Remote access to another machine</strong><br>
+                        After successful authentication, you'll see the remote machine's shell prompt. Every command you type now runs on the remote system.
+                    </div>
+                </div>
+            </div>
+
+            <div class="observe-box">
+                <strong>⚠️ First-time connection warning:</strong><br>
+                <span class="inline-code">The authenticity of host '192.168.1.10' can't be established.</span><br>
+                This is normal — verify the fingerprint out-of-band if security is critical.
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 3: LOG ANALYSIS - VIEWING AUTH LOGS -->
+    <div class="slide" id="slide-3">
+        <div class="slide-content">
+            <h2>🔧 Lab 2: Log Analysis</h2>
+            <p>System logs are the silent witnesses of everything that happens on a Linux machine. <span class="inline-code">/var/log/auth.log</span> records authentication-related events.</p>
+
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-header">📄 View login attempts</div>
+                    <div class="code-block">
+                        <div class="code-line"><span class="cmd">cat /var/log/auth.log</span></div>
+                    </div>
+                    <p>Shows the entire authentication log. Can be long — use <span class="inline-code">less</span> or <span class="inline-code">tail</span> for easier reading.</p>
+                    <div class="code-block" style="margin-top: 8px;">
+                        <div class="code-line"><span class="cmd">tail -50 /var/log/auth.log</span>  <span class="comment"># last 50 lines</span></div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">🔍 Search failed logins</div>
+                    <div class="code-block">
+                        <div class="code-line"><span class="cmd">grep "failed" /var/log/auth.log</span></div>
+                    </div>
+                    <p><span class="inline-code">grep</span> filters lines containing the word "failed". Case-sensitive, so "Failed" vs "failed" matters — try both.</p>
+                    <div class="code-block" style="margin-top: 8px;">
+                        <div class="code-line"><span class="cmd">grep -i "failed" /var/log/auth.log</span>  <span class="comment"># case-insensitive</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="observe-box">
+                <div class="card-header" style="margin-bottom: 8px;">👁️ What to Observe</div>
+                <ul class="step-list">
+                    <li><strong>Failed login attempts</strong> — entries with "Failed password" indicate authentication failures</li>
+                    <li><strong>Repeated login failures</strong> — many failures from the same IP suggests brute force</li>
+                    <li><strong>Unknown IP addresses</strong> — connections from unexpected geolocations or networks</li>
+                    <li><strong>Successful logins at odd hours</strong> — potential unauthorized access</li>
+                    <li><strong>Invalid users</strong> — attempts to log in as 'admin', 'root', 'test' (enumeration)</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 4: ADVANCED LOG ANALYSIS TECHNIQUES -->
+    <div class="slide" id="slide-4">
+        <div class="slide-content">
+            <h2>🔍 Digging Deeper into Logs</h2>
+            <p>Real-world analysis requires combining commands to extract meaningful intelligence.</p>
+
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-header">📊 Count failed attempts per IP</div>
+                    <div class="code-block">
+                        <div class="code-line"><span class="cmd">grep "Failed password" /var/log/auth.log | awk '{print $(NF-3)}' | sort | uniq -c | sort -rn</span></div>
+                    </div>
+                    <p>This pipeline: filters failures → extracts IP addresses → counts unique occurrences → sorts by highest count.</p>
+                </div>
+                <div class="card">
+                    <div class="card-header">📅 Failed logins by date</div>
+                    <div class="code-block">
+                        <div class="code-line"><span class="cmd">grep "Failed password" /var/log/auth.log | awk '{print $1, $2, $3}' | sort | uniq -c</span></div>
+                    </div>
+                    <p>Shows which days had the most authentication failures — helpful for identifying attack timing.</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">📂 Other important log files</div>
+                <ul class="step-list">
+                    <li><span class="inline-code">/var/log/syslog</span> — general system messages</li>
+                    <li><span class="inline-code">/var/log/kern.log</span> — kernel events (hardware, drivers, security modules)</li>
+                    <li><span class="inline-code">/var/log/btmp</span> — failed login attempts (binary format, use <span class="inline-code">lastb</span> command)</li>
+                    <li><span class="inline-code">/var/log/wtmp</span> — login history (use <span class="inline-code">last</span> command)</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 5: OUTCOME -->
+    <div class="slide" id="slide-5">
+        <div class="slide-content">
+            <h2>🧾 Outcome</h2>
+            <div class="outcome-box">
+                <ul class="step-list" style="margin-bottom: 0;">
+                    <li>✅ <strong>Ability to access remote systems</strong> — you can now securely connect to servers, VMs, and network devices using SSH.</li>
+                    <li>✅ <strong>Ability to detect suspicious login activity</strong> — you understand where authentication logs live and how to extract evidence of attacks.</li>
+                    <li>✅ <strong>Practical log analysis workflow</strong> — from viewing raw logs to filtering, counting, and identifying patterns.</li>
+                </ul>
+            </div>
+            <div class="card" style="margin-top: 1rem;">
+                <div class="card-header">🎯 Real-world application</div>
+                <p>These skills translate directly to:</p>
+                <ul class="step-list">
+                    <li>Incident response — checking for unauthorized SSH access after a breach alert</li>
+                    <li>Security monitoring — setting up log watches for brute force detection</li>
+                    <li>Forensics — reconstructing attacker activity from authentication logs</li>
+                    <li>System administration — troubleshooting access issues for legitimate users</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 6: ASSIGNMENT -->
+    <div class="slide" id="slide-6">
+        <div class="slide-content">
+            <h2>📝 Assignment</h2>
+            <p style="margin-bottom: 1rem;"><strong>📌 Task:</strong> Create a Bash script and analyze system logs</p>
+
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-header">📄 Requirements</div>
+                    <ul class="step-list">
+                        <li><strong>1. Create a script</strong> that:
+                            <ul style="margin-top: 5px; margin-left: 20px;">
+                                <li>Displays system information (hostname, OS version)</li>
+                                <li>Lists files in current directory</li>
+                                <li>Shows current user</li>
+                            </ul>
+                        </li>
+                        <li><strong>2. Analyze /var/log/auth.log</strong> — find failed login attempts</li>
+                        <li><strong>3. Write a report</strong> including:
+                            <ul style="margin-top: 5px; margin-left: 20px;">
+                                <li>Script explanation (what each line does)</li>
+                                <li>Log findings (how many failures, from which IPs)</li>
+                                <li>Suspicious activity (if any — describe what you see)</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <div class="card-header">🎯 Focus Areas</div>
+                    <ul class="step-list">
+                        <li>✓ Proper script structure (shebang, comments, executable)</li>
+                        <li>✓ Clear explanation (demonstrate understanding, not just commands)</li>
+                        <li>✓ Understanding of system behavior (what do logs reveal about normal vs. malicious?)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="outcome-box" style="margin-top: 0.5rem;">
+                <strong>📤 Deliverable format:</strong> A single document containing:
+                <ol style="margin-left: 1.5rem; margin-top: 0.5rem; color: var(--text-muted);">
+                    <li>The full content of your Bash script</li>
+                    <li>Screenshot or text output of running the script</li>
+                    <li>The <span class="inline-code">grep</span> command you used and its output</li>
+                    <li>A short paragraph analyzing any suspicious patterns (or confirming no suspicious activity found)</li>
+                </ol>
+            </div>
+            <p style="text-align: center; margin-top: 1.5rem; font-family: monospace; color: var(--primary);">END OF CLASS 3 – SSH & LOG ANALYSIS</p>
+        </div>
+    </div>
+
+    <!-- NAVIGATION -->
+    <div id="prev-slide" class="nav-arrow" onclick="changeSlide(-1)">‹</div>
+    <div id="next-slide" class="nav-arrow" onclick="changeSlide(1)">›</div>
+    <div class="slide-footer">
+        <span id="current-slide-num">1</span> / <span id="total-slides-num">6</span>
+    </div>
+    <div class="progress-bar" id="progress-bar"></div>
+</div>
+
+<script>
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.slide');
+    const total = slides.length;
+    const currentSpan = document.getElementById('current-slide-num');
+    const totalSpan = document.getElementById('total-slides-num');
+    const progressFill = document.getElementById('progress-bar');
+    totalSpan.textContent = total;
+
+    function showSlide(index) {
+        if (index >= total) index = 0;
+        if (index < 0) index = total - 1;
+        slides.forEach(s => s.classList.remove('active'));
+        slides[index].classList.add('active');
+        currentSlide = index;
+        currentSpan.textContent = currentSlide + 1;
+        const percent = ((currentSlide + 1) / total) * 100;
+        progressFill.style.width = percent + '%';
+    }
+    function changeSlide(step) {
+        showSlide(currentSlide + step);
+    }
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight' || e.key === ' ') {
+            e.preventDefault();
+            changeSlide(1);
+        } else if (e.key === 'ArrowLeft') {
+            e.preventDefault();
+            changeSlide(-1);
+        }
+    });
+    showSlide(0);
+</script>
+</body>
+</html>

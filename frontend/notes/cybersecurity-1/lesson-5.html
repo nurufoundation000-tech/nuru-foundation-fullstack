@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cybersecurity Level 1 - Week 2: Network Detective</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&family=Space+Mono&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #0070c0; 
+            --secondary-color: #d9534f; 
+            --tertiary-color: #5cb85c; 
+            --background-color: #f8f9fa; 
+            --text-color: #333333; 
+            --slide-bg: #ffffff; 
+            --highlight-bg: #e9ecef; 
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            --terminal-bg: #1e1e1e;
+            --terminal-text: #00ff00;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .presentation-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        .slide {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.6s ease-in-out;
+            padding: 5vh 10vw;
+            box-sizing: border-box;
+            background-color: var(--slide-bg);
+            border-left: 10px solid var(--primary-color);
+        }
+
+        .slide.active {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .slide-content {
+            width: 100%;
+            max-width: 1100px;
+            text-align: left;
+            overflow-y: auto;
+            max-height: 90vh;
+        }
+
+        h1 { font-size: 3.2em; color: var(--text-color); margin-bottom: 10px; }
+        h2 { font-size: 2em; color: var(--primary-color); border-bottom: 2px solid var(--highlight-bg); padding-bottom: 10px; margin-top: 0;}
+        h3 { color: var(--secondary-color); margin-top: 15px; font-size: 1.4em;}
+        
+        p { line-height: 1.6; font-size: 1.1em; }
+
+        /* Terminal Style for Commands */
+        .terminal {
+            background: var(--terminal-bg);
+            color: var(--terminal-text);
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Space Mono', monospace;
+            font-size: 1.1em;
+            margin: 15px 0;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            position: relative;
+        }
+        .terminal::before {
+            content: "Terminal / Command Prompt";
+            display: block;
+            color: #888;
+            font-size: 0.7em;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #444;
+        }
+
+        /* Task Boxes */
+        .task-box {
+            border: 2px dashed var(--primary-color);
+            background: #f0f7ff;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+        }
+
+        /* Lists */
+        .slide ul { list-style: none; padding: 0; }
+        .slide li { 
+            background: var(--highlight-bg); 
+            margin: 8px 0; 
+            padding: 10px 15px; 
+            border-left: 5px solid var(--tertiary-color);
+            border-radius: 4px;
+        }
+
+        /* Nav Arrows */
+        .nav-arrow {
+            position: fixed; top: 50%; transform: translateY(-50%);
+            font-size: 2.5em; color: var(--primary-color);
+            cursor: pointer; padding: 20px; z-index: 100;
+            background: rgba(255,255,255,0.8); border-radius: 50%;
+            transition: 0.3s;
+        }
+        .nav-arrow:hover { background: var(--primary-color); color: white; }
+        #prev { left: 20px; }
+        #next { right: 20px; }
+
+        .footer {
+            position: fixed; bottom: 15px; right: 25px;
+            font-size: 0.9em; color: #777;
+        }
+    </style>
+</head>
+<body>
+
+<div class="presentation-container">
+
+    <div class="slide active">
+        <div class="slide-content" style="text-align:center;">
+            <h1>BECOMING A NETWORK DETECTIVE</h1>
+            <p style="font-size:1.5em; color:var(--primary-color);">Week 2 — Class 2 (Practical Session)</p>
+            <div style="margin-top:40px; padding:30px; background:#e3f2fd; border-radius:10px; border-left: 10px solid var(--primary-color);">
+                <p><strong>⭐ Today's Mission:</strong> You will discover your own digital footprints, trace connections across the globe, and map your digital neighborhood. This isn't theory—it's investigation.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="slide-content">
+            <h2>1. Discovering Your Digital Identity</h2>
+            <p>Every device on a network leaves traces. These three pieces of information form your <strong>Network Fingerprint</strong>:</p>
+            <ul>
+                <li><strong>IPv4 Address:</strong> Your specific location in the network.</li>
+                <li><strong>MAC Address (Physical Address):</strong> Your device's permanent, unique ID.</li>
+                <li><strong>Default Gateway:</strong> The address of your router (your door to the internet).</li>
+            </ul>
+            
+            <div class="terminal">
+                C:\Users\Maca> ipconfig
+            </div>
+            <p><strong>Step:</strong> Open CMD (Windows) or Terminal (Mac/Linux) and find these three values.</p>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="slide-content">
+            <h2>2. Network Tools: The Echo Test (ping)</h2>
+            <p><strong>Ping</strong> checks if a device is reachable. It sends a small packet and waits for a reply.</p>
+            
+            <div class="terminal">
+                C:\Users\Maca> ping google.com<br>
+                C:\Users\Maca> ping 8.8.8.8
+            </div>
+            <div style="display:flex; gap:20px;">
+                <div style="flex:1; background:#e8f5e9; padding:15px; border-radius:8px;">
+                    <h4 style="color:var(--tertiary-color);">✅ Reply Received</h4>
+                    <p style="font-size:0.9em;">The device is alive, online, and reachable.</p>
+                </div>
+                <div style="flex:1; background:#ffebee; padding:15px; border-radius:8px;">
+                    <h4 style="color:var(--secondary-color);">❌ Request Timed Out</h4>
+                    <p style="font-size:0.9em;">The device is offline or has a firewall blocking you.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="slide-content">
+            <h2>3. Tracing the Path (tracert)</h2>
+            <p><strong>Tracert</strong> (Windows) or <strong>Traceroute</strong> (Mac) shows every "hop" your data takes to reach a destination.</p>
+            <div class="terminal">
+                C:\Users\Maca> tracert google.com
+            </div>
+            
+            <p><strong>Insight:</strong> Your data doesn't go straight to Google. It travels through your router, your ISP, sub-sea cables, and multiple cities before it arrives!</p>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="slide-content">
+            <h2>4. NSLookup: The Phonebook</h2>
+            <p>Every website has an IP address. <strong>NSLookup</strong> helps you find it.</p>
+            <div class="terminal">
+                C:\Users\Maca> nslookup facebook.com
+            </div>
+            <div class="task-box">
+                <p><strong>Security Insight:</strong> Before launching an attack, hackers use this tool to gather intelligence. They need to know the IP address of the server they are targeting.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="slide-content">
+            <h2>5. Creating Your First Network Map</h2>
+            <p>A <strong>Network Map</strong> is a blueprint. It helps you see every device that could be a "weak link" in your security.</p>
+            
+            <div style="background:#f1f1f1; padding:20px; border-radius:10px; font-family:'Space Mono'; font-size:0.9em;">
+                [Internet] -> [Router 192.168.1.1]<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;├── Laptop (Strong Password ✓)<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;├── Phone (Regular Updates ✓)<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;└── Smart TV (Default Password ❌ RISK!)
+            </div>
+            <p style="margin-top:15px;"><strong>Identify Risks:</strong> Look for devices with default passwords, old software (firmware), or devices you don't recognize.</p>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="slide-content">
+            <h2>6. Seeing Through the Hacker's Eyes</h2>
+            <p>Before a hacker attacks, they do <strong>Reconnaissance</strong> (Information Gathering).</p>
+            <ul>
+                <li><strong>Public IP:</strong> Tells them your ISP and your general city/location.</li>
+                <li><strong>Trace Path:</strong> Tells them which network companies are handling your data.</li>
+                <li><strong>Device List:</strong> Tells them which device is the easiest to break into.</li>
+            </ul>
+            <p><strong>Exercise:</strong> Visit <strong>whatismyipaddress.com</strong> and see how much information is visible to the world right now.</p>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="slide-content">
+            <h2>✅ Network Detective Checklist</h2>
+            <p>Ensure you can confidently do the following:</p>
+            <ul style="column-count: 2;">
+                <li>I know my Private IP and MAC.</li>
+                <li>I can identify my Gateway.</li>
+                <li>I can test connections (Ping).</li>
+                <li>I can find Website IPs (NSLookup).</li>
+                <li>I can trace data hops (Tracert).</li>
+                <li>I understand my Public IP info.</li>
+                <li>I have mapped my home devices.</li>
+                <li>I can spot a security risk on a map.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="slide-content">
+            <h2>📝 Mini Assignment (5 Marks)</h2>
+            <div class="task-box" style="border-color: var(--secondary-color);">
+                <p><strong>1. Network Info Sheet:</strong> Write down your Private IP, MAC, Gateway, and Public IP.</p>
+                <p><strong>2. Traceroute Analysis:</strong> Run <code>tracert google.com</code>. How many hops did it take?</p>
+                <p><strong>3. Home Network Map:</strong> Draw a simple map of your devices. Label at least <strong>ONE</strong> security risk (e.g., an old tablet or a smart bulb).</p>
+                <p><strong>4. Reflection:</strong> 3-5 sentences on what surprised you most about seeing your network details.</p>
+            </div>
+            <p style="text-align:center; font-weight:bold; color:var(--primary-color);">Submit before next class!</p>
+        </div>
+    </div>
+
+    <div id="prev" class="nav-arrow" onclick="moveSlide(-1)">&#10094;</div>
+    <div id="next" class="nav-arrow" onclick="moveSlide(1)">&#10095;</div>
+    <div class="footer">Slide <span id="snum">1</span> of 9</div>
+
+</div>
+
+<script>
+    let current = 0;
+    const slides = document.querySelectorAll('.slide');
+    function moveSlide(n) {
+        slides[current].classList.remove('active');
+        current = (current + n + slides.length) % slides.length;
+        slides[current].classList.add('active');
+        document.getElementById('snum').innerText = current + 1;
+    }
+    document.addEventListener('keydown', (e) => {
+        if(e.key === "ArrowRight") moveSlide(1);
+        if(e.key === "ArrowLeft") moveSlide(-1);
+    });
+</script>
+
+</body>
+</html>

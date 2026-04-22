@@ -3,272 +3,603 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Phishing & Social Engineering - NURU Foundation</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <title>Cybersecurity Level 1 - Week 1: Cyber Attack Experiences</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&family=Space+Mono&display=swap" rel="stylesheet">
     <style>
+        /* CSS is copied from the previous response for consistency and responsiveness */
         :root {
-            --primary: #2c3e50;
-            --secondary: #e74c3c;
-            --accent: #c0392b;
-            --success: #27ae60;
-            --bg-light: #f8f9fa;
-            --text-dark: #333;
-            --text-light: #666;
+            --primary-color: #0070c0; /* Professional Ocean Blue */
+            --secondary-color: #d9534f; /* Soft Red/Alert for warnings */
+            --tertiary-color: #5cb85c; /* Success/Ethical Green */
+            --background-color: #f8f9fa; /* Light Gray/Off-White Background */
+            --text-color: #333333; /* Dark Gray Text */
+            --slide-bg: #ffffff; /* Pure White Slide Body */
+            --highlight-bg: #e9ecef; /* Subtle Gray for list items */
+            --shadow-color: rgba(0, 0, 0, 0.1);
         }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+
         body {
-            font-family: 'Poppins', sans-serif;
-            background: var(--bg-light);
-            color: var(--text-dark);
-            line-height: 1.6;
-        }
-        .lesson-container { max-width: 900px; margin: 0 auto; padding: 2rem; }
-        .lesson-header {
-            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
-            padding: 2rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
-            margin-bottom: 2rem;
-            color: white;
-        }
-        .course-breadcrumb {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            height: 100vh;
             display: flex;
+            justify-content: center;
             align-items: center;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
-            font-size: 0.9rem;
-            opacity: 0.9;
+            font-size: 16px;
         }
-        .course-breadcrumb a { color: white; text-decoration: none; }
-        .course-breadcrumb a:hover { text-decoration: underline; }
-        .lesson-meta {
+
+        .presentation-container {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .slide {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
             display: flex;
-            gap: 1.5rem;
-            margin-bottom: 1rem;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: opacity 0.6s ease-in-out, transform 0.6s ease-in-out;
+            padding: 5vh 10vw;
+            box-sizing: border-box;
+            background-color: var(--slide-bg);
+            border-left: 8px solid var(--primary-color); 
+            box-shadow: 0 0 20px var(--shadow-color);
+        }
+
+        .slide.active {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* Slide Content Styling */
+        .slide-content {
+            width: 100%;
+            max-width: 1100px;
+            text-align: left;
+            overflow-y: auto;
+            max-height: 90vh;
+        }
+
+        .slide h1, .slide h2 {
+            color: var(--primary-color);
+            padding-bottom: 10px;
+            margin-bottom: 25px;
+            font-weight: 700;
+        }
+        
+        .slide h1 {
+            font-size: 3.5em;
+        }
+
+        .slide h2 {
+            font-size: 2.2em;
+            color: var(--primary-color);
+            border-bottom: 4px dashed var(--highlight-bg); 
+        }
+
+        .slide h3 {
+            color: var(--secondary-color);
+            margin-top: 15px;
+            margin-bottom: 10px;
+            font-size: 1.5em;
+        }
+
+        .slide p {
+            line-height: 1.7;
+            margin-bottom: 15px;
+            font-size: 1.15em;
+        }
+
+        .slide ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .slide li {
+            background: var(--highlight-bg);
+            margin-bottom: 12px;
+            padding: 15px 20px;
+            border-left: 6px solid var(--tertiary-color); 
+            font-size: 1.1em;
+            border-radius: 5px;
+            box-shadow: 0 1px 3px var(--shadow-color);
+            display: flex;
+            align-items: flex-start;
+            transition: background 0.3s;
+        }
+        
+        .slide li:hover {
+            background: #e0e0e0;
+        }
+        
+        .slide li strong {
+            color: var(--primary-color);
+            margin-right: 10px;
+            font-weight: 700;
+        }
+
+        /* Specific Slide Layouts */
+        .title-slide {
+            text-align: center;
+            justify-content: center;
+        }
+
+        .title-slide h1 {
+            font-size: 5em;
+            border-bottom: none;
+            color: var(--text-color);
+            text-shadow: 2px 2px 4px var(--shadow-color);
+        }
+
+        .title-slide p {
+            font-size: 1.8em;
+            color: var(--primary-color);
+            font-weight: 300;
+        }
+
+        .key-concept {
+            padding: 25px;
+            background-color: #f2f7ff; 
+            border-radius: 10px;
+            margin-top: 25px;
+            border: 1px solid #cce5ff;
+            border-left: 8px solid var(--primary-color);
+            box-shadow: 0 4px 10px rgba(0, 112, 192, 0.1);
+        }
+        
+        .key-concept p {
+            font-style: italic;
+            color: #555;
+            font-size: 1em;
+        }
+
+        .example-box {
+            background-color: #fff3cd; 
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            font-family: 'Space Mono', monospace;
+            border: 2px solid #ffeeba;
+            color: #856404; 
+        }
+        
+        .alert-box {
+            background-color: #fcebeb;
+            padding: 15px;
+            border-left: 6px solid var(--secondary-color);
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+
+        .daily-routine-section {
+            display: flex;
+            gap: 20px;
+            margin-top: 20px;
             flex-wrap: wrap;
         }
-        .meta-item {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.9rem;
-        }
-        .lesson-title { font-size: 2rem; margin-bottom: 1rem; }
-        .lesson-objectives {
-            background: rgba(255,255,255,0.15);
-            padding: 1.5rem;
+        
+        .routine-box {
+            flex: 1 1 45%; 
+            padding: 15px;
             border-radius: 8px;
-            margin-bottom: 2rem;
+            background-color: #e3f2fd;
+            border-left: 5px solid var(--primary-color);
         }
-        .lesson-objectives h3 { margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
-        .lesson-objectives ul { margin-left: 1.5rem; }
-        .lesson-objectives li { margin-bottom: 0.5rem; }
-        .content-section {
-            background: white;
-            padding: 2rem;
-            border-radius: 12px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            margin-bottom: 2rem;
+
+        .routine-box h4 {
+            color: var(--primary-color);
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 1.3em;
+            border-bottom: 1px dashed #a4c7f0;
+            padding-bottom: 5px;
         }
-        .content-section h2 {
-            color: var(--primary);
-            margin-bottom: 1rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 3px solid var(--secondary);
+
+        .routine-box ul {
+            padding-left: 20px;
+            list-style-type: disc;
         }
-        .content-section h3 { color: var(--primary); margin: 1.5rem 0 0.75rem; }
-        .content-section p { margin-bottom: 1rem; }
-        .content-section ul, .content-section ol { margin: 1rem 0 1rem 1.5rem; }
-        .content-section li { margin-bottom: 0.5rem; }
-        .course-icon {
-            width: 80px;
-            height: 80px;
-            background: white;
+
+        .routine-box li {
+            background: none;
+            padding: 5px 0;
+            margin-bottom: 5px;
+            border-left: none;
+            box-shadow: none;
+            font-size: 1em;
+        }
+
+
+        /* Navigation Arrows */
+        .nav-arrow {
+            position: fixed; 
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 3em;
+            color: var(--primary-color);
+            cursor: pointer;
+            padding: 15px;
+            z-index: 10;
+            user-select: none;
+            background: rgba(255, 255, 255, 0.7); 
+            border: 1px solid var(--primary-color);
             border-radius: 50%;
+            line-height: 0.5;
+            transition: background 0.3s, color 0.3s, transform 0.3s;
+        }
+
+        .nav-arrow:hover {
+            background: var(--primary-color);
+            color: var(--slide-bg);
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        #prev-slide {
+            left: 20px;
+        }
+
+        #next-slide {
+            right: 20px;
+        }
+
+        /* Footer for Slide Count */
+        .slide-footer {
+            position: fixed;
+            bottom: 10px;
+            right: 20px;
+            font-size: 1em;
+            color: #6c757d; 
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+        
+        /* Image Placeholder Style (Adjusted for light theme) */
+/*        .image-placeholder {
+            width: 100%;
+            height: 200px;
+            background-color: #f1f1f1;
+            border: 2px dashed #adb5bd;
             display: flex;
-            align-items: center;
             justify-content: center;
-            margin: 1rem auto;
-            font-size: 2.5rem;
-            color: var(--secondary);
-        }
-        .info-box {
-            background: #e3f2fd;
-            border-left: 4px solid #3498db;
-            padding: 1rem;
-            border-radius: 0 8px 8px 0;
-            margin: 1rem 0;
-        }
-        .warning-box {
-            background: #fff3e0;
-            border-left: 4px solid #ff9800;
-            padding: 1rem;
-            border-radius: 0 8px 8px 0;
-            margin: 1rem 0;
-        }
-        .tip-box {
-            background: #e8f5e9;
-            border-left: 4px solid var(--success);
-            padding: 1rem;
-            border-radius: 0 8px 8px 0;
-            margin: 1rem 0;
-        }
-        .navigation-buttons {
-            display: flex;
-            justify-content: space-between;
-            gap: 1rem;
-            margin-top: 2rem;
-        }
-        .nav-btn {
-            display: flex;
             align-items: center;
-            gap: 0.75rem;
-            padding: 1rem 1.5rem;
-            background: white;
-            border: 2px solid var(--secondary);
-            color: var(--secondary);
-            text-decoration: none;
+            margin: 20px 0;
+            color: #6c757d;
+            font-family: 'Space Mono', monospace;
             border-radius: 8px;
-            transition: all 0.3s ease;
-            flex: 1;
-            justify-content: center;
-        }
-        .nav-btn:hover { background: var(--secondary); color: white; }
-        .nav-btn.disabled { opacity: 0.5; pointer-events: none; }
-        .nav-btn.next { background: var(--secondary); color: white; }
-        .nav-btn.next:hover { background: var(--accent); border-color: var(--accent); }
-        .progress-bar {
-            background: #e0e0e0;
-            height: 8px;
-            border-radius: 4px;
-            margin-top: 2rem;
-            overflow: hidden;
-        }
-        .progress-fill {
-            background: linear-gradient(90deg, #e74c3c, #c0392b);
-            height: 100%;
-            border-radius: 4px;
-            transition: width 0.3s ease;
-        }
+        }*/
+
+        /* Image Container Style */
+.image-placeholder {
+    width: 100%;
+    /* height: auto;  <--- Better to let content define height */
+    margin: 20px 0;
+    border-radius: 8px;
+    overflow: hidden; /* Ensures image corners match container */
+}
+
+
+.image-placeholder img {
+    max-width: 100%;
+    height: auto;
+    display: block; /* Important for preventing extra space below the image */
+}
+
+        /* --- Responsive Adjustments for Small Screens --- */
         @media (max-width: 768px) {
-            .lesson-container { padding: 1rem; }
-            .lesson-title { font-size: 1.5rem; }
-            .navigation-buttons { flex-direction: column; }
+            .slide {
+                padding: 5vh 5vw;
+                border-left-width: 5px;
+            }
+            
+            .slide h1 {
+                font-size: 2.5em;
+            }
+
+            .slide h2 {
+                font-size: 1.8em;
+                margin-bottom: 15px;
+            }
+
+            .slide p, .slide li {
+                font-size: 1em;
+            }
+
+            .title-slide h1 {
+                font-size: 3.5em;
+            }
+            
+            .title-slide p {
+                font-size: 1.2em;
+            }
+
+            .nav-arrow {
+                font-size: 2em;
+                padding: 10px;
+            }
+            
+            #prev-slide {
+                left: 10px;
+            }
+
+            #next-slide {
+                right: 10px;
+            }
+
+            .daily-routine-section {
+                flex-direction: column;
+            }
+
+            .routine-box {
+                flex: 1 1 100%;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="lesson-container">
-        <div class="lesson-header">
-            <div class="course-icon"><i class="fas fa-fish"></i></div>
-            <div class="course-breadcrumb">
-                <a href="/student-dashboard/notes.html"><i class="fas fa-arrow-left"></i> Back to Notes</a>
-            </div>
-            <div class="lesson-meta">
-                <span class="meta-item"><i class="fas fa-book"></i> Lesson 3 of 3</span>
-                <span class="meta-item"><i class="fas fa-clock"></i> 45 minutes</span>
-            </div>
-            <h1 class="lesson-title">Phishing & Social Engineering</h1>
-        </div>
-        <div class="lesson-objectives">
-            <h3><i class="fas fa-bullseye"></i> Learning Objectives</h3>
-            <ul>
-                <li>Recognize phishing attempts in emails and messages</li>
-                <li>Understand social engineering tactics</li>
-                <li>Know how to verify suspicious communications</li>
-                <li>Apply prevention techniques to stay safe</li>
-            </ul>
-        </div>
-        <div class="content-section">
-            <h2>Understanding Phishing</h2>
-            <p>Phishing is a type of cyber attack where attackers disguise as trustworthy entities to steal sensitive information like passwords, credit card numbers, or personal data.</p>
-            <h3>Common Phishing Channels</h3>
-            <ul>
-                <li><strong>Email:</strong> Fake emails appearing from banks, companies, or colleagues</li>
-                <li><strong>SMS/Text:</strong> "Smishing" messages with malicious links</li>
-                <li><strong>Phone Calls:</strong> "Vishing" - voice phishing attempts</li>
-                <li><strong>Social Media:</strong> Fake profiles or direct messages</li>
-                <li><strong>Fake Websites:</strong> Look-alike sites designed to steal credentials</li>
-            </ul>
-            <div class="info-box">
-                <strong><i class="fas fa-info-circle"></i> Did You Know?</strong>
-                <p>Phishing attacks account for over 80% of security incidents! Attackers rely on human error rather than technical vulnerabilities.</p>
-            </div>
-        </div>
-        <div class="content-section">
-            <h2>How to Recognize Phishing</h2>
-            <p>Learn to spot the warning signs before clicking or responding.</p>
-            <h3>Red Flags to Watch For</h3>
-            <ul>
-                <li><strong>Urgency:</strong> "Act now!" or "Your account will be closed!"</li>
-                <li><strong>Suspicious Sender:</strong> Email addresses that don't match the organization</li>
-                <li><strong>Poor Grammar:</strong> Spelling and grammatical errors</li>
-                <li><strong>Generic Greetings:</strong> "Dear Customer" instead of your name</li>
-                <li><strong>Mismatched URLs:</strong> Links that go to different destinations</li>
-                <li><strong>Unexpected Attachments:</strong> Files you didn't request</li>
-                <li><strong>Too Good To Be True:</strong> Offers that seem amazing</li>
-            </ul>
-            <div class="warning-box">
-                <strong><i class="fas fa-exclamation-triangle"></i> Important</strong>
-                <p>When in doubt, don't click! Contact the supposed sender through a known, trusted channel to verify.</p>
-            </div>
-        </div>
-        <div class="content-section">
-            <h2>Social Engineering Tactics</h2>
-            <p>Social engineering exploits human psychology rather than technical flaws. Attackers manipulate people into breaking security procedures.</p>
-            <h3>Common Social Engineering Techniques</h3>
-            <ul>
-                <li><strong>Pretexting:</strong> Creating a fabricated scenario to engage the victim</li>
-                <li><strong>Baiting:</strong> Offering something enticing to spark curiosity</li>
-                <li><strong>Tailgating:</strong> Following authorized personnel into secure areas</li>
-                <li><strong>Quid Pro Quo:</strong> Offering a service in exchange for information</li>
-                <li><strong>Intimidation:</strong> Using authority or threats to pressure victims</li>
-            </ul>
-            <div class="tip-box">
-                <strong><i class="fas fa-lightbulb"></i> Pro Tip</strong>
-                <p>Always verify requests for sensitive information through official channels, even if the request seems to come from a colleague or boss!</p>
-            </div>
-        </div>
-        <div class="content-section">
-            <h2>How to Verify Suspicious Messages</h2>
-            <ol>
-                <li><strong>Check the Sender:</strong> Hover over email addresses to see actual addresses</li>
-                <li><strong>Inspect Links:</strong> Before clicking, hover to see the actual URL destination</li>
-                <li><strong>Contact Directly:</strong> Use official contact info from the company's website</li>
-                <li><strong>Look for HTTPS:</strong> Secure sites have lock icons in the address bar</li>
-                <li><strong>Check for Personalization:</strong> Legitimate companies usually address you by name</li>
-                <li><strong>Trust Your Gut:</strong> If something feels off, it probably is</li>
-            </ol>
-        </div>
-        <div class="content-section">
-            <h2>Prevention Best Practices</h2>
-            <ul>
-                <li>Think before you click - verify unexpected messages</li>
-                <li>Never provide passwords or sensitive info via email</li>
-                <li>Use email filtering and security software</li>
-                <li>Report phishing attempts to your IT department</li>
-                <li>Keep your software and systems updated</li>
-                <li>Educate yourself about current scam trends</li>
-            </ul>
-            <div class="warning-box">
-                <strong><i class="fas fa-exclamation-triangle"></i> Final Reminder</strong>
-                <p>If you've clicked on a suspicious link or provided information, change your passwords immediately and notify the appropriate parties!</p>
-            </div>
-        </div>
-        <div class="navigation-buttons">
-            <a href="lesson-2.html" class="nav-btn">
-                <i class="fas fa-arrow-left"></i>
-                <span>Previous: Password Security</span>
-            </a>
-            <a class="nav-btn disabled next">
-                <span>Final Lesson</span>
-                <i class="fas fa-check-circle"></i>
-            </a>
-        </div>
-        <div class="progress-bar">
-            <div class="progress-fill" style="width: 100%"></div>
+
+<div class="presentation-container">
+
+    <div class="slide title-slide active" id="slide-1">
+        <div class="slide-content">
+            <h1>CYBERSECURITY LEVEL 1</h1>
+            <p class="subtitle">WEEK 1 – CLASS 3</p>
+            <p><strong>PRACTICAL SESSION – CYBER ATTACK EXPERIENCES</strong></p>
+            <hr style="width: 50%; border-color: var(--primary-color); margin-top: 30px;">
+            <p style="margin-top: 50px; color: var(--text-color);">
+                <span style="font-size: 1.2em;"><strong>⭐ CLASS 3:</strong></span><br>
+                We are looking at real hackers, real attacks, real threats, happening live all over the world. This class features 4 powerful practical labs designed to build your cybersecurity confidence.
+            </p>
         </div>
     </div>
+
+    <div class="slide" id="slide-2">
+        <div class="slide-content">
+            <h2>🌍 LAB 1 — VISITING LIVE CYBER-ATTACK MAPS</h2>
+            <p>This is the moment you finally see what cyber attacks look like in real life. Every line on the map is a real hack attempt happening that second.</p>
+         <div class="image-placeholder">
+    <img src="cyber-map.png" alt="Visual representation of real-time global cyber attacks">
+</div>
+            <p>Attack maps show:</p>
+            <ul>
+                <li style="border-left-color: var(--secondary-color);">Millions of attacks per minute (malware spreading, countries launching attacks).</li>
+                <li style="border-left-color: var(--secondary-color);">Attempted logins, botnet traffic, and server exploitation.</li>
+            </ul>
+            <h3 style="color: var(--primary-color);">Maps to Use:</h3>
+            <ul style="border-left: none;">
+                <li style="border-left-color: var(--primary-color); background: #ffffff;">Kaspersky Cyberthreat Map</li>
+                <li style="border-left-color: var(--primary-color); background: #ffffff;">Fortinet Threat Map</li>
+                <li style="border-left-color: var(--primary-color); background: #ffffff;">Checkpoint Threat Map</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="slide" id="slide-3">
+        <div class="slide-content">
+            <h2>⭐ How to Do the Lab 1</h2>
+            <div class="key-concept">
+                <p style="font-style: normal; font-weight: bold; color: var(--text-color);">Observation Steps (5 Minutes Minimum):</p>
+                <ol style="list-style-type: decimal; padding-left: 20px;">
+                    <li>Open any attack map and wait 20–30 seconds for data to load.</li>
+                    <li>Sit quietly and simply observe the flow.</li>
+                    <li>Watch where attacks start and where they land.</li>
+                    <li>Notice how fast the lines move and which countries are prominent.</li>
+                    <li>Note the kind of attack types appearing (Brute force, malware injection, botnet, etc.).</li>
+                </ol>
+            </div>
+            
+            <h3 style="color: var(--tertiary-color);">Your Goal</h3>
+            <p>Your goal here is not to memorize—your goal is to feel the scale of global cybercrime.</p>
+            <p>Within 5 minutes, you will clearly see: constant attacks, nonstop scanning, and automated robots attacking everything.</p>
+        </div>
+    </div>
+
+    <div class="slide" id="slide-4">
+        <div class="slide-content">
+            <h2>🔑 LAB 2 — OBSERVING BRUTE-FORCE ATTEMPTS</h2>
+            <p>A brute-force attack is when an attacker tries many passwords very fast, hoping to guess the right one.</p>
+            <p>Millions of automated brute-force attacks are happening right now on:</p>
+            <ul>
+                <li style="border-left-color: var(--secondary-color);">Gmail, Facebook, WordPress sites.</li>
+                <li style="border-left-color: var(--secondary-color);">Servers, Wi-Fi routers, Databases, and Admin dashboards.</li>
+            </ul>
+            <h3 style="color: var(--primary-color);">What You Will Observe:</h3>
+            <p>Go to any threat map and look specifically for terms like:</p>
+            <div class="example-box">
+                <code style="color: var(--primary-color);">SSH brute-force login attempts</code> | <code style="color: var(--primary-color);">RDP login attempts</code> | <code style="color: var(--primary-color);">Web login brute-force</code>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide" id="slide-5">
+        <div class="slide-content">
+            <h2>What You Learn from Lab 2</h2>
+            <p>You will notice that these automated attacks never stop, come from many countries, and target random servers constantly.</p>
+            
+            <h3 style="color: var(--tertiary-color);">✔ Key Takeaways:</h3>
+            <ul>
+                <li style="border-left-color: var(--tertiary-color);">Why weak passwords are destroyed in seconds.</li>
+                <li style="border-left-color: var(--tertiary-color);">Why every online service needs 2FA (Two-Factor Authentication).</li>
+                <li style="border-left-color: var(--tertiary-color);">Why bots and automation make hacking extremely fast and scalable.</li>
+                <li style="border-left-color: var(--tertiary-color);">Why companies use firewalls to block this constant traffic.</li>
+            </ul>
+            <p style="text-align: center; font-weight: bold; margin-top: 30px;">After doing this lab, you will NEVER use a weak password again.</p>
+        </div>
+    </div>
+
+    <div class="slide" id="slide-6">
+        <div class="slide-content">
+            <h2>🕵️‍♂️ LAB 3 — IDENTIFYING REAL PHISHING PAGES</h2>
+            <p>Phishing is the #1 attack vector used to steal passwords, OTPs, money, and bank accounts.</p>
+            <div class="image-placeholder" style="height: 150px;">
+                
+            </div>
+            <p>⭐ What You Will Do: Search online for “real phishing website examples” and compare 2–3 sample pages with the real, legitimate websites.</p>
+
+            <h3 style="color: var(--secondary-color);">✔ Things to Look For:</h3>
+            <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                <div style="flex: 1 1 45%;">
+                    <h4 style="color: var(--primary-color); font-size: 1.2em;">1. Strange URL</h4>
+                    <p style="font-size: 1em;">Examples: <code>facebo0k-security-help.com</code> or <code>paypall-update.net</code>. If the domain looks unfamiliar or has typos, it is fake.</p>
+                </div>
+                <div style="flex: 1 1 45%;">
+                    <h4 style="color: var(--primary-color); font-size: 1.2em;">2. Urgent Messages</h4>
+                    <p style="font-size: 1em;">Phishing always creates fear: "Your account will be deleted in 1 hour!" or "Payment failed — update immediately!" Fear is their weapon.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide" id="slide-7">
+        <div class="slide-content">
+            <h2>More Phishing Warning Signs</h2>
+            
+            <ul style="column-count: 2;">
+                <li style="border-left-color: var(--secondary-color); background: #fff;">Fake Login Form: Asks for email + password + OTP at once, or has "sign up" disabled.</li>
+                <li style="border-left-color: var(--secondary-color); background: #fff;">Visual Mistakes: Blurry logo, missing icons, poor grammar, or strange spacing/colors.</li>
+                <li style="border-left-color: var(--secondary-color); background: #fff;">Suspicious Behavior: Login button redirects too quickly, or the page loads too fast.</li>
+                <li style="border-left-color: var(--secondary-color); background: #fff;">Asks Too Much: The page requires unnecessary personal or financial information upfront.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="slide" id="slide-8">
+        <div class="slide-content">
+            <h2>🧼 LAB 4 — CREATE YOUR DAILY CYBER HYGIENE ROUTINE</h2>
+            <p>Cybersecurity is not just tools—it is habits. Your goal: Build a daily routine that protects you every single day. A simple checklist that you follow without thinking.</p>
+            
+            <h3 style="color: var(--primary-color);">⭐ What Your Cyber Hygiene Should Include:</h3>
+
+            <div class="daily-routine-section">
+                <div class="routine-box">
+                    <h4>Morning/Start of Day</h4>
+                    <ul>
+                        <li>Check email for suspicious messages.</li>
+                        <li>Avoid clicking any unknown link.</li>
+                        <li>Avoid open/public Wi-Fi; use VPN.</li>
+                        <li>Check that devices updated overnight.</li>
+                    </ul>
+                </div>
+
+                <div class="routine-box">
+                    <h4>Throughout the Day</h4>
+                    <ul>
+                        <li>Never save passwords in browsers.</li>
+                        <li>Never download files you do not trust.</li>
+                        <li>Confirm any URL before entering a password.</li>
+                        <li>Avoid free random apps or APK files.</li>
+                        <li>Think twice before sharing personal info.</li>
+                    </ul>
+                </div>
+                
+                <div class="routine-box">
+                    <h4>Evening/End of Day</h4>
+                    <ul>
+                        <li>Backup important files.</li>
+                        <li>Log out from sensitive accounts.</li>
+                        <li>Disconnect unused devices.</li>
+                        <li>Clear browser cookies.</li>
+                        <li>Check for email login alerts.</li>
+                    </ul>
+                </div>
+
+                <div class="routine-box">
+                    <h4>Weekly Behavior</h4>
+                    <ul>
+                        <li>Update all apps and OS.</li>
+                        <li>Change passwords for risky accounts.</li>
+                        <li>Review bank/SIM/email activity.</li>
+                        <li>Scan your device with antivirus.</li>
+                        <li>Delete old, unused apps.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="slide" id="slide-9">
+        <div class="slide-content">
+            <h2>📝 MINI ASSIGNMENT</h2>
+            <p>Submit before next class.</p>
+            
+            <div class="key-concept" style="border-left-color: var(--secondary-color); background-color: #fcebeb; padding: 30px;">
+                <p style="color: var(--secondary-color); font-style: normal; font-weight: bold; font-size: 1.2em;">Submission Tasks:</p>
+                <ul style="margin-top: 15px;">
+                    <li style="border-left: 3px solid var(--secondary-color); background: #ffffff;">1. Attack Map Observation: Write 6 things you saw happening on the map (e.g., specific country attacks, type of attack, frequency).</li>
+                    <li style="border-left: 3px solid var(--secondary-color); background: #ffffff;">2. Brute-Force Observation: Write what surprised you the most about the continuous login attempts.</li>
+                    <li style="border-left: 3px solid var(--secondary-color); background: #ffffff;">3. Phishing Study: Describe 2 different types of phishing pages you analyzed (e.g., a banking lure and a social media lure).</li>
+                    <li style="border-left: 3px solid var(--secondary-color); background: #ffffff;">4. Cyber Hygiene Routine: Write your personal 15-item daily/weekly routine based on the habits discussed today.</li>
+                </ul>
+            </div>
+            <p style="text-align: center; margin-top: 40px; font-size: 1.5em; color: var(--primary-color);">
+                END OF CLASS 3
+            </p>
+        </div>
+    </div>
+
+    <div id="prev-slide" class="nav-arrow" onclick="changeSlide(-1)">&#10094;</div>
+    <div id="next-slide" class="nav-arrow" onclick="changeSlide(1)">&#10095;</div>
+    <div class="slide-footer">Slide <span id="current-slide-num">1</span> of <span id="total-slides-num">9</span></div>
+
+</div>
+
+<script>
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.slide');
+    const totalSlides = slides.length;
+
+    // Set the total slide number in the footer
+    document.getElementById('total-slides-num').textContent = totalSlides;
+
+    function showSlide(index) {
+        if (index >= totalSlides) {
+            index = 0; // Loop back to the start
+        } else if (index < 0) {
+            index = totalSlides - 1; // Loop back to the end
+        }
+        
+        // Deactivate all slides
+        slides.forEach((slide) => {
+            slide.classList.remove('active');
+        });
+
+        // Activate the current slide
+        slides[index].classList.add('active');
+        currentSlide = index;
+        
+        // Update the footer number
+        document.getElementById('current-slide-num').textContent = currentSlide + 1;
+    }
+
+    function changeSlide(n) {
+        showSlide(currentSlide + n);
+    }
+
+    // Initialize the first slide
+    showSlide(currentSlide);
+    
+    // Allow keyboard navigation
+    document.addEventListener('keydown', function(event) {
+        if (event.key === "ArrowRight" || event.key === " ") {
+            changeSlide(1);
+        } else if (event.key === "ArrowLeft") {
+            changeSlide(-1);
+        }
+    });
+
+</script>
 </body>
 </html>

@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cybersecurity Level 1 - Week 5: Windows Security Practical</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&family=Space+Mono&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #0070c0; 
+            --secondary-color: #d9534f; 
+            --tertiary-color: #5cb85c; 
+            --background-color: #f8f9fa; 
+            --text-color: #333333; 
+            --slide-bg: #ffffff; 
+            --highlight-bg: #e9ecef; 
+            --shadow-color: rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .presentation-container {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .slide {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: opacity 0.6s ease-in-out, transform 0.6s ease-in-out;
+            padding: 5vh 10vw;
+            box-sizing: border-box;
+            background-color: var(--slide-bg);
+            border-left: 8px solid var(--primary-color);
+            box-shadow: 0 0 20px var(--shadow-color);
+        }
+
+        .slide.active {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .slide-content {
+            width: 100%;
+            max-width: 1100px;
+            text-align: left;
+            overflow-y: auto;
+            max-height: 90vh;
+        }
+
+        .slide h1, .slide h2 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+        
+        .slide h1 { font-size: 3.5em; text-align: center; }
+        .slide h2 { font-size: 2.2em; border-bottom: 4px dashed var(--highlight-bg); }
+
+        .slide p { line-height: 1.6; margin-bottom: 15px; font-size: 1.2em; }
+        .slide ul { list-style-type: none; padding: 0; }
+        .slide li {
+            background: var(--highlight-bg);
+            margin-bottom: 10px;
+            padding: 12px 18px;
+            border-left: 6px solid var(--tertiary-color);
+            font-size: 1.1em;
+            border-radius: 5px;
+        }
+
+        .key-concept {
+            padding: 20px;
+            background-color: #f2f7ff;
+            border-radius: 10px;
+            margin-top: 20px;
+            border-left: 8px solid var(--primary-color);
+        }
+
+        .nav-arrow {
+            position: fixed;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 3em;
+            color: var(--primary-color);
+            cursor: pointer;
+            padding: 15px;
+            z-index: 10;
+            background: rgba(255, 255, 255, 0.7);
+            border: 1px solid var(--primary-color);
+            border-radius: 50%;
+            line-height: 0.5;
+        }
+
+        #prev-slide { left: 20px; }
+        #next-slide { right: 20px; }
+
+        .slide-footer {
+            position: fixed;
+            bottom: 10px;
+            right: 20px;
+            font-size: 1em;
+            color: #6c757d;
+        }
+
+        code {
+            background: #333;
+            color: #fff;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Space Mono', monospace;
+        }
+
+        .step-tag {
+            background: var(--primary-color);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="presentation-container">
+
+    <div class="slide active" id="slide-1">
+        <div class="slide-content">
+            <h1>🧪 WEEK 5 — CLASS 2</h1>
+            <p style="text-align: center; font-size: 1.8em; color: var(--primary-color); font-weight: bold;">PRACTICAL: WINDOWS DEFENDER & FIREWALL</p>
+            <div class="key-concept" style="text-align: center;">
+                <p><strong>System Shielding:</strong> Today you step into the role of a System Administrator to secure a real Windows environment.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide" id="slide-2">
+        <div class="slide-content">
+            <h2>⭐ 1. Today’s Mission</h2>
+            <p>You will secure your workstation using the built-in Windows security suite. You will:</p>
+            <ul>
+                <li>🛡️ <strong>Configure Antivirus:</strong> Set up real-time defense.</li>
+                <li>🔥 <strong>Enable Firewalls:</strong> Lock the digital doors to your network.</li>
+                <li>🔍 <strong>Scan for Threats:</strong> Hunt for hidden malware.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="slide" id="slide-3">
+        <div class="slide-content">
+            <h2>🛠️ 2. Lab 1 — Windows Defender Setup</h2>
+            <p>Windows Defender is your built-in police force. Let's make sure they are on duty.</p>
+            
+            
+
+            <p><strong>Steps to Open:</strong></p>
+            <ol>
+                <li>Click the <strong>Start Menu</strong> (Windows Icon).</li>
+                <li>Search for <code>Windows Security</code> and press Enter.</li>
+                <li>Look for the <strong>"Security at a glance"</strong> home screen.</li>
+            </ol>
+            <div class="key-concept">
+                <strong>Goal:</strong> All icons should have a <strong>Green Checkmark</strong> ✅. If you see a yellow triangle ⚠️, a shield is down!
+            </div>
+        </div>
+    </div>
+
+    <div class="slide" id="slide-4">
+        <div class="slide-content">
+            <h2>🔐 Check Your Protection Pillars</h2>
+            <p>Inside Windows Security, ensure these three areas are active:</p>
+            <ul>
+                <li>🦠 <strong>Virus & threat protection:</strong> Monitors files for malicious code.</li>
+                <li>🔥 <strong>Firewall & network protection:</strong> Blocks hackers from the web.</li>
+                <li>🌐 <strong>App & browser control:</strong> Protects you while you surf the internet.</li>
+            </ul>
+            <p><em>Pro-Tip: If you have a 3rd-party antivirus (like Norton or McAfee), it might take over these settings. In a pro environment, Windows Defender is often all you need!</em></p>
+        </div>
+    </div>
+
+    <div class="slide" id="slide-5">
+        <div class="slide-content">
+            <h2>🟢 Run a Quick Scan</h2>
+            <p>Let's check if any "burglars" are currently hiding in your system files.</p>
+
+            
+
+            <ol>
+                <li>Click on <strong>Virus & threat protection</strong>.</li>
+                <li>Click the <strong>Quick Scan</strong> button.</li>
+                <li>Wait for the results. (It checks folders where malware usually hides).</li>
+            </ol>
+            <div class="key-concept">
+                <strong>Difference:</strong> A <strong>Quick Scan</strong> takes 2 mins. A <strong>Full Scan</strong> checks <em>every</em> single file on your computer and can take hours!
+            </div>
+        </div>
+    </div>
+
+    <div class="slide" id="slide-6">
+        <div class="slide-content">
+            <h2>🔥 3. Lab 2 — Firewall Configuration</h2>
+            <p>The Firewall is your "Digital Sieve." It keeps the trash out while letting the water (data) through.</p>
+            
+            
+
+            <p><strong>Steps:</strong></p>
+            <ol>
+                <li>In Windows Security, click <strong>Firewall & network protection</strong>.</li>
+                <li>Ensure all three network types are <strong>ON</strong>.</li>
+            </ol>
+        </div>
+    </div>
+
+    <div class="slide" id="slide-7">
+        <div class="slide-content">
+            <h2>🧱 Which Gate are you Guarding?</h2>
+            <p>Windows treats different Wi-Fi connections differently. You must secure all of them:</p>
+            <ul>
+                <li>🏠 <strong>Private Network:</strong> Used for home or office. Devices can "talk" to each other (like your PC talking to your Printer).</li>
+                <li>☕ <strong>Public Network:</strong> Used for Starbucks or Airports. <strong>Most Dangerous!</strong> This setting hides your PC from others on the same Wi-Fi.</li>
+                <li>🏢 <strong>Domain Network:</strong> Used in large companies managed by a central server.</li>
+            </ul>
+            <p class="danger-zone" style="color:var(--secondary-color); font-weight:bold;">🚨 If the Firewall is OFF, anyone on your Wi-Fi can try to "ping" or enter your computer!</p>
+        </div>
+    </div>
+
+    <div class="slide" id="slide-8">
+        <div class="slide-content">
+            <h2>🧠 4. Lab Discussion</h2>
+            <p>Think about what you just did and answer these questions:</p>
+            <ul>
+                <li>❓ <strong>Antivirus Off:</strong> If we turn it off to install a "free game," why is that a huge risk?</li>
+                <li>❓ <strong>Public Wi-Fi:</strong> Why should you NEVER turn off your firewall while at a coffee shop?</li>
+                <li>❓ <strong>Firewall's Job:</strong> Does a firewall stop a virus that you downloaded yourself? (Hint: No, that's the Antivirus's job!)</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="slide" id="slide-9">
+        <div class="slide-content">
+            <h2>🎯 End of Class 2 Outcome</h2>
+            <div class="key-concept" style="background-color: #e8f5e9;">
+                <strong>Practical Mastery Checklist:</strong>
+                <ul>
+                    <li>✔ You can navigate the Windows Security Dashboard.</li>
+                    <li>✔ You know how to trigger a manual scan for malware.</li>
+                    <li>✔ You understand the difference between Public and Private firewall rules.</li>
+                    <li>✔ You can identify when a system is unprotected.</li>
+                </ul>
+            </div>
+            <p style="text-align: center; font-size: 1.5em; margin-top: 20px;"><strong>Class Over. Your system is now a fortress!</strong></p>
+        </div>
+    </div>
+
+    <div id="prev-slide" class="nav-arrow" onclick="changeSlide(-1)">&#10094;</div>
+    <div id="next-slide" class="nav-arrow" onclick="changeSlide(1)">&#10095;</div>
+    
+    <div class="slide-footer">Slide <span id="current-slide-num">1</span> of <span id="total-slides-num">9</span></div>
+
+</div>
+
+<script>
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.slide');
+    const totalSlides = slides.length;
+    document.getElementById('total-slides-num').textContent = totalSlides;
+
+    function showSlide(index) {
+        if (index >= totalSlides) index = 0;
+        else if (index < 0) index = totalSlides - 1;
+        
+        slides.forEach((slide) => slide.classList.remove('active'));
+        slides[index].classList.add('active');
+        currentSlide = index;
+        document.getElementById('current-slide-num').textContent = currentSlide + 1;
+    }
+
+    function changeSlide(n) { showSlide(currentSlide + n); }
+    showSlide(currentSlide);
+    
+    document.addEventListener('keydown', function(event) {
+        if (event.key === "ArrowRight" || event.key === " ") changeSlide(1);
+        else if (event.key === "ArrowLeft") changeSlide(-1);
+    });
+</script>
+</body>
+</html>
