@@ -1,0 +1,6 @@
+RewriteEngine On
+RewriteBase /
+
+# Proxy API requests to Node.js backend
+RewriteRule ^api/(.*)$ http://127.0.0.1:3000/api/$1 [P,L]
+RewriteRule ^api$ http://127.0.0.1:3000/api [P,L]
