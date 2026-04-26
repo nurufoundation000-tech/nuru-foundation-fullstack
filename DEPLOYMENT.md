@@ -5,26 +5,18 @@
 ```
 nuru-foundation-fullstack/
   ├── public_html/     ← Frontend (Apache serves this)
-  │     ├── index.html
-  │     ├── login.html
-  │     ├── admin.html
-  │     ├── styles/
-  │     ├── scripts/
-  │     ├── images/
-  │     ├── fonts/
-  │     ├── admin-dashboard/
-  │     ├── student-dashboard/
-  │     ├── tutor-dashboard/
+  │     ├── index.html, login.html, admin.html, courses.html, etc.
+  │     ├── styles/, scripts/, images/, fonts/
+  │     ├── admin-dashboard/, student-dashboard/, tutor-dashboard/
   │     ├── notes/
   │     └── .htaccess  ← Proxies /api/* to nuru_app
   │
-  └── nuru_app/      ← Backend (Node.js)
-        ├── server.js
+  └── nuru_app/      ← Backend (Node.js + MySQL)
+        ├── server.js       ← Cleaned (API only, no static files)
         ├── api/
         ├── node_modules/
-        ├── package.json
-        ├── prisma/
         ├── sql/
+        │   └── schema.sql  ← MySQL schema (run in PHPMyAdmin)
         └── .env
 ```
 
@@ -41,9 +33,8 @@ Upload to `nuru_app/` on cPanel:
 3. `node_modules/` folder
 4. `package.json`
 5. `package-lock.json`
-6. `.env` (rename `.env.production` to `.env`)
-7. `prisma/` folder (if exists)
-8. `sql/` folder (if exists)
+6. `.env`
+7. `sql/` folder (schema.sql for reference)
 
 After uploading:
 
@@ -65,7 +56,7 @@ Upload to `public_html/` on cPanel:
 7. `student-dashboard/` folder
 8. `tutor-dashboard/` folder
 9. `notes/` folder
-10. `.htaccess` (already included in public_html/)
+10. `.htaccess`
 
 ---
 
@@ -97,10 +88,11 @@ RewriteRule ^api$ http://127.0.0.1:3000/api [P,L]
 After deployment, test these URLs:
 
 | URL | Expected Result |
-|-----|-----------------|
+|-----|---------------|
 | https://nurufoundations.com/ | Homepage loads |
 | https://nurufoundations.com/login.html | Login page loads |
 | https://nurufoundations.com/api/courses | JSON API response |
+| https://nurufoundations.com/api/health | Health check |
 | https://nurufoundations.com/api/auth/login | Login API endpoint |
 
 ---
@@ -115,7 +107,7 @@ After deployment, test these URLs:
 ### Database Connection Error
 - Verify `.env` file exists in `nuru_app/`
 - Check MySQL credentials in `.env`
-- Ensure database exists in cPanel
+- Ensure database exists in cPanel with tables created
 
 ### Static Files Not Loading
 - Verify all frontend files uploaded to `public_html/`
@@ -130,36 +122,38 @@ Required in `nuru_app/.env`:
 ```env
 NODE_ENV=production
 DB_HOST=localhost
+DB_PORT=3306
 DB_USER=your_db_user
 DB_PASSWORD=your_db_password
 DB_NAME=nurufoun_db
-JWT_SECRET=your_jwt_secret
-EMAIL_USER=your_email
-EMAIL_PASS=your_email_password
+JWT_SECRET=your_secure_jwt_secret
+EMAIL_USER=your_email@gmail.com
+EMAIL_PASS=your_app_password
+ADMIN_EMAIL=admin@nurufoundations.com
 FRONTEND_URL=https://nurufoundations.com
+```
+
+### M-Pesa Configuration (optional)
+
+```env
+MPESA_CONSUMER_KEY=your_consumer_key
+MPESA_CONSUMER_SECRET=your_consumer_secret
+MPESA_SHORT_CODE=174379
+MPESA_PASSKEY=your_passkey
+MPESA_ENV=sandbox
+MPESA_CALLBACK_URL=https://nurufoundations.com/api/mpesa/callback
 ```
 
 ---
 
-## Local Development
+## Database Setup
 
-To run locally:
+The MySQL database should be set up with tables from `sql/schema.sql`.
 
-```bash
-cd nuru_app
-npm install
-npm start
-```
-
-Frontend is served from `public_html/` (no server needed for static files locally).
-
-Or run both with:
-
-```bash
-cd nuru_app
-npm start
-# Frontend at http://localhost:3000
-```
+In cPanel PHPMyAdmin:
+1. Select the database `nurufoun_db`
+2. Import `sql/schema.sql` or run the CREATE TABLE statements
+3. Verify tables exist: users, courses, lessons, enrollments, invoices, etc.
 
 ---
 
@@ -175,3 +169,4 @@ npm start
 - [ ] Login/logout works
 - [ ] Dashboard pages load
 - [ ] Email sending works
+- [ ] M-Pesa integration works (if enabled)

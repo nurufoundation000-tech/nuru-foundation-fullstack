@@ -1,6 +1,16 @@
+# Passenger Node.js configuration (UPDATED)
+PassengerAppRoot /home3/nurufoun/backend
+PassengerStartupFile src/app.js
+PassengerAppType node
+
+# Frontend routing - serve index.html for non-API requests only
 RewriteEngine On
 RewriteBase /
 
-# Proxy API requests to Node.js backend
-RewriteRule ^api/(.*)$ http://127.0.0.1:3000/api/$1 [P,L]
-RewriteRule ^api$ http://127.0.0.1:3000/api [P,L]
+# Skip rewriting for /api paths
+RewriteCond %{REQUEST_URI} !^/api [NC]
+# Skip rewriting for static files
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+# Serve index.html only for frontend routes
+RewriteRule ^ /index.html [L]

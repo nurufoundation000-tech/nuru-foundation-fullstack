@@ -148,8 +148,6 @@ async function isStudentLocked(studentId) {
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
-app.use(express.static('frontend'));
-app.use(express.static('.'));
 
 if (process.env.NODE_ENV === 'production') {
   app.use((req, res, next) => {
@@ -1338,51 +1336,6 @@ app.put('/api/admin/users/:id', requireAdmin, async (req, res) => {
   }
 });
 
-// ==================== STATIC FILE ROUTES ====================
-app.get('/courses.html', (req, res) => {
-  res.sendFile(path.join(__dirname, 'frontend', 'courses.html'));
-});
-
-app.get('/login.html', (req, res) => {
-  res.sendFile(path.join(__dirname, 'frontend', 'login.html'));
-});
-
-app.get('/register.html', (req, res) => {
-  res.sendFile(path.join(__dirname, 'frontend', 'register.html'));
-});
-
-app.get('/about.html', (req, res) => {
-  res.sendFile(path.join(__dirname, 'frontend', 'about.html'));
-});
-
-app.get('/contact.html', (req, res) => {
-  res.sendFile(path.join(__dirname, 'frontend', 'contact.html'));
-});
-
-app.get('/community.html', (req, res) => {
-  res.sendFile(path.join(__dirname, 'frontend', 'community.html'));
-});
-
-app.get('/admin.html', (req, res) => {
-  res.sendFile(path.join(__dirname, 'frontend', 'admin.html'));
-});
-
-app.get('/student-dashboard/:page', (req, res) => {
-  res.sendFile(path.join(__dirname, 'frontend', 'student-dashboard', req.params.page));
-});
-
-app.get('/tutor-dashboard/:page', (req, res) => {
-  res.sendFile(path.join(__dirname, 'frontend', 'tutor-dashboard', req.params.page));
-});
-
-app.get('/admin-dashboard/:page', (req, res) => {
-  res.sendFile(path.join(__dirname, 'frontend', 'admin-dashboard', req.params.page));
-});
-
-// ==================== CATCH-ALL ROUTE ====================
-// For Express 5, no catch-all needed - static files are served via express.static middleware
-// API will return 404 for unknown endpoints automatically
-
 // ==================== ERROR HANDLING ====================
 app.use((error, req, res, next) => {
   console.error('Global error handler:', error);
@@ -1395,12 +1348,16 @@ app.use((error, req, res, next) => {
 // ==================== SERVER STARTUP ====================
 const isProduction = process.env.NODE_ENV === 'production';
 
-// Passenger-compatible startup or standalone server
-if (PORT) {
-  app.listen(PORT, async () => {
-    console.log(`🚀 Nuru Foundation Server running on port ${PORT}`);
+// Detect if running standalone (node server.js) vs being required by Passenger
+// Passenger sets these env vars, or check require.main
+const isStandalone = require.main === module;
+
+// Start server if running standalone, otherwise export for Passenger
+if (isStandalone) {
+  const port = process.env.PORT || 3000;
+  app.listen(port, async () => {
+    console.log(`🚀 Nuru Foundation API running on port ${port}`);
     console.log(`📚 API available at /api`);
-    console.log(`🌍 Frontend available at /`);
     console.log(`📧 Email service: ${process.env.EMAIL_USER ? 'Configured' : 'Not configured'}`);
     console.log(`🔐 JWT Authentication: ${process.env.JWT_SECRET ? 'Enabled' : 'Using fallback secret'}`);
     console.log(`🔧 Environment: ${isProduction ? 'PRODUCTION' : 'DEVELOPMENT'}`);
@@ -1410,6 +1367,7 @@ if (PORT) {
     }
   });
 } else {
+  // For Passenger (cPanel) - export the Express app
   module.exports = app;
   console.log('📦 App exported for Passenger (cPanel)');
 }

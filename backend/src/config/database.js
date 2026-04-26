@@ -1,10 +1,14 @@
-const mysql = require('mysql2/promise');
+// config/database.js - MySQL Database Configuration
+import mysql from 'mysql2/promise';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 let pool = null;
 
-async function getPool() {
+export async function getPool() {
   if (pool) return pool;
-  
+
   const config = {
     host: process.env.DB_HOST || 'localhost',
     port: parseInt(process.env.DB_PORT) || 3306,
@@ -15,7 +19,7 @@ async function getPool() {
     connectionLimit: 10,
     queueLimit: 0
   };
-  
+
   try {
     pool = mysql.createPool(config);
     await pool.query('SELECT 1');
@@ -27,20 +31,20 @@ async function getPool() {
   }
 }
 
-async function query(sql, params = []) {
+export async function query(sql, params = []) {
   const p = await getPool();
   const [rows] = await p.execute(sql, params);
   return rows;
 }
 
-async function getOne(sql, params = []) {
+export async function getOne(sql, params = []) {
   const rows = await query(sql, params);
   return rows[0] || null;
 }
 
-async function insert(table, data) {
+export async function insert(table, data) {
   const p = await getPool();
-  
+
   const fields = Object.keys(data);
   const values = Object.values(data);
   const placeholders = fields.map(() => '?').join(', ');
@@ -49,9 +53,9 @@ async function insert(table, data) {
   return result.insertId;
 }
 
-async function update(table, id, data) {
+export async function update(table, id, data) {
   const p = await getPool();
-  
+
   const fields = Object.keys(data);
   const values = Object.values(data);
   const setClause = fields.map(f => `${f} = ?`).join(', ');
@@ -60,19 +64,19 @@ async function update(table, id, data) {
   await p.execute(sql, values);
 }
 
-async function remove(table, id) {
+export async function remove(table, id) {
   const p = await getPool();
   await p.execute(`DELETE FROM ${table} WHERE id = ?`, [id]);
 }
 
-async function close() {
+export async function close() {
   if (pool) {
     await pool.end();
     pool = null;
   }
 }
 
-module.exports = {
+export default {
   getPool,
   query,
   getOne,
