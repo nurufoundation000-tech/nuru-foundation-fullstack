@@ -1,5 +1,5 @@
-// middleware/errorHandler.js - Global Error Handler
-export function errorHandler(err, req, res, next) {
+// middleware/errorHandler.js - Global Error Handler (CommonJS)
+function errorHandler(err, req, res, next) {
   console.error('Error:', err.message);
   console.error('Stack:', err.stack);
 
@@ -10,4 +10,4 @@ export function errorHandler(err, req, res, next) {
   });
 }
 
-export default errorHandler;
+module.exports = errorHandler;

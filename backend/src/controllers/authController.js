@@ -1,15 +1,15 @@
-// controllers/authController.js - Authentication Controller
-import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
-import db from '../config/database.js';
-import { sendWelcomeEmail } from '../lib/email.js';
-import { 
+// controllers/authController.js - Authentication Controller (CommonJS)
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const db = require('../config/database.js');
+const { sendWelcomeEmail } = require('../lib/email.js');
+const { 
   generateInitialInvoices, 
   checkAndUpdateInvoiceStatuses, 
   isStudentLocked 
-} from '../lib/invoices.js';
+} = require('../lib/invoices.js');
 
-export async function login(req, res) {
+async function login(req, res) {
   try {
     const { email, password } = req.body;
     console.log('Login attempt:', email);
@@ -34,7 +34,6 @@ export async function login(req, res) {
       role = await db.getOne('SELECT name FROM roles WHERE id = ?', [user.role_id]);
     }
 
-    // Check if student has overdue invoices and lock them if needed
     if (role?.name === 'student') {
       await checkAndUpdateInvoiceStatuses();
       await generateInitialInvoices(user.id);
@@ -48,12 +47,13 @@ export async function login(req, res) {
     }
 
     const { password_hash, ...userWithoutPassword } = user;
+    const roleName = role?.name || 'user';
 
     const token = jwt.sign(
       {
         userId: user.id,
         email: user.email,
-        role: role?.name || 'user'
+        role: roleName
       },
       process.env.JWT_SECRET || 'fallback-secret',
       { expiresIn: '24h' }
@@ -61,7 +61,7 @@ export async function login(req, res) {
 
     res.json({
       success: true,
-      user: userWithoutPassword,
+      user: { ...userWithoutPassword, role: roleName },
       token,
       message: 'Login successful'
     });
@@ -81,7 +81,7 @@ function generateRandomPassword(length = 12) {
   return password;
 }
 
-export async function register(req, res) {
+async function register(req, res) {
   try {
     const { email, username, fullName, roleId } = req.body;
 
@@ -117,7 +117,6 @@ export async function register(req, res) {
 
     const user = await db.getOne('SELECT * FROM users WHERE id = ?', [userId]);
 
-    // Send welcome email
     try {
       await sendWelcomeEmail(email, username, generatedPassword);
       console.log('Welcome email sent to:', email);
@@ -131,12 +130,13 @@ export async function register(req, res) {
     }
 
     const { password_hash, ...userWithoutPassword } = user;
+    const roleName = role?.name || 'user';
 
     const token = jwt.sign(
       {
         userId: user.id,
         email: user.email,
-        role: role?.name || 'user'
+        role: roleName
       },
       process.env.JWT_SECRET || 'fallback-secret',
       { expiresIn: '24h' }
@@ -144,7 +144,7 @@ export async function register(req, res) {
 
     res.status(201).json({
       success: true,
-      user: userWithoutPassword,
+      user: { ...userWithoutPassword, role: roleName },
       token,
       message: 'Registration successful. Please check your email for login credentials.'
     });
@@ -155,7 +155,7 @@ export async function register(req, res) {
   }
 }
 
-export default {
+module.exports = {
   login,
   register
 };

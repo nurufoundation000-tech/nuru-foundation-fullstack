@@ -1,12 +1,10 @@
-// config/database.js - MySQL Database Configuration
-import mysql from 'mysql2/promise';
-import dotenv from 'dotenv';
-
-dotenv.config();
+// config/database.js - MySQL Database Configuration (CommonJS)
+const mysql = require('mysql2/promise');
+require('dotenv').config();
 
 let pool = null;
 
-export async function getPool() {
+async function getPool() {
   if (pool) return pool;
 
   const config = {
@@ -31,18 +29,18 @@ export async function getPool() {
   }
 }
 
-export async function query(sql, params = []) {
+async function query(sql, params = []) {
   const p = await getPool();
-  const [rows] = await p.execute(sql, params);
+  const [rows] = await p.query(sql, params);
   return rows;
 }
 
-export async function getOne(sql, params = []) {
+async function getOne(sql, params = []) {
   const rows = await query(sql, params);
   return rows[0] || null;
 }
 
-export async function insert(table, data) {
+async function insert(table, data) {
   const p = await getPool();
 
   const fields = Object.keys(data);
@@ -53,7 +51,7 @@ export async function insert(table, data) {
   return result.insertId;
 }
 
-export async function update(table, id, data) {
+async function update(table, id, data) {
   const p = await getPool();
 
   const fields = Object.keys(data);
@@ -64,19 +62,19 @@ export async function update(table, id, data) {
   await p.execute(sql, values);
 }
 
-export async function remove(table, id) {
+async function remove(table, id) {
   const p = await getPool();
   await p.execute(`DELETE FROM ${table} WHERE id = ?`, [id]);
 }
 
-export async function close() {
+async function close() {
   if (pool) {
     await pool.end();
     pool = null;
   }
 }
 
-export default {
+module.exports = {
   getPool,
   query,
   getOne,

@@ -1,7 +1,7 @@
-// controllers/studentController.js - Student Dashboard Controller
-import db from '../config/database.js';
+// controllers/studentController.js - Student Dashboard Controller (CommonJS)
+const db = require('../config/database.js');
 
-export async function getStudentCourses(req, res) {
+async function getStudentCourses(req, res) {
   try {
     const enrollments = await db.query(`
       SELECT e.*, c.title, c.description, c.category,
@@ -46,7 +46,7 @@ export async function getStudentCourses(req, res) {
   }
 }
 
-export async function getProgress(req, res) {
+async function getProgress(req, res) {
   try {
     const enrollments = await db.query(`
       SELECT e.*, c.title, c.description, c.category,
@@ -89,7 +89,7 @@ export async function getProgress(req, res) {
   }
 }
 
-export async function completeLesson(req, res) {
+async function completeLesson(req, res) {
   try {
     const lessonId = parseInt(req.params.lessonId);
 
@@ -141,7 +141,7 @@ export async function completeLesson(req, res) {
   }
 }
 
-export async function unenrollFromCourse(req, res) {
+async function unenrollFromCourse(req, res) {
   try {
     const enrollmentId = parseInt(req.params.enrollmentId);
 
@@ -169,7 +169,7 @@ export async function unenrollFromCourse(req, res) {
   }
 }
 
-export default {
+module.exports = {
   getStudentCourses,
   getProgress,
   completeLesson,

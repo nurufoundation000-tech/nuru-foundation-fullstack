@@ -1,16 +1,13 @@
-# Passenger Node.js configuration (UPDATED)
+# 1. Initialize Passenger
 PassengerAppRoot /home3/nurufoun/backend
 PassengerStartupFile src/app.js
 PassengerAppType node
+PassengerEnabled on
+PassengerAppLogFile /home3/nurufoun/logs/passenger.log
 
-# Frontend routing - serve index.html for non-API requests only
 RewriteEngine On
 RewriteBase /
-
-# Skip rewriting for /api paths
-RewriteCond %{REQUEST_URI} !^/api [NC]
-# Skip rewriting for static files
+RewriteRule ^index\.js$ - [L]
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-# Serve index.html only for frontend routes
-RewriteRule ^ /index.html [L]
+RewriteRule ^ - [L]

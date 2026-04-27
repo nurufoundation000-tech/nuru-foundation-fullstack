@@ -15,7 +15,7 @@ const config = {
   
   routes: {
     login: '/login.html',
-    register: '/register.html',
+    register: '/apply-now-bt.html',
     studentDashboard: '/student-dashboard/index.html',
     tutorDashboard: '/tutor-dashboard/index.html',
     adminDashboard: '/admin-dashboard/index.html'

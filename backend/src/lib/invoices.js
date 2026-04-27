@@ -1,11 +1,11 @@
-// lib/invoices.js - Invoice and Billing System (ES Modules)
-import db from '../config/database.js';
+// lib/invoices.js - Invoice and Billing System (CommonJS)
+const db = require('../config/database.js');
+const fs = require('fs');
 
 const GLOBAL_SETTINGS_PATH = './global-billing.json';
 
 async function getGlobalSettings() {
   try {
-    const fs = await import('fs');
     const settingsPath = GLOBAL_SETTINGS_PATH;
     let settings = { billingDay: 1, gracePeriodDays: 2 };
     if (fs.existsSync(settingsPath)) {
@@ -18,7 +18,7 @@ async function getGlobalSettings() {
   }
 }
 
-export async function generateInitialInvoices(studentId) {
+async function generateInitialInvoices(studentId) {
   const settings = await getGlobalSettings();
   const enrollments = await db.query(`
     SELECT e.*, c.title as course_title, cp.initial_payment, cp.is_active
@@ -56,7 +56,7 @@ export async function generateInitialInvoices(studentId) {
   }
 }
 
-export async function checkAndUpdateInvoiceStatuses() {
+async function checkAndUpdateInvoiceStatuses() {
   const settings = await getGlobalSettings();
   const now = new Date();
 
@@ -74,7 +74,7 @@ export async function checkAndUpdateInvoiceStatuses() {
   }
 }
 
-export async function generateMonthlyInvoices() {
+async function generateMonthlyInvoices() {
   const settings = await getGlobalSettings();
   const billingDay = settings.billingDay;
   const today = new Date();
@@ -124,7 +124,7 @@ export async function generateMonthlyInvoices() {
   }
 }
 
-export async function isStudentLocked(studentId) {
+async function isStudentLocked(studentId) {
   const invoice = await db.getOne(`
     SELECT id FROM invoices 
     WHERE student_id = ? AND status = 'locked'
@@ -132,7 +132,7 @@ export async function isStudentLocked(studentId) {
   return !!invoice;
 }
 
-export async function getStudentInvoices(studentId) {
+async function getStudentInvoices(studentId) {
   return await db.query(`
     SELECT i.*, c.title as course_title
     FROM invoices i
@@ -142,7 +142,7 @@ export async function getStudentInvoices(studentId) {
   `, [studentId]);
 }
 
-export async function getInvoiceById(invoiceId) {
+async function getInvoiceById(invoiceId) {
   return await db.getOne(`
     SELECT i.*, c.title as course_title, u.full_name as student_name, u.email as student_email
     FROM invoices i
@@ -152,7 +152,7 @@ export async function getInvoiceById(invoiceId) {
   `, [invoiceId]);
 }
 
-export async function markInvoicePaid(invoiceId, paymentData) {
+async function markInvoicePaid(invoiceId, paymentData) {
   await db.update('invoices', invoiceId, {
     status: 'paid',
     paid_at: new Date(),
@@ -174,7 +174,7 @@ export async function markInvoicePaid(invoiceId, paymentData) {
   }
 }
 
-export async function createInvoice(data) {
+async function createInvoice(data) {
   return await db.insert('invoices', {
     student_id: data.studentId,
     course_id: data.courseId,
@@ -186,7 +186,7 @@ export async function createInvoice(data) {
   });
 }
 
-export default {
+module.exports = {
   getGlobalSettings,
   generateInitialInvoices,
   checkAndUpdateInvoiceStatuses,

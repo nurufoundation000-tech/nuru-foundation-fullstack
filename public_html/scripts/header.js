@@ -106,7 +106,7 @@ function initHeader() {
         } else {
             const loginHtml = `
                 <a href="/login.html" class="btn btn-outline">Login</a>
-                <a href="/register.html" class="btn btn-primary">Get Started</a>
+                <a href="/apply-now-bt.html" class="btn btn-primary">Get Started</a>
             `;
             if (headerActions) headerActions.innerHTML = loginHtml;
             if (mobileActions) mobileActions.innerHTML = loginHtml;

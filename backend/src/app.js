@@ -1,41 +1,29 @@
-// src/app.js - PRODUCTION VERSION for HostPinnacle (Passenger + Static Serving)
-// Based on MediQuick architecture pattern
-import express from 'express';
-import path from 'path';
-import cors from 'cors';
-import helmet from 'helmet';
-import fs from 'fs';
-import dotenv from 'dotenv';
-import { fileURLToPath } from 'url';
-import os from 'os';
-
-dotenv.config();
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// src/app.js - PRODUCTION VERSION for LiteSpeed (CommonJS)
+const express = require('express');
+const path = require('path');
+const cors = require('cors');
+const helmet = require('helmet');
+const fs = require('fs');
+require('dotenv').config();
 
 const app = express();
+const routes = require('./routes/index.js');
 
-// Path resolution for HostPinnacle structure
-const projectRoot = path.resolve(__dirname, '..');
-const publicHtmlPath = path.resolve(projectRoot, 'public_html');
-
-// Import routes
-import routes from './routes/index.js';
+console.log('[App] Checking environment variables...');
+console.log('[App] EMAIL_USER:', process.env.EMAIL_USER ? 'SET' : 'NOT SET');
+console.log('[App] EMAIL_PASS:', process.env.EMAIL_PASS ? 'SET' : 'NOT SET');
+console.log('[App] FRONTEND_URL:', process.env.FRONTEND_URL || 'NOT SET');
 
 const PORT = process.env.PORT || 5000;
 const HOST = '0.0.0.0';
 
-// ================= CRITICAL: SKIP STATIC FOR API =================
-// This middleware MUST come BEFORE express.static to block /api from being served as static files
-app.use((req, res, next) => {
-  if (req.path.startsWith('/api')) {
-    return next('route'); // Skip static file serving for API paths
-  }
+const publicHtmlPath = path.resolve(__dirname, '..', 'public_html');
+
+// CRITICAL: Skip static for API paths
+app.use('/api', (req, res, next) => {
   next();
 });
 
-// ================= PRODUCTION CORS =================
 const allowedOrigins = [
   'https://nurufoundations.com',
   'https://www.nurufoundations.com',
@@ -62,7 +50,6 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-// ================= SECURITY & MIDDLEWARE =================
 app.use(helmet({
   contentSecurityPolicy: false,
   crossOriginEmbedderPolicy: false,
@@ -72,7 +59,6 @@ app.use(helmet({
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// ================= STATIC FRONTEND (API paths already filtered out) =================
 if (fs.existsSync(publicHtmlPath)) {
   app.use(express.static(publicHtmlPath, {
     setHeaders: (res, filePath) => {
@@ -87,15 +73,21 @@ if (fs.existsSync(publicHtmlPath)) {
   console.log('Static frontend configured at:', publicHtmlPath);
 }
 
-// ================= HEALTH CHECK - FIRST API ROUTE =================
-// This MUST be defined BEFORE app.use('/api', routes) to ensure it catches
+// ================= API ROUTES =================
+app.use('/api', routes);
+
+// Debug route to test if routes are mounted
+app.get('/api/test', (req, res) => {
+  res.json({ test: 'ok', message: 'Routes working!', timestamp: new Date().toISOString() });
+});
+
 app.get('/api/health', async (req, res) => {
   try {
-    const db = await import('./config/database.js');
-    await db.default.query('SELECT 1');
+    const db = require('./config/database.js');
+    await db.query('SELECT 1');
     res.json({
       status: 'OK',
-      message: 'Nuru Foundation Backend is running on Passenger!',
+      message: 'Nuru Foundation Backend is running on LiteSpeed!',
       timestamp: new Date().toISOString(),
       environment: process.env.NODE_ENV || 'production',
       database: 'Connected'
@@ -109,11 +101,6 @@ app.get('/api/health', async (req, res) => {
   }
 });
 
-// ================= API ROUTES =================
-app.use('/api', routes);
-
-// ================= EXPLICIT FRONTEND ROUTES =================
-// These must be explicit to avoid the fallback catching API requests
 const frontendPages = [
   '/',
   '/index.html',
@@ -142,7 +129,6 @@ frontendPages.forEach(pagePath => {
   });
 });
 
-// ================= DASHBOARD ROUTES =================
 app.get('/admin-dashboard', (req, res) => {
   res.sendFile(path.join(publicHtmlPath, 'admin-dashboard', 'index.html'));
 });
@@ -153,8 +139,6 @@ app.get('/tutor-dashboard', (req, res) => {
   res.sendFile(path.join(publicHtmlPath, 'tutor-dashboard', 'index.html'));
 });
 
-// ================= SPA FALLBACK =================
-// Only match .html requests that aren't API calls
 app.get(/.*\.html$/, (req, res) => {
   if (req.path.startsWith('/api')) {
     return res.status(404).json({ error: 'API endpoint not found' });
@@ -169,7 +153,7 @@ app.get(/.*\.html$/, (req, res) => {
 });
 
 // ================= DEFAULT FALLBACK =================
-app.get('*', (req, res) => {
+app.use((req, res) => {
   if (req.path.startsWith('/api')) {
     return res.status(404).json({ error: 'API endpoint not found' });
   }
@@ -182,7 +166,6 @@ app.get('*', (req, res) => {
   }
 });
 
-// ================= ERROR HANDLER =================
 app.use((err, req, res, next) => {
   console.error('SERVER_ERROR:', err.message);
   res.status(500).json({
@@ -192,7 +175,6 @@ app.use((err, req, res, next) => {
   });
 });
 
-// ================ START THE SERVER =================
 const server = app.listen(PORT, HOST, () => {
   console.log(`\n🚀 ===========================================`);
   console.log(`✅ Nuru Foundation Backend is running!`);
@@ -210,4 +192,4 @@ server.on('error', (error) => {
   }
 });
 
-export default app;
+module.exports = app;

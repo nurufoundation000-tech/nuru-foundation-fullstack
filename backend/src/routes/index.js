@@ -1,23 +1,23 @@
-// routes/index.js - Main API Routes
-import express from 'express';
+// routes/index.js - Main API Routes (CommonJS)
+const express = require('express');
 const router = express.Router();
 
-import AuthController from '../controllers/authController.js';
-import UserController from '../controllers/userController.js';
-import CourseController from '../controllers/courseController.js';
-import StudentController from '../controllers/studentController.js';
-import TutorController from '../controllers/tutorController.js';
-import AdminController from '../controllers/adminController.js';
-import MpesaController from '../controllers/mpesaController.js';
-import { authenticateToken, requireRole } from '../middleware/auth.js';
-import { generateInitialInvoices, checkAndUpdateInvoiceStatuses, isStudentLocked } from '../lib/invoices.js';
+const AuthController = require('../controllers/authController.js');
+const UserController = require('../controllers/userController.js');
+const CourseController = require('../controllers/courseController.js');
+const StudentController = require('../controllers/studentController.js');
+const TutorController = require('../controllers/tutorController.js');
+const AdminController = require('../controllers/adminController.js');
+const MpesaController = require('../controllers/mpesaController.js');
+const { authenticateToken, requireRole } = require('../middleware/auth.js');
+const { generateInitialInvoices, checkAndUpdateInvoiceStatuses, isStudentLocked } = require('../lib/invoices.js');
 
 const requireTutor = [authenticateToken, requireRole(['tutor'])];
 const requireAdmin = [authenticateToken, requireRole(['admin'])];
 
 // ==================== AUTH ROUTES ====================
 router.post('/auth/login', AuthController.login);
-router.post('/auth/register', AuthController.register);
+router.post('/auth/register', authenticateToken, requireRole(['admin', 'tutor']), AuthController.register);
 
 // ==================== USER ROUTES ====================
 router.get('/users/me', authenticateToken, UserController.getCurrentUser);
@@ -57,17 +57,13 @@ router.get('/admin/courses-list', authenticateToken, requireAdmin, AdminControll
 router.get('/admin/users', authenticateToken, requireAdmin, AdminController.getUsers);
 router.post('/admin/users', authenticateToken, requireAdmin, AdminController.createUser);
 router.put('/admin/users/:id', authenticateToken, requireAdmin, AdminController.updateUser);
+router.delete('/admin/users/:id', authenticateToken, requireAdmin, AdminController.deleteUser);
 
 // ==================== MPESA ROUTES ====================
-// Public callback endpoint (no auth required)
 router.post('/mpesa/callback', MpesaController.handleCallback);
-
-// Protected M-Pesa endpoints
 router.post('/mpesa/initiate', authenticateToken, requireRole(['student']), MpesaController.initiatePayment);
 router.get('/mpesa/status/:checkoutRequestId', authenticateToken, MpesaController.checkPaymentStatus);
 router.get('/mpesa/config', MpesaController.getConfiguration);
-
-// Admin simulation endpoint (for testing)
 router.post('/mpesa/simulate', authenticateToken, requireAdmin, MpesaController.simulateCallback);
 
-export default router;
+module.exports = router;

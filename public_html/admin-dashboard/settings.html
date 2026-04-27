@@ -618,9 +618,7 @@ Languages</textarea>
     </div>
 
     <script>
-        const API_BASE_URL = window.location.hostname === 'localhost' 
-            ? 'http://localhost:3000/api' 
-            : 'https://nuru-foundation-fullstack.vercel.app/api';
+        const API_BASE_URL = '/api';
 
         document.addEventListener('DOMContentLoaded', function() {
             initializeSettingsManagement();

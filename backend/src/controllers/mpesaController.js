@@ -1,17 +1,16 @@
-// controllers/mpesaController.js - M-Pesa Controller
-import db from '../config/database.js';
-import { 
+// controllers/mpesaController.js - M-Pesa Controller (CommonJS)
+const db = require('../config/database.js');
+const { 
   initiateSTKPush, 
   queryTransactionStatus, 
   parseCallbackPayload, 
   formatPhoneNumber,
   isMpesaConfigured,
   simulatePayment 
-} from '../lib/mpesa.js';
-import { markInvoicePaid, isStudentLocked, generateInitialInvoices } from '../lib/invoices.js';
-import { authenticateToken } from '../middleware/auth.js';
+} = require('../lib/mpesa.js');
+const { markInvoicePaid } = require('../lib/invoices.js');
 
-export async function initiatePayment(req, res) {
+async function initiatePayment(req, res) {
   try {
     const { invoiceId, phoneNumber, amount } = req.body;
 
@@ -61,7 +60,6 @@ export async function initiatePayment(req, res) {
       return res.status(400).json({ error: result.error });
     }
 
-    // Store the checkout request ID with the invoice
     await db.update('invoices', invoiceId, {
       checkout_request_id: result.checkoutRequestId
     });
@@ -78,7 +76,7 @@ export async function initiatePayment(req, res) {
   }
 }
 
-export async function handleCallback(req, res) {
+async function handleCallback(req, res) {
   try {
     console.log('[M-Pesa] Callback received:', JSON.stringify(req.body));
 
@@ -94,7 +92,6 @@ export async function handleCallback(req, res) {
       return res.status(400).json({ error: parsed.resultDesc });
     }
 
-    // Find the invoice by checkout request ID
     const invoice = await db.getOne(`
       SELECT id, student_id, amount FROM invoices 
       WHERE checkout_request_id = ?
@@ -105,7 +102,6 @@ export async function handleCallback(req, res) {
       return res.status(404).json({ error: 'Invoice not found' });
     }
 
-    // Mark invoice as paid
     await markInvoicePaid(invoice.id, {
       method: 'mpesa',
       transactionId: parsed.checkoutRequestId,
@@ -121,7 +117,7 @@ export async function handleCallback(req, res) {
   }
 }
 
-export async function checkPaymentStatus(req, res) {
+async function checkPaymentStatus(req, res) {
   try {
     const { checkoutRequestId } = req.params;
 
@@ -147,7 +143,6 @@ export async function checkPaymentStatus(req, res) {
     if (result.resultCode === '0') {
       invoiceStatus = 'paid';
 
-      // Mark invoice as paid
       const invoice = await db.getOne(`
         SELECT id FROM invoices WHERE checkout_request_id = ?
       `, [checkoutRequestId]);
@@ -175,7 +170,7 @@ export async function checkPaymentStatus(req, res) {
   }
 }
 
-export async function getConfiguration(req, res) {
+async function getConfiguration(req, res) {
   try {
     const configured = isMpesaConfigured();
     res.json({
@@ -189,7 +184,7 @@ export async function getConfiguration(req, res) {
   }
 }
 
-export async function simulateCallback(req, res) {
+async function simulateCallback(req, res) {
   try {
     const { invoiceId, amount } = req.body;
 
@@ -219,7 +214,7 @@ export async function simulateCallback(req, res) {
   }
 }
 
-export default {
+module.exports = {
   initiatePayment,
   handleCallback,
   checkPaymentStatus,

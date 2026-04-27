@@ -1,7 +1,7 @@
-// controllers/courseController.js - Course Controller
-import db from '../config/database.js';
+// controllers/courseController.js - Course Controller (CommonJS)
+const db = require('../config/database.js');
 
-export async function getAllCourses(req, res) {
+async function getAllCourses(req, res) {
   try {
     const courses = await db.query(`
       SELECT c.*, u.full_name as tutor_name, u.username as tutor_username,
@@ -20,7 +20,7 @@ export async function getAllCourses(req, res) {
   }
 }
 
-export async function getCourseById(req, res) {
+async function getCourseById(req, res) {
   try {
     const courseId = parseInt(req.params.id);
 
@@ -54,7 +54,7 @@ export async function getCourseById(req, res) {
   }
 }
 
-export async function enrollInCourse(req, res) {
+async function enrollInCourse(req, res) {
   try {
     const courseId = parseInt(req.params.id);
 
@@ -96,7 +96,7 @@ export async function enrollInCourse(req, res) {
   }
 }
 
-export default {
+module.exports = {
   getAllCourses,
   getCourseById,
   enrollInCourse

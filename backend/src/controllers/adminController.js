@@ -1,6 +1,7 @@
-// controllers/adminController.js - Admin Dashboard Controller
-import bcrypt from 'bcryptjs';
-import db from '../config/database.js';
+// controllers/adminController.js - Admin Dashboard Controller (CommonJS)
+const bcrypt = require('bcryptjs');
+const db = require('../config/database.js');
+const { sendWelcomeEmail } = require('../lib/email.js');
 
 function generateRandomPassword(length = 12) {
   const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
@@ -11,7 +12,7 @@ function generateRandomPassword(length = 12) {
   return password;
 }
 
-export async function getDashboardStats(req, res) {
+async function getDashboardStats(req, res) {
   try {
     const [totalUsers, totalCourses, totalEnrollments] = await Promise.all([
       db.query('SELECT COUNT(*) as count FROM users'),
@@ -57,7 +58,7 @@ export async function getDashboardStats(req, res) {
   }
 }
 
-export async function getCourses(req, res) {
+async function getCourses(req, res) {
   try {
     const courses = await db.query(`
       SELECT c.*, u.full_name as tutor_name, u.email as tutor_email, cp.*
@@ -74,7 +75,7 @@ export async function getCourses(req, res) {
   }
 }
 
-export async function createCourse(req, res) {
+async function createCourse(req, res) {
   try {
     const { title, description, category, level, thumbnailUrl, isPublished, pricing } = req.body;
 
@@ -116,7 +117,7 @@ export async function createCourse(req, res) {
   }
 }
 
-export async function updateCourse(req, res) {
+async function updateCourse(req, res) {
   try {
     const courseId = parseInt(req.params.id);
     const { title, description, category, level, thumbnailUrl, isPublished, pricing } = req.body;
@@ -165,7 +166,7 @@ export async function updateCourse(req, res) {
   }
 }
 
-export async function deleteCourse(req, res) {
+async function deleteCourse(req, res) {
   try {
     const courseId = parseInt(req.params.id);
 
@@ -183,7 +184,7 @@ export async function deleteCourse(req, res) {
   }
 }
 
-export async function getEnrollments(req, res) {
+async function getEnrollments(req, res) {
   try {
     const enrollments = await db.query(`
       SELECT e.*, u.full_name, u.email, c.title as course_title, t.full_name as tutor_name
@@ -201,7 +202,7 @@ export async function getEnrollments(req, res) {
   }
 }
 
-export async function createEnrollment(req, res) {
+async function createEnrollment(req, res) {
   try {
     const { studentId, courseId } = req.body;
 
@@ -246,7 +247,7 @@ export async function createEnrollment(req, res) {
   }
 }
 
-export async function getStudents(req, res) {
+async function getStudents(req, res) {
   try {
     const students = await db.query(`
       SELECT id, full_name, email, username 
@@ -262,7 +263,7 @@ export async function getStudents(req, res) {
   }
 }
 
-export async function getCoursesList(req, res) {
+async function getCoursesList(req, res) {
   try {
     const courses = await db.query(`
       SELECT c.id, c.title, c.category, u.full_name as tutor_name
@@ -278,7 +279,7 @@ export async function getCoursesList(req, res) {
   }
 }
 
-export async function getUsers(req, res) {
+async function getUsers(req, res) {
   try {
     const users = await db.query(`
       SELECT u.*, r.name as role_name,
@@ -296,7 +297,7 @@ export async function getUsers(req, res) {
   }
 }
 
-export async function createUser(req, res) {
+async function createUser(req, res) {
   try {
     const { username, email, fullName, role } = req.body;
 
@@ -335,6 +336,14 @@ export async function createUser(req, res) {
     const user = await db.getOne('SELECT * FROM users WHERE id = ?', [userId]);
     const { password_hash, ...userWithoutPassword } = user;
 
+    // Send welcome email
+    try {
+      await sendWelcomeEmail(email, username, generatedPassword);
+      console.log('[Admin] Welcome email sent to:', email);
+    } catch (emailError) {
+      console.error('[Admin] Failed to send welcome email:', emailError.message);
+    }
+
     res.status(201).json({
       success: true,
       data: userWithoutPassword,
@@ -347,7 +356,7 @@ export async function createUser(req, res) {
   }
 }
 
-export async function updateUser(req, res) {
+async function updateUser(req, res) {
   try {
     const { id } = req.params;
     const { username, email, fullName, role, isActive } = req.body;
@@ -398,7 +407,32 @@ export async function updateUser(req, res) {
   }
 }
 
-export default {
+async function deleteUser(req, res) {
+  try {
+    const userId = parseInt(req.params.id);
+
+    if (!userId || isNaN(userId)) {
+      return res.status(400).json({ error: 'Invalid user ID' });
+    }
+
+    const user = await db.getOne('SELECT id, email, username FROM users WHERE id = ?', [userId]);
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    await db.query('DELETE FROM users WHERE id = ?', [userId]);
+    console.log('User deleted:', user.email);
+
+    res.json({ success: true, message: 'User deleted successfully' });
+
+  } catch (error) {
+    console.error('Delete user error:', error);
+    res.status(500).json({ error: 'Failed to delete user' });
+  }
+}
+
+module.exports = {
   getDashboardStats,
   getCourses,
   createCourse,
@@ -410,5 +444,6 @@ export default {
   getCoursesList,
   getUsers,
   createUser,
-  updateUser
+  updateUser,
+  deleteUser
 };

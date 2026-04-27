@@ -1,9 +1,9 @@
-// middleware/auth.js - Authentication Middleware (with student locking)
-import jwt from 'jsonwebtoken';
-import db from '../config/database.js';
-import { isStudentLocked, checkAndUpdateInvoiceStatuses, generateInitialInvoices } from '../lib/invoices.js';
+// middleware/auth.js - Authentication Middleware (CommonJS)
+const jwt = require('jsonwebtoken');
+const db = require('../config/database.js');
+const { isStudentLocked, checkAndUpdateInvoiceStatuses } = require('../lib/invoices.js');
 
-export async function authenticateToken(req, res, next) {
+async function authenticateToken(req, res, next) {
   try {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -24,7 +24,6 @@ export async function authenticateToken(req, res, next) {
       role = await db.getOne('SELECT name FROM roles WHERE id = ?', [user.role_id]);
     }
 
-    // Check if student has overdue invoices and lock them if needed
     if (role?.name === 'student') {
       await checkAndUpdateInvoiceStatuses();
       const locked = await isStudentLocked(user.id);
@@ -57,7 +56,7 @@ export async function authenticateToken(req, res, next) {
   }
 }
 
-export function requireRole(allowedRoles) {
+function requireRole(allowedRoles) {
   return (req, res, next) => {
     if (!req.user) {
       return res.status(401).json({ error: 'Authentication required' });
@@ -71,11 +70,11 @@ export function requireRole(allowedRoles) {
   };
 }
 
-export const requireStudent = [authenticateToken, requireRole(['student'])];
-export const requireTutor = [authenticateToken, requireRole(['tutor'])];
-export const requireAdmin = [authenticateToken, requireRole(['admin'])];
+const requireStudent = [authenticateToken, requireRole(['student'])];
+const requireTutor = [authenticateToken, requireRole(['tutor'])];
+const requireAdmin = [authenticateToken, requireRole(['admin'])];
 
-export default {
+module.exports = {
   authenticateToken,
   requireRole,
   requireStudent,

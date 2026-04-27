@@ -1,9 +1,8 @@
-// controllers/userController.js - User Controller
-import bcrypt from 'bcryptjs';
-import db from '../config/database.js';
-import { authenticateToken } from '../middleware/auth.js';
+// controllers/userController.js - User Controller (CommonJS)
+const bcrypt = require('bcryptjs');
+const db = require('../config/database.js');
 
-export async function getCurrentUser(req, res) {
+async function getCurrentUser(req, res) {
   try {
     const user = await db.getOne('SELECT * FROM users WHERE id = ?', [req.user.userId]);
 
@@ -25,7 +24,7 @@ export async function getCurrentUser(req, res) {
   }
 }
 
-export async function updateProfile(req, res) {
+async function updateProfile(req, res) {
   try {
     const { fullName, username, email } = req.body;
 
@@ -67,7 +66,7 @@ export async function updateProfile(req, res) {
   }
 }
 
-export async function changePassword(req, res) {
+async function changePassword(req, res) {
   try {
     const { currentPassword, newPassword } = req.body;
 
@@ -101,7 +100,7 @@ export async function changePassword(req, res) {
   }
 }
 
-export async function setPassword(req, res) {
+async function setPassword(req, res) {
   try {
     const { newPassword } = req.body;
 
@@ -127,7 +126,7 @@ export async function setPassword(req, res) {
   }
 }
 
-export async function skipPasswordChange(req, res) {
+async function skipPasswordChange(req, res) {
   try {
     await db.update('users', req.user.userId, { must_change_password: false });
     res.json({ success: true, message: 'Password change skipped' });
@@ -137,7 +136,7 @@ export async function skipPasswordChange(req, res) {
   }
 }
 
-export default {
+module.exports = {
   getCurrentUser,
   updateProfile,
   changePassword,

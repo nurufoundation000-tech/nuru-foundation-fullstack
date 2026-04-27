@@ -1,7 +1,7 @@
-// controllers/tutorController.js - Tutor Dashboard Controller
-import db from '../config/database.js';
+// controllers/tutorController.js - Tutor Dashboard Controller (CommonJS)
+const db = require('../config/database.js');
 
-export async function getTutorCourses(req, res) {
+async function getTutorCourses(req, res) {
   try {
     const courses = await db.query(`
       SELECT c.*,
@@ -20,7 +20,7 @@ export async function getTutorCourses(req, res) {
   }
 }
 
-export async function createCourse(req, res) {
+async function createCourse(req, res) {
   try {
     const { title, description, category, level, isPublished } = req.body;
 
@@ -52,7 +52,7 @@ export async function createCourse(req, res) {
   }
 }
 
-export async function updateCourse(req, res) {
+async function updateCourse(req, res) {
   try {
     const courseId = parseInt(req.params.id);
 
@@ -89,7 +89,7 @@ export async function updateCourse(req, res) {
   }
 }
 
-export async function getCourseLessons(req, res) {
+async function getCourseLessons(req, res) {
   try {
     const courseId = parseInt(req.params.courseId);
 
@@ -117,7 +117,7 @@ export async function getCourseLessons(req, res) {
   }
 }
 
-export async function getTransactions(req, res) {
+async function getTransactions(req, res) {
   try {
     const tutorCourses = await db.query(`
       SELECT id FROM courses WHERE tutor_id = ?
@@ -146,7 +146,7 @@ export async function getTransactions(req, res) {
   }
 }
 
-export default {
+module.exports = {
   getTutorCourses,
   createCourse,
   updateCourse,

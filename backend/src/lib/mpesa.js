@@ -1,8 +1,6 @@
-// lib/mpesa.js - M-Pesa Integration (ES Modules)
-import axios from 'axios';
-import dotenv from 'dotenv';
-
-dotenv.config();
+// lib/mpesa.js - M-Pesa Integration (CommonJS)
+const axios = require('axios');
+require('dotenv').config();
 
 const MPESA_CONFIG = {
   consumerKey: process.env.MPESA_CONSUMER_KEY || 'your_consumer_key',
@@ -23,7 +21,7 @@ const getBaseUrl = () => {
 let accessToken = null;
 let tokenExpiry = null;
 
-export async function getAccessToken() {
+async function getAccessToken() {
   if (accessToken && tokenExpiry && Date.now() < tokenExpiry) {
     return accessToken;
   }
@@ -47,7 +45,7 @@ export async function getAccessToken() {
   }
 }
 
-export async function initiateSTKPush(phone, amount, invoiceId, description = 'Nuru Foundation Payment') {
+async function initiateSTKPush(phone, amount, invoiceId, description = 'Nuru Foundation Payment') {
   try {
     const token = await getAccessToken();
     const now = new Date();
@@ -94,7 +92,7 @@ export async function initiateSTKPush(phone, amount, invoiceId, description = 'N
   }
 }
 
-export async function queryTransactionStatus(checkoutRequestId) {
+async function queryTransactionStatus(checkoutRequestId) {
   try {
     const token = await getAccessToken();
     const now = new Date();
@@ -135,7 +133,7 @@ export async function queryTransactionStatus(checkoutRequestId) {
   }
 }
 
-export function parseCallbackPayload(payload) {
+function parseCallbackPayload(payload) {
   try {
     const body = payload.Body || payload;
     const stkCallback = body.stkCallback || {};
@@ -160,7 +158,7 @@ export function parseCallbackPayload(payload) {
   }
 }
 
-export function formatPhoneNumber(phone) {
+function formatPhoneNumber(phone) {
   let cleaned = phone.replace(/\D/g, '');
 
   if (cleaned.startsWith('0')) {
@@ -176,7 +174,7 @@ export function formatPhoneNumber(phone) {
   return null;
 }
 
-export function isMpesaConfigured() {
+function isMpesaConfigured() {
   if (MPESA_CONFIG.forceSimulation) return false;
 
   const key = MPESA_CONFIG.consumerKey;
@@ -194,7 +192,7 @@ export function isMpesaConfigured() {
     passkey !== 'YOUR_PASSKEY_HERE';
 }
 
-export function simulatePayment(invoiceId, amount) {
+function simulatePayment(invoiceId, amount) {
   return {
     success: true,
     checkoutRequestId: `SIM_${Date.now()}`,
@@ -203,7 +201,7 @@ export function simulatePayment(invoiceId, amount) {
   };
 }
 
-export default {
+module.exports = {
   getAccessToken,
   initiateSTKPush,
   queryTransactionStatus,

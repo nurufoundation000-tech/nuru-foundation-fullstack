@@ -1,26 +1,41 @@
-// lib/email.js - Email Service (ES Modules)
-import nodemailer from 'nodemailer';
-import dotenv from 'dotenv';
+// lib/email.js - Email Service (CommonJS) - Debug Version
+const nodemailer = require('nodemailer');
+require('dotenv').config();
 
-dotenv.config();
+console.log('[Email] Initializing email service...');
+console.log('[Email] EMAIL_USER set:', !!process.env.EMAIL_USER);
+console.log('[Email] EMAIL_PASS set:', !!process.env.EMAIL_PASS);
 
 let transporter = null;
 
 if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
+  console.log('[Email] Creating cPanel SMTP transporter for:', process.env.EMAIL_USER);
+  console.log('[Email] SMTP Host: nurufoundations.com, Port: 465');
   transporter = nodemailer.createTransport({
-    service: 'gmail',
+    host: 'nurufoundations.com',
+    port: 465,
+    secure: true,  // true for port 465 (SSL/TLS)
     auth: {
       user: process.env.EMAIL_USER,
       pass: process.env.EMAIL_PASS
+    },
+    tls: {
+      rejectUnauthorized: false  // Allow self-signed certs from shared hosting
     }
   });
+  console.log('[Email] Transporter created successfully');
+} else {
+  console.log('[Email] FATAL: EMAIL_USER or EMAIL_PASS not set in environment!');
 }
 
-export async function sendWelcomeEmail(to, username, password) {
+async function sendWelcomeEmail(to, username, password) {
   const loginUrl = process.env.FRONTEND_URL || 'https://nurufoundations.com';
 
+  console.log('[Email] Attempting to send welcome email to:', to);
+
   if (!transporter) {
-    console.log('[Email] Transport not configured, skipping email');
+    console.log('[Email] FATAL ERROR: Transporter is null - email will NOT be sent');
+    console.log('[Email] This usually means EMAIL_USER or EMAIL_PASS is missing from .env');
     return { success: false, logged: true };
   }
 
@@ -33,27 +48,26 @@ Welcome to Nuru Foundation!
 
 Your account has been successfully created.
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📧 LOGIN DETAILS
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+LOGIN DETAILS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 Email: ${to}
 Username: ${username}
 Password: ${password}
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 Go to: ${loginUrl}/login.html
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-⚠️  IMPORTANT SECURITY NOTES
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+IMPORTANT SECURITY NOTES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-• Change your password after first login
-• Never share your password with anyone
-• Use the "Forgot Password" feature if needed
+* Change your password after first login
+* Never share your password with anyone
+* Use the "Forgot Password" feature if needed
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 Best regards,
 The Nuru Foundation Team
@@ -99,7 +113,7 @@ ${loginUrl}
         <a href="${loginUrl}/login.html" class="login-button">Click Here to Login</a>
         
         <div class="security-box">
-            <h3>⚠️ Security Reminder</h3>
+            <h3>Security Reminder</h3>
             <ul>
                 <li><strong>Change your password</strong> after first login using the "Forgot Password" feature</li>
                 <li>Never share your password with anyone</li>
@@ -117,15 +131,27 @@ ${loginUrl}
   };
 
   try {
-    await transporter.sendMail(mailOptions);
-    console.log('[Email] Welcome email sent to:', to);
-    return { success: true };
+    console.log('[Email] Sending email with options:', JSON.stringify({
+      from: mailOptions.from,
+      to: mailOptions.to,
+      subject: mailOptions.subject
+    }));
+    
+    const info = await transporter.sendMail(mailOptions);
+    console.log('[Email] SUCCESS: Email sent! Message ID:', info.messageId);
+    console.log('[Email] SUCCESS: Response:', info.response);
+    return { success: true, messageId: info.messageId };
   } catch (error) {
-    console.error('[Email] Failed to send:', error.message);
+    console.error('[Email] FATAL ERROR: Failed to send email!');
+    console.error('[Email] Error name:', error.name);
+    console.error('[Email] Error message:', error.message);
+    console.error('[Email] Error code:', error.code);
+    console.error('[Email] Error command:', error.command);
+    console.error('[Email] Full error stack:', error.stack);
     return { success: false, error: error.message };
   }
 }
 
-export default {
+module.exports = {
   sendWelcomeEmail
 };
