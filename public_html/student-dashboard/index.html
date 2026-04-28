@@ -43,23 +43,28 @@
 <body>
     <div id="headerContainer"></div>
     
-    <div class="dashboard-container" style="padding-top: 80px;">
-        <dashboard-sidebar active="/student-dashboard/"></dashboard-sidebar>
-        
-        <div class="dashboard-main">
-            <div class="dashboard-header">
-                <h1>Welcome to Your Dashboard</h1>
-                <p>Track your progress and access your learning resources</p>
-            </div>
+        <div class="dashboard-container" style="padding-top: 80px;">
+            <dashboard-sidebar active="/student-dashboard/"></dashboard-sidebar>
             
-            <div class="user-info">
-                <h2><i class="fas fa-user"></i> Your Profile</h2>
-                <div class="user-details" id="userDetails">
-                    <div class="loading"><i class="fas fa-spinner fa-spin"></i></div>
+            <div class="dashboard-main">
+                <div class="dashboard-header">
+                    <h1>Welcome to Your Dashboard</h1>
+                    <p>Track your progress and access your learning resources</p>
                 </div>
-            </div>
-            
-            <div class="enrolled-courses">
+                
+                <div class="user-info">
+                    <h2><i class="fas fa-user"></i> Your Profile</h2>
+                    <div class="user-details" id="userDetails">
+                        <div class="loading"><i class="fas fa-spinner fa-spin"></i></div>
+                    </div>
+                </div>
+                
+                <div class="pending-invoices" id="pendingInvoicesSection" style="display: none;">
+                    <h2><i class="fas fa-exclamation-triangle" style="color: #e74c3c;"></i> Pending Payments</h2>
+                    <div id="pendingInvoicesList"></div>
+                </div>
+                
+                <div class="enrolled-courses">
                 <h2><i class="fas fa-book"></i> My Enrolled Courses</h2>
                 <div id="coursesList" class="courses-grid">
                     <div class="loading"><i class="fas fa-spinner fa-spin"></i></div>
@@ -106,6 +111,7 @@
             
             loadUserData();
             loadEnrolledCourses();
+            loadPendingInvoices();
         });
         
         function loadUserData() {
@@ -138,6 +144,84 @@
                     container.innerHTML = '<div class="empty-state"><i class="fas fa-book-open"></i><h3>No courses yet</h3><p>Enroll in courses to get started</p><a href="/courses.html" class="btn btn-primary">Browse Courses</a></div>';
                     return;
                 }
+                
+                container.innerHTML = data.data.slice(0, 6).map(enrollment => {
+                    const course = enrollment.course;
+                    const progress = enrollment.progress || 0;
+                    
+                    return `
+                        <div class="course-mini-card">
+                            <div class="course-mini-card-header">
+                                <h3>${escapeHtml(course.title)}</h3>
+                            </div>
+                            <div class="course-mini-card-body">
+                                <div class="progress-container">
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: ${progress}%"></div>
+                                    </div>
+                                    <div class="progress-text">${progress}% Complete</div>
+                                </div>
+                                <a href="/student-dashboard/my-courses.html" class="btn btn-primary btn-sm btn-block">View Course</a>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error('Error loading courses:', error);
+                container.innerHTML = '<div class="error-message"><i class="fas fa-exclamation-triangle"></i> Failed to load courses</div>';
+            }
+        }
+        
+        async function loadPendingInvoices() {
+            try {
+                const data = await DashboardUtils.fetchAPI('/student/invoices');
+                
+                if (!data.success || !data.data) return;
+                
+                const pending = data.data.filter(inv => inv.status === 'pending' || inv.status === 'locked');
+                
+                if (pending.length === 0) return;
+                
+                const section = document.getElementById('pendingInvoicesSection');
+                const container = document.getElementById('pendingInvoicesList');
+                
+                section.style.display = 'block';
+                
+                container.innerHTML = pending.map(inv => `
+                    <div class="invoice-card" style="background: white; padding: 15px; border-radius: 8px; margin-bottom: 10px; border-left: 4px solid ${inv.status === 'locked' ? '#e74c3c' : '#f39c12'};">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <strong>${escapeHtml(inv.course_title || 'Course')}</strong><br>
+                                <small>KES ${inv.amount} - ${inv.status === 'locked' ? 'OVERDUE' : 'Due: ' + new Date(inv.due_date).toLocaleDateString()}</small>
+                            </div>
+                            <button class="btn btn-primary btn-sm" onclick="promptPayment(${inv.id})">
+                                <i class="fas fa-mobile-alt"></i> Pay Now
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading invoices:', error);
+            }
+        }
+        
+        async function promptPayment(invoiceId) {
+            const phone = prompt('Enter your M-Pesa phone number (format: 254...):');
+            if (!phone) return;
+            
+            try {
+                const result = await DashboardUtils.fetchAPI(`/student/pay/${invoiceId}`, 'POST', { phoneNumber: phone });
+                
+                if (result.success || result.checkoutRequestId) {
+                    alert('STK Push sent to your phone. Please check your phone and enter your M-Pesa PIN.');
+                } else {
+                    alert(`Payment failed: ${result.error || 'Unknown error'}`);
+                }
+            } catch (error) {
+                alert('Payment request failed. Please try again.');
+                console.error('Payment error:', error);
+            }
+        }
                 
                 const courses = data.data.slice(0, 6);
                 container.innerHTML = courses.map(enrollment => {

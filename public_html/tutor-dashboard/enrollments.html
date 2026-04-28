@@ -692,7 +692,7 @@
     async function loadCourses() {
         try {
             const token = sessionStorage.getItem('token');
-            const response = await fetch(`${API_BASE_URL}/courses?page=1&limit=100`, {
+            const response = await fetch(`${API_BASE_URL}/tutor/courses?page=1&limit=100`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
@@ -725,7 +725,7 @@
     async function loadStudents() {
         try {
             const token = sessionStorage.getItem('token');
-            const response = await fetch(`${API_BASE_URL}/students`, {
+            const response = await fetch(`${API_BASE_URL}/tutor/students`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
@@ -779,7 +779,7 @@
             const courseFilter = document.getElementById('courseFilter').value;
 
             // Build URL with filters
-            let url = `${API_BASE_URL}/enrollments?page=${page}&limit=20`;
+            let url = `${API_BASE_URL}/tutor/enrollments?page=${page}&limit=20`;
             if (searchTerm) {
                 url += `&search=${encodeURIComponent(searchTerm)}`;
             }
@@ -975,7 +975,7 @@
     async function viewEnrollment(enrollmentId) {
         try {
             const token = sessionStorage.getItem('token');
-            const response = await fetch(`${API_BASE_URL}/enrollments/${enrollmentId}`, {
+            const response = await fetch(`${API_BASE_URL}/tutor/enrollments/${enrollmentId}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
@@ -1093,7 +1093,7 @@
     async function createEnrollment(studentId, courseId) {
         try {
             const token = sessionStorage.getItem('token');
-            const response = await fetch(`${API_BASE_URL}/enrollments`, {
+            const response = await fetch(`${API_BASE_URL}/tutor/enrollments`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,

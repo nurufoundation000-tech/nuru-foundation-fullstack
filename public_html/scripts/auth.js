@@ -47,7 +47,11 @@ class AuthService {
             const data = await response.json();
 
             if (response.ok) {
-                return { success: true, message: data.message };
+                return { 
+                    success: true, 
+                    message: data.message,
+                    emailStatus: data.emailStatus || null 
+                };
             } else {
                 return { success: false, message: data.message || data.error };
             }

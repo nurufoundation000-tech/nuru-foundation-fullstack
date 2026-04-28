@@ -1,0 +1,45 @@
+2026-04-27T18:27:15.871Z [INFO] [Email] Creating SMTP transporter | Data: {"host":"mail.nurufoundations.com","port":465,"user":"admin@nurufoundations.com"}
+2026-04-27T18:27:21.619Z [ERROR] [Email] SMTP connection verification failed | Error: Invalid login: 535 Incorrect authentication data (Code: EAUTH)
+2026-04-27T18:28:27.297Z [INFO] [Email] Creating SMTP transporter | Data: {"host":"mail.nurufoundations.com","port":465,"user":"admin@nurufoundations.com"}
+2026-04-27T18:28:29.847Z [ERROR] [Email] SMTP connection verification failed | Error: Invalid login: 535 Incorrect authentication data (Code: EAUTH)
+2026-04-27T18:28:29.848Z [ERROR] [Email] Please check: 1) Email account exists in cPanel, 2) Password is correct, 3) Host is correct (try mail.yourdomain.com)
+2026-04-27T18:59:01.703Z [INFO] [Email] Creating SMTP transporter | Data: {"host":"nurufoundations.com","port":465,"user":"admin@nurufoundations.com"}
+2026-04-27T18:59:03.451Z [INFO] [Email] SMTP server is ready to send messages
+2026-04-27T18:59:19.024Z [INFO] [Email] Creating SMTP transporter | Data: {"host":"nurufoundations.com","port":465,"user":"admin@nurufoundations.com"}
+2026-04-27T18:59:19.042Z [INFO] [Email] Attempting to send welcome email to: hycodingian@gmail.com
+2026-04-27T18:59:20.238Z [INFO] [Email] SMTP server is ready to send messages
+2026-04-27T18:59:22.315Z [INFO] [Email] Email sent successfully | Data: {"messageId":"<0cffe213-0952-3c41-7f5a-073b2dddda92@nurufoundations.com>","response":"250 OK id=1wHRAx-0000000Glym-3cN5","recipient":"hycodingian@gmail.com"}
+2026-04-27T18:59:45.576Z [INFO] [Email] Creating SMTP transporter | Data: {"host":"nurufoundations.com","port":465,"user":"admin@nurufoundations.com"}
+2026-04-27T18:59:49.740Z [INFO] [Email] SMTP server is ready to send messages
+2026-04-27T19:01:11.454Z [INFO] [Email] Creating SMTP transporter | Data: {"host":"nurufoundations.com","port":465,"user":"admin@nurufoundations.com"}
+2026-04-27T19:01:11.468Z [INFO] [Email] Attempting to send welcome email to: hycodingian@gmail.com
+2026-04-27T19:01:12.552Z [INFO] [Email] SMTP server is ready to send messages
+2026-04-27T19:01:14.749Z [INFO] [Email] Email sent successfully | Data: {"messageId":"<d0720267-d8d4-a6e3-0e3f-db574d7bb33d@nurufoundations.com>","response":"250 OK id=1wHRCm-0000000GorL-0bXg","recipient":"hycodingian@gmail.com"}
+2026-04-27T21:45:33.744Z [INFO] [Email] Creating SMTP transporter | Data: {"host":"nurufoundations.com","port":465,"user":"admin@nurufoundations.com"}
+2026-04-27T21:45:35.689Z [INFO] [Email] SMTP server is ready to send messages
+2026-04-27T21:47:05.007Z [INFO] [Email] Creating SMTP transporter | Data: {"host":"nurufoundations.com","port":465,"user":"admin@nurufoundations.com"}
+2026-04-27T21:47:06.367Z [INFO] [Email] SMTP server is ready to send messages
+2026-04-27T21:59:51.238Z [INFO] [Email] Creating SMTP transporter | Data: {"host":"nurufoundations.com","port":465,"user":"admin@nurufoundations.com"}
+2026-04-27T21:59:54.600Z [INFO] [Email] SMTP server is ready to send messages
+2026-04-27T23:30:43.878Z [INFO] [Email] Creating SMTP transporter | Data: {"host":"nurufoundations.com","port":465,"user":"admin@nurufoundations.com"}
+2026-04-27T23:30:46.774Z [INFO] [Email] SMTP server is ready to send messages
+2026-04-27T23:56:32.615Z [INFO] [Email] Creating SMTP transporter | Data: {"host":"nurufoundations.com","port":465,"user":"admin@nurufoundations.com"}
+2026-04-27T23:56:33.988Z [INFO] [Email] SMTP server is ready to send messages
+2026-04-27T23:57:02.431Z [INFO] [Email] Creating SMTP transporter | Data: {"host":"nurufoundations.com","port":465,"user":"admin@nurufoundations.com"}
+2026-04-27T23:57:03.764Z [INFO] [Email] SMTP server is ready to send messages
+2026-04-27T23:58:52.990Z [INFO] [Email] Creating SMTP transporter | Data: {"host":"nurufoundations.com","port":465,"user":"admin@nurufoundations.com"}
+2026-04-27T23:58:54.250Z [INFO] [Email] SMTP server is ready to send messages
+2026-04-28T00:23:17.853Z [INFO] [Email] Creating SMTP transporter | Data: {"host":"nurufoundations.com","port":465,"user":"admin@nurufoundations.com"}
+2026-04-28T00:23:19.080Z [INFO] [Email] SMTP server is ready to send messages
+2026-04-28T00:26:24.490Z [INFO] [Email] Creating SMTP transporter | Data: {"host":"nurufoundations.com","port":465,"user":"admin@nurufoundations.com"}
+2026-04-28T00:26:25.671Z [INFO] [Email] SMTP server is ready to send messages
+2026-04-28T00:28:41.121Z [INFO] [Email] Creating SMTP transporter | Data: {"host":"nurufoundations.com","port":465,"user":"admin@nurufoundations.com"}
+2026-04-28T00:28:42.384Z [INFO] [Email] SMTP server is ready to send messages
+2026-04-28T00:32:29.147Z [INFO] [Email] Creating SMTP transporter | Data: {"host":"nurufoundations.com","port":465,"user":"admin@nurufoundations.com"}
+2026-04-28T00:32:31.004Z [INFO] [Email] SMTP server is ready to send messages
+2026-04-28T10:54:25.305Z [INFO] [Email] Creating SMTP transporter | Data: {"host":"nurufoundations.com","port":465,"user":"admin@nurufoundations.com"}
+2026-04-28T10:54:28.013Z [INFO] [Email] SMTP server is ready to send messages
+2026-04-28T10:55:34.350Z [INFO] [Email] Creating SMTP transporter | Data: {"host":"nurufoundations.com","port":465,"user":"admin@nurufoundations.com"}
+2026-04-28T10:55:35.893Z [INFO] [Email] SMTP server is ready to send messages
+2026-04-28T10:59:17.496Z [INFO] [Email] Creating SMTP transporter | Data: {"host":"nurufoundations.com","port":465,"user":"admin@nurufoundations.com"}
+2026-04-28T10:59:19.136Z [INFO] [Email] SMTP server is ready to send messages

@@ -282,7 +282,9 @@ async function getCoursesList(req, res) {
 async function getUsers(req, res) {
   try {
     const users = await db.query(`
-      SELECT u.*, r.name as role_name,
+      SELECT u.id, u.username, u.email, u.full_name, u.role_id, u.is_active, u.is_locked, 
+             u.date_joined, u.created_at, u.updated_at, u.must_change_password,
+             r.name as role_name,
              (SELECT COUNT(*) FROM courses WHERE tutor_id = u.id) as courses_count,
              (SELECT COUNT(*) FROM enrollments WHERE student_id = u.id) as enrollments_count
       FROM users u
@@ -290,7 +292,10 @@ async function getUsers(req, res) {
       ORDER BY u.created_at DESC
     `);
 
-    res.json({ success: true, data: users, total: users.length });
+    // Remove any accidentally included password_hash (security)
+    const usersWithoutPassword = users.map(({ password_hash, ...user }) => user);
+
+    res.json({ success: true, data: usersWithoutPassword, total: usersWithoutPassword.length });
   } catch (error) {
     console.error('Get users error:', error);
     res.status(500).json({ error: 'Failed to fetch users' });
@@ -305,6 +310,12 @@ async function createUser(req, res) {
       return res.status(400).json({ error: 'Username, email, full name, and role are required' });
     }
 
+    // Fix: Handle both string and object formats for role
+    let roleName = role;
+    if (typeof role === 'object' && role !== null) {
+      roleName = role.name;  // Extract name from object
+    }
+
     const existingUser = await db.getOne(`
       SELECT id FROM users WHERE email = ? OR username = ?
     `, [email.toLowerCase(), username]);
@@ -313,9 +324,9 @@ async function createUser(req, res) {
       return res.status(409).json({ error: 'User already exists' });
     }
 
-    let roleRow = await db.getOne('SELECT id FROM roles WHERE name = ?', [role]);
+    let roleRow = await db.getOne('SELECT id FROM roles WHERE name = ?', [roleName]);
     if (!roleRow) {
-      roleRow = await db.insert('roles', { name: role });
+      roleRow = await db.insert('roles', { name: roleName });
     }
 
     const generatedPassword = generateRandomPassword();
@@ -337,16 +348,28 @@ async function createUser(req, res) {
     const { password_hash, ...userWithoutPassword } = user;
 
     // Send welcome email
+    let emailStatus = { sent: false, error: null, generatedPassword: null };
     try {
-      await sendWelcomeEmail(email, username, generatedPassword);
-      console.log('[Admin] Welcome email sent to:', email);
+      const emailResult = await sendWelcomeEmail(email, username, generatedPassword);
+      emailStatus = {
+        sent: emailResult.success,
+        error: emailResult.error || null,
+        generatedPassword: emailResult.success ? null : generatedPassword
+      };
+      console.log('[Admin] Welcome email sent to:', email, 'Success:', emailResult.success);
+      if (!emailResult.success && emailResult.error) {
+        console.error('[Admin] Email error details:', emailResult.error);
+      }
     } catch (emailError) {
       console.error('[Admin] Failed to send welcome email:', emailError.message);
+      console.error('[Admin] Full error:', emailError);
+      emailStatus = { sent: false, error: emailError.message, generatedPassword: generatedPassword };
     }
 
     res.status(201).json({
       success: true,
       data: userWithoutPassword,
+      emailStatus: emailStatus,
       message: `User created! Credentials - Username: ${username}, Password: ${generatedPassword}`
     });
 
@@ -361,8 +384,13 @@ async function updateUser(req, res) {
     const { id } = req.params;
     const { username, email, fullName, role, isActive } = req.body;
 
-    const existingUser = await db.getOne('SELECT * FROM users WHERE id = ?', [parseInt(id)]);
+    // Handle both string and object formats for role
+    let roleName = role;
+    if (typeof role === 'object' && role !== null) {
+      roleName = role.name;
+    }
 
+    const existingUser = await db.getOne('SELECT * FROM users WHERE id = ?', [parseInt(id)]);
     if (!existingUser) {
       return res.status(404).json({ error: 'User not found' });
     }
@@ -381,29 +409,32 @@ async function updateUser(req, res) {
       }
     }
 
-    const updateData = { updated_at: new Date() };
-    if (username) updateData.username = username;
-    if (email) updateData.email = email.toLowerCase();
-    if (fullName !== undefined) updateData.full_name = fullName;
-    if (isActive !== undefined) updateData.is_active = isActive;
+    const updateData = {
+      username: username || existingUser.username,
+      email: email ? email.toLowerCase() : existingUser.email,
+      full_name: fullName !== undefined ? fullName : existingUser.full_name,
+      is_active: isActive !== undefined ? isActive : existingUser.is_active
+    };
 
-    if (role) {
-      const roleRow = await db.getOne('SELECT id FROM roles WHERE name = ?', [role]);
+    if (roleName) {
+      const roleRow = await db.getOne('SELECT id FROM roles WHERE name = ?', [roleName]);
       if (roleRow) {
         updateData.role_id = roleRow.id;
       }
     }
 
+    updateData.updated_at = new Date();
+
     await db.update('users', parseInt(id), updateData);
 
     const user = await db.getOne('SELECT * FROM users WHERE id = ?', [parseInt(id)]);
     const { password_hash, ...userWithoutPassword } = user;
-
-    res.json({ success: true, data: userWithoutPassword });
-
+    const userRole = await db.getOne('SELECT name FROM roles WHERE id = ?', [user.role_id]);
+    
+    res.json({ success: true, data: { ...userWithoutPassword, role: userRole?.name } });
   } catch (error) {
     console.error('Update user error:', error);
-    res.status(500).json({ error: 'Failed to update user' });
+    res.status(500).json({ error: 'Failed to update user: ' + error.message });
   }
 }
 

@@ -298,6 +298,7 @@
         const COURSE_SLUG = '{{COURSE_SLUG}}';
         const LESSON_NUM = {{LESSON_NUM}};
         const TOTAL_LESSONS = {{TOTAL_LESSONS}};
+        const API_BASE_URL = window.APP_CONFIG?.apiBaseUrl || '/api';
         
         async function checkAccess() {
             const token = sessionStorage.getItem('token');
@@ -309,16 +310,38 @@
             }
             
             try {
-                const response = await fetch(`${window.APP_CONFIG?.apiBaseUrl || '/api'}/notes/check?course=${COURSE_SLUG}`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
+                // First get course by slug
+                const courseResponse = await fetch(`${API_BASE_URL}/courses/slug/${COURSE_SLUG}`);
                 
-                if (!response.ok) {
-                    showAccessDenied('You are not enrolled in this course.', '/courses.html');
+                if (!courseResponse.ok) {
+                    showAccessDenied('Course not found.', '/courses.html');
                     return false;
                 }
                 
-                return true;
+                const courseData = await courseResponse.json();
+                const courseId = courseData.data.id;
+                
+                // Check notes access (enrollment + payment)
+                const accessResponse = await fetch(
+                    `${API_BASE_URL}/student/course-notes-access/${courseId}`,
+                    { headers: { 'Authorization': `Bearer ${token}` } }
+                );
+                
+                if (accessResponse.ok) {
+                    const accessData = await accessResponse.json();
+                    if (accessData.access) {
+                        return true;
+                    }
+                    
+                    if (accessData.reason === 'payment_required') {
+                        showPaymentRequired(accessData.invoice);
+                        return false;
+                    }
+                }
+                
+                showAccessDenied('You are not enrolled in this course.', '/courses.html');
+                return false;
+                
             } catch (error) {
                 showAccessDenied('Unable to verify access. Please try again.', '/student-dashboard/index.html');
                 return false;
@@ -334,6 +357,55 @@
                     <a href="${redirectUrl}" class="btn">${redirectUrl.includes('login') ? 'Log In' : 'Continue'}</a>
                 </div>
             `;
+        }
+        
+        function showPaymentRequired(invoice) {
+            document.getElementById('content').innerHTML = `
+                <div class="access-denied">
+                    <i class="fas fa-credit-card"></i>
+                    <h2>Payment Required</h2>
+                    <p>You must pay <strong>KES ${invoice.amount}</strong> to access these notes.</p>
+                    <p class="invoice-status">Invoice status: <strong>${invoice.status}</strong></p>
+                    <button class="btn" onclick="promptPayment(${invoice.id})">
+                        <i class="fas fa-mobile-alt"></i> Pay Now via M-Pesa
+                    </button>
+                    <a href="/student-dashboard/index.html" class="btn" style="margin-top: 1rem; display: inline-block;">
+                        Go to Dashboard
+                    </a>
+                </div>
+            `;
+        }
+        
+        async function promptPayment(invoiceId) {
+            const phone = prompt('Enter your M-Pesa phone number (format: 254...):');
+            if (!phone) return;
+            
+            const token = sessionStorage.getItem('token');
+            if (!token) {
+                alert('Please log in first.');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/student/pay/${invoiceId}`, {
+                    method: 'POST',
+                    headers: { 
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ phoneNumber: phone })
+                });
+                
+                if (response.ok) {
+                    alert('STK Push sent to your phone. Please check your phone and enter your M-Pesa PIN.');
+                } else {
+                    const data = await response.json();
+                    alert(`Payment failed: ${data.error || 'Unknown error'}`);
+                }
+            } catch (error) {
+                alert('Payment request failed. Please try again.');
+                console.error('Payment error:', error);
+            }
         }
         
         function showNavigation() {

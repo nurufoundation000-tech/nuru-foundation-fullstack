@@ -1,42 +1,67 @@
-// lib/email.js - Email Service (CommonJS) - Debug Version
+// lib/email.js - Email Service (CommonJS)
 const nodemailer = require('nodemailer');
 require('dotenv').config();
-
-console.log('[Email] Initializing email service...');
-console.log('[Email] EMAIL_USER set:', !!process.env.EMAIL_USER);
-console.log('[Email] EMAIL_PASS set:', !!process.env.EMAIL_PASS);
+const { log } = require('./logger.js');
 
 let transporter = null;
+let lastError = null;
+let configuredHost = 'nurufoundations.com';
+let configuredPort = 465;
 
 if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
-  console.log('[Email] Creating cPanel SMTP transporter for:', process.env.EMAIL_USER);
-  console.log('[Email] SMTP Host: nurufoundations.com, Port: 465');
-  transporter = nodemailer.createTransport({
-    host: 'nurufoundations.com',
-    port: 465,
-    secure: true,  // true for port 465 (SSL/TLS)
+  log('INFO', 'Email', 'Creating SMTP transporter', {
+    host: process.env.EMAIL_HOST || 'nurufoundations.com',
+    port: parseInt(process.env.EMAIL_PORT || '465'),
+    user: process.env.EMAIL_USER
+  });
+  
+  configuredHost = process.env.EMAIL_HOST || 'nurufoundations.com';
+  configuredPort = parseInt(process.env.EMAIL_PORT || '465');
+  
+  const smtpConfig = {
+    host: process.env.EMAIL_HOST || 'nurufoundations.com',
+    port: parseInt(process.env.EMAIL_PORT || '465'),
+    secure: parseInt(process.env.EMAIL_PORT || '465') === 465,
     auth: {
       user: process.env.EMAIL_USER,
       pass: process.env.EMAIL_PASS
     },
     tls: {
-      rejectUnauthorized: false  // Allow self-signed certs from shared hosting
+      rejectUnauthorized: false
+    }
+  };
+  
+  transporter = nodemailer.createTransport(smtpConfig);
+
+  // Verify SMTP connection
+  transporter.verify((error, success) => {
+    if (error) {
+      lastError = error;
+      log('ERROR', 'Email', 'SMTP connection verification failed', error);
+      log('ERROR', 'Email', 'Please check: 1) Email account exists in cPanel, 2) Password is correct, 3) Host is correct (try mail.yourdomain.com)');
+    } else {
+      log('INFO', 'Email', 'SMTP server is ready to send messages');
     }
   });
-  console.log('[Email] Transporter created successfully');
 } else {
-  console.log('[Email] FATAL: EMAIL_USER or EMAIL_PASS not set in environment!');
+  log('WARN', 'Email', 'EMAIL_USER or EMAIL_PASS not set - email disabled');
+}
+
+function getEmailStatus() {
+  return {
+    configured: !!transporter,
+    lastError: lastError ? lastError.message : null,
+    host: configuredHost,
+    port: configuredPort,
+    user: process.env.EMAIL_USER || 'not set'
+  };
 }
 
 async function sendWelcomeEmail(to, username, password) {
   const loginUrl = process.env.FRONTEND_URL || 'https://nurufoundations.com';
 
-  console.log('[Email] Attempting to send welcome email to:', to);
-
   if (!transporter) {
-    console.log('[Email] FATAL ERROR: Transporter is null - email will NOT be sent');
-    console.log('[Email] This usually means EMAIL_USER or EMAIL_PASS is missing from .env');
-    return { success: false, logged: true };
+    return { success: false, sent: false, error: 'Email transporter not configured' };
   }
 
   const mailOptions = {
@@ -131,27 +156,24 @@ ${loginUrl}
   };
 
   try {
-    console.log('[Email] Sending email with options:', JSON.stringify({
-      from: mailOptions.from,
-      to: mailOptions.to,
-      subject: mailOptions.subject
-    }));
+    log('INFO', 'Email', `Attempting to send welcome email to: ${to}`);
     
     const info = await transporter.sendMail(mailOptions);
-    console.log('[Email] SUCCESS: Email sent! Message ID:', info.messageId);
-    console.log('[Email] SUCCESS: Response:', info.response);
-    return { success: true, messageId: info.messageId };
+    
+    log('INFO', 'Email', 'Email sent successfully', {
+      messageId: info.messageId,
+      response: info.response,
+      recipient: to
+    });
+    
+    return { success: true, messageId: info.messageId, sent: true };
   } catch (error) {
-    console.error('[Email] FATAL ERROR: Failed to send email!');
-    console.error('[Email] Error name:', error.name);
-    console.error('[Email] Error message:', error.message);
-    console.error('[Email] Error code:', error.code);
-    console.error('[Email] Error command:', error.command);
-    console.error('[Email] Full error stack:', error.stack);
-    return { success: false, error: error.message };
+    log('ERROR', 'Email', 'Failed to send email', error);
+    return { success: false, error: error.message, sent: false };
   }
 }
 
 module.exports = {
-  sendWelcomeEmail
+  sendWelcomeEmail,
+  getEmailStatus
 };

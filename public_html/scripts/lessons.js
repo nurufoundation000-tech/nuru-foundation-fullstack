@@ -3,7 +3,7 @@ const API_BASE = '/api';
 
 async function fetchLessons(courseId) {
     const token = sessionStorage.getItem('token');
-    const response = await fetch(`${API_BASE}/lessons?courseId=${courseId}`, {
+    const response = await fetch(`${API_BASE}/student/lessons?courseId=${courseId}`, {
         headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
@@ -19,7 +19,7 @@ async function fetchLessons(courseId) {
 
 async function createLesson(lessonData) {
     const token = sessionStorage.getItem('token');
-    const response = await fetch(`${API_BASE}/lessons`, {
+    const response = await fetch(`${API_BASE}/student/lessons`, {
         method: 'POST',
         headers: {
             'Authorization': `Bearer ${token}`,
@@ -37,7 +37,7 @@ async function createLesson(lessonData) {
 
 async function updateLesson(id, lessonData) {
     const token = sessionStorage.getItem('token');
-    const response = await fetch(`${API_BASE}/lessons/${id}`, {
+    const response = await fetch(`${API_BASE}/student/lessons/${id}`, {
         method: 'PUT',
         headers: {
             'Authorization': `Bearer ${token}`,
@@ -55,7 +55,7 @@ async function updateLesson(id, lessonData) {
 
 async function deleteLesson(id) {
     const token = sessionStorage.getItem('token');
-    const response = await fetch(`${API_BASE}/lessons/${id}`, {
+    const response = await fetch(`${API_BASE}/student/lessons/${id}`, {
         method: 'DELETE',
         headers: {
             'Authorization': `Bearer ${token}`
@@ -71,7 +71,7 @@ async function deleteLesson(id) {
 
 async function fetchLesson(id) {
     const token = sessionStorage.getItem('token');
-    const response = await fetch(`${API_BASE}/lessons/${id}`, {
+    const response = await fetch(`${API_BASE}/student/lessons/${id}`, {
         headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
@@ -88,7 +88,7 @@ async function fetchLesson(id) {
 // Mark lesson as completed
 async function markLessonCompleted(lessonId) {
     const token = sessionStorage.getItem('token');
-    const response = await fetch(`${API_BASE}/lessons/${lessonId}/complete`, {
+    const response = await fetch(`${API_BASE}/student/lessons/${lessonId}/complete`, {
         method: 'POST',
         headers: {
             'Authorization': `Bearer ${token}`,

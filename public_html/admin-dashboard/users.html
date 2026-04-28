@@ -1242,7 +1242,7 @@
                         username,
                         email,
                         fullName,
-                        role: { name: role },
+                        role: role,  // FIX: Send string, not object
                         isActive
                     })
                 });

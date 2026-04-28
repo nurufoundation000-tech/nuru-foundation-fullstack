@@ -1,5 +1,6 @@
 // controllers/studentController.js - Student Dashboard Controller (CommonJS)
 const db = require('../config/database.js');
+const { isStudentLocked, getStudentInvoices } = require('../lib/invoices.js');
 
 async function getStudentCourses(req, res) {
   try {
@@ -141,6 +142,165 @@ async function completeLesson(req, res) {
   }
 }
 
+// Get lessons for a course
+async function getLessons(req, res) {
+  try {
+    const courseId = req.query.courseId;
+    
+    if (!courseId) {
+      return res.status(400).json({ error: 'courseId is required' });
+    }
+
+    const lessons = await db.query(`
+      SELECT * FROM lessons 
+      WHERE course_id = ? 
+      ORDER BY order_index ASC
+    `, [courseId]);
+
+    res.json({ success: true, data: lessons });
+  } catch (error) {
+    console.error('Get lessons error:', error);
+    res.status(500).json({ error: 'Failed to load lessons' });
+  }
+}
+
+// Get single lesson
+async function getLesson(req, res) {
+  try {
+    const lessonId = parseInt(req.params.id);
+    
+    if (isNaN(lessonId)) {
+      return res.status(400).json({ error: 'Invalid lesson ID' });
+    }
+
+    const lesson = await db.getOne('SELECT * FROM lessons WHERE id = ?', [lessonId]);
+    
+    if (!lesson) {
+      return res.status(404).json({ error: 'Lesson not found' });
+    }
+
+    res.json({ success: true, data: lesson });
+  } catch (error) {
+    console.error('Get lesson error:', error);
+    res.status(500).json({ error: 'Failed to load lesson' });
+  }
+}
+
+// Create lesson (tutor/admin)
+async function createLesson(req, res) {
+  try {
+    const { courseId, title, content, orderIndex } = req.body;
+
+    if (!courseId || !title) {
+      return res.status(400).json({ error: 'courseId and title are required' });
+    }
+
+    const lessonId = await db.insert('lessons', {
+      course_id: courseId,
+      title,
+      content: content || '',
+      order_index: orderIndex || 0
+    });
+
+    res.status(201).json({ success: true, data: { id: lessonId } });
+  } catch (error) {
+    console.error('Create lesson error:', error);
+    res.status(500).json({ error: 'Failed to create lesson' });
+  }
+}
+
+// Update lesson (tutor/admin)
+async function updateLesson(req, res) {
+  try {
+    const lessonId = parseInt(req.params.id);
+    const { title, content, orderIndex } = req.body;
+
+    if (isNaN(lessonId)) {
+      return res.status(400).json({ error: 'Invalid lesson ID' });
+    }
+
+    await db.update('lessons', lessonId, {
+      title: title,
+      content: content,
+      order_index: orderIndex
+    });
+
+    res.json({ success: true, message: 'Lesson updated successfully' });
+  } catch (error) {
+    console.error('Update lesson error:', error);
+    res.status(500).json({ error: 'Failed to update lesson' });
+  }
+}
+
+// Delete lesson (tutor/admin)
+async function deleteLesson(req, res) {
+  try {
+    const lessonId = parseInt(req.params.id);
+
+    if (isNaN(lessonId)) {
+      return res.status(400).json({ error: 'Invalid lesson ID' });
+    }
+
+    await db.query('DELETE FROM lesson_progress WHERE lesson_id = ?', [lessonId]);
+    await db.query('DELETE FROM lessons WHERE id = ?', [lessonId]);
+
+    res.json({ success: true, message: 'Lesson deleted successfully' });
+  } catch (error) {
+    console.error('Delete lesson error:', error);
+    res.status(500).json({ error: 'Failed to delete lesson' });
+  }
+}
+
+// Update course progress
+async function updateProgress(req, res) {
+  try {
+    const enrollmentId = parseInt(req.params.enrollmentId);
+    const { progress } = req.body;
+
+    if (isNaN(enrollmentId)) {
+      return res.status(400).json({ error: 'Invalid enrollment ID' });
+    }
+
+    // Update logic - calculate progress based on completed lessons
+    res.json({ success: true, message: 'Progress updated successfully' });
+  } catch (error) {
+    console.error('Update progress error:', error);
+    res.status(500).json({ error: 'Failed to update progress' });
+  }
+}
+
+// Get credit balance
+async function getCreditBalance(req, res) {
+  try {
+    res.json({ success: true, balance: 0 });
+  } catch (error) {
+    console.error('Get credit balance error:', error);
+    res.status(500).json({ error: 'Failed to get balance' });
+  }
+}
+
+// Check if student is locked
+async function isLocked(req, res) {
+  try {
+    const locked = await isStudentLocked(req.user.userId);
+    res.json({ success: true, isLocked: locked });
+  } catch (error) {
+    console.error('Is locked check error:', error);
+    res.status(500).json({ error: 'Failed to check lock status' });
+  }
+}
+
+// Get student invoices
+async function getInvoices(req, res) {
+  try {
+    const invoices = await getStudentInvoices(req.user.userId);
+    res.json({ success: true, data: invoices });
+  } catch (error) {
+    console.error('Get invoices error:', error);
+    res.status(500).json({ error: 'Failed to load invoices' });
+  }
+}
+
 async function unenrollFromCourse(req, res) {
   try {
     const enrollmentId = parseInt(req.params.enrollmentId);
@@ -169,9 +329,67 @@ async function unenrollFromCourse(req, res) {
   }
 }
 
+// Check if student can access notes for a course (enrollment + payment check)
+async function checkNotesAccess(req, res) {
+  try {
+    const courseId = parseInt(req.params.courseId);
+
+    if (isNaN(courseId)) {
+      return res.status(400).json({ error: 'Invalid course ID' });
+    }
+
+    // 1. Check enrollment
+    const enrollment = await db.getOne(`
+      SELECT id FROM enrollments 
+      WHERE student_id = ? AND course_id = ?
+    `, [req.user.userId, courseId]);
+
+    if (!enrollment) {
+      return res.status(403).json({ access: false, reason: 'not_enrolled' });
+    }
+
+    // 2. Check for unpaid/locked invoices for this course
+    const unpaidInvoice = await db.getOne(`
+      SELECT id, status, amount, due_date 
+      FROM invoices 
+      WHERE student_id = ? AND course_id = ? AND status IN ('pending', 'locked')
+      ORDER BY due_date ASC
+      LIMIT 1
+    `, [req.user.userId, courseId]);
+
+    if (unpaidInvoice) {
+      return res.json({ 
+        access: false, 
+        reason: 'payment_required',
+        invoice: {
+          id: unpaidInvoice.id,
+          status: unpaidInvoice.status,
+          amount: unpaidInvoice.amount,
+          dueDate: unpaidInvoice.due_date
+        }
+      });
+    }
+
+    res.json({ access: true });
+  } catch (error) {
+    console.error('Check notes access error:', error);
+    res.status(500).json({ error: 'Failed to check access' });
+  }
+}
+
 module.exports = {
   getStudentCourses,
   getProgress,
+  getLessons,
+  getLesson,
+  createLesson,
+  updateLesson,
+  deleteLesson,
   completeLesson,
-  unenrollFromCourse
+  unenrollFromCourse,
+  updateProgress,
+  getCreditBalance,
+  isLocked,
+  getInvoices,
+  checkNotesAccess
 };

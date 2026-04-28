@@ -47,7 +47,7 @@ async function login(req, res) {
     }
 
     const { password_hash, ...userWithoutPassword } = user;
-    const roleName = role?.name || 'user';
+    const roleName = role?.name || 'student';
 
     const token = jwt.sign(
       {
@@ -117,11 +117,21 @@ async function register(req, res) {
 
     const user = await db.getOne('SELECT * FROM users WHERE id = ?', [userId]);
 
+    let emailStatus = { sent: false, error: null };
     try {
-      await sendWelcomeEmail(email, username, generatedPassword);
-      console.log('Welcome email sent to:', email);
+      const emailResult = await sendWelcomeEmail(email, username, generatedPassword);
+      emailStatus = {
+        sent: emailResult.success,
+        error: emailResult.error || null
+      };
+      console.log('Welcome email sent to:', email, 'Success:', emailResult.success);
+      if (!emailResult.success && emailResult.error) {
+        console.error('[Auth] Email error details:', emailResult.error);
+      }
     } catch (emailError) {
       console.error('Failed to send welcome email:', emailError.message);
+      console.error('[Auth] Full error:', emailError);
+      emailStatus = { sent: false, error: emailError.message };
     }
 
     let role = null;
@@ -130,7 +140,7 @@ async function register(req, res) {
     }
 
     const { password_hash, ...userWithoutPassword } = user;
-    const roleName = role?.name || 'user';
+    const roleName = role?.name || 'student';
 
     const token = jwt.sign(
       {
@@ -146,7 +156,10 @@ async function register(req, res) {
       success: true,
       user: { ...userWithoutPassword, role: roleName },
       token,
-      message: 'Registration successful. Please check your email for login credentials.'
+      emailStatus: emailStatus,
+      message: emailStatus.sent 
+        ? 'Registration successful. Please check your email for login credentials.' 
+        : 'Registration successful. Email could not be sent - please contact admin for credentials.'
     });
 
   } catch (error) {

@@ -3,7 +3,7 @@ const API_BASE = '/api';
 
 async function updateProgress(enrollmentId, progress) {
     const token = sessionStorage.getItem('token');
-    const response = await fetch(`${API_BASE}/courses/${enrollmentId}/progress`, {
+    const response = await fetch(`${API_BASE}/student/courses/${enrollmentId}/progress`, {
         method: 'PUT',
         headers: {
             'Authorization': `Bearer ${token}`,

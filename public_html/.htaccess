@@ -11,3 +11,7 @@ RewriteRule ^index\.js$ - [L]
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^ - [L]
+
+# Proxy API requests to Node.js backend on port 5000
+RewriteRule ^api/(.*)$ http://127.0.0.1:5000/api/$1 [P,L]
+RewriteRule ^api$ http://127.0.0.1:5000/api [P,L]

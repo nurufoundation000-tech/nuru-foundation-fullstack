@@ -96,8 +96,30 @@ async function enrollInCourse(req, res) {
   }
 }
 
+// Get course by slug for notes access check
+async function getCourseBySlug(req, res) {
+  try {
+    const slug = req.params.slug;
+    
+    const course = await db.getOne(
+      'SELECT id, title, slug FROM courses WHERE slug = ?',
+      [slug]
+    );
+    
+    if (!course) {
+      return res.status(404).json({ error: 'Course not found' });
+    }
+    
+    res.json({ success: true, data: course });
+  } catch (error) {
+    console.error('Get course by slug error:', error);
+    res.status(500).json({ error: 'Failed to load course' });
+  }
+}
+
 module.exports = {
   getAllCourses,
   getCourseById,
+  getCourseBySlug,
   enrollInCourse
 };
