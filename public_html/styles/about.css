@@ -197,7 +197,7 @@
         }
         .story-image {
             border-radius: var(--border-radius-lg);
-            overflow: hidden;
+            /*overflow: hidden;*/
             box-shadow: var(--shadow-lg);
             transform: rotate(-5deg); /* Playful tilt */
             transition: transform 0.4s ease-in-out;
