@@ -77,28 +77,83 @@ function initHeader() {
 
     // Logout function
     function logout() {
-        authService.logout();
+        if (typeof authService !== 'undefined' && authService && typeof authService.logout === 'function') {
+            authService.logout();
+            return;
+        }
         updateHeaderActions();
-        // Redirect to home page
-        window.location.href = 'index.html';
+        window.location.href = '/login.html';
     }
 
     // Make logout available globally
     window.logout = logout;
 
+    function loadScript(src) {
+        return new Promise((resolve, reject) => {
+            if (document.querySelector(`script[src="${src}"]`)) {
+                resolve();
+                return;
+            }
+
+            const script = document.createElement('script');
+            script.src = src;
+            script.async = false;
+            script.onload = () => resolve();
+            script.onerror = () => reject(new Error(`Failed to load script: ${src}`));
+            document.head.appendChild(script);
+        });
+    }
+
+    async function ensureAuthServiceLoaded() {
+        if (typeof authService !== 'undefined' && authService) {
+            return;
+        }
+
+        if (typeof window.APP_CONFIG === 'undefined') {
+            await loadScript('/scripts/config.js');
+        }
+
+        if (typeof authService === 'undefined') {
+            await loadScript('/scripts/auth.js');
+        }
+
+        // Wait until authService is available
+        const start = Date.now();
+        while (typeof authService === 'undefined' && Date.now() - start < 3000) {
+            await new Promise(resolve => setTimeout(resolve, 100));
+        }
+    }
+
     // Update header actions based on auth status
-    function updateHeaderActions() {
+    async function updateHeaderActions() {
         const headerActions = document.getElementById('headerActions');
         const mobileActions = document.getElementById('mobileActions');
 
-        if (authService.isLoggedIn()) {
-            const user = authService.getUser();
+        try {
+            await ensureAuthServiceLoaded();
+        } catch (error) {
+            console.warn('Auth service failed to load:', error);
+        }
+
+        const authReady = typeof authService !== 'undefined' && authService && typeof authService.isLoggedIn === 'function';
+
+        if (authReady && authService.isLoggedIn()) {
+            const user = authService.getUser ? authService.getUser() : null;
+            const role = user?.role?.name || user?.role;
+            let dashboardUrl = window.APP_CONFIG?.routes?.studentDashboard || '/student-dashboard/index.html';
+
+            if (role === 'tutor') {
+                dashboardUrl = window.APP_CONFIG?.routes?.tutorDashboard || '/tutor-dashboard/index.html';
+            } else if (role === 'admin') {
+                dashboardUrl = window.APP_CONFIG?.routes?.adminDashboard || '/admin-dashboard/index.html';
+            }
+
             const userHtml = `
-                <a href="/student-dashboard/index.html" class="btn btn-primary">Dashboard</a>
+                <a href="${dashboardUrl}" class="btn btn-primary">Dashboard</a>
                 <button class="btn btn-outline" onclick="logout()">Logout</button>
             `;
             const mobileUserHtml = `
-                <a href="/student-dashboard/index.html" class="btn btn-primary">Dashboard</a>
+                <a href="${dashboardUrl}" class="btn btn-primary">Dashboard</a>
                 <button class="btn btn-outline" onclick="logout()">Logout</button>
             `;
             if (headerActions) headerActions.innerHTML = userHtml;
@@ -115,7 +170,6 @@ function initHeader() {
 
     // Initial update
     updateHeaderActions();
-
 
     document.addEventListener('click', (event) => {
         if (mobileMenu && navToggle && mobileMenu.classList.contains('active') && 
