@@ -1,56 +1,116 @@
-<header class="main-header">
-    <div class="navbar">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NURU Foundation - Header</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Fredoka+One&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="styles/header.css">
+    <link rel="stylesheet" href="styles/root.css">
+    <meta name="google-site-verification" content="aXlo-cqGp6MsiAy_tNnfi3hXjgJKVxfY7gaxiQqb8Vk" />
+    <script type="application/ld+json">
+    {
+    "@context": "https://schema.org",
+    "@type": "EducationalOrganization",
+    "name": "Nuru Foundation",
+    "url": "https://nurufoundation.co.ke",
+    "description": "Prepare your child for the future with the best online coding classes in Kenya. We teach Python, Web Design And Development, Cyber Security, Ai Essentials, Mathematics, Physics, Software Development, Soft Skills, Data Science/Engineering/Analytics, Artificial Intelligence, Robotics & Game Design to kids aged 8+. Enroll for 2026 Cohort!",
+    "logo": "https://nurufoundations.co.ke/logo.jpg",
+    "address": {
+        "@type": "PostalAddress",
+        "addressCountry": "KE" 
+    },
+    "areaServed": [
+        {"@type": "City", "name": "Nairobi"},
+        {"@type": "City", "name": "Mombasa"},
+        {"@type": "City", "name": "Kisumu"},
+        {"@type": "City", "name": "Nakuru"}
+    ],
+    "offers": {
+        "@type": "Offer",
+        "priceCurrency": "KES",
+        "availability": "https://schema.org/OnlineOnly"
+    }
+    }
+    </script>
+</head>
+<body>
+    <header class="main-header">
+        <div class="navbar">
+         
+          <a href="index.html" class="logo">
+    <div class="logo-graphic">
+        <img src="logo.jpg" alt="Nuru Foundation Logo" class="logo-icon">
+    </div>
+    <div class="logo-text">
+        <span class="logo-main">NURU</span>
+        <span class="logo-sub">FOUNDATION</span>
+    </div>
+</a>
+<style>
+    .logo-graphic {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 
-        <a href="index.html" class="logo">
-            <div class="logo-graphic">
-                <i class="fas fa-lightbulb"></i>
+.logo-graphic .logo-icon {
+    width: 80px; /* adjust size as needed */
+    height: auto;
+    object-fit: contain;
+    /* keeps image in the same position as the icon */
+}
+
+</style>
+
+          
+            <nav class="main-nav">
+                <ul class="nav-list" id="navList">
+                    <li><a href="index.html" class="nav-link active">Home</a></li>
+                    <li><a href="about.html" class="nav-link">About Us</a></li>
+                    <li><a href="courses.html" class="nav-link">Courses</a></li>
+                    <li><a href="calender.html" class="nav-link">Calender</a></li>
+                    <li><a href="contact.html" class="nav-link">Contact</a></li>
+                </ul>
+            </nav>
+
+          
+            <div class="header-actions">
+               <!-- <a href="login.html" class="btn btn-outline">Login</a> -->
+                <a href="courses.html" class="btn btn-primary">Get Started</a>
             </div>
-            <div class="logo-text">
-                <span class="logo-main">NURU</span>
-                <span class="logo-sub">FOUNDATION</span>
+
+          
+            <div class="nav-toggle" id="navToggle">
+                <span></span>
+                <span></span>
+                <span></span>
             </div>
-        </a>
+        </div>
 
-
-        <nav class="main-nav">
-            <ul class="nav-list" id="navList">
-                <li><a href="index.html" class="nav-link active">Home</a></li>
-                <li><a href="about.html" class="nav-link">About Us</a></li>
-                <li><a href="courses.html" class="nav-link">Courses</a></li>
-                <li><a href="calender.html" class="nav-link">Calender</a></li>
-                <li><a href="contact.html" class="nav-link">Contact</a></li>
+    
+        <div class="mobile-menu" id="mobileMenu">
+            <button class="close-menu" id="closeMenu">
+                <i class="fas fa-times"></i>
+            </button>
+            <ul class="mobile-nav-list">
+                <li><a href="index.html" class="mobile-nav-link active">Home</a></li>
+                <li><a href="about.html" class="mobile-nav-link">About Us</a></li>
+                <li><a href="courses.html" class="mobile-nav-link">Courses</a></li>
+                <li><a href="calender.html" class="mobile-nav-link">Program Calender</a></li>
+                <li><a href="contact.html" class="mobile-nav-link">Contact</a></li>
             </ul>
-        </nav>
-
-
-        <div class="header-actions" id="headerActions">
-            <a href="login.html" class="btn btn-outline">Login</a>
-            <a href="apply-now-bt.html" class="btn btn-primary">Get Started</a>
+            <div class="mobile-actions">
+                <!-- <a href="login.html" class="btn btn-outline">Login</a> -->
+                <a href="courses.html" class="btn btn-primary">Get Started</a>
+            </div>
         </div>
+    </header>
 
 
-        <div class="nav-toggle" id="navToggle">
-            <span></span>
-            <span></span>
-            <span></span>
-        </div>
-    </div>
+   <script src="scripts/header.js"></script>
 
 
-    <div class="mobile-menu" id="mobileMenu">
-        <button class="close-menu" id="closeMenu">
-            <i class="fas fa-times"></i>
-        </button>
-        <ul class="mobile-nav-list">
-            <li><a href="index.html" class="mobile-nav-link active">Home</a></li>
-            <li><a href="about.html" class="mobile-nav-link">About Us</a></li>
-            <li><a href="courses.html" class="mobile-nav-link">Courses</a></li>
-            <li><a href="calender.html" class="mobile-nav-link">Program Calender</a></li>
-            <li><a href="contact.html" class="mobile-nav-link">Contact</a></li>
-        </ul>
-        <div class="mobile-actions" id="mobileActions">
-            <a href="login.html" class="btn btn-outline">Login</a>
-            <a href="apply-now-bt.html" class="btn btn-primary">Get Started</a>
-        </div>
-    </div>
-</header>
+
+

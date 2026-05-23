@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5TRSMVV4');</script>
+<!-- End Google Tag Manager -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FAQ</title>
+    <link rel="stylesheet" href="styles/root.css">
+    <link rel="stylesheet" href="styles/legal.css">
+    <link rel="stylesheet" href="styles/header.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5TRSMVV4"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+
+    <div id="headerContainer"></div>
+
+    <main>
+        <h1>Frequently Asked Questions</h1>
+
+        <h2>What is Nuru Foundation?</h2>
+        <p>Nuru Foundation is a non-profit organization dedicated to providing accessible and affordable education to young people. We offer a variety of courses in technology and other essential skills to empower the next generation of leaders and innovators.</p>
+
+        <h2>Who can join Nuru Foundation's courses?</h2>
+        <p>Our courses are open to everyone, but we primarily focus on young people who are eager to learn and grow. We believe that education should be accessible to all, regardless of their background or financial situation.</p>
+
+        <h2>What courses do you offer?</h2>
+        <p>We offer a wide range of courses, including web development, data science, cybersecurity, and more. You can find a full list of our courses on our <a href="courses.html">courses page</a>.</p>
+
+        <h2>How much do the courses cost?</h2>
+        <p>We strive to make our courses as affordable as possible. We offer a variety of payment options and scholarships to ensure that everyone has the opportunity to learn. Please visit our <a href="courses.html">courses page</a> for more information on pricing.</p>
+
+        <h2>How do I apply for a course?</h2>
+        <p>You can apply for a course by visiting the course page and clicking the "Apply Now" button. You will be asked to fill out a short application form, and we will get back to you as soon as possible.</p>
+
+        <h2>Where are you located?</h2>
+        <p>We are located in Nairobi, Kenya. However, many of our courses are available online, so you can learn from anywhere in the world.</p>
+
+        <h2>How can I support Nuru Foundation?</h2>
+        <p>There are many ways to support Nuru Foundation. You can make a donation, volunteer your time, or spread the word about our work. Please visit our <a href="contact.html">contact page</a> to learn more about how you can help.</p>
+    </main>
+    
+    <div id="footerContainer"></div>
+
+    <script src="scripts/header.js"></script>
+    <script src="scripts/footer.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            fetch('header.html')
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('headerContainer').innerHTML = data;
+                    if (typeof initHeader === 'function') {
+                        initHeader();
+                    }
+                })
+                .catch(error => console.error('Error loading header:', error));
+    
+            fetch('footer.html')
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('footerContainer').innerHTML = data;
+                    const yearElement = document.getElementById('current-year');
+                    if (yearElement) {
+                        yearElement.textContent = new Date().getFullYear();
+                    }
+                    if (typeof startCourseRotation === 'function') {
+                        startCourseRotation();
+                    }
+                })
+                .catch(error => console.error('Error loading footer:', error));
+        });
+    </script>
+</body>
+</html>
