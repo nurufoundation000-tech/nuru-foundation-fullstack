@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script>(function(){var t=sessionStorage.getItem('token');if(!t){location.replace('/login.html');return}var x=new XMLHttpRequest();x.open('GET','/api/auth/verify',false);x.setRequestHeader('Authorization','Bearer '+t);try{x.send();if(x.status===401||x.status===403){sessionStorage.removeItem('token');sessionStorage.removeItem('user');location.replace('/login.html')}}catch(e){sessionStorage.removeItem('token');sessionStorage.removeItem('user');location.replace('/login.html')}})();</script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course Notes - Nuru Foundation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="../styles/root.css">
+    <link rel="stylesheet" href="../styles/header.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Poppins', sans-serif; background: #f8f9fa; color: #333; }
+
+        .reader-container {
+            display: flex;
+            min-height: calc(100vh - 70px);
+            margin-top: 70px;
+        }
+
+        .reader-sidebar {
+            width: 320px;
+            background: white;
+            border-right: 1px solid #e9ecef;
+            padding: 20px;
+            overflow-y: auto;
+            position: fixed;
+            top: 70px;
+            bottom: 0;
+        }
+
+        .reader-sidebar h2 {
+            font-size: 1.1rem;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #27ae60;
+        }
+
+        .progress-bar-container {
+            background: #e9ecef;
+            border-radius: 10px;
+            height: 8px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: #27ae60;
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            font-size: 0.85rem;
+            color: #6c757d;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .note-list {
+            list-style: none;
+        }
+
+        .note-list-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-bottom: 5px;
+            border: 1px solid transparent;
+        }
+
+        .note-list-item:hover {
+            background: #f0fdf4;
+        }
+
+        .note-list-item.active {
+            background: #f0fdf4;
+            border-color: #27ae60;
+        }
+
+        .note-list-item .read-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .note-list-item .read-indicator.unread {
+            background: #27ae60;
+        }
+
+        .note-list-item .read-indicator.read {
+            background: #ccc;
+        }
+
+        .note-list-item .note-title {
+            font-size: 0.9rem;
+            color: #2c3e50;
+            flex: 1;
+        }
+
+        .note-list-item .note-order {
+            font-size: 0.75rem;
+            color: #95a5a6;
+            font-weight: 600;
+        }
+
+        .reader-main {
+            flex: 1;
+            margin-left: 320px;
+            padding: 30px 40px;
+            max-width: 900px;
+        }
+
+        .reader-header {
+            margin-bottom: 30px;
+        }
+
+        .reader-header .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #27ae60;
+            text-decoration: none;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+        }
+
+        .reader-header .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .reader-header h1 {
+            font-size: 1.8rem;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .reader-header .note-meta {
+            display: flex;
+            gap: 15px;
+            color: #6c757d;
+            font-size: 0.85rem;
+        }
+
+        .note-content {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            line-height: 1.8;
+        }
+
+        .note-content img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .note-content iframe {
+            width: 100%;
+            max-width: 560px;
+            height: 315px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .note-content blockquote {
+            border-left: 4px solid #27ae60;
+            padding-left: 20px;
+            margin: 20px 0;
+            color: #555;
+            font-style: italic;
+        }
+
+        .note-content pre {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+
+        .note-content code {
+            background: #f0f0f0;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+
+        .note-content a {
+            color: #27ae60;
+        }
+
+        .reference-section {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            border: 1px solid #e9ecef;
+        }
+
+        .reference-section h3 {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-bottom: 10px;
+        }
+
+        .reference-section .reference-link {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #27ae60;
+            text-decoration: none;
+            font-size: 0.95rem;
+        }
+
+        .reference-section .reference-link:hover {
+            text-decoration: underline;
+        }
+
+        .reference-attribution {
+            margin-top: 8px;
+            font-size: 0.8rem;
+            color: #95a5a6;
+        }
+
+        .reader-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: #27ae60;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #219a52;
+        }
+
+        .btn-primary:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid #27ae60;
+            color: #27ae60;
+        }
+
+        .btn-outline:hover {
+            background: #27ae60;
+            color: white;
+        }
+
+        .btn-mark-read {
+            background: #27ae60;
+            color: white;
+        }
+
+        .btn-mark-read.read {
+            background: #6c757d;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: #6c757d;
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6c757d;
+        }
+
+        @media (max-width: 768px) {
+            .reader-sidebar {
+                width: 100%;
+                position: relative;
+                top: 0;
+                height: auto;
+                max-height: 200px;
+                border-right: none;
+                border-bottom: 1px solid #e9ecef;
+            }
+            .reader-main {
+                margin-left: 0;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="header-placeholder"></div>
+    <script>
+        fetch('../header.html').then(r => r.text()).then(h => {
+            document.getElementById('header-placeholder').innerHTML = h;
+            document.querySelector('.nav-links').innerHTML += `
+                <a href="index.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                <a href="courses.html"><i class="fas fa-book"></i> My Courses</a>
+                <a href="notes.html"><i class="fas fa-sticky-note"></i> Notes</a>
+                <a href="payment.html"><i class="fas fa-credit-card"></i> Payments</a>
+                <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            `;
+        });
+    </script>
+
+    <div class="reader-container">
+        <aside class="reader-sidebar" id="readerSidebar">
+            <h2 id="courseTitle">Course Notes</h2>
+            <div class="progress-bar-container">
+                <div class="progress-bar-fill" id="progressFill" style="width: 0%"></div>
+            </div>
+            <div class="progress-text" id="progressText">0 of 0 notes read</div>
+            <ul class="note-list" id="noteList">
+                <li class="loading">Loading notes...</li>
+            </ul>
+        </aside>
+
+        <main class="reader-main" id="readerMain">
+            <div class="reader-header">
+                <a class="back-link" href="courses.html">
+                    <i class="fas fa-arrow-left"></i> Back to Courses
+                </a>
+                <h1 id="noteTitle">Select a note</h1>
+                <div class="note-meta" id="noteMeta"></div>
+            </div>
+            <div class="note-content" id="noteContent">
+                <div class="empty-state">
+                    <i class="fas fa-sticky-note"></i>
+                    <h3>Select a note from the sidebar to start reading</h3>
+                </div>
+            </div>
+            <div class="reference-section" id="referenceSection" style="display:none;">
+                <h3><i class="fas fa-external-link-alt"></i> Reference</h3>
+                <div id="referenceContent"></div>
+            </div>
+            <div class="reader-actions">
+                <button class="btn btn-outline" id="prevBtn" onclick="navigateNote(-1)">
+                    <i class="fas fa-chevron-left"></i> Previous
+                </button>
+                <button class="btn btn-mark-read" id="markReadBtn" onclick="toggleRead()">
+                    <i class="fas fa-check"></i> <span id="markReadText">Mark as Read</span>
+                </button>
+                <button class="btn btn-outline" id="nextBtn" onclick="navigateNote(1)">
+                    Next <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </main>
+    </div>
+
+    <script>
+    const API_BASE_URL = '/api';
+    let notes = [];
+    let currentIndex = -1;
+    let courseId = null;
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const params = new URLSearchParams(window.location.search);
+        courseId = params.get('courseId');
+        if (courseId) {
+            loadNotes();
+        }
+    });
+
+    async function loadNotes() {
+        try {
+            const token = sessionStorage.getItem('token');
+            const response = await fetch(`${API_BASE_URL}/student/notes/${courseId}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            if (!response.ok) {
+                if (response.status === 403) {
+                    document.getElementById('noteContent').innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-lock"></i>
+                            <h3>Access Locked</h3>
+                            <p>Please complete your payment to access course notes.</p>
+                            <a href="payment.html" class="btn btn-primary" style="margin-top:15px;">
+                                Go to Payments
+                            </a>
+                        </div>`;
+                    return;
+                }
+                throw new Error('Failed to load notes');
+            }
+
+            const data = await response.json();
+            notes = data.data || [];
+            renderSidebar();
+            if (notes.length > 0) {
+                selectNote(0);
+            } else {
+                document.getElementById('noteContent').innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-sticky-note"></i>
+                        <h3>No notes yet</h3>
+                        <p>The tutor hasn't posted any notes for this course.</p>
+                    </div>`;
+            }
+        } catch (error) {
+            console.error('Error loading notes:', error);
+            document.getElementById('noteContent').innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <h3>Failed to load notes</h3>
+                    <p>${error.message}</p>
+                </div>`;
+        }
+    }
+
+    function renderSidebar() {
+        const list = document.getElementById('noteList');
+        const readCount = notes.filter(n => n.isRead).length;
+        const total = notes.length;
+
+        document.getElementById('progressFill').style.width = total > 0 ? `${(readCount / total) * 100}%` : '0%';
+        document.getElementById('progressText').textContent = `${readCount} of ${total} notes read`;
+
+        list.innerHTML = notes.map((note, i) => `
+            <li class="note-list-item ${i === currentIndex ? 'active' : ''}" onclick="selectNote(${i})">
+                <span class="read-indicator ${note.isRead ? 'read' : 'unread'}"></span>
+                <span class="note-title">${note.title}</span>
+                <span class="note-order">#${note.orderIndex || (i + 1)}</span>
+            </li>
+        `).join('');
+    }
+
+    function selectNote(index) {
+        currentIndex = index;
+        const note = notes[index];
+        if (!note) return;
+
+        document.getElementById('noteTitle').textContent = note.title;
+        document.getElementById('noteMeta').innerHTML = `
+            <span><i class="fas fa-calendar"></i> ${new Date(note.createdAt).toLocaleDateString()}</span>
+            <span><i class="fas fa-hashtag"></i> Note ${note.orderIndex || (index + 1)} of ${notes.length}</span>
+        `;
+
+        document.getElementById('noteContent').innerHTML = DOMPurify ? DOMPurify.sanitize(note.content) : note.content;
+
+        const markBtn = document.getElementById('markReadBtn');
+        const markText = document.getElementById('markReadText');
+        if (note.isRead) {
+            markBtn.classList.add('read');
+            markText.textContent = 'Read';
+        } else {
+            markBtn.classList.remove('read');
+            markText.textContent = 'Mark as Read';
+        }
+
+        renderReference(note);
+
+        document.getElementById('prevBtn').disabled = index <= 0;
+        document.getElementById('nextBtn').disabled = index >= notes.length - 1;
+
+        renderSidebar();
+        window.scrollTo(0, 0);
+    }
+
+    function renderReference(note) {
+        const section = document.getElementById('referenceSection');
+        const content = document.getElementById('referenceContent');
+
+        if (note.referenceUrl) {
+            section.style.display = 'block';
+            const url = note.referenceUrl;
+
+            if (url.includes('youtube.com') || url.includes('youtu.be') || url.includes('youtube-nocookie.com')) {
+                let embedUrl = url;
+                if (url.includes('watch?v=')) {
+                    const videoId = url.split('v=')[1]?.split('&')[0];
+                    embedUrl = `https://www.youtube-nocookie.com/embed/${videoId}`;
+                } else if (url.includes('youtu.be/')) {
+                    const videoId = url.split('youtu.be/')[1]?.split('?')[0];
+                    embedUrl = `https://www.youtube-nocookie.com/embed/${videoId}`;
+                }
+                content.innerHTML = `
+                    <iframe src="${embedUrl}" frameborder="0" allowfullscreen></iframe>
+                    <div class="reference-attribution">
+                        <i class="fas fa-video"></i> YouTube Video â€” 
+                        <a href="${url}" target="_blank" class="reference-link">Watch on YouTube <i class="fas fa-external-link-alt"></i></a>
+                    </div>`;
+            } else if (url.includes('vimeo.com')) {
+                content.innerHTML = `
+                    <div class="reference-attribution" style="margin-bottom:10px;">
+                        <i class="fas fa-video"></i> Vimeo Video
+                    </div>
+                    <a href="${url}" target="_blank" class="reference-link">
+                        <i class="fas fa-external-link-alt"></i> Watch on Vimeo
+                    </a>`;
+            } else if (url.includes('zoom.us') || url.includes('meet.google.com') || url.includes('teams.microsoft.com')) {
+                content.innerHTML = `
+                    <div class="reference-attribution" style="margin-bottom:10px;">
+                        <i class="fas fa-video"></i> Live Session Link
+                    </div>
+                    <a href="${url}" target="_blank" class="reference-link">
+                        <i class="fas fa-external-link-alt"></i> Join Meeting
+                    </a>`;
+            } else {
+                const domain = new URL(url).hostname.replace('www.', '');
+                content.innerHTML = `
+                    <div class="reference-attribution" style="margin-bottom:10px;">
+                        <i class="fas fa-link"></i> Reference from ${domain}
+                    </div>
+                    <a href="${url}" target="_blank" class="reference-link">
+                        <i class="fas fa-external-link-alt"></i> Visit Link
+                    </a>`;
+            }
+        } else {
+            section.style.display = 'none';
+        }
+    }
+
+    function navigateNote(direction) {
+        const newIndex = currentIndex + direction;
+        if (newIndex >= 0 && newIndex < notes.length) {
+            selectNote(newIndex);
+        }
+    }
+
+    async function toggleRead() {
+        const note = notes[currentIndex];
+        if (!note) return;
+
+        if (note.isRead) return;
+
+        try {
+            const token = sessionStorage.getItem('token');
+            const response = await fetch(`${API_BASE_URL}/student/notes/${note.id}/mark-read`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            if (response.ok) {
+                note.isRead = true;
+                selectNote(currentIndex);
+            }
+        } catch (error) {
+            console.error('Error marking note as read:', error);
+        }
+    }
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowLeft') navigateNote(-1);
+        if (e.key === 'ArrowRight') navigateNote(1);
+    });
+
+    function logout() {
+        sessionStorage.removeItem('token');
+        sessionStorage.removeItem('user');
+        window.location.href = '/login.html';
+    }
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
+<script>function logout(){localStorage.clear();sessionStorage.clear();location.replace('/login.html')}</script>
+</body>
+</html>

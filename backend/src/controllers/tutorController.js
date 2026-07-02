@@ -182,6 +182,7 @@ async function getTutorLessons(req, res) {
       content: lesson.content,
       video_url: lesson.video_url,
       order_index: lesson.order_index,
+      liveLink: lesson.live_link || null,
       courseId: lesson.course_id,
       course: {
         id: lesson.course_id,
@@ -213,7 +214,7 @@ async function getTutorLessons(req, res) {
 
 async function createTutorLesson(req, res) {
   try {
-    const { courseId, title, content, videoUrl, orderIndex } = req.body;
+    const { courseId, title, content, videoUrl, orderIndex, liveLink } = req.body;
 
     if (!courseId || !title) {
       return res.status(400).json({ error: 'Course ID and title are required' });
@@ -234,6 +235,7 @@ async function createTutorLesson(req, res) {
       content: content || '',
       video_url: videoUrl || null,
       order_index: orderIndex || 0,
+      live_link: liveLink || null,
       created_at: new Date(),
       updated_at: new Date()
     });
@@ -255,7 +257,7 @@ async function updateTutorLesson(req, res) {
       return res.status(400).json({ error: 'Invalid lesson ID' });
     }
 
-    const { title, content, videoUrl, orderIndex } = req.body;
+    const { title, content, videoUrl, orderIndex, liveLink } = req.body;
 
     const lesson = await db.getOne(
       `SELECT l.* FROM lessons l
@@ -273,6 +275,7 @@ async function updateTutorLesson(req, res) {
     if (content !== undefined) updateData.content = content;
     if (videoUrl !== undefined) updateData.video_url = videoUrl;
     if (orderIndex !== undefined) updateData.order_index = orderIndex;
+    if (liveLink !== undefined) updateData.live_link = liveLink;
 
     await db.update('lessons', lessonId, updateData);
 
@@ -642,12 +645,13 @@ async function getTutorNotes(req, res) {
       [...courseIds, limit, offset]
     );
 
-    // Transform to nested structure expected by frontend
     const transformedNotes = notes.map(note => ({
       id: note.id,
       title: note.title,
       content: note.content,
       courseId: note.course_id,
+      orderIndex: note.order_index || 0,
+      referenceUrl: note.reference_url || null,
       course: {
         id: note.course_id,
         title: note.course_title
@@ -678,7 +682,7 @@ async function getTutorNotes(req, res) {
 
 async function createTutorNote(req, res) {
   try {
-    const { courseId, title, content } = req.body;
+    const { courseId, title, content, orderIndex, referenceUrl } = req.body;
 
     if (!courseId || !title || !content) {
       return res.status(400).json({ error: 'Course ID, title, and content are required' });
@@ -697,6 +701,8 @@ async function createTutorNote(req, res) {
       course_id: courseId,
       title,
       content,
+      order_index: orderIndex || 0,
+      reference_url: referenceUrl || null,
       created_at: new Date(),
       updated_at: new Date()
     });
@@ -718,7 +724,7 @@ async function updateTutorNote(req, res) {
       return res.status(400).json({ error: 'Invalid note ID' });
     }
 
-    const { title, content } = req.body;
+    const { title, content, orderIndex, referenceUrl } = req.body;
 
     const note = await db.getOne(
       `SELECT n.* FROM course_notes n
@@ -733,7 +739,9 @@ async function updateTutorNote(req, res) {
 
     const updateData = { updated_at: new Date() };
     if (title) updateData.title = title;
-    if (content) updateData.content = content;
+    if (content !== undefined) updateData.content = content;
+    if (orderIndex !== undefined) updateData.order_index = orderIndex;
+    if (referenceUrl !== undefined) updateData.reference_url = referenceUrl;
 
     await db.update('course_notes', noteId, updateData);
 
@@ -887,8 +895,7 @@ async function createTutorEnrollment(req, res) {
     const enrollmentId = await db.insert('enrollments', {
       student_id: studentId,
       course_id: courseId,
-      enrolled_at: new Date(),
-      created_at: new Date()
+      enrolled_at: new Date()
     });
 
     const enrollment = await db.getOne(
@@ -935,6 +942,70 @@ async function deleteTutorEnrollment(req, res) {
   }
 }
 
+async function reorderNotes(req, res) {
+  try {
+    const { items } = req.body;
+    if (!items || !Array.isArray(items)) {
+      return res.status(400).json({ error: 'items array is required' });
+    }
+
+    const tutorCourses = await db.query('SELECT id FROM courses WHERE tutor_id = ?', [req.user.userId]);
+    const courseIds = tutorCourses.map(c => c.id);
+    if (courseIds.length === 0) {
+      return res.status(403).json({ error: 'No courses found' });
+    }
+
+    const placeholders = courseIds.map(() => '?').join(', ');
+
+    for (const item of items) {
+      const note = await db.getOne(
+        `SELECT id FROM course_notes WHERE id = ? AND course_id IN (${placeholders})`,
+        [item.id, ...courseIds]
+      );
+      if (note) {
+        await db.query('UPDATE course_notes SET order_index = ? WHERE id = ?', [item.orderIndex, item.id]);
+      }
+    }
+
+    res.json({ success: true, message: 'Notes reordered successfully' });
+  } catch (error) {
+    console.error('Reorder notes error:', error);
+    res.status(500).json({ error: 'Failed to reorder notes' });
+  }
+}
+
+async function reorderLessons(req, res) {
+  try {
+    const { items } = req.body;
+    if (!items || !Array.isArray(items)) {
+      return res.status(400).json({ error: 'items array is required' });
+    }
+
+    const tutorCourses = await db.query('SELECT id FROM courses WHERE tutor_id = ?', [req.user.userId]);
+    const courseIds = tutorCourses.map(c => c.id);
+    if (courseIds.length === 0) {
+      return res.status(403).json({ error: 'No courses found' });
+    }
+
+    const placeholders = courseIds.map(() => '?').join(', ');
+
+    for (const item of items) {
+      const lesson = await db.getOne(
+        `SELECT id FROM lessons WHERE id = ? AND course_id IN (${placeholders})`,
+        [item.id, ...courseIds]
+      );
+      if (lesson) {
+        await db.query('UPDATE lessons SET order_index = ? WHERE id = ?', [item.orderIndex, item.id]);
+      }
+    }
+
+    res.json({ success: true, message: 'Lessons reordered successfully' });
+  } catch (error) {
+    console.error('Reorder lessons error:', error);
+    res.status(500).json({ error: 'Failed to reorder lessons' });
+  }
+}
+
 module.exports = {
   getTutorCourses,
   createCourse,
@@ -958,5 +1029,7 @@ module.exports = {
   getTutorStudents,
   getTutorEnrollments,
   createTutorEnrollment,
-  deleteTutorEnrollment
+  deleteTutorEnrollment,
+  reorderNotes,
+  reorderLessons
 };

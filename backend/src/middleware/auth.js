@@ -11,7 +11,7 @@ async function authenticateToken(req, res, next) {
     }
 
     const token = authHeader.slice(7);
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback-secret');
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
     const user = await db.getOne('SELECT * FROM users WHERE id = ?', [decoded.userId]);
 

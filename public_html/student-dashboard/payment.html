@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script>(function(){var t=sessionStorage.getItem('token');if(!t){location.replace('/login.html');return}var x=new XMLHttpRequest();x.open('GET','/api/auth/verify',false);x.setRequestHeader('Authorization','Bearer '+t);try{x.send();if(x.status===401||x.status===403){sessionStorage.removeItem('token');sessionStorage.removeItem('user');location.replace('/login.html')}}catch(e){sessionStorage.removeItem('token');sessionStorage.removeItem('user');location.replace('/login.html')}})();</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Payments - NURU FOUNDATION</title>
@@ -226,6 +227,13 @@
                 </div>
             </div>
             
+            <div id="installmentSection" style="margin-top: 40px;">
+                <h2 style="margin-bottom: 20px; color: var(--primary-color);">Installment Schedule</h2>
+                <div id="installmentContainer">
+                    <div class="loading"><i class="fas fa-spinner fa-spin"></i><p>Loading schedule...</p></div>
+                </div>
+            </div>
+
             <div id="paymentHistorySection" style="margin-top: 40px;">
                 <h2 style="margin-bottom: 20px; color: var(--primary-color);">Payment History</h2>
                 <div id="paymentHistoryContainer">
@@ -282,16 +290,15 @@
             
             if (!DashboardUtils.checkAuth('student')) return;
             
-            // Check if student is locked
             await checkLockStatus();
-            
             await loadPayments();
             await loadCreditBalance();
+            await loadInstallments();
         });
         
         async function loadCreditBalance() {
             try {
-                const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+                const token = sessionStorage.getItem('token');
                 
                 if (!token) return;
                 
@@ -364,9 +371,81 @@
             }).join('');
         }
 
+        async function loadInstallments() {
+            try {
+                const token = sessionStorage.getItem('token');
+                const enrollmentsRes = await fetch('/api/student/courses', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const enrollmentsData = await enrollmentsRes.json();
+                const courses = (enrollmentsData.data || []).map(e => e.course.id);
+
+                if (courses.length === 0) {
+                    document.getElementById('installmentContainer').innerHTML = '<div class="empty-state"><i class="fas fa-calendar"></i><p>No courses enrolled</p></div>';
+                    return;
+                }
+
+                let html = '';
+                for (const courseId of courses) {
+                    const res = await fetch(`/api/student/installments/${courseId}`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (!res.ok) continue;
+                    const data = await res.json();
+                    if (!data.success || !data.data) continue;
+
+                    const { deposit, monthlyInvoices, pricing } = data.data;
+                    const courseTitle = deposit?.courseTitle || monthlyInvoices[0]?.courseTitle || 'Course';
+                    const totalMonths = pricing?.billingDuration || monthlyInvoices.length || 0;
+                    const paidMonths = monthlyInvoices.filter(i => i.status === 'paid').length;
+
+                    html += `
+                        <div class="payment-card">
+                            <div class="payment-header">
+                                <h3 style="margin:0;">${deposit?.course_title || 'Course'} Installments</h3>
+                                <span style="font-size:0.85rem;color:#6c757d;">
+                                    ${paidMonths} of ${totalMonths} months paid
+                                </span>
+                            </div>
+                            <div style="display:flex;gap:10px;margin:15px 0;flex-wrap:wrap;">
+                                <div style="flex:1;min-width:120px;padding:12px;background:${deposit?.status === 'paid' ? '#d4edda' : '#fff3cd'};border-radius:8px;text-align:center;">
+                                    <div style="font-size:0.75rem;color:#666;">Deposit</div>
+                                    <div style="font-weight:700;font-size:1.1rem;color:${deposit?.status === 'paid' ? '#155724' : '#856404'}">
+                                        ${deposit?.status === 'paid' ? 'Paid' : 'Pending'}
+                                    </div>
+                                    <div style="font-size:0.8rem;color:#666;">KES ${(deposit?.amount || 0).toLocaleString()}</div>
+                                </div>
+                                ${monthlyInvoices.map((inv, i) => `
+                                    <div style="flex:1;min-width:80px;padding:12px;background:${inv.status === 'paid' ? '#d4edda' : inv.status === 'locked' ? '#f8d7da' : '#fff3cd'};border-radius:8px;text-align:center;">
+                                        <div style="font-size:0.75rem;color:#666;">Month ${i + 1}</div>
+                                        <div style="font-weight:700;font-size:1rem;color:${inv.status === 'paid' ? '#155724' : inv.status === 'locked' ? '#721c24' : '#856404'}">
+                                            ${inv.status === 'paid' ? 'Paid' : inv.status === 'locked' ? 'Locked' : 'Due'}
+                                        </div>
+                                        <div style="font-size:0.75rem;color:#666;">KES ${(inv.amount || 0).toLocaleString()}</div>
+                                    </div>
+                                `).join('')}
+                                ${Array.from({length: Math.max(0, totalMonths - monthlyInvoices.length)}, (_, i) => `
+                                    <div style="flex:1;min-width:80px;padding:12px;background:#f8f9fa;border-radius:8px;text-align:center;opacity:0.5;">
+                                        <div style="font-size:0.75rem;color:#666;">Month ${monthlyInvoices.length + i + 1}</div>
+                                        <div style="font-weight:700;font-size:1rem;color:#999;">Upcoming</div>
+                                        <div style="font-size:0.75rem;color:#999;">KES ${(pricing?.monthlyAmount || 0).toLocaleString()}</div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                }
+
+                document.getElementById('installmentContainer').innerHTML = html || '<div class="empty-state"><i class="fas fa-calendar"></i><p>No installment data available</p></div>';
+            } catch (error) {
+                console.error('Error loading installments:', error);
+                document.getElementById('installmentContainer').innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>Failed to load installment schedule</p></div>';
+            }
+        }
+
         async function checkLockStatus() {
             try {
-                const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+                const token = sessionStorage.getItem('token');
                 
                 if (!token) {
                     console.error('No token found, redirecting to login');
@@ -416,7 +495,7 @@
 
         async function loadPayments() {
             try {
-                const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+                const token = sessionStorage.getItem('token');
                 
                 if (!token) {
                     console.error('No token found, redirecting to login');
@@ -555,7 +634,10 @@
                                     <td>${invoice.type === 'initial' ? 'Initial' : 'Monthly'}</td>
                                     <td>KES ${invoice.amount.toLocaleString()}</td>
                                     <td>${new Date(invoice.paidAt).toLocaleDateString()}</td>
-                                    <td>${invoice.mpesaReceipt || 'N/A'}</td>
+                                    <td>
+                                        ${invoice.mpesaReceipt || 'N/A'}
+                                        ${invoice.id ? '<br><a href="/api/receipt/' + invoice.id + '" target="_blank" style="font-size:0.8rem;color:#27ae60;text-decoration:none;"><i class="fas fa-print"></i> Receipt</a>' : ''}
+                                    </td>
                                 </tr>
                             `).join('')}
                         </tbody>
@@ -666,7 +748,7 @@
             const months = parseInt(document.getElementById('monthsSelect').value) || 1;
             
             try {
-                const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+                const token = sessionStorage.getItem('token');
                 
                 if (!token) {
                     errorEl.textContent = 'Session expired. Please log in again.';
@@ -821,7 +903,7 @@
         async function checkPaymentStatus(invoiceId) {
             console.log('[DEBUG] checkPaymentStatus called with invoiceId:', invoiceId);
             try {
-                const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+                const token = sessionStorage.getItem('token');
                 console.log('[DEBUG] Token found:', !!token);
                 
                 if (!token) {
@@ -891,5 +973,7 @@
             `;
         }
     </script>
+<script>function logout(){localStorage.clear();sessionStorage.clear();location.replace('/login.html')}</script>
 </body>
 </html>
+

@@ -13,11 +13,17 @@ console.log('[App] Checking environment variables...');
 console.log('[App] EMAIL_USER:', process.env.EMAIL_USER ? 'SET' : 'NOT SET');
 console.log('[App] EMAIL_PASS:', process.env.EMAIL_PASS ? 'SET' : 'NOT SET');
 console.log('[App] FRONTEND_URL:', process.env.FRONTEND_URL || 'NOT SET');
+console.log('[App] JWT_SECRET:', process.env.JWT_SECRET ? 'SET' : 'NOT SET');
+
+if (!process.env.JWT_SECRET) {
+  console.error('[App] FATAL: JWT_SECRET environment variable is required');
+  process.exit(1);
+}
 
 const PORT = process.env.PORT || 5000;
 const HOST = '0.0.0.0';
 
-const publicHtmlPath = path.resolve(__dirname, '..', 'public_html');
+const publicHtmlPath = path.resolve(__dirname, '..', '..', 'public_html');
 
 // CRITICAL: Skip static for API paths
 app.use('/api', (req, res, next) => {
@@ -30,7 +36,9 @@ const allowedOrigins = [
   'http://localhost:5173',
   'http://127.0.0.1:5173',
   'http://localhost:3000',
-  'http://127.0.0.1:3000'
+  'http://127.0.0.1:3000',
+  'http://localhost:5000',
+  'http://127.0.0.1:5000'
 ];
 
 const corsOptions = {
@@ -58,6 +66,19 @@ app.use(helmet({
 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Serve uploads directory for file uploads
+const uploadsPath = path.resolve(__dirname, '..', '..', 'public_html', 'uploads');
+if (fs.existsSync(uploadsPath)) {
+  app.use('/uploads', express.static(uploadsPath, {
+    setHeaders: (res, filePath) => {
+      if (/\.(jpg|jpeg|png|webp|gif|svg)$/i.test(filePath)) {
+        res.setHeader('Cache-Control', 'public, max-age=86400');
+      }
+    }
+  }));
+  console.log('Uploads directory configured at:', uploadsPath);
+}
 
 if (fs.existsSync(publicHtmlPath)) {
   app.use(express.static(publicHtmlPath, {
@@ -107,6 +128,7 @@ const frontendPages = [
   '/login.html',
   '/register.html',
   '/courses.html',
+  '/student-dashboard/reader.html',
   '/about.html',
   '/contact.html',
   '/community.html',
@@ -137,6 +159,9 @@ app.get('/student-dashboard', (req, res) => {
 });
 app.get('/tutor-dashboard', (req, res) => {
   res.sendFile(path.join(publicHtmlPath, 'tutor-dashboard', 'index.html'));
+});
+app.get('/student-dashboard/reader.html', (req, res) => {
+  res.sendFile(path.join(publicHtmlPath, 'student-dashboard', 'reader.html'));
 });
 
 app.get(/.*\.html$/, (req, res) => {

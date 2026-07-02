@@ -304,22 +304,30 @@ async function getUsers(req, res) {
 
 async function createUser(req, res) {
   try {
-    const { username, email, fullName, role } = req.body;
+    const { email, fullName, role } = req.body;
 
-    if (!username || !email || !fullName || !role) {
-      return res.status(400).json({ error: 'Username, email, full name, and role are required' });
+    if (!email || !fullName || !role) {
+      return res.status(400).json({ error: 'Email, full name, and role are required' });
     }
 
-    // Fix: Handle both string and object formats for role
+    // Handle both string and object formats for role
     let roleName = role;
     if (typeof role === 'object' && role !== null) {
-      roleName = role.name;  // Extract name from object
+      roleName = role.name;
     }
 
-    const existingUser = await db.getOne(`
-      SELECT id FROM users WHERE email = ? OR username = ?
-    `, [email.toLowerCase(), username]);
+    // Auto-generate username from email
+    const emailPrefix = email.split('@')[0].toLowerCase().replace(/[^a-z0-9_]/g, '_');
+    let username = emailPrefix;
+    let counter = 0;
+    while (true) {
+      const existing = await db.getOne('SELECT id FROM users WHERE username = ?', [username]);
+      if (!existing) break;
+      counter++;
+      username = `${emailPrefix}${counter}`;
+    }
 
+    const existingUser = await db.getOne('SELECT id FROM users WHERE email = ?', [email.toLowerCase()]);
     if (existingUser) {
       return res.status(409).json({ error: 'User already exists' });
     }
@@ -344,7 +352,10 @@ async function createUser(req, res) {
 
     console.log('User created:', email);
 
-    const user = await db.getOne('SELECT * FROM users WHERE id = ?', [userId]);
+    const user = await db.getOne(`
+      SELECT u.*, r.name as role_name FROM users u
+      LEFT JOIN roles r ON u.role_id = r.id WHERE u.id = ?
+    `, [userId]);
     const { password_hash, ...userWithoutPassword } = user;
 
     // Send welcome email
@@ -427,11 +438,13 @@ async function updateUser(req, res) {
 
     await db.update('users', parseInt(id), updateData);
 
-    const user = await db.getOne('SELECT * FROM users WHERE id = ?', [parseInt(id)]);
+    const user = await db.getOne(`
+      SELECT u.*, r.name as role_name FROM users u
+      LEFT JOIN roles r ON u.role_id = r.id WHERE u.id = ?
+    `, [parseInt(id)]);
     const { password_hash, ...userWithoutPassword } = user;
-    const userRole = await db.getOne('SELECT name FROM roles WHERE id = ?', [user.role_id]);
     
-    res.json({ success: true, data: { ...userWithoutPassword, role: userRole?.name } });
+    res.json({ success: true, data: userWithoutPassword });
   } catch (error) {
     console.error('Update user error:', error);
     res.status(500).json({ error: 'Failed to update user: ' + error.message });
@@ -463,6 +476,428 @@ async function deleteUser(req, res) {
   }
 }
 
+// ==================== ADMIN ANALYTICS ====================
+
+async function getAnalytics(req, res) {
+  try {
+    const period = req.query.period || '30d';
+    const days = period === '7d' ? 7 : period === '90d' ? 90 : period === '1y' ? 365 : 30;
+    const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+
+    const [totalUsers, totalCourses, totalEnrollments, totalRevenue] = await Promise.all([
+      db.query('SELECT COUNT(*) as count FROM users'),
+      db.query('SELECT COUNT(*) as count FROM courses'),
+      db.query('SELECT COUNT(*) as count FROM enrollments'),
+      db.query('SELECT COALESCE(SUM(amount), 0) as total FROM invoices WHERE status = \'paid\'')
+    ]);
+
+    const userGrowth = await db.query(`
+      SELECT DATE(created_at) as date, COUNT(*) as count
+      FROM users WHERE created_at >= ?
+      GROUP BY DATE(created_at) ORDER BY date
+    `, [since]);
+
+    const enrollmentTrends = await db.query(`
+      SELECT DATE(enrolled_at) as date, COUNT(*) as count
+      FROM enrollments WHERE enrolled_at >= ?
+      GROUP BY DATE(enrolled_at) ORDER BY date
+    `, [since]);
+
+    const revenue = await db.query(`
+      SELECT DATE(paid_at) as date, SUM(amount) as total
+      FROM invoices WHERE status = 'paid' AND paid_at >= ?
+      GROUP BY DATE(paid_at) ORDER BY date
+    `, [since]);
+
+    const coursePopularity = await db.query(`
+      SELECT c.title, COUNT(e.id) as count
+      FROM courses c
+      LEFT JOIN enrollments e ON c.id = e.course_id
+      GROUP BY c.id ORDER BY count DESC LIMIT 10
+    `);
+
+    const paidInvoices = await db.query('SELECT COUNT(*) as count FROM invoices WHERE status = \'paid\'');
+    const pendingInvoices = await db.query('SELECT COUNT(*) as count FROM invoices WHERE status = \'pending\'');
+    const lockedInvoices = await db.query('SELECT COUNT(*) as count FROM invoices WHERE status = \'locked\'');
+
+    res.json({
+      success: true,
+      userGrowth: { labels: userGrowth.map(r => r.date), data: userGrowth.map(r => r.count) },
+      coursePopularity: { labels: coursePopularity.map(r => r.title), data: coursePopularity.map(r => r.count) },
+      enrollmentTrends: { labels: enrollmentTrends.map(r => r.date), data: enrollmentTrends.map(r => r.count) },
+      revenue: { labels: revenue.map(r => r.date), data: revenue.map(r => r.total) },
+      completionRates: [
+        Math.round((paidInvoices[0]?.count || 0) / Math.max((pendingInvoices[0]?.count || 0) + (paidInvoices[0]?.count || 0), 1) * 100),
+        Math.round((pendingInvoices[0]?.count || 0) / Math.max((pendingInvoices[0]?.count || 0) + (lockedInvoices[0]?.count || 0), 1) * 100),
+        Math.round((lockedInvoices[0]?.count || 0) / Math.max((pendingInvoices[0]?.count || 0) + (lockedInvoices[0]?.count || 0), 1) * 100)
+      ],
+      geographic: { labels: ['Nairobi', 'Mombasa', 'Kisumu', 'Other'], data: [45, 20, 15, 20] },
+      stats: { totalUsers: totalUsers[0]?.count || 0, totalCourses: totalCourses[0]?.count || 0, totalEnrollments: totalEnrollments[0]?.count || 0, totalRevenue: totalRevenue[0]?.total || 0 }
+    });
+  } catch (error) {
+    console.error('Get analytics error:', error);
+    res.status(500).json({ error: 'Failed to load analytics' });
+  }
+}
+
+// ==================== ADMIN SETTINGS ====================
+
+async function getSettings(req, res) {
+  try {
+    const rows = await db.query('SELECT setting_key, setting_value FROM settings');
+    const settings = {};
+    rows.forEach(r => { settings[r.setting_key] = r.setting_value; });
+
+    res.json({
+      success: true,
+      platformName: settings.platformName || 'Nuru Foundation',
+      contactEmail: settings.contactEmail || '',
+      defaultLanguage: settings.defaultLanguage || 'en',
+      timezone: settings.timezone || 'Africa/Nairobi',
+      allowRegistration: settings.allowRegistration !== 'false',
+      emailVerification: settings.emailVerification === 'true',
+      twoFactorAuth: settings.twoFactorAuth === 'true',
+      sessionTimeout: parseInt(settings.sessionTimeout) || 60,
+      autoApproveCourses: settings.autoApproveCourses === 'true',
+      maxFileSize: parseInt(settings.maxFileSize) || 100,
+      allowedFileTypes: settings.allowedFileTypes || 'jpg,png,pdf,doc,docx',
+      courseCategories: settings.courseCategories || 'Technology, Business, Creative',
+      welcomeEmail: settings.welcomeEmail !== 'false',
+      completionEmail: settings.completionEmail !== 'false',
+      weeklyDigest: settings.weeklyDigest === 'true',
+      smtpServer: settings.smtpServer || '',
+      passwordPolicy: settings.passwordPolicy || 'default',
+      maxLoginAttempts: parseInt(settings.maxLoginAttempts) || 5,
+      dataRetention: parseInt(settings.dataRetention) || 365,
+      ipWhitelist: settings.ipWhitelist || '',
+      paymentGateway: settings.paymentGateway || 'mpesa',
+      currency: settings.currency || 'KES',
+      freeTrialDays: parseInt(settings.freeTrialDays) || 7,
+      subscriptionPlans: settings.subscriptionPlans === 'true'
+    });
+  } catch (error) {
+    console.error('Get settings error:', error);
+    res.status(500).json({ error: 'Failed to load settings' });
+  }
+}
+
+async function updateSettings(req, res) {
+  try {
+    const allowed = [
+      'platformName', 'contactEmail', 'defaultLanguage', 'timezone',
+      'allowRegistration', 'emailVerification', 'twoFactorAuth', 'sessionTimeout',
+      'autoApproveCourses', 'maxFileSize', 'allowedFileTypes', 'courseCategories',
+      'welcomeEmail', 'completionEmail', 'weeklyDigest', 'smtpServer',
+      'passwordPolicy', 'maxLoginAttempts', 'dataRetention', 'ipWhitelist',
+      'paymentGateway', 'currency', 'freeTrialDays', 'subscriptionPlans'
+    ];
+
+    for (const key of allowed) {
+      if (req.body[key] !== undefined) {
+        const value = String(req.body[key]);
+        const existing = await db.getOne('SELECT setting_key FROM settings WHERE setting_key = ?', [key]);
+        if (existing) {
+          await db.query('UPDATE settings SET setting_value = ?, updated_at = NOW() WHERE setting_key = ?', [value, key]);
+        } else {
+          await db.insert('settings', { setting_key: key, setting_value: value });
+        }
+      }
+    }
+
+    res.json({ success: true, message: 'Settings saved' });
+  } catch (error) {
+    console.error('Update settings error:', error);
+    res.status(500).json({ error: 'Failed to save settings' });
+  }
+}
+
+// ==================== COURSE PRICING ====================
+
+async function getCoursePricing(req, res) {
+  try {
+    const pricing = await db.query(`
+      SELECT c.id as courseId, c.title as courseTitle,
+             cp.initial_payment as initialPayment, cp.monthly_amount as monthlyAmount,
+             cp.billing_duration as billingDuration, cp.is_active as isActive
+      FROM courses c
+      LEFT JOIN course_pricing cp ON c.id = cp.course_id
+      ORDER BY c.title
+    `);
+    res.json({ success: true, data: pricing });
+  } catch (error) {
+    console.error('Get course pricing error:', error);
+    res.status(500).json({ error: 'Failed to load pricing' });
+  }
+}
+
+async function createOrUpdatePricing(req, res) {
+  try {
+    const { courseId, initialPayment, monthlyAmount, billingDuration } = req.body;
+
+    if (!courseId) {
+      return res.status(400).json({ error: 'Course ID is required' });
+    }
+
+    const course = await db.getOne('SELECT id FROM courses WHERE id = ?', [courseId]);
+    if (!course) {
+      return res.status(404).json({ error: 'Course not found' });
+    }
+
+    const existing = await db.getOne('SELECT id FROM course_pricing WHERE course_id = ?', [courseId]);
+    if (existing) {
+      await db.update('course_pricing', existing.id, {
+        initial_payment: initialPayment || 0,
+        monthly_amount: monthlyAmount || 0,
+        billing_duration: billingDuration || 1,
+        is_active: 1
+      });
+    } else {
+      await db.insert('course_pricing', {
+        course_id: courseId,
+        initial_payment: initialPayment || 0,
+        monthly_amount: monthlyAmount || 0,
+        billing_duration: billingDuration || 1,
+        is_active: 1
+      });
+    }
+
+    res.json({ success: true, message: 'Pricing saved' });
+  } catch (error) {
+    console.error('Update pricing error:', error);
+    res.status(500).json({ error: 'Failed to save pricing' });
+  }
+}
+
+// ==================== GLOBAL BILLING SETTINGS ====================
+
+async function getGlobalSettings(req, res) {
+  try {
+    const { getGlobalSettings: loadSettings } = require('../lib/invoices.js');
+    const settings = await loadSettings();
+    res.json({ success: true, data: settings });
+  } catch (error) {
+    console.error('Get global settings error:', error);
+    res.status(500).json({ error: 'Failed to load global settings' });
+  }
+}
+
+async function updateGlobalSettings(req, res) {
+  try {
+    const fs = require('fs');
+    const settingsPath = './global-billing.json';
+    const existing = fs.existsSync(settingsPath)
+      ? JSON.parse(fs.readFileSync(settingsPath, 'utf8'))
+      : { billingDay: 1, gracePeriodDays: 2 };
+
+    if (req.body.billingDay !== undefined) existing.billingDay = req.body.billingDay;
+    if (req.body.gracePeriodDays !== undefined) existing.gracePeriodDays = req.body.gracePeriodDays;
+
+    fs.writeFileSync(settingsPath, JSON.stringify(existing, null, 2));
+    res.json({ success: true, data: existing, message: 'Global billing settings saved' });
+  } catch (error) {
+    console.error('Update global settings error:', error);
+    res.status(500).json({ error: 'Failed to save global settings' });
+  }
+}
+
+// ==================== ADMIN TRANSACTIONS ====================
+
+async function getAdminTransactions(req, res) {
+  try {
+    const transactions = await db.query(`
+      SELECT i.*, u.full_name, u.username, u.email, c.title as course_title
+      FROM invoices i
+      JOIN users u ON i.student_id = u.id
+      JOIN courses c ON i.course_id = c.id
+      WHERE i.status = 'paid'
+      ORDER BY i.paid_at DESC
+    `);
+
+    const transformed = transactions.map(t => ({
+      id: t.id,
+      student: { fullName: t.full_name, username: t.username, email: t.email },
+      course: { title: t.course_title },
+      type: t.type || 'initial',
+      amount: t.amount,
+      status: t.status,
+      mpesaReceipt: t.mpesa_receipt,
+      transactionId: t.transaction_id,
+      paidAt: t.paid_at,
+      createdAt: t.created_at
+    }));
+
+    res.json({ success: true, data: transformed });
+  } catch (error) {
+    console.error('Get transactions error:', error);
+    res.status(500).json({ error: 'Failed to load transactions' });
+  }
+}
+
+// ==================== ADMIN INVOICES ====================
+
+async function getAdminInvoices(req, res) {
+  try {
+    const invoices = await db.query(`
+      SELECT i.*, u.full_name, u.username, u.email, c.title as course_title
+      FROM invoices i
+      JOIN users u ON i.student_id = u.id
+      JOIN courses c ON i.course_id = c.id
+      ORDER BY i.created_at DESC
+    `);
+
+    const transformed = invoices.map(inv => ({
+      id: inv.id,
+      student: { fullName: inv.full_name, username: inv.username, email: inv.email },
+      course: { title: inv.course_title },
+      type: inv.type || 'initial',
+      amount: inv.amount,
+      status: inv.status,
+      monthNumber: inv.month_number,
+      dueDate: inv.due_date,
+      paidAt: inv.paid_at,
+      mpesaReceipt: inv.mpesa_receipt,
+      createdAt: inv.created_at
+    }));
+
+    res.json({ success: true, data: transformed });
+  } catch (error) {
+    console.error('Get admin invoices error:', error);
+    res.status(500).json({ error: 'Failed to load invoices' });
+  }
+}
+
+async function unlockInvoice(req, res) {
+  try {
+    const invoiceId = parseInt(req.params.id);
+
+    if (isNaN(invoiceId)) {
+      return res.status(400).json({ error: 'Invalid invoice ID' });
+    }
+
+    const invoice = await db.getOne('SELECT * FROM invoices WHERE id = ?', [invoiceId]);
+    if (!invoice) {
+      return res.status(404).json({ error: 'Invoice not found' });
+    }
+
+    await db.update('invoices', invoiceId, {
+      status: 'paid',
+      paid_at: new Date()
+    });
+
+    const hasUnpaid = await db.getOne(`
+      SELECT id FROM invoices
+      WHERE student_id = ? AND status IN ('pending', 'locked') AND id != ?
+    `, [invoice.student_id, invoiceId]);
+
+    if (!hasUnpaid) {
+      await db.query('UPDATE users SET is_locked = 0 WHERE id = ?', [invoice.student_id]);
+    }
+
+    res.json({ success: true, message: 'Invoice unlocked and student access restored' });
+  } catch (error) {
+    console.error('Unlock invoice error:', error);
+    res.status(500).json({ error: 'Failed to unlock invoice' });
+  }
+}
+
+// ==================== ADMIN ENROLLMENT UPDATE/DELETE ====================
+
+async function updateEnrollment(req, res) {
+  try {
+    const enrollmentId = parseInt(req.params.id);
+
+    if (isNaN(enrollmentId)) {
+      return res.status(400).json({ error: 'Invalid enrollment ID' });
+    }
+
+    const { status, progress } = req.body;
+    const updateData = {};
+
+    if (status) updateData.completion_status = status;
+    if (progress !== undefined) {
+      await db.query(
+        'UPDATE lesson_progress SET is_completed = ? WHERE enrollment_id = ?',
+        [progress > 50 ? 1 : 0, enrollmentId]
+      );
+    }
+
+    await db.update('enrollments', enrollmentId, updateData);
+    const enrollment = await db.getOne('SELECT * FROM enrollments WHERE id = ?', [enrollmentId]);
+    res.json({ success: true, data: enrollment, message: 'Enrollment updated' });
+  } catch (error) {
+    console.error('Update enrollment error:', error);
+    res.status(500).json({ error: 'Failed to update enrollment' });
+  }
+}
+
+async function adminDeleteEnrollment(req, res) {
+  try {
+    const enrollmentId = parseInt(req.params.id);
+
+    if (isNaN(enrollmentId)) {
+      return res.status(400).json({ error: 'Invalid enrollment ID' });
+    }
+
+    await db.query('DELETE FROM lesson_progress WHERE enrollment_id = ?', [enrollmentId]);
+    await db.query('DELETE FROM invoices WHERE student_id IN (SELECT student_id FROM enrollments WHERE id = ?) AND course_id IN (SELECT course_id FROM enrollments WHERE id = ?)', [enrollmentId, enrollmentId]);
+    await db.query('DELETE FROM enrollments WHERE id = ?', [enrollmentId]);
+
+    res.json({ success: true, message: 'Enrollment removed' });
+  } catch (error) {
+    console.error('Delete enrollment error:', error);
+    res.status(500).json({ error: 'Failed to delete enrollment' });
+  }
+}
+
+// ==================== STUDENT INSTALLMENT SCHEDULE ====================
+
+async function getInstallmentSchedule(req, res) {
+  try {
+    const courseId = parseInt(req.params.courseId);
+
+    if (isNaN(courseId)) {
+      return res.status(400).json({ error: 'Invalid course ID' });
+    }
+
+    const enrollment = await db.getOne(
+      'SELECT id, enrolled_at FROM enrollments WHERE student_id = ? AND course_id = ?',
+      [req.user.userId, courseId]
+    );
+
+    if (!enrollment) {
+      return res.status(403).json({ error: 'Not enrolled' });
+    }
+
+    const invoices = await db.query(`
+      SELECT id, type, amount, status, due_date, month_number, paid_at, mpesa_receipt
+      FROM invoices
+      WHERE student_id = ? AND course_id = ?
+      ORDER BY created_at ASC
+    `, [req.user.userId, courseId]);
+
+    const pricing = await db.getOne(
+      'SELECT initial_payment, monthly_amount, billing_duration FROM course_pricing WHERE course_id = ?',
+      [courseId]
+    );
+
+    res.json({
+      success: true,
+      data: {
+        deposit: invoices.find(i => i.type === 'initial' || i.type === 'deposit'),
+        monthlyInvoices: invoices.filter(i => i.type === 'monthly'),
+        pricing: pricing ? {
+          initialPayment: pricing.initial_payment,
+          monthlyAmount: pricing.monthly_amount,
+          billingDuration: pricing.billing_duration
+        } : null
+      }
+    });
+  } catch (error) {
+    console.error('Get installment schedule error:', error);
+    res.status(500).json({ error: 'Failed to load installment schedule' });
+  }
+}
+
 module.exports = {
   getDashboardStats,
   getCourses,
@@ -476,5 +911,18 @@ module.exports = {
   getUsers,
   createUser,
   updateUser,
-  deleteUser
+  deleteUser,
+  getAnalytics,
+  getSettings,
+  updateSettings,
+  getCoursePricing,
+  createOrUpdatePricing,
+  getGlobalSettings,
+  updateGlobalSettings,
+  getAdminTransactions,
+  getAdminInvoices,
+  unlockInvoice,
+  updateEnrollment,
+  adminDeleteEnrollment,
+  getInstallmentSchedule
 };

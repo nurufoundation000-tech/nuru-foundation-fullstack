@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script>(function(){var t=sessionStorage.getItem('token');if(!t){location.replace('/login.html');return}var x=new XMLHttpRequest();x.open('GET','/api/auth/verify',false);x.setRequestHeader('Authorization','Bearer '+t);try{x.send();if(x.status===401||x.status===403){sessionStorage.removeItem('token');sessionStorage.removeItem('user');location.replace('/login.html')}}catch(e){sessionStorage.removeItem('token');sessionStorage.removeItem('user');location.replace('/login.html')}})();</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lesson Viewer - NURU FOUNDATION</title>
@@ -267,6 +268,12 @@
                 </div>
             </div>
 
+            <div id="liveSessionsSection" style="display:none; background: white; border-radius: 15px; padding: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); margin-bottom: 30px;">
+                <h3 style="color:var(--primary-color);margin:0 0 15px 0;"><i class="fas fa-video"></i> Upcoming Live Sessions</h3>
+                <div id="liveSessionsList"></div>
+                <a href="/student-dashboard/live-sessions.html" style="color:var(--primary-color);font-size:0.9rem;">View all sessions <i class="fas fa-arrow-right"></i></a>
+            </div>
+
             <div class="progress-section">
                 <h3>Course Progress</h3>
                 <div class="progress-bar">
@@ -331,6 +338,8 @@
 
                 displayLesson(lessons[currentLessonIndex]);
                 updateProgress();
+                loadCourseSessions();
+                loadForumSection();
 
             } catch (error) {
                 console.error('Error loading lesson viewer:', error);
@@ -516,6 +525,46 @@
             document.getElementById('progressText').textContent = `${progressPercent}% Complete`;
         }
 
+        async function loadCourseSessions() {
+            try {
+                const token = sessionStorage.getItem('token');
+                const res = await fetch(`${API_BASE}/sessions/course/${courseId}`, { headers: { 'Authorization': `Bearer ${token}` } });
+                if (!res.ok) return;
+                const data = await res.json();
+                const sessions = (data.data || []).filter(s => s.session_date >= new Date().toISOString().split('T')[0]);
+                if (sessions.length === 0) return;
+
+                const section = document.getElementById('liveSessionsSection');
+                const list = document.getElementById('liveSessionsList');
+                section.style.display = 'block';
+
+                list.innerHTML = sessions.slice(0, 3).map(s => {
+                    const dateStr = new Date(s.session_date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+                    return `
+                        <div style="background:#f8f9fa;border-radius:8px;padding:12px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;">
+                            <div>
+                                <strong style="font-size:0.9rem;">${escapeHtml(s.title)}</strong>
+                                <div style="font-size:0.8rem;color:#888;">${dateStr} &middot; ${s.duration_minutes} min</div>
+                            </div>
+                            <a href="${escapeHtml(s.meeting_link)}" target="_blank" class="btn btn-primary btn-sm" style="flex-shrink:0;"><i class="fas fa-video"></i> Join</a>
+                        </div>
+                    `;
+                }).join('');
+            } catch (e) { console.error('Error loading sessions:', e); }
+        }
+
+        async function loadForumSection() {
+            const lessonBody = document.getElementById('lessonBody');
+            const forumDiv = document.createElement('div');
+            forumDiv.style.cssText = 'background:#f8f9fa;border-radius:10px;padding:20px;margin-top:20px;';
+            forumDiv.innerHTML = `
+                <h4 style="margin:0 0 10px 0;color:var(--primary-color);"><i class="fas fa-comments"></i> Discussion</h4>
+                <p style="font-size:0.85rem;color:#666;margin-bottom:10px;">Have questions? Discuss this course with fellow students.</p>
+                <a href="/student-dashboard/forum.html?courseId=${courseId}" class="btn btn-outline btn-sm"><i class="fas fa-comments"></i> Go to Forum</a>
+            `;
+            lessonBody.appendChild(forumDiv);
+        }
+
         function showNotification(message, type) {
             // Create notification element
             const notification = document.createElement('div');
@@ -550,5 +599,6 @@
             }, 3000);
         }
     </script>
+<script>function logout(){localStorage.clear();sessionStorage.clear();location.replace('/login.html')}</script>
 </body>
 </html>

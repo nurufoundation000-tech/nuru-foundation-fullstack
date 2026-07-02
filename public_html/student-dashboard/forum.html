@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script>(function(){var t=sessionStorage.getItem('token');if(!t){location.replace('/login.html');return}var x=new XMLHttpRequest();x.open('GET','/api/auth/verify',false);x.setRequestHeader('Authorization','Bearer '+t);try{x.send();if(x.status===401||x.status===403){sessionStorage.removeItem('token');sessionStorage.removeItem('user');location.replace('/login.html')}}catch(e){sessionStorage.removeItem('token');sessionStorage.removeItem('user');location.replace('/login.html')}})();</script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forum - NURU FOUNDATION</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Fredoka+One&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="/styles/root.css">
+    <link rel="stylesheet" href="/styles/header.css">
+    <link rel="stylesheet" href="/styles/footer.css">
+    <link rel="stylesheet" href="/styles/dashboard.css">
+    <link rel="stylesheet" href="styles.css">
+    <base href="/">
+    <style>
+        .forum-container { margin-top: 20px; }
+        .forum-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
+        .post-card { background: white; border-radius: var(--border-radius-md); padding: 18px 20px; margin-bottom: 12px; box-shadow: var(--shadow-sm); transition: transform 0.2s; cursor: pointer; }
+        .post-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+        .post-card h4 { margin: 0 0 6px 0; color: var(--primary-color); }
+        .post-card .meta { font-size: 0.8rem; color: #888; display: flex; gap: 15px; }
+        .post-card .excerpt { font-size: 0.9rem; color: #555; margin-top: 8px; }
+        .empty-state { text-align: center; padding: 60px 20px; }
+        .empty-state i { font-size: 3rem; color: #ddd; margin-bottom: 15px; }
+        .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
+        .modal.show { display: flex; }
+        .modal-content { background: white; border-radius: var(--border-radius-lg); padding: 30px; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; }
+        .modal-content h3 { margin: 0 0 20px 0; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: 500; }
+        .form-group input, .form-group textarea { width: 100%; padding: 10px 12px; border: 2px solid #e0e0e0; border-radius: 8px; }
+        .form-group input:focus, .form-group textarea:focus { outline: none; border-color: var(--primary-color); }
+        .comment { background: #f8f9fa; border-radius: 8px; padding: 12px; margin-bottom: 8px; }
+        .comment .author { font-weight: 600; font-size: 0.85rem; }
+        .comment .time { font-size: 0.75rem; color: #888; }
+        .comment .text { font-size: 0.9rem; margin-top: 4px; }
+    </style>
+</head>
+<body>
+    <div id="headerContainer"></div>
+    <div class="dashboard-container" style="padding-top: 80px;">
+        <dashboard-sidebar active="my-courses"></dashboard-sidebar>
+        <div class="dashboard-main">
+            <div id="backLink" style="margin-bottom: 10px;">
+                <a href="javascript:history.back()" style="color:var(--primary-color);"><i class="fas fa-arrow-left"></i> Back</a>
+            </div>
+            <page-header title="Course Forum" subtitle="Discuss and ask questions" icon="fa-comments">
+                <button class="btn btn-primary btn-sm" onclick="openNewPost()"><i class="fas fa-plus"></i> New Post</button>
+            </page-header>
+            <div id="forumContent"><div class="loading"><i class="fas fa-spinner fa-spin"></i></div></div>
+        </div>
+    </div>
+
+    <div class="modal" id="postModal">
+        <div class="modal-content">
+            <h3>New Discussion Post</h3>
+            <div class="form-group">
+                <label>Title</label>
+                <input type="text" id="postTitle" placeholder="What's your question?">
+            </div>
+            <div class="form-group">
+                <label>Content</label>
+                <textarea id="postContent" rows="5" placeholder="Describe your question or discussion topic..."></textarea>
+            </div>
+            <div style="display:flex;gap:10px;justify-content:flex-end;">
+                <button class="btn btn-outline" onclick="closePostModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="submitPost()">Post</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="commentModal">
+        <div class="modal-content">
+            <h3>Add Comment</h3>
+            <div class="form-group">
+                <textarea id="commentContent" rows="4" placeholder="Write your comment..."></textarea>
+            </div>
+            <div style="display:flex;gap:10px;justify-content:flex-end;">
+                <button class="btn btn-outline" onclick="closeCommentModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="submitComment()">Comment</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/scripts/config.js"></script>
+    <script src="/scripts/dashboard.js"></script>
+    <script>
+        let courseId = null;
+        let currentPost = null;
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            await DashboardUtils.loadHeader();
+            await DashboardUtils.loadFooter();
+            if (!DashboardUtils.checkAuth('student')) return;
+            const params = new URLSearchParams(window.location.search);
+            courseId = params.get('courseId');
+            if (!courseId) {
+                document.getElementById('forumContent').innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>Course ID is required</p></div>';
+                return;
+            }
+            loadPosts();
+        });
+
+        async function loadPosts() {
+            try {
+                const data = await DashboardUtils.fetchAPI(`/forum/course/${courseId}`);
+                const posts = data.data || [];
+                const container = document.getElementById('forumContent');
+
+                if (posts.length === 0) {
+                    container.innerHTML = '<div class="empty-state"><i class="fas fa-comments"></i><h3>No discussions yet</h3><p>Be the first to start a discussion</p></div>';
+                    return;
+                }
+
+                container.innerHTML = '<div class="forum-container">' + posts.map(p => `
+                    <div class="post-card" onclick="viewPost(${p.id})">
+                        <h4>${escapeHtml(p.title)}</h4>
+                        <div class="meta">
+                            <span><i class="fas fa-user"></i> ${escapeHtml(p.author_name)}</span>
+                            <span><i class="fas fa-comment"></i> ${p.comment_count || 0} comments</span>
+                            <span><i class="fas fa-calendar"></i> ${new Date(p.created_at).toLocaleDateString()}</span>
+                        </div>
+                        <div class="excerpt">${escapeHtml(p.content).substring(0, 150)}${p.content.length > 150 ? '...' : ''}</div>
+                    </div>
+                `).join('') + '</div>';
+            } catch (e) {
+                console.error('Error:', e);
+                document.getElementById('forumContent').innerHTML = '<div class="error-message">Failed to load discussions</div>';
+            }
+        }
+
+        async function viewPost(postId) {
+            try {
+                const data = await DashboardUtils.fetchAPI(`/forum/posts/${postId}`);
+                const { post, comments } = data.data;
+                currentPost = post;
+                const container = document.getElementById('forumContent');
+
+                container.innerHTML = `
+                    <div style="background:white;border-radius:var(--border-radius-lg);padding:25px;box-shadow:var(--shadow-md);">
+                        <a href="javascript:loadPosts()" style="color:var(--primary-color);font-size:0.85rem;"><i class="fas fa-arrow-left"></i> Back to discussions</a>
+                        <h2 style="margin:15px 0 5px 0;color:var(--primary-color);">${escapeHtml(post.title)}</h2>
+                        <div style="font-size:0.85rem;color:#888;margin-bottom:15px;">
+                            <i class="fas fa-user"></i> ${escapeHtml(post.author_name)} &middot;
+                            ${new Date(post.created_at).toLocaleDateString()}
+                        </div>
+                        <div style="line-height:1.6;color:#333;margin-bottom:20px;white-space:pre-wrap;">${escapeHtml(post.content)}</div>
+                        <hr style="border:none;border-top:1px solid #eee;margin:20px 0;">
+                        <h4 style="margin:0 0 15px 0;"><i class="fas fa-comments"></i> Comments (${comments.length})</h4>
+                        <div id="commentsList">
+                            ${comments.length === 0 ? '<p style="color:#888;font-size:0.9rem;">No comments yet. Be the first to comment!</p>' : comments.map(c => `
+                                <div class="comment">
+                                    <div><span class="author">${escapeHtml(c.author_name)}</span> <span class="time">${new Date(c.created_at).toLocaleDateString()}</span></div>
+                                    <div class="text" style="white-space:pre-wrap;">${escapeHtml(c.content)}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <button class="btn btn-outline btn-sm" onclick="openCommentModal()" style="margin-top:10px;"><i class="fas fa-reply"></i> Add Comment</button>
+                    </div>
+                `;
+            } catch (e) {
+                console.error('Error:', e);
+            }
+        }
+
+        function openNewPost() { document.getElementById('postModal').classList.add('show'); }
+        function closePostModal() { document.getElementById('postModal').classList.remove('show'); document.getElementById('postTitle').value = ''; document.getElementById('postContent').value = ''; }
+
+        async function submitPost() {
+            const title = document.getElementById('postTitle').value;
+            const content = document.getElementById('postContent').value;
+            if (!title || !content) { alert('Please fill in title and content'); return; }
+            try {
+                await DashboardUtils.fetchAPI('/forum/posts', { method: 'POST', body: JSON.stringify({ courseId: parseInt(courseId), title, content }) });
+                closePostModal();
+                loadPosts();
+            } catch (e) { alert('Failed to create post: ' + e.message); }
+        }
+
+        function openCommentModal() { document.getElementById('commentModal').classList.add('show'); document.getElementById('commentContent').value = ''; }
+        function closeCommentModal() { document.getElementById('commentModal').classList.remove('show'); }
+
+        async function submitComment() {
+            if (!currentPost) return;
+            const content = document.getElementById('commentContent').value;
+            if (!content) { alert('Please write a comment'); return; }
+            try {
+                await DashboardUtils.fetchAPI(`/forum/posts/${currentPost.id}/comments`, { method: 'POST', body: JSON.stringify({ content }) });
+                closeCommentModal();
+                viewPost(currentPost.id);
+            } catch (e) { alert('Failed to add comment: ' + e.message); }
+        }
+    </script>
+<script>function logout(){localStorage.clear();sessionStorage.clear();location.replace('/login.html')}</script>
+</body>
+</html>

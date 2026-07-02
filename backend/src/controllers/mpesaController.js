@@ -12,7 +12,7 @@ const { markInvoicePaid } = require('../lib/invoices.js');
 
 async function initiatePayment(req, res) {
   try {
-    const { invoiceId, phoneNumber, amount } = req.body;
+    const { invoiceId, phoneNumber, amount, months } = req.body;
 
     if (!invoiceId || !phoneNumber) {
       return res.status(400).json({ error: 'Invoice ID and phone number are required' });
@@ -33,7 +33,8 @@ async function initiatePayment(req, res) {
       return res.status(400).json({ error: 'Invoice is not pending' });
     }
 
-    const paymentAmount = amount || invoice.amount;
+    const monthsCount = parseInt(months) || 1;
+    const paymentAmount = (amount || invoice.amount) * monthsCount;
     const formattedPhone = formatPhoneNumber(phoneNumber);
 
     if (!formattedPhone) {
@@ -221,3 +222,5 @@ module.exports = {
   getConfiguration,
   simulateCallback
 };
+
+

@@ -5,3 +5,6 @@ TODO.md
 .env*.local
 node_modules/
 nul
+*.md
+*.sql
+.opencode/

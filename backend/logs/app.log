@@ -43,3 +43,16 @@
 2026-04-28T10:55:35.893Z [INFO] [Email] SMTP server is ready to send messages
 2026-04-28T10:59:17.496Z [INFO] [Email] Creating SMTP transporter | Data: {"host":"nurufoundations.com","port":465,"user":"admin@nurufoundations.com"}
 2026-04-28T10:59:19.136Z [INFO] [Email] SMTP server is ready to send messages
+2026-07-01T08:16:18.768Z [WARN] [Email] EMAIL_USER or EMAIL_PASS not set - email disabled
+2026-07-01T11:45:04.909Z [WARN] [Email] EMAIL_USER or EMAIL_PASS not set - email disabled
+2026-07-01T12:04:10.893Z [WARN] [Email] EMAIL_USER or EMAIL_PASS not set - email disabled
+2026-07-01T12:27:14.879Z [WARN] [Email] EMAIL_USER or EMAIL_PASS not set - email disabled
+2026-07-01T14:50:43.016Z [WARN] [Email] EMAIL_USER or EMAIL_PASS not set - email disabled
+2026-07-01T15:15:30.625Z [WARN] [Email] EMAIL_USER or EMAIL_PASS not set - email disabled
+2026-07-01T16:20:27.609Z [WARN] [Email] EMAIL_USER or EMAIL_PASS not set - email disabled
+2026-07-01T16:24:06.557Z [WARN] [Email] EMAIL_USER or EMAIL_PASS not set - email disabled
+2026-07-01T16:24:33.160Z [WARN] [Email] EMAIL_USER or EMAIL_PASS not set - email disabled
+2026-07-01T16:30:55.353Z [WARN] [Email] EMAIL_USER or EMAIL_PASS not set - email disabled
+2026-07-01T23:35:50.090Z [WARN] [Email] EMAIL_USER or EMAIL_PASS not set - email disabled
+2026-07-01T23:51:55.080Z [WARN] [Email] EMAIL_USER or EMAIL_PASS not set - email disabled
+2026-07-02T00:14:04.210Z [WARN] [Email] EMAIL_USER or EMAIL_PASS not set - email disabled

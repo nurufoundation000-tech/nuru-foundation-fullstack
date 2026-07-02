@@ -125,6 +125,17 @@ async function generateMonthlyInvoices() {
 }
 
 async function isStudentLocked(studentId) {
+  // Check if student has any paid (non-free) enrollments first
+  const paidEnrollments = await db.query(`
+    SELECT e.id FROM enrollments e
+    JOIN courses c ON e.course_id = c.id
+    WHERE e.student_id = ? AND (c.is_free = 0 OR c.is_free IS NULL)
+  `, [studentId]);
+
+  // If only enrolled in free courses, never locked
+  if (paidEnrollments.length === 0) return false;
+
+  // If has paid course enrollments, check for locked invoices
   const invoice = await db.getOne(`
     SELECT id FROM invoices 
     WHERE student_id = ? AND status = 'locked'
@@ -153,24 +164,31 @@ async function getInvoiceById(invoiceId) {
 }
 
 async function markInvoicePaid(invoiceId, paymentData) {
+  const invoice = await db.getOne('SELECT * FROM invoices WHERE id = ?', [invoiceId]);
+  if (!invoice) return;
+
   await db.update('invoices', invoiceId, {
     status: 'paid',
     paid_at: new Date(),
     payment_method: paymentData.method || 'mpesa',
     transaction_id: paymentData.transactionId || null,
-    mpesa_receipt_number: paymentData.receiptNumber || null
+    mpesa_receipt: paymentData.receiptNumber || null
   });
 
-  const studentId = await db.getOne('SELECT student_id FROM invoices WHERE id = ?', [invoiceId]);
-  if (studentId) {
-    const hasUnpaid = await db.getOne(`
-      SELECT id FROM invoices 
-      WHERE student_id = ? AND status IN ('pending', 'locked')
-    `, [studentId.student_id]);
+  const studentId = invoice.student_id;
 
-    if (!hasUnpaid) {
-      await db.query('UPDATE users SET is_locked = 0 WHERE id = ?', [studentId.student_id]);
-    }
+  // If this is an initial (deposit) payment, generate monthly invoices
+  if (invoice.type === 'initial' || invoice.type === 'deposit') {
+    await generateMonthlyInvoices();
+  }
+
+  const hasUnpaid = await db.getOne(`
+    SELECT id FROM invoices 
+    WHERE student_id = ? AND status IN ('pending', 'locked')
+  `, [studentId]);
+
+  if (!hasUnpaid) {
+    await db.query('UPDATE users SET is_locked = 0 WHERE id = ?', [studentId]);
   }
 }
 

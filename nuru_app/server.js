@@ -46,7 +46,7 @@ async function generateInitialInvoices(studentId) {
     const existing = await db.getOne(`
       SELECT id FROM invoices 
       WHERE student_id = ? AND course_id = ? AND type = 'initial'
-    `, [studentId, enrollment.courseId]);
+    `, [studentId, enrollment.course_id]);
 
     if (!existing) {
       const dueDate = new Date();
@@ -56,14 +56,14 @@ async function generateInitialInvoices(studentId) {
 
       await db.insert('invoices', {
         student_id: studentId,
-        course_id: enrollment.courseId,
+        course_id: enrollment.course_id,
         type: 'initial',
         amount: enrollment.initial_payment,
         status: 'pending',
         due_date: dueDate,
         grace_period_end: gracePeriodEnd
       });
-      console.log(`Created initial invoice for student ${studentId}, course ${enrollment.courseId}`);
+      console.log(`Created initial invoice for student ${studentId}, course ${enrollment.course_id}`);
     }
   }
 }
@@ -106,7 +106,7 @@ async function generateMonthlyInvoices() {
       SELECT id FROM invoices 
       WHERE student_id = ? AND course_id = ? AND type = 'monthly'
       ORDER BY created_at ASC
-    `, [enrollment.studentId, enrollment.courseId]);
+    `, [enrollment.student_id, enrollment.course_id]);
 
     if (existingMonthly.length >= billingDuration) continue;
 
@@ -123,8 +123,8 @@ async function generateMonthlyInvoices() {
     gracePeriodEnd.setDate(gracePeriodEnd.getDate() + settings.gracePeriodDays);
 
     await db.insert('invoices', {
-      student_id: enrollment.studentId,
-      course_id: enrollment.courseId,
+      student_id: enrollment.student_id,
+      course_id: enrollment.course_id,
       type: 'monthly',
       month_number: existingMonthly.length + 1,
       amount: enrollment.monthly_amount,
@@ -165,7 +165,7 @@ const authenticateToken = async (req, res, next) => {
     }
 
     const token = authHeader.slice(7);
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback-secret');
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
     
     const user = await db.getOne('SELECT * FROM users WHERE id = ?', [decoded.userId]);
 
@@ -280,7 +280,7 @@ app.post('/api/auth/login', async (req, res) => {
         email: user.email,
         role: role?.name || 'user'
       },
-      process.env.JWT_SECRET || 'fallback-secret',
+      process.env.JWT_SECRET,
       { expiresIn: '24h' }
     );
 
@@ -374,7 +374,7 @@ app.post('/api/auth/register', async (req, res) => {
         email: user.email,
         role: role?.name || 'user'
       },
-      process.env.JWT_SECRET || 'fallback-secret',
+      process.env.JWT_SECRET,
       { expiresIn: '24h' }
     );
 
@@ -1384,3 +1384,5 @@ process.on('SIGTERM', async () => {
   await db.close();
   process.exit(0);
 });
+
+

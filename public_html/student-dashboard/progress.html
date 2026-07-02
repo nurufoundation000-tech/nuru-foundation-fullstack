@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script>(function(){var t=sessionStorage.getItem('token');if(!t){location.replace('/login.html');return}var x=new XMLHttpRequest();x.open('GET','/api/auth/verify',false);x.setRequestHeader('Authorization','Bearer '+t);try{x.send();if(x.status===401||x.status===403){sessionStorage.removeItem('token');sessionStorage.removeItem('user');location.replace('/login.html')}}catch(e){sessionStorage.removeItem('token');sessionStorage.removeItem('user');location.replace('/login.html')}})();</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Progress - NURU FOUNDATION</title>
@@ -75,12 +76,16 @@
             const completedCourses = allProgressData.filter(c => c.progress === 100).length;
             const totalLessons = allProgressData.reduce((sum, c) => sum + (c.totalLessons || 0), 0);
             const completedLessons = allProgressData.reduce((sum, c) => sum + (c.completedLessons || 0), 0);
+            const totalNotes = allProgressData.reduce((sum, c) => sum + (c.totalNotes || 0), 0);
+            const readNotes = allProgressData.reduce((sum, c) => sum + (c.readNotes || 0), 0);
             
             document.getElementById('statsGrid').setAttribute('stats', JSON.stringify([
                 { value: totalCourses, label: 'Enrolled Courses' },
-                { value: completedCourses, label: 'Completed' },
+                { value: completedCourses, label: 'Courses Completed' },
                 { value: completedLessons, label: 'Lessons Done' },
-                { value: totalLessons - completedLessons, label: 'Remaining' }
+                { value: totalLessons - completedLessons, label: 'Lessons Left' },
+                { value: readNotes, label: 'Notes Read' },
+                { value: totalNotes - readNotes, label: 'Notes Unread' }
             ]));
         }
         
@@ -112,6 +117,10 @@
                 const progress = enrollment.progress || 0;
                 const completed = enrollment.completedLessons || 0;
                 const total = enrollment.totalLessons || 0;
+                const readNotes = enrollment.readNotes || 0;
+                const totalNotes = enrollment.totalNotes || 0;
+                const lastAccessed = enrollment.lastAccessedAt;
+                const lastAccessedText = lastAccessed ? `Last accessed: ${new Date(lastAccessed).toLocaleDateString()}` : 'Not started';
                 
                 return `
                     <div class="progress-course-item">
@@ -119,7 +128,11 @@
                         <div class="course-meta">
                             <span><i class="fas fa-book"></i> ${total} lessons</span>
                             <span><i class="fas fa-check"></i> ${completed} completed</span>
+                            <span><i class="fas fa-sticky-note"></i> ${readNotes}/${totalNotes} notes</span>
                             <span><i class="fas fa-calendar"></i> Enrolled ${new Date(enrollment.enrolledAt).toLocaleDateString()}</span>
+                        </div>
+                        <div class="course-meta" style="color: #888; font-size: 0.8rem; margin-top: 4px;">
+                            <span><i class="fas fa-clock"></i> ${lastAccessedText}</span>
                         </div>
                         <div class="progress-percentage">
                             <div class="percentage">${progress}%</div>
@@ -133,5 +146,6 @@
             }).join('');
         }
     </script>
+<script>function logout(){localStorage.clear();sessionStorage.clear();location.replace('/login.html')}</script>
 </body>
 </html>

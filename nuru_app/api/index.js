@@ -1,7 +1,7 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
-const { handleAuth, handleUsers, handleCourses, handleAssignments } = require('../lib/handlers');
-const { authenticate } = require('../middleware/auth');
+const { handleAuth, handleUsers, handleCourses, handleAssignments } = require('./lib/handlers');
+const { authenticate } = require('./middleware/auth');
 const { authLimiter, registerLimiter } = require('./middleware/rateLimiter');
 
 const loginAttempts = new Map();

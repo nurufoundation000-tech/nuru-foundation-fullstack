@@ -21,6 +21,18 @@ UPDATE courses SET slug = 'ai-essentials' WHERE title LIKE '%AI Essentials%' AND
 UPDATE courses SET slug = 'soft-skills' WHERE title LIKE '%Soft Skills%' AND slug IS NULL LIMIT 1;
 UPDATE courses SET slug = 'computer-packages' WHERE title LIKE '%Computer Packages%' AND slug IS NULL LIMIT 1;
 
--- 4. Verify the changes
+-- 4. Add missing columns to invoices table (for M-Pesa payment tracking)
+ALTER TABLE invoices ADD COLUMN payment_method VARCHAR(50) DEFAULT 'mpesa';
+ALTER TABLE invoices ADD COLUMN transaction_id VARCHAR(100);
+ALTER TABLE invoices ADD COLUMN mpesa_receipt_number VARCHAR(100);
+
+-- 5. Add timestamps to assignments table
+ALTER TABLE assignments ADD COLUMN created_at DATETIME DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE assignments ADD COLUMN updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+
+-- 6. Add created_at to enrollments table
+ALTER TABLE enrollments ADD COLUMN created_at DATETIME DEFAULT CURRENT_TIMESTAMP;
+
+-- 7. Verify the changes
 SELECT id, title, slug FROM courses;
 SELECT id, email, is_locked FROM users LIMIT 5;

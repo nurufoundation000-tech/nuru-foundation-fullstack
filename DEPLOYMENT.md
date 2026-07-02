@@ -1,172 +1,107 @@
-# Nuru Foundation - Deployment Guide
+# Nuru Foundation — Deployment Guide
 
-## Project Architecture
+## Hosting Environment
+- **Hosting type:** LiteSpeed cPanel shared hosting
+- **Node.js:** Available via cPanel "Setup Node.js App" feature
+- **Database:** MySQL/MariaDB via cPanel
+- **SSL:** Enable via cPanel AutoSSL or Let's Encrypt
 
-```
-nuru-foundation-fullstack/
-  ├── public_html/     ← Frontend (Apache serves this)
-  │     ├── index.html, login.html, admin.html, courses.html, etc.
-  │     ├── styles/, scripts/, images/, fonts/
-  │     ├── admin-dashboard/, student-dashboard/, tutor-dashboard/
-  │     ├── notes/
-  │     └── .htaccess  ← Proxies /api/* to nuru_app
-  │
-  └── nuru_app/      ← Backend (Node.js + MySQL)
-        ├── server.js       ← Cleaned (API only, no static files)
-        ├── api/
-        ├── node_modules/
-        ├── sql/
-        │   └── schema.sql  ← MySQL schema (run in PHPMyAdmin)
-        └── .env
-```
+## Deploying the Backend
 
----
+### 1. Upload Files
+Upload the entire `backend/` directory to your hosting account.
 
-## Server Upload Order
+### 2. Set Up Node.js App (cPanel)
+1. Go to **Setup Node.js App** in cPanel
+2. Create a new Node.js application:
+   - **Application root:** `/path/to/backend`
+   - **Application URL:** `https://yourdomain.com`
+   - **Application startup file:** `src/app.js`
+   - **Application mode:** `Production`
+3. After creation, run `npm install` in the application root via cPanel terminal or SSH
 
-### Phase 1: Backend (nuru_app)
+### 3. Environment Variables
+Set these in cPanel (or create a `.env` file in `backend/`):
 
-Upload to `nuru_app/` on cPanel:
+| Variable | Description |
+|----------|-------------|
+| `PORT` | Usually `5000` |
+| `NODE_ENV` | `production` |
+| `DB_HOST` | MySQL host (usually `localhost`) |
+| `DB_PORT` | MySQL port (usually `3306`) |
+| `DB_USER` | MySQL username |
+| `DB_PASSWORD` | MySQL password |
+| `DB_NAME` | Database name |
+| `JWT_SECRET` | Generate with `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"` |
+| `MPESA_CONSUMER_KEY` | Safaricom API consumer key |
+| `MPESA_CONSUMER_SECRET` | Safaricom API consumer secret |
+| `MPESA_SHORT_CODE` | Safaricom short code |
+| `MPESA_PASSKEY` | Safaricom passkey |
+| `MPESA_ENV` | `sandbox` or `production` |
+| `MPESA_CALLBACK_URL` | Full URL for M-Pesa callbacks |
+| `MPESA_FORCE_SIMULATION` | `true` to simulate M-Pesa (no real transactions) |
+| `CRON_SECRET` | Secret token for external cron triggers |
 
-1. `server.js`
-2. `api/` folder (entire folder)
-3. `node_modules/` folder
-4. `package.json`
-5. `package-lock.json`
-6. `.env`
-7. `sql/` folder (schema.sql for reference)
+### 4. Database Setup
+1. Create a MySQL database via cPanel
+2. Import `backend/sql/schema.sql` (if exists) or create tables
+3. Run migration scripts in order:
+   - `backend/sql/migration_add_missing_columns.sql`
+   - `backend/sql/migration_phase_a.sql`
+   - `backend/sql/migration_phase_b.sql`
 
-After uploading:
+### 5. Configure Domain
+- Point your domain or subdomain to the Node.js app
+- The `.htaccess` should proxy requests to the Node.js app port
 
-1. Go to cPanel → **Setup Node.js App**
-2. Application root should be set to `nuru_app`
-3. Application startup file should be `server.js`
-4. Click **Restart** on the app
+### 6. File Uploads
+Ensure these directories exist and are writable:
+- `backend/public_html/uploads/images/`
+- `backend/public_html/uploads/files/`
 
-### Phase 2: Frontend (public_html)
+## Cron Jobs (via cron-job.org)
 
-Upload to `public_html/` on cPanel:
+Since shared hosting has no persistent cron, use **cron-job.org** (free):
 
-1. All HTML files (index.html, login.html, etc.)
-2. `styles/` folder
-3. `scripts/` folder
-4. `images/` folder
-5. `fonts/` folder
-6. `admin-dashboard/` folder
-7. `student-dashboard/` folder
-8. `tutor-dashboard/` folder
-9. `notes/` folder
-10. `.htaccess`
+### Setup Instructions
+1. Create an account at [cron-job.org](https://cron-job.org)
+2. Create two cron jobs:
 
----
+#### Job 1: Monthly Invoice Generation
+- **URL:** `https://yourdomain.com/api/cron/generate-monthly-invoices?token=YOUR_CRON_SECRET`
+- **Interval:** Daily (recommended: 02:00 AM)
+- **Method:** GET
 
-## Server Configuration
+#### Job 2: Overdue Invoice Check
+- **URL:** `https://yourdomain.com/api/cron/check-overdue?token=YOUR_CRON_SECRET`
+- **Interval:** Hourly
+- **Method:** GET
 
-### .htaccess (public_html/.htaccess)
+### Security
+- The `CRON_SECRET` environment variable must match the `?token=` parameter
+- Never share the cron URL publicly
 
-```apache
-RewriteEngine On
-RewriteBase /
+## Frontend
+- Static frontend files are served directly by the Node.js backend from `backend/public_html/`
+- No separate build step needed — just upload HTML/CSS/JS files
 
-# Proxy API requests to Node.js backend
-RewriteRule ^api/(.*)$ http://127.0.0.1:3000/api/$1 [P,L]
-RewriteRule ^api$ http://127.0.0.1:3000/api [P,L]
-```
-
-### cPanel Setup Node.js App
-
-| Setting | Value |
-|---------|-------|
-| Application root | `nuru_app` |
-| Application startup file | `server.js` |
-| Application URL | nurufoundations.com |
-
----
-
-## Testing
-
-After deployment, test these URLs:
-
-| URL | Expected Result |
-|-----|---------------|
-| https://nurufoundations.com/ | Homepage loads |
-| https://nurufoundations.com/login.html | Login page loads |
-| https://nurufoundations.com/api/courses | JSON API response |
-| https://nurufoundations.com/api/health | Health check |
-| https://nurufoundations.com/api/auth/login | Login API endpoint |
-
----
+## Updating the Application
+1. Upload new files via FTP or cPanel File Manager
+2. Restart the Node.js app from cPanel if needed
+3. Run any new migration SQL files
 
 ## Troubleshooting
 
-### 503 Service Unavailable
-- Verify Node.js app is running in cPanel
-- Check Application root is set to `nuru_app`
-- Restart the Node.js app
+### Backend won't start
+- Check `JWT_SECRET` is set
+- Check database credentials
+- Run `node src/app.js` from SSH to see error output
 
-### Database Connection Error
-- Verify `.env` file exists in `nuru_app/`
-- Check MySQL credentials in `.env`
-- Ensure database exists in cPanel with tables created
+### M-Pesa not working
+- Set `MPESA_FORCE_SIMULATION=true` for testing
+- Check callback URL is publicly accessible
+- Verify STK push credentials
 
-### Static Files Not Loading
-- Verify all frontend files uploaded to `public_html/`
-- Check file permissions (644 for files, 755 for folders)
-
----
-
-## Environment Variables (.env)
-
-Required in `nuru_app/.env`:
-
-```env
-NODE_ENV=production
-DB_HOST=localhost
-DB_PORT=3306
-DB_USER=your_db_user
-DB_PASSWORD=your_db_password
-DB_NAME=nurufoun_db
-JWT_SECRET=your_secure_jwt_secret
-EMAIL_USER=your_email@gmail.com
-EMAIL_PASS=your_app_password
-ADMIN_EMAIL=admin@nurufoundations.com
-FRONTEND_URL=https://nurufoundations.com
-```
-
-### M-Pesa Configuration (optional)
-
-```env
-MPESA_CONSUMER_KEY=your_consumer_key
-MPESA_CONSUMER_SECRET=your_consumer_secret
-MPESA_SHORT_CODE=174379
-MPESA_PASSKEY=your_passkey
-MPESA_ENV=sandbox
-MPESA_CALLBACK_URL=https://nurufoundations.com/api/mpesa/callback
-```
-
----
-
-## Database Setup
-
-The MySQL database should be set up with tables from `sql/schema.sql`.
-
-In cPanel PHPMyAdmin:
-1. Select the database `nurufoun_db`
-2. Import `sql/schema.sql` or run the CREATE TABLE statements
-3. Verify tables exist: users, courses, lessons, enrollments, invoices, etc.
-
----
-
-## Post-Deployment Checklist
-
-- [ ] Backend uploaded to nuru_app/
-- [ ] Frontend uploaded to public_html/
-- [ ] .htaccess uploaded to public_html/
-- [ ] Node.js app running in cPanel
-- [ ] Domain resolves correctly (HTTPS)
-- [ ] Health check returns success
-- [ ] User registration works
-- [ ] Login/logout works
-- [ ] Dashboard pages load
-- [ ] Email sending works
-- [ ] M-Pesa integration works (if enabled)
+### File uploads failing
+- Check directory permissions (should be 755)
+- Check PHP upload limits (if PHP is involved)

@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script>(function(){var t=sessionStorage.getItem('token');if(!t){location.replace('/login.html');return}var x=new XMLHttpRequest();x.open('GET','/api/auth/verify',false);x.setRequestHeader('Authorization','Bearer '+t);try{x.send();if(x.status===401||x.status===403){sessionStorage.removeItem('token');sessionStorage.removeItem('user');location.replace('/login.html')}}catch(e){sessionStorage.removeItem('token');sessionStorage.removeItem('user');location.replace('/login.html')}})();</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Enrollments - NURU Admin</title>
@@ -590,7 +591,7 @@
         });
 
         function initializeEnrollmentManagement() {
-            console.log('🔄 Initializing enrollment management...');
+            console.log('ðŸ”„ Initializing enrollment management...');
             
             // Wait for auth state to stabilize
             setTimeout(() => {
@@ -602,26 +603,26 @@
             const token = sessionStorage.getItem('token');
             const userData = sessionStorage.getItem('user');
             
-            console.log('🔍 Checking admin access for enrollment management...');
+            console.log('ðŸ” Checking admin access for enrollment management...');
             console.log('Token exists:', !!token);
             console.log('User data:', userData);
 
             if (!token || !userData) {
-                console.log('❌ No token or user data, redirecting to login');
+                console.log('âŒ No token or user data, redirecting to login');
                 window.location.href = '/login.html';
                 return;
             }
 
             try {
                 const user = JSON.parse(userData);
-                console.log('👤 User object:', user);
+                console.log('ðŸ‘¤ User object:', user);
                 
                 // FIX: Check if role is an object with name property, or just a string
                 const userRole = user.role?.name || user.role;
-                console.log('🎭 User role:', userRole);
+                console.log('ðŸŽ­ User role:', userRole);
 
                 if (userRole !== 'admin') {
-                    console.log('❌ User is not admin, redirecting to appropriate dashboard');
+                    console.log('âŒ User is not admin, redirecting to appropriate dashboard');
                     
                     // Redirect non-admin users to their appropriate dashboard
                     if (userRole === 'student') {
@@ -634,12 +635,12 @@
                     return;
                 }
 
-                console.log('✅ Admin access granted, loading enrollments');
+                console.log('âœ… Admin access granted, loading enrollments');
                 loadEnrollments();
                 loadCourses();
                 
             } catch (error) {
-                console.error('❌ Error parsing user data:', error);
+                console.error('âŒ Error parsing user data:', error);
                 window.location.href = '/login.html';
             }
         }
@@ -647,7 +648,7 @@
         async function loadEnrollments() {
             try {
                 const token = sessionStorage.getItem('token');
-                console.log('📚 Loading enrollments...');
+                console.log('ðŸ“š Loading enrollments...');
 
                 const response = await fetch(`${API_BASE_URL}/admin/enrollments`, {
                     headers: {
@@ -658,7 +659,7 @@
 
                 if (response.ok) {
                     const data = await response.json();
-                    console.log('✅ Enrollments loaded from API:', data.length || data.data?.length);
+                    console.log('âœ… Enrollments loaded from API:', data.length || data.data?.length);
                     allEnrollments = data.data || [];
                 }
 
@@ -666,7 +667,7 @@
                 updatePagination(allEnrollments.length);
 
             } catch (error) {
-                console.error('❌ Error loading enrollments:', error);
+                console.error('âŒ Error loading enrollments:', error);
                 document.getElementById('enrollmentsTableContainer').innerHTML = '<div class="error">Failed to load enrollments. Please try again.</div>';
             }
         }
@@ -1170,11 +1171,12 @@
         }
 
         function logout() {
-            console.log('🚪 Logging out...');
+            console.log('ðŸšª Logging out...');
             localStorage.removeItem('token');
             localStorage.removeItem('user');
             window.location.href = '/login.html';
         }
     </script>
+<script>function logout(){localStorage.clear();sessionStorage.clear();location.replace('/login.html')}</script>
 </body>
 </html>

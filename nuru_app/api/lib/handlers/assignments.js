@@ -177,5 +177,55 @@ module.exports = {
       console.error('Delete assignment error:', error);
       res.status(500).json({ error: 'Failed to delete assignment' });
     }
+  },
+
+  async submit({ path, body }, res, user) {
+    try {
+      const match = path.match(/\/api\/assignments\/(\d+)\/submit/);
+      if (!match) {
+        return res.status(400).json({ error: 'Invalid assignment ID' });
+      }
+
+      const assignmentId = parseInt(match[1]);
+
+      const assignment = await prisma.assignment.findUnique({
+        where: { id: assignmentId }
+      });
+
+      if (!assignment) {
+        return res.status(404).json({ error: 'Assignment not found' });
+      }
+
+      const existing = await prisma.submission.findUnique({
+        where: {
+          assignmentId_studentId: {
+            assignmentId,
+            studentId: user.id
+          }
+        }
+      });
+
+      if (existing) {
+        return res.status(409).json({ error: 'You have already submitted this assignment' });
+      }
+
+      const submission = await prisma.submission.create({
+        data: {
+          assignmentId,
+          studentId: user.id,
+          codeSubmission: body.codeSubmission || ''
+        }
+      });
+
+      res.status(201).json({
+        success: true,
+        submission,
+        message: 'Assignment submitted successfully'
+      });
+
+    } catch (error) {
+      console.error('Submit assignment error:', error);
+      res.status(500).json({ error: 'Failed to submit assignment' });
+    }
   }
 };

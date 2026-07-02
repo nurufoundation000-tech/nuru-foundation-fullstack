@@ -120,6 +120,57 @@ router.get('/enrollments', requireTutor, async (req, res) => {
   }
 });
 
+// Get enrollment statistics
+router.get('/enrollments/stats', requireTutor, async (req, res) => {
+  try {
+    const tutorId = req.user.id;
+
+    const [totalEnrollments, uniqueStudents, enrollmentsByCourse] = await Promise.all([
+      // Total enrollments count
+      prisma.enrollment.count({
+        where: { course: { tutorId } }
+      }),
+      // Unique students count
+      prisma.enrollment.groupBy({
+        by: ['studentId'],
+        where: { course: { tutorId } },
+        _count: true
+      }).then(results => results.length),
+      // Enrollments by course
+      prisma.course.findMany({
+        where: { tutorId },
+        include: {
+          _count: {
+            select: { enrollments: true }
+          }
+        }
+      })
+    ]);
+
+    res.json({
+      success: true,
+      data: {
+        totalEnrollments,
+        uniqueStudents,
+        enrollmentsByCourse: enrollmentsByCourse.map(course => ({
+          courseId: course.id,
+          courseTitle: course.title,
+          enrollmentCount: course._count.enrollments
+        }))
+      }
+    });
+
+  } catch (error) {
+    console.error('Get enrollment stats error:', error);
+    res.status(500).json({ 
+      success: false,
+      error: 'Failed to load enrollment statistics',
+      details: error.message 
+    });
+  }
+});
+
+
 // Get single enrollment
 router.get('/enrollments/:id', requireTutor, async (req, res) => {
   try {
@@ -169,100 +220,7 @@ router.get('/enrollments/:id', requireTutor, async (req, res) => {
     console.error('Get enrollment error:', error);
     res.status(500).json({ 
       success: false,
-      error: 'Failed to load enrollment',
-      details: error.message 
-    });
-  }
-});
-
-// Remove enrollment (unenroll student)
-router.delete('/enrollments/:id', requireTutor, async (req, res) => {
-  try {
-    const tutorId = req.user.id;
-    const enrollmentId = parseInt(req.params.id);
-
-    console.log(`🗑️ Removing enrollment ${enrollmentId} for tutor ${tutorId}`);
-
-    // Check if enrollment exists and belongs to tutor's course
-    const existingEnrollment = await prisma.enrollment.findFirst({
-      where: {
-        id: enrollmentId,
-        course: { tutorId }
-      }
-    });
-
-    if (!existingEnrollment) {
-      return res.status(404).json({ 
-        success: false,
-        error: 'Enrollment not found or access denied' 
-      });
-    }
-
-    // Delete enrollment
-    await prisma.enrollment.delete({
-      where: { id: enrollmentId }
-    });
-
-    res.json({
-      success: true,
-      message: 'Student unenrolled successfully'
-    });
-
-  } catch (error) {
-    console.error('Remove enrollment error:', error);
-    res.status(500).json({ 
-      success: false,
-      error: 'Failed to remove enrollment',
-      details: error.message 
-    });
-  }
-});
-
-// Get enrollment statistics
-router.get('/enrollments/stats', requireTutor, async (req, res) => {
-  try {
-    const tutorId = req.user.id;
-
-    const [totalEnrollments, uniqueStudents, enrollmentsByCourse] = await Promise.all([
-      // Total enrollments count
-      prisma.enrollment.count({
-        where: { course: { tutorId } }
-      }),
-      // Unique students count
-      prisma.enrollment.groupBy({
-        by: ['studentId'],
-        where: { course: { tutorId } },
-        _count: true
-      }).then(results => results.length),
-      // Enrollments by course
-      prisma.course.findMany({
-        where: { tutorId },
-        include: {
-          _count: {
-            select: { enrollments: true }
-          }
-        }
-      })
-    ]);
-
-    res.json({
-      success: true,
-      data: {
-        totalEnrollments,
-        uniqueStudents,
-        enrollmentsByCourse: enrollmentsByCourse.map(course => ({
-          courseId: course.id,
-          courseTitle: course.title,
-          enrollmentCount: course._count.enrollments
-        }))
-      }
-    });
-
-  } catch (error) {
-    console.error('Get enrollment stats error:', error);
-    res.status(500).json({ 
-      success: false,
-      error: 'Failed to load enrollment statistics',
+      error: 'Failed to fetch enrollment',
       details: error.message 
     });
   }
@@ -1846,6 +1804,38 @@ router.get('/submissions', requireTutor, async (req, res) => {
   }
 });
 
+// Get pending submissions count
+router.get('/submissions/pending/count', requireTutor, async (req, res) => {
+  try {
+    const tutorId = req.user.id;
+
+    const pendingCount = await prisma.submission.count({
+      where: {
+        grade: null,
+        assignment: {
+          lesson: {
+            course: { tutorId }
+          }
+        }
+      }
+    });
+
+    res.json({
+      success: true,
+      data: { pendingCount }
+    });
+
+  } catch (error) {
+    console.error('Get pending submissions count error:', error);
+    res.status(500).json({ 
+      success: false,
+      error: 'Failed to load pending submissions count',
+      details: error.message 
+    });
+  }
+});
+
+
 // Get single submission
 router.get('/submissions/:id', requireTutor, async (req, res) => {
   try {
@@ -2053,37 +2043,6 @@ router.get('/assignments/:assignmentId/submissions', requireTutor, async (req, r
   }
 });
 
-// Get pending submissions count
-router.get('/submissions/pending/count', requireTutor, async (req, res) => {
-  try {
-    const tutorId = req.user.id;
-
-    const pendingCount = await prisma.submission.count({
-      where: {
-        grade: null,
-        assignment: {
-          lesson: {
-            course: { tutorId }
-          }
-        }
-      }
-    });
-
-    res.json({
-      success: true,
-      data: { pendingCount }
-    });
-
-  } catch (error) {
-    console.error('Get pending submissions count error:', error);
-    res.status(500).json({ 
-      success: false,
-      error: 'Failed to load pending submissions count',
-      details: error.message 
-    });
-  }
-});
-
 
 // Tutor dashboard stats (keep existing)
 router.get('/dashboard/stats', requireTutor, async (req, res) => {
@@ -2174,3 +2133,7 @@ router.get('/dashboard/stats', requireTutor, async (req, res) => {
 });
 
 module.exports = router;
+
+
+
+

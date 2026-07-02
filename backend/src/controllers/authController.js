@@ -55,7 +55,7 @@ async function login(req, res) {
         email: user.email,
         role: roleName
       },
-      process.env.JWT_SECRET || 'fallback-secret',
+      process.env.JWT_SECRET,
       { expiresIn: '24h' }
     );
 
@@ -83,21 +83,30 @@ function generateRandomPassword(length = 12) {
 
 async function register(req, res) {
   try {
-    const { email, username, fullName, roleId } = req.body;
+    const { email, fullName, roleId } = req.body;
 
-    if (!email || !username || !fullName) {
+    if (!email || !fullName) {
       return res.status(400).json({
-        error: 'Email, username, and full name are required'
+        error: 'Email and full name are required'
       });
     }
 
-    const existingUser = await db.getOne(`
-      SELECT id FROM users WHERE email = ? OR username = ?
-    `, [email.toLowerCase(), username]);
+    // Auto-generate username from email
+    const emailPrefix = email.split('@')[0].toLowerCase().replace(/[^a-z0-9_]/g, '_');
+    let username = emailPrefix;
+    let counter = 0;
+    while (true) {
+      const existing = await db.getOne('SELECT id FROM users WHERE username = ?', [username]);
+      if (!existing) break;
+      counter++;
+      username = `${emailPrefix}${counter}`;
+    }
+
+    const existingUser = await db.getOne('SELECT id FROM users WHERE email = ?', [email.toLowerCase()]);
 
     if (existingUser) {
       return res.status(409).json({
-        error: 'User already exists'
+        error: 'User with this email already exists'
       });
     }
 
@@ -148,7 +157,7 @@ async function register(req, res) {
         email: user.email,
         role: roleName
       },
-      process.env.JWT_SECRET || 'fallback-secret',
+      process.env.JWT_SECRET,
       { expiresIn: '24h' }
     );
 
@@ -168,7 +177,22 @@ async function register(req, res) {
   }
 }
 
+async function verify(req, res) {
+  try {
+    const user = await db.getOne('SELECT id, email, username, full_name, role_id, is_active FROM users WHERE id = ?', [req.user.userId]);
+    if (!user || !user.is_active) {
+      return res.status(401).json({ valid: false, error: 'User not found or inactive' });
+    }
+    res.json({ valid: true, user: { id: user.id, email: user.email, username: user.username, full_name: user.full_name, role: req.user.roleName } });
+  } catch (error) {
+    console.error('Verify error:', error);
+    res.status(500).json({ valid: false, error: 'Verification failed' });
+  }
+}
+
 module.exports = {
   login,
-  register
+  register,
+  verify
 };
+

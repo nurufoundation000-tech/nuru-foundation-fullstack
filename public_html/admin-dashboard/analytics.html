@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script>(function(){var t=sessionStorage.getItem('token');if(!t){location.replace('/login.html');return}var x=new XMLHttpRequest();x.open('GET','/api/auth/verify',false);x.setRequestHeader('Authorization','Bearer '+t);try{x.send();if(x.status===401||x.status===403){sessionStorage.removeItem('token');sessionStorage.removeItem('user');location.replace('/login.html')}}catch(e){sessionStorage.removeItem('token');sessionStorage.removeItem('user');location.replace('/login.html')}})();</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Analytics - NURU Admin</title>
@@ -353,7 +354,7 @@
     });
 
     function initializeAnalytics() {
-        console.log('🔄 Initializing analytics page...');
+        console.log('ðŸ”„ Initializing analytics page...');
         
         // Wait for auth state to stabilize
         setTimeout(() => {
@@ -365,26 +366,26 @@
         const token = sessionStorage.getItem('token');
         const userData = sessionStorage.getItem('user');
         
-        console.log('🔍 Checking admin access for analytics...');
+        console.log('ðŸ” Checking admin access for analytics...');
         console.log('Token exists:', !!token);
         console.log('User data:', userData);
 
         if (!token || !userData) {
-            console.log('❌ No token or user data, redirecting to login');
+            console.log('âŒ No token or user data, redirecting to login');
             window.location.href = '/login.html';
             return;
         }
 
         try {
             const user = JSON.parse(userData);
-            console.log('👤 User object:', user);
+            console.log('ðŸ‘¤ User object:', user);
             
             // FIX: Check if role is an object with name property, or just a string
             const userRole = user.role?.name || user.role;
-            console.log('🎭 User role:', userRole);
+            console.log('ðŸŽ­ User role:', userRole);
 
             if (userRole !== 'admin') {
-                console.log('❌ User is not admin, redirecting to appropriate dashboard');
+                console.log('âŒ User is not admin, redirecting to appropriate dashboard');
                 
                 // Redirect non-admin users to their appropriate dashboard
                 if (userRole === 'student') {
@@ -397,11 +398,11 @@
                 return;
             }
 
-            console.log('✅ Admin access granted, loading analytics data');
+            console.log('âœ… Admin access granted, loading analytics data');
             loadAnalytics();
             
         } catch (error) {
-            console.error('❌ Error parsing user data:', error);
+            console.error('âŒ Error parsing user data:', error);
             window.location.href = '/login.html';
         }
     }
@@ -411,7 +412,7 @@
             const token = sessionStorage.getItem('token');
             const timePeriod = document.getElementById('timeFilter').value;
 
-            console.log('📊 Loading analytics data for period:', timePeriod);
+            console.log('ðŸ“Š Loading analytics data for period:', timePeriod);
             
             // Try to load from API first
             const response = await fetch(`${API_BASE_URL}/admin/analytics?period=${timePeriod}`, {
@@ -424,16 +425,16 @@
             let data;
             if (response.ok) {
                 data = await response.json();
-                console.log('✅ Analytics data loaded from API');
+                console.log('âœ… Analytics data loaded from API');
             } else {
-                console.log('⚠️ API not available, using demo data');
+                console.log('âš ï¸ API not available, using demo data');
                 data = getDemoAnalyticsData(timePeriod);
             }
 
             renderCharts(data);
 
         } catch (error) {
-            console.error('❌ Error loading analytics:', error);
+            console.error('âŒ Error loading analytics:', error);
             // Use demo data as fallback
             const timePeriod = document.getElementById('timeFilter').value;
             const demoData = getDemoAnalyticsData(timePeriod);
@@ -690,11 +691,12 @@
     }
 
     function logout() {
-        console.log('🚪 Logging out...');
+        console.log('ðŸšª Logging out...');
         localStorage.removeItem('token');
         localStorage.removeItem('user');
         window.location.href = '/login.html';
     }
 </script>
+<script>function logout(){localStorage.clear();sessionStorage.clear();location.replace('/login.html')}</script>
 </body>
 </html>

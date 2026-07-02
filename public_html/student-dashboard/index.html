@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script>(function(){var t=sessionStorage.getItem('token');if(!t){location.replace('/login.html');return}var x=new XMLHttpRequest();x.open('GET','/api/auth/verify',false);x.setRequestHeader('Authorization','Bearer '+t);try{x.send();if(x.status===401||x.status===403){sessionStorage.removeItem('token');sessionStorage.removeItem('user');location.replace('/login.html')}}catch(e){sessionStorage.removeItem('token');sessionStorage.removeItem('user');location.replace('/login.html')}})();</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - NURU FOUNDATION</title>
@@ -148,6 +149,8 @@
                 container.innerHTML = data.data.slice(0, 6).map(enrollment => {
                     const course = enrollment.course;
                     const progress = enrollment.progress || 0;
+                    const lastAccessed = enrollment.lastAccessedAt;
+                    const lastAccessedText = lastAccessed ? `Last accessed: ${new Date(lastAccessed).toLocaleDateString()}` : 'Not started yet';
                     
                     return `
                         <div class="course-mini-card">
@@ -161,7 +164,11 @@
                                     </div>
                                     <div class="progress-text">${progress}% Complete</div>
                                 </div>
-                                <a href="/student-dashboard/my-courses.html" class="btn btn-primary btn-sm btn-block">View Course</a>
+                                <small style="color: #888; display: block; margin-bottom: 10px; font-size: 0.8rem;">${lastAccessedText}</small>
+                                <div style="display: flex; gap: 8px;">
+                                    <a href="/student-dashboard/my-courses.html" class="btn btn-primary btn-sm btn-block">View Course</a>
+                                    <a href="/student-dashboard/my-courses.html?id=${course.id}" class="btn btn-outline btn-sm" style="flex: 0 0 auto; white-space: nowrap;">Continue <i class="fas fa-arrow-right"></i></a>
+                                </div>
                             </div>
                         </div>
                     `;
@@ -223,34 +230,12 @@
             }
         }
                 
-                const courses = data.data.slice(0, 6);
-                container.innerHTML = courses.map(enrollment => {
-                    const course = enrollment.course;
-                    const slug = window.getCourseSlug ? window.getCourseSlug(course.id) : null;
-                    const progress = enrollment.progress || 0;
-                    
-                    return `
-                        <div class="course-mini-card">
-                            <div class="course-mini-card-header">
-                                <h3>${escapeHtml(course.title)}</h3>
-                            </div>
-                            <div class="course-mini-card-body">
-                                <div class="progress-container">
-                                    <div class="progress-bar">
-                                        <div class="progress-fill" style="width: ${progress}%"></div>
-                                    </div>
-                                    <div class="progress-text">${progress}% Complete</div>
-                                </div>
-                                <a href="/student-dashboard/my-courses.html" class="btn btn-primary btn-sm btn-block">View Course</a>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
             } catch (error) {
                 console.error('Error loading courses:', error);
                 container.innerHTML = '<div class="error-message"><i class="fas fa-exclamation-triangle"></i> Failed to load courses</div>';
             }
         }
     </script>
+<script>function logout(){localStorage.clear();sessionStorage.clear();location.replace('/login.html')}</script>
 </body>
 </html>

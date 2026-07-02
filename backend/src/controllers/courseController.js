@@ -1,14 +1,17 @@
 // controllers/courseController.js - Course Controller (CommonJS)
 const db = require('../config/database.js');
+const { generateInitialInvoices } = require('../lib/invoices.js');
 
 async function getAllCourses(req, res) {
   try {
     const courses = await db.query(`
       SELECT c.*, u.full_name as tutor_name, u.username as tutor_username,
+             cp.initial_payment, cp.monthly_amount, cp.billing_duration,
              (SELECT COUNT(*) FROM enrollments WHERE course_id = c.id) as enrollments_count,
              (SELECT COUNT(*) FROM lessons WHERE course_id = c.id) as lessons_count
       FROM courses c
       JOIN users u ON c.tutor_id = u.id
+      LEFT JOIN course_pricing cp ON c.id = cp.course_id
       ORDER BY c.created_at DESC
     `);
 
@@ -29,9 +32,11 @@ async function getCourseById(req, res) {
     }
 
     const course = await db.getOne(`
-      SELECT c.*, u.full_name as tutor_name, u.username as tutor_username, u.bio as tutor_bio
+      SELECT c.*, u.full_name as tutor_name, u.username as tutor_username, u.bio as tutor_bio,
+             cp.initial_payment, cp.monthly_amount, cp.billing_duration
       FROM courses c
       JOIN users u ON c.tutor_id = u.id
+      LEFT JOIN course_pricing cp ON c.id = cp.course_id
       WHERE c.id = ?
     `, [courseId]);
 
@@ -62,7 +67,7 @@ async function enrollInCourse(req, res) {
       return res.status(400).json({ error: 'Invalid course ID' });
     }
 
-    const course = await db.getOne('SELECT id FROM courses WHERE id = ?', [courseId]);
+    const course = await db.getOne('SELECT id, is_free, title FROM courses WHERE id = ?', [courseId]);
 
     if (!course) {
       return res.status(404).json({ error: 'Course not found' });
@@ -82,12 +87,20 @@ async function enrollInCourse(req, res) {
       enrolled_at: new Date()
     });
 
+    // For paid courses, generate initial deposit invoice
+    if (!course.is_free) {
+      await generateInitialInvoices(req.user.userId);
+    }
+
     const enrollment = await db.getOne('SELECT * FROM enrollments WHERE id = ?', [enrollmentId]);
 
     res.status(201).json({
       success: true,
       data: enrollment,
-      message: 'Successfully enrolled in course'
+      is_free: !!course.is_free,
+      message: course.is_free
+        ? 'Successfully enrolled in free course'
+        : 'Successfully enrolled. Please pay the deposit to get started.'
     });
 
   } catch (error) {

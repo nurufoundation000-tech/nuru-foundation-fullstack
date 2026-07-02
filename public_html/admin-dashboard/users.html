@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script>(function(){var t=sessionStorage.getItem('token');if(!t){location.replace('/login.html');return}var x=new XMLHttpRequest();x.open('GET','/api/auth/verify',false);x.setRequestHeader('Authorization','Bearer '+t);try{x.send();if(x.status===401||x.status===403){sessionStorage.removeItem('token');sessionStorage.removeItem('user');location.replace('/login.html')}}catch(e){sessionStorage.removeItem('token');sessionStorage.removeItem('user');location.replace('/login.html')}})();</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Management - NURU Admin</title>
@@ -677,18 +678,13 @@
             <div class="modal-body">
                 <form id="userForm">
                     <div class="form-group">
-                        <label>Username *</label>
-                        <input type="text" id="username" name="username" required autocomplete="username">
-                        <small class="form-hint">Required. Must be unique.</small>
-                    </div>
-                    <div class="form-group">
                         <label>Email *</label>
                         <input type="email" id="email" name="email" required autocomplete="email">
-                        <small class="form-hint">Required. Welcome email will be sent here.</small>
+                        <small class="form-hint">Required. Username and password are auto-generated. Welcome email will be sent here.</small>
                     </div>
                     <div class="form-group">
-                        <label>Full Name</label>
-                        <input type="text" id="fullName" name="fullName" placeholder="Optional" autocomplete="name">
+                        <label>Full Name *</label>
+                        <input type="text" id="fullName" name="fullName" required autocomplete="name">
                     </div>
                     <div class="form-group">
                         <label>Role *</label>
@@ -736,7 +732,7 @@
         });
 
         function initializeUserManagement() {
-            console.log('🔄 Initializing user management...');
+            console.log('ðŸ”„ Initializing user management...');
             
             setTimeout(() => {
                 checkAdminAccess();
@@ -747,7 +743,7 @@
             const token = sessionStorage.getItem('token');
             const userData = sessionStorage.getItem('user');
             
-            console.log('🔍 Checking admin access for user management...');
+            console.log('ðŸ” Checking admin access for user management...');
 
             if (!token || !userData) {
                 showToast('Please login first', 'error');
@@ -757,10 +753,10 @@
 
             try {
                 const user = JSON.parse(userData);
-                const userRole = user.role?.name || user.role;
+                const userRole = user.role_name || 'student';
 
                 if (userRole !== 'admin') {
-                    console.log('❌ User is not admin, redirecting...');
+                    console.log('âŒ User is not admin, redirecting...');
                     
                     if (userRole === 'student') {
                         window.location.href = '/student-dashboard/index.html';
@@ -772,11 +768,11 @@
                     return;
                 }
 
-                console.log('✅ Admin access granted, loading users');
+                console.log('âœ… Admin access granted, loading users');
                 loadUsers();
                 
             } catch (error) {
-                console.error('❌ Error parsing user data:', error);
+                console.error('âŒ Error parsing user data:', error);
                 showToast('Session expired. Please login again.', 'error');
                 window.location.href = '/login.html';
             }
@@ -785,7 +781,7 @@
         async function loadUsers() {
             try {
                 const token = sessionStorage.getItem('token');
-                console.log('👥 Loading users...');
+                console.log('ðŸ‘¥ Loading users...');
 
                 const response = await fetch(`${API_BASE_URL}/admin/users`, {
                     headers: {
@@ -794,17 +790,17 @@
                     }
                 });
 
-                console.log('📡 Response status:', response.status);
+                console.log('ðŸ“¡ Response status:', response.status);
                 
                 if (response.ok) {
                     const data = await response.json();
                     
                     if (data.success && data.data) {
                         allUsers = data.data;
-                        console.log(`📊 Loaded ${allUsers.length} users`);
+                        console.log(`ðŸ“Š Loaded ${allUsers.length} users`);
                         showToast(`Loaded ${allUsers.length} users`, 'success');
                     } else {
-                        console.warn('⚠️ Unexpected response format:', data);
+                        console.warn('âš ï¸ Unexpected response format:', data);
                         allUsers = [];
                         showToast('Failed to load users', 'error');
                     }
@@ -814,12 +810,12 @@
 
                 } else {
                     const errorText = await response.text();
-                    console.error('❌ API error response:', errorText);
+                    console.error('âŒ API error response:', errorText);
                     showToast(`Failed to load users: ${response.statusText}`, 'error');
                 }
 
             } catch (error) {
-                console.error('❌ Error loading users:', error);
+                console.error('âŒ Error loading users:', error);
                 document.getElementById('usersTableContainer').innerHTML = `
                     <div class="error">
                         <i class="fas fa-exclamation-triangle"></i>
@@ -858,8 +854,8 @@
                             <th onclick="sortUsers('username')">User</th>
                             <th onclick="sortUsers('email')">Email</th>
                             <th onclick="sortUsers('role')">Role</th>
-                            <th onclick="sortUsers('isActive')">Status</th>
-                            <th onclick="sortUsers('createdAt')">Joined</th>
+                            <th onclick="sortUsers('is_active')">Status</th>
+                            <th onclick="sortUsers('created_at')">Joined</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -873,18 +869,18 @@
                                         </div>
                                         <div>
                                             <div style="font-weight: 500;">${user.username}</div>
-                                            <div style="font-size: 0.8rem; color: #666;">${user.fullName || 'No name'}</div>
+                                            <div style="font-size: 0.8rem; color: #666;">${user.full_name || 'No name'}</div>
                                         </div>
                                     </div>
                                 </td>
                                 <td>${user.email}</td>
-                                <td><span class="role-badge">${user.role?.name || 'student'}</span></td>
+                                <td><span class="role-badge">${user.role_name || 'student'}</span></td>
                                 <td>
-                                    <span class="status-badge ${user.isActive ? 'status-active' : 'status-inactive'}">
-                                        ${user.isActive ? 'Active' : 'Inactive'}
+                                    <span class="status-badge ${user.is_active ? 'status-active' : 'status-inactive'}">
+                                        ${user.is_active ? 'Active' : 'Inactive'}
                                     </span>
                                 </td>
-                                <td>${new Date(user.createdAt).toLocaleDateString()}</td>
+                                <td>${new Date(user.created_at).toLocaleDateString()}</td>
                                 <td>
                                     <div class="action-buttons">
                                         <button class="btn-sm btn-view" onclick="viewUser(${user.id})" title="View">
@@ -927,19 +923,18 @@
         // Save user function - uses SINGLE endpoint now
         async function saveUser() {
             const formData = {
-                username: document.getElementById('username').value.trim(),
                 email: document.getElementById('email').value.trim(),
                 fullName: document.getElementById('fullName').value.trim(),
                 role: document.getElementById('role').value
             };
 
             // Validation
-            if (!formData.username) {
-                showToast('Username is required', 'error');
-                return;
-            }
             if (!formData.email) {
                 showToast('Email is required', 'error');
+                return;
+            }
+            if (!formData.fullName) {
+                showToast('Full name is required', 'error');
                 return;
             }
             if (!formData.role) {
@@ -951,7 +946,7 @@
                 const token = sessionStorage.getItem('token');
                 
                 // Use the SINGLE endpoint: /api/admin/users
-                console.log('📤 Creating user with SINGLE endpoint: /admin/users');
+                console.log('ðŸ“¤ Creating user with SINGLE endpoint: /admin/users');
                 showToast('Creating user...', 'info');
 
                 const response = await fetch(`${API_BASE_URL}/admin/users`, {
@@ -964,35 +959,35 @@
                 });
 
                 const result = await response.json();
-                console.log('📥 API Response:', result);
+                console.log('ðŸ“¥ API Response:', result);
 
                 if (response.ok && result.success) {
                     closeUserModal();
                     
                     // Build success message based on email status
-                    let message = '✅ User created successfully!\n\n';
+                    let message = 'âœ… User created successfully!\n\n';
                     
                     if (result.emailStatus) {
                         if (result.emailStatus.sent) {
-                            message += `📧 Welcome email sent to ${formData.email}\n`;
-                            message += `📧 User can login with email: ${formData.email}\n`;
+                            message += `ðŸ“§ Welcome email sent to ${formData.email}\n`;
+                            message += `ðŸ“§ User can login with email: ${formData.email}\n`;
                         } else {
-                            message += `❌ Email failed to send.\n`;
-                            message += `🔐 Generated Password: ${result.emailStatus.generatedPassword}\n`;
-                            message += `💡 Share these credentials manually:\n`;
+                            message += `âŒ Email failed to send.\n`;
+                            message += `ðŸ” Generated Password: ${result.emailStatus.generatedPassword}\n`;
+                            message += `ðŸ’¡ Share these credentials manually:\n`;
                             message += `   Email: ${formData.email}\n`;
                             message += `   Password: ${result.emailStatus.generatedPassword}\n`;
                         }
                     }
                     
                     // Add login URL
-                    message += `\n🔗 Login URL: ${API_BASE_URL.replace('/api', '')}/login.html`;
+                    message += `\nðŸ”— Login URL: ${API_BASE_URL.replace('/api', '')}/login.html`;
                     
                     // Show alert with all info
                     alert(message);
                     
                     // Also log to console for easy copy
-                    console.log(`👤 New User Created:`);
+                    console.log(`ðŸ‘¤ New User Created:`);
                     console.log(`   Email: ${formData.email}`);
                     console.log(`   Username: ${formData.username}`);
                     if (result.emailStatus?.generatedPassword) {
@@ -1036,15 +1031,15 @@
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
 
             let filteredUsers = allUsers.filter(user => {
-                const userRole = user.role?.name || user.role;
+                const userRole = user.role_name || 'student';
                 const matchesRole = roleFilter === 'all' || userRole === roleFilter;
                 const matchesStatus = statusFilter === 'all' || 
-                    (statusFilter === 'active' && user.isActive) ||
-                    (statusFilter === 'inactive' && !user.isActive);
+                    (statusFilter === 'active' && user.is_active) ||
+                    (statusFilter === 'inactive' && !user.is_active);
                 const matchesSearch = !searchTerm || 
                     user.username.toLowerCase().includes(searchTerm) ||
                     user.email.toLowerCase().includes(searchTerm) ||
-                    (user.fullName && user.fullName.toLowerCase().includes(searchTerm));
+                    (user.full_name && user.full_name.toLowerCase().includes(searchTerm));
 
                 return matchesRole && matchesStatus && matchesSearch;
             });
@@ -1118,13 +1113,13 @@
                         aValue = a.role?.name || a.role || '';
                         bValue = b.role?.name || b.role || '';
                         break;
-                    case 'isActive':
-                        aValue = a.isActive;
-                        bValue = b.isActive;
+                    case 'is_active':
+                        aValue = a.is_active;
+                        bValue = b.is_active;
                         break;
-                    case 'createdAt':
-                        aValue = new Date(a.createdAt);
-                        bValue = new Date(b.createdAt);
+                    case 'created_at':
+                        aValue = new Date(a.created_at);
+                        bValue = new Date(b.created_at);
                         break;
                     default:
                         return 0;
@@ -1144,7 +1139,7 @@
         function viewUser(userId) {
             const user = allUsers.find(u => u.id === userId);
             if (user) {
-                alert(`User Details:\n\nUsername: ${user.username}\nEmail: ${user.email}\nFull Name: ${user.fullName || 'Not provided'}\nRole: ${user.role?.name || 'student'}\nStatus: ${user.isActive ? 'Active' : 'Inactive'}\nJoined: ${new Date(user.createdAt).toLocaleDateString()}\n\nLogin URL: ${API_BASE_URL.replace('/api', '')}/login.html`);
+                alert(`User Details:\n\nUsername: ${user.username}\nEmail: ${user.email}\nFull Name: ${user.full_name || 'Not provided'}\nRole: ${user.role_name || 'student'}\nStatus: ${user.is_active ? 'Active' : 'Inactive'}\nJoined: ${new Date(user.created_at).toLocaleDateString()}\n\nLogin URL: ${API_BASE_URL.replace('/api', '')}/login.html`);
             }
         }
 
@@ -1175,7 +1170,7 @@
                     </div>
                     <div>
                         <input type="text" value="${user.username}" class="edit-input" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 4px; margin-bottom: 4px;" autocomplete="username">
-                        <input type="text" value="${user.fullName || ''}" class="edit-input" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.8rem;" autocomplete="name">
+                        <input type="text" value="${user.full_name || ''}" class="edit-input" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.8rem;" autocomplete="name">
                     </div>
                 </div>
             `;
@@ -1186,17 +1181,17 @@
             // Replace role cell content
             roleCell.innerHTML = `
                 <select class="edit-input" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 4px;">
-                    <option value="student" ${(user.role?.name === 'student') ? 'selected' : ''}>Student</option>
-                    <option value="tutor" ${(user.role?.name === 'tutor') ? 'selected' : ''}>Tutor</option>
-                    <option value="admin" ${(user.role?.name === 'admin') ? 'selected' : ''}>Admin</option>
+                    <option value="student" ${(user.role_name === 'student') ? 'selected' : ''}>Student</option>
+                    <option value="tutor" ${(user.role_name === 'tutor') ? 'selected' : ''}>Tutor</option>
+                    <option value="admin" ${(user.role_name === 'admin') ? 'selected' : ''}>Admin</option>
                 </select>
             `;
 
             // Replace status cell content
             statusCell.innerHTML = `
                 <select class="edit-input" style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 4px;">
-                    <option value="true" ${user.isActive ? 'selected' : ''}>Active</option>
-                    <option value="false" ${!user.isActive ? 'selected' : ''}>Inactive</option>
+                    <option value="true" ${user.is_active ? 'selected' : ''}>Active</option>
+                    <option value="false" ${!user.is_active ? 'selected' : ''}>Inactive</option>
                 </select>
             `;
 
@@ -1313,12 +1308,13 @@
         }
 
         function logout() {
-            console.log('🚪 Logging out...');
+            console.log('ðŸšª Logging out...');
             localStorage.removeItem('token');
             localStorage.removeItem('user');
             window.location.href = '/login.html';
         }
 
     </script>
+<script>function logout(){localStorage.clear();sessionStorage.clear();location.replace('/login.html')}</script>
 </body>
 </html>

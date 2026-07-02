@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script>(function(){var t=sessionStorage.getItem('token');if(!t){location.replace('/login.html');return}var x=new XMLHttpRequest();x.open('GET','/api/auth/verify',false);x.setRequestHeader('Authorization','Bearer '+t);try{x.send();if(x.status===401||x.status===403){sessionStorage.removeItem('token');sessionStorage.removeItem('user');location.replace('/login.html')}}catch(e){sessionStorage.removeItem('token');sessionStorage.removeItem('user');location.replace('/login.html')}})();</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>System Settings - NURU Admin</title>
@@ -625,7 +626,7 @@ Languages</textarea>
         });
 
         function initializeSettingsManagement() {
-            console.log('🔄 Initializing settings management...');
+            console.log('ðŸ”„ Initializing settings management...');
             
             // Wait for auth state to stabilize
             setTimeout(() => {
@@ -637,26 +638,26 @@ Languages</textarea>
             const token = sessionStorage.getItem('token');
             const userData = sessionStorage.getItem('user');
             
-            console.log('🔍 Checking admin access for settings management...');
+            console.log('ðŸ” Checking admin access for settings management...');
             console.log('Token exists:', !!token);
             console.log('User data:', userData);
 
             if (!token || !userData) {
-                console.log('❌ No token or user data, redirecting to login');
+                console.log('âŒ No token or user data, redirecting to login');
                 window.location.href = '/login.html';
                 return;
             }
 
             try {
                 const user = JSON.parse(userData);
-                console.log('👤 User object:', user);
+                console.log('ðŸ‘¤ User object:', user);
                 
                 // FIX: Check if role is an object with name property, or just a string
                 const userRole = user.role?.name || user.role;
-                console.log('🎭 User role:', userRole);
+                console.log('ðŸŽ­ User role:', userRole);
 
                 if (userRole !== 'admin') {
-                    console.log('❌ User is not admin, redirecting to appropriate dashboard');
+                    console.log('âŒ User is not admin, redirecting to appropriate dashboard');
                     
                     // Redirect non-admin users to their appropriate dashboard
                     if (userRole === 'student') {
@@ -669,11 +670,11 @@ Languages</textarea>
                     return;
                 }
 
-                console.log('✅ Admin access granted, loading settings');
+                console.log('âœ… Admin access granted, loading settings');
                 loadSettings();
                 
             } catch (error) {
-                console.error('❌ Error parsing user data:', error);
+                console.error('âŒ Error parsing user data:', error);
                 window.location.href = '/login.html';
             }
         }
@@ -681,7 +682,7 @@ Languages</textarea>
         async function loadSettings() {
             try {
                 const token = sessionStorage.getItem('token');
-                console.log('⚙️ Loading settings...');
+                console.log('âš™ï¸ Loading settings...');
 
                 const response = await fetch(`${API_BASE_URL}/admin/settings`, {
                     headers: {
@@ -692,16 +693,16 @@ Languages</textarea>
 
                 if (response.ok) {
                     const settings = await response.json();
-                    console.log('✅ Settings loaded from API:', settings);
+                    console.log('âœ… Settings loaded from API:', settings);
                     populateSettings(settings);
                 } else {
-                    console.log('⚠️ API not available, using default settings');
+                    console.log('âš ï¸ API not available, using default settings');
                     // Use default settings if API fails
                     populateSettings(getDefaultSettings());
                 }
 
             } catch (error) {
-                console.error('❌ Error loading settings:', error);
+                console.error('âŒ Error loading settings:', error);
                 // Use default settings as fallback
                 populateSettings(getDefaultSettings());
                 
@@ -740,7 +741,7 @@ Languages</textarea>
         }
 
         function populateSettings(settings) {
-            console.log('📝 Populating settings form...');
+            console.log('ðŸ“ Populating settings form...');
             
             // Populate text inputs, selects, and textareas
             const inputTypes = ['text', 'email', 'number'];
@@ -788,7 +789,7 @@ Languages</textarea>
                 }
             });
 
-            console.log('✅ Settings form populated');
+            console.log('âœ… Settings form populated');
         }
 
         function getToggleLabel(toggleId, isActive) {
@@ -814,7 +815,7 @@ Languages</textarea>
         }
 
         async function saveSettings() {
-            console.log('💾 Saving settings...');
+            console.log('ðŸ’¾ Saving settings...');
             
             const settings = {
                 platformName: document.getElementById('platformName').value,
@@ -855,14 +856,14 @@ Languages</textarea>
                 });
 
                 if (response.ok) {
-                    console.log('✅ Settings saved successfully');
+                    console.log('âœ… Settings saved successfully');
                     showMessage('Settings saved successfully!', 'success');
                 } else {
                     throw new Error('Failed to save settings');
                 }
 
             } catch (error) {
-                console.error('❌ Error saving settings:', error);
+                console.error('âŒ Error saving settings:', error);
                 showMessage('Error saving settings. Please try again.', 'error');
             }
         }
@@ -892,18 +893,19 @@ Languages</textarea>
 
         function resetSettings() {
             if (confirm('Are you sure you want to reset all settings to their default values? This action cannot be undone.')) {
-                console.log('🔄 Resetting settings to defaults...');
+                console.log('ðŸ”„ Resetting settings to defaults...');
                 populateSettings(getDefaultSettings());
                 showMessage('Settings reset to default values!', 'success');
             }
         }
 
         function logout() {
-            console.log('🚪 Logging out...');
+            console.log('ðŸšª Logging out...');
             localStorage.removeItem('token');
             localStorage.removeItem('user');
             window.location.href = '/login.html';
         }
     </script>
+<script>function logout(){localStorage.clear();sessionStorage.clear();location.replace('/login.html')}</script>
 </body>
 </html>

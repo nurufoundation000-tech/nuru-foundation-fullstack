@@ -394,20 +394,75 @@
 <div id="footerContainer"></div>
 
 <script>
-    // Load Footer Content and initialize it
     document.addEventListener('DOMContentLoaded', function() {
         fetch('footer.html')
             .then(response => response.text())
             .then(data => {
                 document.getElementById('footerContainer').innerHTML = data;
-                
-                // 🔥 CRITICAL FIX: Manually call the init function AFTER the HTML is loaded.
                 if (typeof startCourseRotation === 'function') {
                     startCourseRotation();
                 }
             })
             .catch(error => console.error('Error loading footer:', error));
+
+        loadDynamicCourses();
     });
+
+    async function loadDynamicCourses() {
+        try {
+            const res = await fetch('/api/courses');
+            if (!res.ok) return;
+            const data = await res.json();
+            let courses = data.data || data.courses || [];
+            if (!Array.isArray(courses) || courses.length === 0) return;
+
+            const existingLinks = new Set();
+            document.querySelectorAll('.course-card a[href*="courses/"]').forEach(a => {
+                const href = a.getAttribute('href');
+                if (href) existingLinks.add(href.replace('courses/', '').replace('.html', ''));
+            });
+
+            courses = courses.filter(c => {
+                const slug = (c.title || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+                return !existingLinks.has(slug);
+            });
+
+            if (courses.length === 0) return;
+
+            const section = document.querySelector('.courses-section') || document.querySelector('#courses');
+            if (!section) return;
+
+            const grid = document.querySelector('.courses-grid');
+            if (!grid) return;
+
+            courses.forEach(c => {
+                const col = document.createElement('div');
+                col.className = 'col-md-6 col-lg-4';
+                col.innerHTML = `
+                    <div class="course-card">
+                        <div class="course-image" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);display:flex;align-items:center;justify-content:center;height:200px;">
+                            <i class="fas fa-graduation-cap" style="font-size:4rem;color:rgba(255,255,255,0.5);"></i>
+                        </div>
+                        <div class="course-info">
+                            <h3>${escapeHtml(c.title)}</h3>
+                            <p>${escapeHtml(c.description || '').substring(0, 100)}${c.description && c.description.length > 100 ? '...' : ''}</p>
+                            <div class="course-footer">
+                                <span class="course-duration"><i class="fas fa-tag"></i> ${escapeHtml(c.category || 'General')}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(col);
+            });
+        } catch (e) { console.error('Error loading dynamic courses:', e); }
+    }
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    }
 </script>
 
 </body>

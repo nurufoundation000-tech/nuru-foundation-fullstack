@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script>(function(){var t=sessionStorage.getItem('token');if(!t){location.replace('/login.html');return}var x=new XMLHttpRequest();x.open('GET','/api/auth/verify',false);x.setRequestHeader('Authorization','Bearer '+t);try{x.send();if(x.status===401||x.status===403){sessionStorage.removeItem('token');sessionStorage.removeItem('user');location.replace('/login.html')}}catch(e){sessionStorage.removeItem('token');sessionStorage.removeItem('user');location.replace('/login.html')}})();</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Course Notes - Tutor Dashboard</title>
@@ -8,6 +9,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="../styles/root.css">
     <link rel="stylesheet" href="../styles/header.css">
+    <link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -329,6 +331,25 @@
             min-height: 150px;
         }
 
+        #quillEditor { height: 350px; margin-bottom: 20px; }
+
+        .preview-modal .modal-content {
+            max-width: 800px;
+        }
+
+        .preview-content {
+            padding: 20px;
+            line-height: 1.8;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+        .preview-content img { max-width: 100%; }
+        .preview-content iframe { max-width: 100%; border-radius: 8px; }
+        .preview-content blockquote { border-left: 4px solid #27ae60; padding-left: 20px; color: #555; }
+        .preview-content pre { background: #f8f9fa; padding: 15px; border-radius: 8px; overflow-x: auto; }
+        .preview-content code { background: #f0f0f0; padding: 2px 6px; border-radius: 4px; }
+
         .modal-actions {
             display: flex;
             gap: 15px;
@@ -442,13 +463,29 @@
                 </div>
                 <div class="form-group">
                     <label for="noteContent">Content *</label>
-                    <textarea id="noteContent" rows="8" required></textarea>
+                    <div id="quillEditor"></div>
+                </div>
+                <div class="form-group">
+                    <label for="noteReferenceUrl">Reference URL (YouTube, Zoom, article, etc.)</label>
+                    <input type="url" id="noteReferenceUrl" placeholder="https://youtube.com/watch?v=...">
                 </div>
                 <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="previewNote()">
+                        <i class="fas fa-eye"></i> Preview
+                    </button>
                     <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
                     <button type="submit" class="btn btn-primary">Save Note</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Preview Modal -->
+    <div id="previewModal" class="modal preview-modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closePreview()">&times;</span>
+            <h2>Note Preview</h2>
+            <div class="preview-content" id="previewContent"></div>
         </div>
     </div>
 
@@ -459,10 +496,64 @@
     let totalPages = 1;
     let allNotes = [];
     let courses = [];
+    let quill = null;
 
     document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => checkTutorAccess(), 100);
     });
+
+    function initQuill() {
+        if (quill) return;
+        quill = new Quill('#quillEditor', {
+            theme: 'snow',
+            placeholder: 'Write your note content here...',
+            modules: {
+                toolbar: [
+                    [{ 'header': [1, 2, 3, false] }],
+                    ['bold', 'italic', 'underline', 'strike'],
+                    ['blockquote', 'code-block'],
+                    [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+                    ['link', 'image'],
+                    ['clean']
+                ]
+            }
+        });
+
+        quill.getModule('toolbar').addHandler('image', function() {
+            const input = document.createElement('input');
+            input.setAttribute('type', 'file');
+            input.setAttribute('accept', 'image/*');
+            input.click();
+
+            input.onchange = async function() {
+                const file = input.files[0];
+                if (!file) return;
+
+                const formData = new FormData();
+                formData.append('file', file);
+
+                try {
+                    const token = sessionStorage.getItem('token');
+                    const response = await fetch(`${API_BASE_URL}/upload/image`, {
+                        method: 'POST',
+                        headers: { 'Authorization': `Bearer ${token}` },
+                        body: formData
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        const range = quill.getSelection(true);
+                        quill.insertEmbed(range.index, 'image', data.url);
+                    } else {
+                        alert('Failed to upload image');
+                    }
+                } catch (error) {
+                    console.error('Image upload error:', error);
+                    alert('Failed to upload image');
+                }
+            };
+        });
+    }
 
     function checkTutorAccess() {
         const token = sessionStorage.getItem('token');
@@ -526,7 +617,6 @@
             const searchTerm = document.getElementById('searchInput').value;
             const courseFilter = document.getElementById('courseFilter').value;
 
-            // Build URL with filters
             let url = `${API_BASE_URL}/tutor/notes?page=${page}&limit=12`;
             if (courseFilter) {
                 url += `&courseId=${courseFilter}`;
@@ -535,21 +625,18 @@
                 url += `&search=${encodeURIComponent(searchTerm)}`;
             }
 
-            console.log('📝 Loading notes from:', url);
-
             const response = await fetch(url, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
 
             if (response.ok) {
                 const data = await response.json();
-                console.log('✅ Notes loaded:', data);
                 
                 if (data.success) {
                     allNotes = data.data || [];
                     currentPage = data.pagination?.page || 1;
                     totalPages = data.pagination?.pages || 1;
-                    filterNotes(); // This will call displayNotes
+                    filterNotes();
                     updatePagination(data.pagination);
                 } else {
                     throw new Error(data.error || 'Failed to load notes');
@@ -559,7 +646,7 @@
                 throw new Error(errorData.error || `HTTP ${response.status}: Failed to load notes`);
             }
         } catch (error) {
-            console.error('❌ Error loading notes:', error);
+            console.error('Error loading notes:', error);
             container.innerHTML = `
                 <div class="error" style="text-align: center; padding: 40px;">
                     <i class="fas fa-exclamation-triangle" style="font-size: 3rem; margin-bottom: 15px;"></i>
@@ -598,7 +685,7 @@
                     <div class="note-card">
                         <div>
                             <h3 class="note-title">${note.title}</h3>
-                            <p class="note-content">${truncateText(note.content)}</p>
+                            <div class="note-content">${truncateText(stripHtml(note.content))}</div>
                         </div>
                         <div class="note-meta">
                             <span class="note-course">
@@ -611,7 +698,7 @@
                                 <button class="action-btn" onclick="editNote(${note.id})" title="Edit">
                                     <i class="fas fa-edit"></i>
                                 </button>
-                                <button class="action-btn btn-delete" onclick="deleteNote(${note.id}, '${note.title}')" title="Delete">
+                                <button class="action-btn btn-delete" onclick="deleteNote(${note.id}, '${note.title.replace(/'/g, "\\'")}')" title="Delete">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </div>
@@ -621,23 +708,27 @@
             </div>`;
     }
 
+    function stripHtml(html) {
+        const tmp = document.createElement('div');
+        tmp.innerHTML = html || '';
+        return tmp.textContent || tmp.innerText || '';
+    }
+
     function filterNotes() {
         const searchTerm = document.getElementById('searchInput').value.toLowerCase();
         const courseFilter = document.getElementById('courseFilter').value;
 
         let filtered = allNotes;
 
-        // Apply course filter
         if (courseFilter) {
             filtered = filtered.filter(note => note.courseId.toString() === courseFilter);
         }
 
-        // Apply search filter
         if (searchTerm) {
             filtered = filtered.filter(note =>
                 note.title.toLowerCase().includes(searchTerm) ||
-                note.content.toLowerCase().includes(searchTerm) ||
-                note.course.title.toLowerCase().includes(searchTerm)
+                (note.content && note.content.toLowerCase().includes(searchTerm)) ||
+                (note.course && note.course.title && note.course.title.toLowerCase().includes(searchTerm))
             );
         }
 
@@ -663,12 +754,14 @@
         nextBtn.disabled = pagination.page >= pagination.pages;
     }
 
-
     function openCreateModal() {
         document.getElementById('modalTitle').textContent = 'Add New Note';
         document.getElementById('noteForm').reset();
+        document.getElementById('noteReferenceUrl').value = '';
         delete document.getElementById('noteForm').dataset.noteId;
         document.getElementById('noteModal').style.display = 'block';
+        setTimeout(() => initQuill(), 100);
+        if (quill) quill.setText('');
     }
 
     function editNote(noteId) {
@@ -678,9 +771,13 @@
         document.getElementById('modalTitle').textContent = 'Edit Note';
         document.getElementById('noteCourse').value = note.courseId;
         document.getElementById('noteTitle').value = note.title;
-        document.getElementById('noteContent').value = note.content;
+        document.getElementById('noteReferenceUrl').value = note.referenceUrl || '';
         document.getElementById('noteForm').dataset.noteId = noteId;
         document.getElementById('noteModal').style.display = 'block';
+        setTimeout(() => {
+            initQuill();
+            if (quill) quill.root.innerHTML = note.content || '';
+        }, 100);
     }
 
     async function deleteNote(noteId, noteTitle) {
@@ -692,7 +789,6 @@
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (response.ok) {
-                alert('Note deleted successfully!');
                 loadNotes();
             } else {
                 throw new Error('Failed to delete note');
@@ -707,17 +803,46 @@
         document.getElementById('noteModal').style.display = 'none';
     }
 
+    function previewNote() {
+        if (!quill) return;
+        const content = quill.root.innerHTML;
+        document.getElementById('previewContent').innerHTML = content;
+        document.getElementById('previewModal').style.display = 'block';
+    }
+
+    function closePreview() {
+        document.getElementById('previewModal').style.display = 'none';
+    }
+
     document.getElementById('noteForm').addEventListener('submit', async function(e) {
         e.preventDefault();
         const noteId = this.dataset.noteId;
+
+        if (!quill) {
+            alert('Editor not initialized. Please try again.');
+            return;
+        }
+
+        const htmlContent = quill.root.innerHTML;
+        if (htmlContent === '<p><br></p>' || !htmlContent.trim()) {
+            alert('Please enter note content.');
+            return;
+        }
+
         const noteData = {
             courseId: parseInt(document.getElementById('noteCourse').value),
             title: document.getElementById('noteTitle').value,
-            content: document.getElementById('noteContent').value,
+            content: htmlContent,
+            referenceUrl: document.getElementById('noteReferenceUrl').value || null
         };
 
         if (isNaN(noteData.courseId)) {
             alert('Please select a course.');
+            return;
+        }
+
+        if (!noteData.title) {
+            alert('Please enter a note title.');
             return;
         }
 
@@ -733,7 +858,6 @@
             });
 
             if (response.ok) {
-                alert(`Note ${noteId ? 'updated' : 'created'} successfully!`);
                 closeModal();
                 loadNotes();
             } else {
@@ -747,16 +871,18 @@
     });
 
     function logout() {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
+        sessionStorage.removeItem('token');
+        sessionStorage.removeItem('user');
         window.location.href = '/login.html';
     }
 
     window.onclick = function(event) {
-        if (event.target === document.getElementById('noteModal')) {
-            closeModal();
-        }
+        const modal = document.getElementById('noteModal');
+        const preview = document.getElementById('previewModal');
+        if (event.target === modal) closeModal();
+        if (event.target === preview) closePreview();
     };
     </script>
+<script>function logout(){localStorage.clear();sessionStorage.clear();location.replace('/login.html')}</script>
 </body>
 </html>

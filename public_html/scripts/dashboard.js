@@ -5,7 +5,7 @@
 
 // API Base URL
 const API_BASE = window.location.hostname === 'localhost' 
-    ? 'http://localhost:3000/api' 
+    ? 'http://localhost:5000/api' 
     : '/api';
 
 // ==========================================
@@ -249,15 +249,19 @@ class DashboardSidebar extends HTMLElement {
             student: [
                 { href: '/student-dashboard/index.html', icon: 'fa-tachometer-alt', label: 'Overview' },
                 { href: '/student-dashboard/my-courses.html', icon: 'fa-book', label: 'My Courses' },
+                { href: '/student-dashboard/live-sessions.html', icon: 'fa-video', label: 'Live Sessions' },
                 { href: '/student-dashboard/progress.html', icon: 'fa-chart-line', label: 'Progress' },
                 { href: '/student-dashboard/notes.html', icon: 'fa-sticky-note', label: 'My Notes' },
                 { href: '/student-dashboard/payment.html', icon: 'fa-credit-card', label: 'Payments' },
+                { href: '/student-dashboard/certificates.html', icon: 'fa-certificate', label: 'Certificates' },
+                { href: '/student-dashboard/notifications.html', icon: 'fa-bell', label: 'Notifications' },
                 { href: '/student-dashboard/profile.html', icon: 'fa-user', label: 'Profile' }
             ],
             tutor: [
                 { href: '/tutor-dashboard/index.html', icon: 'fa-tachometer-alt', label: 'Dashboard' },
                 { href: '/tutor-dashboard/courses.html', icon: 'fa-book', label: 'My Courses' },
                 { href: '/tutor-dashboard/lessons.html', icon: 'fa-chalkboard-teacher', label: 'Lessons' },
+                { href: '/tutor-dashboard/sessions.html', icon: 'fa-video', label: 'Live Sessions' },
                 { href: '/tutor-dashboard/assignments.html', icon: 'fa-tasks', label: 'Assignments' },
                 { href: '/tutor-dashboard/enrollments.html', icon: 'fa-clipboard-list', label: 'Enrollments' },
                 { href: '/tutor-dashboard/submissions.html', icon: 'fa-file-alt', label: 'Submissions' },
@@ -269,6 +273,9 @@ class DashboardSidebar extends HTMLElement {
                 { href: '/admin-dashboard/courses.html', icon: 'fa-book', label: 'Courses' },
                 { href: '/admin-dashboard/enrollments.html', icon: 'fa-clipboard-list', label: 'Enrollments' },
                 { href: '/admin-dashboard/analytics.html', icon: 'fa-chart-bar', label: 'Analytics' },
+                { href: '/admin-dashboard/transactions.html', icon: 'fa-credit-card', label: 'Transactions' },
+                { href: '/admin-dashboard/invoices.html', icon: 'fa-file-invoice', label: 'Invoices' },
+                { href: '/admin-dashboard/cohorts.html', icon: 'fa-users', label: 'Cohorts' },
                 { href: '/admin-dashboard/settings.html', icon: 'fa-cog', label: 'Settings' }
             ]
         };

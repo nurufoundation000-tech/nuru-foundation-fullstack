@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script>(function(){var t=sessionStorage.getItem('token');if(!t){location.replace('/login.html');return}var x=new XMLHttpRequest();x.open('GET','/api/auth/verify',false);x.setRequestHeader('Authorization','Bearer '+t);try{x.send();if(x.status===401||x.status===403){sessionStorage.removeItem('token');sessionStorage.removeItem('user');location.replace('/login.html')}}catch(e){sessionStorage.removeItem('token');sessionStorage.removeItem('user');location.replace('/login.html')}})();</script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cohorts - Admin Dashboard - NURU FOUNDATION</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Fredoka+One&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="/styles/root.css">
+    <link rel="stylesheet" href="/styles/header.css">
+    <link rel="stylesheet" href="/styles/footer.css">
+    <link rel="stylesheet" href="/styles/dashboard.css">
+    <link rel="stylesheet" href="styles.css">
+    <base href="/">
+    <style>
+        .filters-row { display: flex; gap: 15px; align-items: center; flex-wrap: wrap; margin-bottom: 20px; }
+        .search-box { flex: 1; min-width: 200px; position: relative; }
+        .search-box input { width: 100%; padding: 10px 40px 10px 15px; border: 2px solid #e9ecef; border-radius: 8px; font-size: 0.95rem; }
+        .search-box i { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: #6c757d; }
+        .filter-select { padding: 10px; border: 2px solid #e9ecef; border-radius: 8px; font-size: 0.95rem; min-width: 150px; }
+        .cohorts-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 20px; }
+        .cohort-card { background: white; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); padding: 20px; }
+        .cohort-card h3 { color: #2c3e50; margin-bottom: 8px; font-size: 1.1rem; }
+        .cohort-card .course-name { color: #27ae60; font-size: 0.85rem; margin-bottom: 12px; }
+        .cohort-stats { display: flex; gap: 15px; margin-bottom: 15px; font-size: 0.85rem; color: #6c757d; }
+        .cohort-stats span { display: flex; align-items: center; gap: 5px; }
+        .badge-active { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; }
+        .badge-active.yes { background: #d4edda; color: #155724; }
+        .badge-active.no { background: #f8d7da; color: #721c24; }
+        .cohort-actions { display: flex; gap: 8px; margin-top: 12px; }
+        .modal-content { max-width: 550px; }
+        .student-list { max-height: 300px; overflow-y: auto; }
+        .student-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #f0f0f0; }
+        .student-item:last-child { border-bottom: none; }
+    </style>
+</head>
+<body>
+    <div id="headerContainer"></div>
+    <div class="dashboard-container" style="padding-top: 80px;">
+        <dashboard-sidebar active="cohorts"></dashboard-sidebar>
+        <div class="dashboard-main">
+            <page-header title="Cohort Management" subtitle="Manage course intakes and student groups" icon="fa-users"></page-header>
+
+            <div class="filters-row">
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="Search cohorts..." onkeyup="filterCohorts()">
+                    <i class="fas fa-search"></i>
+                </div>
+                <select class="filter-select" id="courseFilter" onchange="filterCohorts()">
+                    <option value="">All Courses</option>
+                </select>
+                <button class="btn btn-primary" onclick="openCreateModal()">
+                    <i class="fas fa-plus"></i> New Cohort
+                </button>
+            </div>
+
+            <div id="cohortsContainer"><div class="loading"><i class="fas fa-spinner fa-spin"></i> Loading cohorts...</div></div>
+        </div>
+    </div>
+    <div id="footerContainer"></div>
+
+    <!-- Create/Edit Cohort Modal -->
+    <div id="cohortModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeModal('cohortModal')">&times;</span>
+            <h2 id="modalTitle">New Cohort</h2>
+            <form id="cohortForm">
+                <div class="form-group">
+                    <label>Course *</label>
+                    <select id="cohortCourse" class="form-input" required></select>
+                </div>
+                <div class="form-group">
+                    <label>Cohort Name *</label>
+                    <input type="text" id="cohortName" class="form-input" required placeholder="e.g. January 2026 Intake">
+                </div>
+                <div class="form-row" style="display:flex;gap:15px;">
+                    <div class="form-group" style="flex:1;">
+                        <label>Start Date</label>
+                        <input type="date" id="cohortStart" class="form-input">
+                    </div>
+                    <div class="form-group" style="flex:1;">
+                        <label>End Date</label>
+                        <input type="date" id="cohortEnd" class="form-input">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Max Students (0 = unlimited)</label>
+                    <input type="number" id="cohortMax" class="form-input" min="0" placeholder="30">
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('cohortModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Cohort</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Manage Students Modal -->
+    <div id="studentsModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeModal('studentsModal')">&times;</span>
+            <h2 id="studentsModalTitle">Manage Students</h2>
+            <div class="form-group">
+                <label>Add Student</label>
+                <div style="display:flex;gap:10px;">
+                    <select id="addStudentSelect" class="form-input" style="flex:1;"></select>
+                    <button class="btn btn-primary" onclick="addStudent()">Add</button>
+                </div>
+            </div>
+            <div class="student-list" id="studentList">
+                <div class="loading">Loading students...</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/scripts/config.js"></script>
+    <script src="/scripts/dashboard.js"></script>
+    <script>
+        let cohorts = [];
+        let courses = [];
+        let selectedCohortId = null;
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            await DashboardUtils.loadHeader();
+            await DashboardUtils.loadFooter();
+            if (!DashboardUtils.checkAuth('admin')) return;
+            await loadCourses();
+            await loadCohorts();
+        });
+
+        async function loadCourses() {
+            try {
+                const res = await DashboardUtils.fetchAPI('/admin/courses');
+                courses = res.data || [];
+                const filter = document.getElementById('courseFilter');
+                courses.forEach(c => {
+                    const opt = document.createElement('option');
+                    opt.value = c.id;
+                    opt.textContent = c.title;
+                    filter.appendChild(opt);
+                });
+                const select = document.getElementById('cohortCourse');
+                courses.forEach(c => {
+                    const opt = document.createElement('option');
+                    opt.value = c.id;
+                    opt.textContent = c.title;
+                    select.appendChild(opt);
+                });
+            } catch (e) { console.error('Load courses error:', e); }
+        }
+
+        async function loadCohorts() {
+            try {
+                const res = await DashboardUtils.fetchAPI('/admin/cohorts');
+                cohorts = res.data || [];
+                displayCohorts();
+            } catch (e) {
+                document.getElementById('cohortsContainer').innerHTML = '<div class="error-message">Failed to load cohorts</div>';
+            }
+        }
+
+        function displayCohorts() {
+            const container = document.getElementById('cohortsContainer');
+            const filter = document.getElementById('courseFilter').value;
+            const search = document.getElementById('searchInput').value.toLowerCase();
+
+            let filtered = cohorts;
+            if (filter) filtered = filtered.filter(c => c.course_id == filter);
+            if (search) filtered = filtered.filter(c => c.name.toLowerCase().includes(search) || c.course_title?.toLowerCase().includes(search));
+
+            if (!filtered.length) {
+                container.innerHTML = '<div class="empty-state"><i class="fas fa-users"></i><h3>No cohorts found</h3><p>Create your first cohort to get started.</p></div>';
+                return;
+            }
+
+            container.innerHTML = `<div class="cohorts-grid">${filtered.map(c => `
+                <div class="cohort-card">
+                    <h3>${escapeHtml(c.name)}</h3>
+                    <div class="course-name"><i class="fas fa-book"></i> ${escapeHtml(c.course_title || 'Unknown Course')}</div>
+                    <div class="cohort-stats">
+                        <span><i class="fas fa-user-graduate"></i> ${c.enrolled_count || 0}${c.max_students > 0 ? '/' + c.max_students : ''}</span>
+                        <span><i class="fas fa-calendar-start"></i> ${c.start_date ? new Date(c.start_date).toLocaleDateString() : 'TBD'}</span>
+                        <span><i class="fas fa-calendar-end"></i> ${c.end_date ? new Date(c.end_date).toLocaleDateString() : 'TBD'}</span>
+                    </div>
+                    <div><span class="badge-active ${c.is_active ? 'yes' : 'no'}">${c.is_active ? 'Active' : 'Inactive'}</span></div>
+                    <div class="cohort-actions">
+                        <button class="btn btn-sm btn-secondary" onclick="openStudentsModal(${c.id})"><i class="fas fa-user-plus"></i> Students</button>
+                        <button class="btn btn-sm btn-secondary" onclick="openEditModal(${c.id})"><i class="fas fa-edit"></i> Edit</button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteCohort(${c.id})"><i class="fas fa-trash"></i></button>
+                    </div>
+                </div>
+            `).join('')}</div>`;
+        }
+
+        function filterCohorts() { displayCohorts(); }
+
+        function openCreateModal() {
+            document.getElementById('modalTitle').textContent = 'New Cohort';
+            document.getElementById('cohortForm').reset();
+            delete document.getElementById('cohortForm').dataset.cohortId;
+            document.getElementById('cohortModal').style.display = 'block';
+        }
+
+        function openEditModal(id) {
+            const cohort = cohorts.find(c => c.id === id);
+            if (!cohort) return;
+            document.getElementById('modalTitle').textContent = 'Edit Cohort';
+            document.getElementById('cohortCourse').value = cohort.course_id;
+            document.getElementById('cohortName').value = cohort.name;
+            document.getElementById('cohortStart').value = cohort.start_date ? cohort.start_date.split('T')[0] : '';
+            document.getElementById('cohortEnd').value = cohort.end_date ? cohort.end_date.split('T')[0] : '';
+            document.getElementById('cohortMax').value = cohort.max_students || 0;
+            document.getElementById('cohortForm').dataset.cohortId = id;
+            document.getElementById('cohortModal').style.display = 'block';
+        }
+
+        document.getElementById('cohortForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const cohortId = this.dataset.cohortId;
+            const data = {
+                courseId: parseInt(document.getElementById('cohortCourse').value),
+                name: document.getElementById('cohortName').value,
+                startDate: document.getElementById('cohortStart').value || null,
+                endDate: document.getElementById('cohortEnd').value || null,
+                maxStudents: parseInt(document.getElementById('cohortMax').value) || 0
+            };
+
+            try {
+                const token = sessionStorage.getItem('token');
+                const url = cohortId ? `/api/admin/cohorts/${cohortId}` : '/api/admin/cohorts';
+                const method = cohortId ? 'PUT' : 'POST';
+                const res = await fetch(url, {
+                    method, headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                if (res.ok) {
+                    closeModal('cohortModal');
+                    await loadCohorts();
+                } else {
+                    const err = await res.json();
+                    alert(err.error || 'Failed to save cohort');
+                }
+            } catch (e) { alert('Error saving cohort'); }
+        });
+
+        async function deleteCohort(id) {
+            if (!confirm('Delete this cohort and all its student enrollments?')) return;
+            try {
+                const token = sessionStorage.getItem('token');
+                await fetch(`/api/admin/cohorts/${id}`, {
+                    method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` }
+                });
+                await loadCohorts();
+            } catch (e) { alert('Error deleting cohort'); }
+        }
+
+        async function openStudentsModal(cohortId) {
+            selectedCohortId = cohortId;
+            document.getElementById('studentsModalTitle').textContent = 'Manage Students';
+            document.getElementById('studentsModal').style.display = 'block';
+            await loadStudents(cohortId);
+            await loadAvailableStudents(cohortId);
+        }
+
+        async function loadStudents(cohortId) {
+            try {
+                const token = sessionStorage.getItem('token');
+                const res = await fetch(`/api/admin/cohorts/${cohortId}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                const students = data.data?.students || [];
+                document.getElementById('studentList').innerHTML = students.length
+                    ? students.map(s => `
+                        <div class="student-item">
+                            <span><strong>${escapeHtml(s.full_name)}</strong><br><small>${s.email}</small></span>
+                            <button class="btn btn-sm btn-danger" onclick="removeStudent(${cohortId}, ${s.id})"><i class="fas fa-times"></i></button>
+                        </div>
+                    `).join('')
+                    : '<div class="empty-state" style="padding:20px;"><p>No students in this cohort</p></div>';
+            } catch (e) { document.getElementById('studentList').innerHTML = '<div class="error-message">Error loading students</div>'; }
+        }
+
+        async function loadAvailableStudents(cohortId) {
+            try {
+                const token = sessionStorage.getItem('token');
+                const res = await fetch(`/api/admin/cohorts/${cohortId}/available-students`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                const select = document.getElementById('addStudentSelect');
+                select.innerHTML = '<option value="">-- Select Student --</option>' +
+                    (data.data || []).map(s => `<option value="${s.id}">${escapeHtml(s.full_name)} (${s.email})</option>`).join('');
+            } catch (e) { console.error('Error loading available students:', e); }
+        }
+
+        async function addStudent() {
+            const select = document.getElementById('addStudentSelect');
+            const studentId = parseInt(select.value);
+            if (!studentId) { alert('Select a student'); return; }
+            try {
+                const token = sessionStorage.getItem('token');
+                const res = await fetch(`/api/admin/cohorts/${selectedCohortId}/students`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ studentId })
+                });
+                if (res.ok) {
+                    await loadStudents(selectedCohortId);
+                    await loadAvailableStudents(selectedCohortId);
+                } else {
+                    const err = await res.json();
+                    alert(err.error || 'Failed to add student');
+                }
+            } catch (e) { alert('Error adding student'); }
+        }
+
+        async function removeStudent(cohortId, studentId) {
+            if (!confirm('Remove this student from the cohort?')) return;
+            try {
+                const token = sessionStorage.getItem('token');
+                await fetch(`/api/admin/cohorts/${cohortId}/students/${studentId}`, {
+                    method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` }
+                });
+                await loadStudents(cohortId);
+                await loadAvailableStudents(cohortId);
+            } catch (e) { alert('Error removing student'); }
+        }
+
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+        window.onclick = function(e) {
+            if (e.target.classList.contains('modal')) e.target.style.display = 'none';
+        };
+    </script>
+<script>function logout(){localStorage.clear();sessionStorage.clear();location.replace('/login.html')}</script>
+</body>
+</html>

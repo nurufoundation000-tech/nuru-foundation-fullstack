@@ -1,0 +1,22 @@
+◇ injected env (13) from .env // tip: ⌘ custom filepath { path: '/custom/path/.env' }
+◇ injected env (0) from .env // tip: ◈ secrets for agents [www.dotenvx.com]
+◇ injected env (0) from .env // tip: ◈ secrets for agents [www.dotenvx.com]
+2026-07-01T14:50:43.016Z [WARN] [Email] EMAIL_USER or EMAIL_PASS not set - email disabled
+◇ injected env (0) from .env // tip: ⌁ auth for agents [www.vestauth.com]
+[App] Checking environment variables...
+[App] EMAIL_USER: NOT SET
+[App] EMAIL_PASS: NOT SET
+[App] FRONTEND_URL: http://localhost:5000
+[App] JWT_SECRET: SET
+Uploads directory configured at: C:\Users\Pc\Documents\Nuru Found Organisation\CodeBase\nuru-foundation-fullstack\public_html\uploads
+Static frontend configured at: C:\Users\Pc\Documents\Nuru Found Organisation\CodeBase\nuru-foundation-fullstack\public_html
+
+🚀 ===========================================
+✅ Nuru Foundation Backend is running!
+📡 Listening on: http://0.0.0.0:5000
+🌐 Local access: http://localhost:5000
+🔗 Health check: http://localhost:5000/api/health
+📁 Static files: C:\Users\Pc\Documents\Nuru Found Organisation\CodeBase\nuru-foundation-fullstack\public_html
+============================================
+
+MySQL pool created: nurufoun_db

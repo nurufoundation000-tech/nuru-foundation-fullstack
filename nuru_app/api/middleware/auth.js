@@ -1,4 +1,4 @@
-const { prisma } = require('../lib/prisma');
+const jwt = require('jsonwebtoken');
 
 module.exports = {
   async authenticate({ headers }) {
@@ -11,37 +11,34 @@ module.exports = {
 
       const token = authHeader.slice(7);
       
-      // Simple token validation - extract user ID from token
-      // In production, use JWT verification
-      const tokenParts = token.split('_');
-      if (tokenParts.length !== 3 || tokenParts[0] !== 'nuru') {
-        return { user: null, error: 'Invalid token format' };
+      if (!process.env.JWT_SECRET) {
+        console.error('JWT_SECRET environment variable is not set');
+        return { user: null, error: 'Server configuration error' };
       }
 
-      const userId = tokenParts[2];
-      if (!userId) {
-        return { user: null, error: 'Invalid token' };
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      
+      if (!decoded || !decoded.userId) {
+        return { user: null, error: 'Invalid token payload' };
       }
 
-      const user = await prisma.user.findUnique({
-        where: { id: userId },
-        select: { 
-          id: true, 
-          email: true, 
-          name: true, 
-          role: true,
-          createdAt: true,
-          updatedAt: true
-        }
-      });
-
-      if (!user) {
-        return { user: null, error: 'User not found' };
-      }
-
-      return { user, error: null };
+      return {
+        user: {
+          id: decoded.userId,
+          email: decoded.email,
+          role: decoded.role,
+          userId: decoded.userId
+        },
+        error: null
+      };
 
     } catch (error) {
+      if (error.name === 'TokenExpiredError') {
+        return { user: null, error: 'Token expired' };
+      }
+      if (error.name === 'JsonWebTokenError') {
+        return { user: null, error: 'Invalid token' };
+      }
       console.error('Auth middleware error:', error);
       return { user: null, error: 'Authentication failed' };
     }

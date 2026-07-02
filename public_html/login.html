@@ -273,7 +273,7 @@
     <script>
     // Check if user is already logged in
     if (authService.isLoggedIn()) {
-        const user = JSON.parse(sessionStorage.getItem('user') || localStorage.getItem('user') || '{}');
+        const user = JSON.parse(sessionStorage.getItem('user') || '{}');
         const userRole = user.role?.name || user.role;
         
         if (userRole === 'admin') {
@@ -331,7 +331,7 @@
         changeBtn.innerHTML = '<span class="loading"></span>Setting password...';
         
         try {
-            const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+            const token = sessionStorage.getItem('token');
             const response = await fetch('/api/users/set-password', {
                 method: 'PUT',
                 headers: {
@@ -370,7 +370,7 @@
         skipBtn.innerHTML = '<span class="loading"></span>Processing...';
         
         try {
-            const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+            const token = sessionStorage.getItem('token');
             const response = await fetch('/api/users/skip-password-change', {
                 method: 'PUT',
                 headers: {
