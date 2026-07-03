@@ -67,8 +67,6 @@ router.get('/student/course-notes-access/:courseId', authenticateToken, requireR
 
 // ==================== TUTOR DASHBOARD ROUTES ====================
 router.get('/tutor/courses', authenticateToken, requireRole(['tutor', 'admin']), TutorController.getTutorCourses);
-router.post('/tutor/courses', authenticateToken, requireTutor, TutorController.createCourse);
-router.put('/tutor/courses/:id', authenticateToken, requireTutor, TutorController.updateCourse);
 router.get('/tutor/courses/:courseId/lessons', authenticateToken, requireTutor, TutorController.getCourseLessons);
 router.get('/tutor/transactions', authenticateToken, requireTutor, TutorController.getTransactions);
 
@@ -101,6 +99,7 @@ router.get('/tutor/enrollments', authenticateToken, requireTutor, TutorControlle
 router.post('/tutor/enrollments', authenticateToken, requireTutor, TutorController.createTutorEnrollment);
 router.delete('/tutor/enrollments/:id', authenticateToken, requireTutor, TutorController.deleteTutorEnrollment);
 router.get('/tutor/students', authenticateToken, requireTutor, TutorController.getTutorStudents);
+router.get('/tutor/courses/:courseId/notes', authenticateToken, requireTutor, TutorController.getCourseNotes);
 
 // ==================== ADMIN DASHBOARD ROUTES ====================
 router.get('/admin/dashboard/stats', authenticateToken, requireAdmin, AdminController.getDashboardStats);
@@ -112,6 +111,7 @@ router.get('/admin/enrollments', authenticateToken, requireAdmin, AdminControlle
 router.post('/admin/enrollments', authenticateToken, requireAdmin, AdminController.createEnrollment);
 router.get('/admin/students', authenticateToken, requireAdmin, AdminController.getStudents);
 router.get('/admin/courses-list', authenticateToken, requireAdmin, AdminController.getCoursesList);
+router.get('/admin/tutors', authenticateToken, requireAdmin, AdminController.getTutors);
 router.get('/admin/users', authenticateToken, requireAdmin, AdminController.getUsers);
 router.post('/admin/users', authenticateToken, requireAdmin, AdminController.createUser);
 router.put('/admin/users/:id', authenticateToken, requireAdmin, AdminController.updateUser);
@@ -268,6 +268,7 @@ ${invoice.transaction_id ? '<tr><td>Trans. ID</td><td>' + invoice.transaction_id
 });
 
 // ==================== STUDENT ASSIGNMENT ROUTES ====================
+router.get('/student/assignments', authenticateToken, requireRole(['student']), StudentController.getStudentAssignments);
 router.get('/assignments/:id', authenticateToken, requireRole(['student']), StudentController.getAssignment);
 router.post('/assignments/:id/submit', authenticateToken, requireRole(['student']), StudentController.submitAssignment);
 

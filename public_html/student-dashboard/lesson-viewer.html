@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <script>(function(){var t=sessionStorage.getItem('token');if(!t){location.replace('/login.html');return}var x=new XMLHttpRequest();x.open('GET','/api/auth/verify',false);x.setRequestHeader('Authorization','Bearer '+t);try{x.send();if(x.status===401||x.status===403){sessionStorage.removeItem('token');sessionStorage.removeItem('user');location.replace('/login.html')}}catch(e){sessionStorage.removeItem('token');sessionStorage.removeItem('user');location.replace('/login.html')}})();</script>
+    <script src="/scripts/auth-guard.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lesson Viewer - NURU FOUNDATION</title>
@@ -132,16 +132,179 @@
 
         .lesson-video {
             width: 100%;
-            max-width: 800px;
-            height: 450px;
-            border-radius: 10px;
-            margin-bottom: 20px;
+            max-width: 700px;
+            height: 394px;
+            border-radius: 12px;
+            margin: 0 auto 30px;
+            display: block;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
 
         .lesson-text {
+            max-width: 720px;
+            margin: 0 auto;
+            font-size: 1.05rem;
+            line-height: 1.9;
+            color: #374151;
+        }
+
+        .lesson-text p {
+            margin-bottom: 1.5em;
+        }
+
+        .lesson-text h1 {
+            font-size: 2rem;
+            margin: 2rem 0 1rem;
+            color: #1f2937;
+            font-weight: 700;
+            line-height: 1.3;
+        }
+
+        .lesson-text h2 {
+            font-size: 1.5rem;
+            margin: 2rem 0 0.75rem;
+            color: #1f2937;
+            font-weight: 600;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .lesson-text h3 {
+            font-size: 1.25rem;
+            margin: 1.5rem 0 0.5rem;
+            color: #374151;
+            font-weight: 600;
+        }
+
+        .lesson-text img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 12px;
+            margin: 2rem auto;
+            display: block;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .lesson-text img + em {
+            display: block;
+            text-align: center;
+            font-size: 0.9rem;
+            color: #6b7280;
+            margin-top: -1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .lesson-text blockquote {
+            border-left: 4px solid var(--accent-color-1, #38b2ac);
+            padding: 1rem 1.5rem;
+            margin: 1.5rem 0;
+            background: #f0fdf4;
+            border-radius: 0 12px 12px 0;
+            font-style: italic;
+            font-size: 1.1rem;
+            color: #374151;
+        }
+
+        .lesson-text pre {
+            background: #1e293b;
+            color: #e2e8f0;
+            border-radius: 12px;
+            padding: 1.25rem 1.5rem;
+            overflow-x: auto;
+            margin: 1.5rem 0;
+            font-size: 0.9rem;
             line-height: 1.6;
-            color: #333;
-            margin-bottom: 30px;
+            font-family: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+        }
+
+        .lesson-text code {
+            font-family: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+            background: #f1f5f9;
+            color: #e11d48;
+            padding: 0.15em 0.4em;
+            border-radius: 6px;
+            font-size: 0.85em;
+        }
+
+        .lesson-text pre code {
+            background: none;
+            color: inherit;
+            padding: 0;
+            border-radius: 0;
+            font-size: inherit;
+        }
+
+        .lesson-text a {
+            color: var(--primary-color, #6a0572);
+            text-decoration: none;
+            border-bottom: 1px solid transparent;
+            transition: border-color 0.2s;
+        }
+
+        .lesson-text a:hover {
+            border-bottom-color: var(--primary-color, #6a0572);
+        }
+
+        .lesson-text ul, .lesson-text ol {
+            margin: 1rem 0;
+            padding-left: 1.5rem;
+        }
+
+        .lesson-text li {
+            margin-bottom: 0.5rem;
+        }
+
+        .lesson-text ul li::marker {
+            color: var(--accent-color-1, #38b2ac);
+        }
+
+        .lesson-text table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            display: block;
+            overflow-x: auto;
+        }
+
+        .lesson-text th {
+            background: #f8fafc;
+            font-weight: 600;
+            text-align: left;
+            padding: 0.75rem 1rem;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .lesson-text td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .lesson-text tr:nth-child(even) {
+            background: #fafafa;
+        }
+
+        .lesson-text hr {
+            border: none;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent-color-1, #38b2ac), transparent);
+            margin: 2.5rem 0;
+        }
+
+        @keyframes fadeInContent {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .lesson-text {
+            animation: fadeInContent 0.3s ease;
+        }
+
+        .lesson-meta {
+            display: flex;
+            gap: 15px;
+            color: #6c757d;
+            font-size: 0.85rem;
+            margin-bottom: 20px;
         }
 
         .assignments-section {
@@ -394,6 +557,17 @@
         function displayLesson(lesson) {
             document.getElementById('lessonTitle').textContent = lesson.title;
 
+            // Reading time meta
+            let metaDiv = document.querySelector('.lesson-meta');
+            if (!metaDiv) {
+                metaDiv = document.createElement('div');
+                metaDiv.className = 'lesson-meta';
+                document.getElementById('lessonTitle').after(metaDiv);
+            }
+            const wc = lesson.content ? lesson.content.replace(/<[^>]*>/g, '').split(/\s+/).filter(w => w.length).length : 0;
+            const rt = Math.max(1, Math.ceil(wc / 200));
+            metaDiv.innerHTML = `<span><i class="fas fa-book-open"></i> ~${rt} min read</span>`;
+
             const lessonBody = document.getElementById('lessonBody');
             lessonBody.innerHTML = '';
 
@@ -507,10 +681,10 @@
         async function updateProgress() {
             try {
                 const progressData = await getUserProgress();
-                const courseProgress = progressData.find(p => p.courseId == courseId);
+                const courseProgress = (progressData?.data || []).find(p => p.course?.id == courseId);
 
                 if (courseProgress) {
-                    const progressPercent = Math.round(courseProgress.progress * 100);
+                    const progressPercent = Math.min(100, Math.round(courseProgress.progress || 0));
                     document.getElementById('progressFill').style.width = `${progressPercent}%`;
                     document.getElementById('progressText').textContent = `${progressPercent}% Complete`;
                 }
@@ -520,7 +694,8 @@
         }
 
         function updateProgressBar(progress) {
-            const progressPercent = Math.round(progress * 100);
+            const pct = typeof progress === 'number' && progress <= 1 ? Math.round(progress * 100) : Math.round(progress || 0);
+            const progressPercent = Math.min(100, pct);
             document.getElementById('progressFill').style.width = `${progressPercent}%`;
             document.getElementById('progressText').textContent = `${progressPercent}% Complete`;
         }

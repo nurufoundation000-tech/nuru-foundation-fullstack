@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="/scripts/auth-guard.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assignments - NURU FOUNDATION</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Fredoka+One&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="/styles/root.css">
+    <link rel="stylesheet" href="/styles/header.css">
+    <link rel="stylesheet" href="/styles/footer.css">
+    <link rel="stylesheet" href="/styles/dashboard.css">
+    <link rel="stylesheet" href="styles.css">
+    <base href="/">
+    <style>
+        .filter-bar { display:flex; gap:15px; align-items:center; flex-wrap:wrap; margin-bottom:20px; }
+        .filter-bar .search-input { flex:1; min-width:200px; padding:12px 15px; border:2px solid #e9ecef; border-radius:8px; font-size:1rem; }
+        .filter-bar .filter-select { padding:12px 15px; border:2px solid #e9ecef; border-radius:8px; font-size:1rem; min-width:160px; }
+        .assignments-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:20px; }
+        .assignment-card { background:white; border-radius:var(--border-radius-lg); overflow:hidden; box-shadow:var(--shadow-md); transition:transform 0.3s; border-top:4px solid var(--primary-color); }
+        .assignment-card:hover { transform:translateY(-3px); }
+        .assignment-card-header { padding:18px 20px 12px; }
+        .assignment-card-header h3 { margin:0 0 4px; font-size:1rem; color:#2c3e50; }
+        .assignment-card-header .meta { font-size:0.8rem; color:#888; }
+        .assignment-card-body { padding:0 20px 18px; }
+        .assignment-card-body .desc { font-size:0.85rem; color:#666; margin-bottom:12px; display:-webkit-box; -webkit-line-clamp:2; line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+        .status-badge { display:inline-block; padding:4px 12px; border-radius:12px; font-size:0.8rem; font-weight:600; }
+        .status-badge.pending { background:#fef3cd; color:#856404; }
+        .status-badge.submitted { background:#cce5ff; color:#004085; }
+        .status-badge.graded { background:#d4edda; color:#155724; }
+        .assignment-footer { display:flex; justify-content:space-between; align-items:center; padding-top:12px; border-top:1px solid #eee; }
+        .empty-state { text-align:center; padding:60px 20px; background:white; border-radius:var(--border-radius-lg); }
+        .empty-state i { font-size:3rem; color:#ccc; margin-bottom:15px; }
+        .modal { display:none; position:fixed; z-index:1000; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.5); }
+        .modal-content { background:white; margin:5% auto; padding:30px; border-radius:15px; width:90%; max-width:700px; position:relative; max-height:80vh; overflow-y:auto; }
+        .modal-close { position:absolute; top:15px; right:20px; font-size:1.5rem; cursor:pointer; color:#6c757d; }
+        .modal h2 { color:#2c3e50; margin-bottom:5px; }
+        .modal .subtitle { color:#888; font-size:0.9rem; margin-bottom:20px; }
+        .form-group { margin-bottom:15px; }
+        .form-group label { display:block; margin-bottom:5px; font-weight:500; color:#2c3e50; }
+        .form-group textarea { width:100%; padding:12px; border:2px solid #e9ecef; border-radius:8px; font-size:0.9rem; min-height:150px; font-family:monospace; resize:vertical; }
+        .form-group textarea:focus { outline:none; border-color:var(--primary-color); }
+        .submission-history { background:#f8f9fa; padding:15px; border-radius:8px; margin:15px 0; }
+        .submission-history h4 { margin:0 0 10px; font-size:0.95rem; color:#2c3e50; }
+        .submission-history pre { background:#2c3e50; color:#f8f9fa; padding:12px; border-radius:6px; font-size:0.8rem; overflow-x:auto; max-height:200px; }
+        .submission-history .feedback { margin-top:10px; padding:10px; background:#d4edda; border-radius:6px; font-size:0.85rem; }
+        .submission-history .feedback strong { color:#155724; }
+        @media (max-width:600px) {
+            .filter-bar { flex-direction:column; }
+            .filter-bar .search-input { width:100%; }
+            .assignments-grid { grid-template-columns:1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div id="headerContainer"></div>
+    
+    <div class="dashboard-container" style="padding-top: 80px;">
+        <dashboard-sidebar active="assignments"></dashboard-sidebar>
+        
+        <div class="dashboard-main">
+            <page-header title="My Assignments" subtitle="View and submit your assignments" icon="fa-tasks"></page-header>
+            
+            <div class="filter-bar">
+                <input type="text" class="search-input" id="searchInput" placeholder="Search assignments...">
+                <select class="filter-select" id="statusFilter">
+                    <option value="">All Status</option>
+                    <option value="pending">Not Submitted</option>
+                    <option value="submitted">Submitted</option>
+                    <option value="graded">Graded</option>
+                </select>
+            </div>
+            
+            <div id="assignmentsList" class="assignments-grid">
+                <div class="loading"><i class="fas fa-spinner fa-spin"></i> Loading assignments...</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="footerContainer"></div>
+
+    <!-- Submit Modal -->
+    <div id="submitModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeSubmitModal()">&times;</span>
+            <h2 id="modalTitle">Submit Assignment</h2>
+            <p class="subtitle" id="modalCourse">Course</p>
+            <p style="font-size:0.9rem;color:#555;margin-bottom:15px;" id="modalDesc"></p>
+            
+            <div id="existingSubmission" style="display:none;"></div>
+            
+            <div id="submitForm">
+                <div class="form-group">
+                    <label for="codeSubmission">Your Answer / Code</label>
+                    <textarea id="codeSubmission" placeholder="Write your answer or code here..."></textarea>
+                </div>
+                <button class="btn btn-primary" onclick="submitCurrentAssignment()">
+                    <i class="fas fa-paper-plane"></i> Submit
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/scripts/config.js"></script>
+    <script src="/scripts/dashboard.js"></script>
+    <script>
+        let allAssignments = [];
+        let currentAssignmentId = null;
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            await DashboardUtils.loadHeader();
+            await DashboardUtils.loadFooter();
+            if (!DashboardUtils.checkAuth('student')) return;
+            
+            document.getElementById('searchInput').addEventListener('input', filterAssignments);
+            document.getElementById('statusFilter').addEventListener('change', filterAssignments);
+            
+            loadAssignments();
+        });
+
+        async function loadAssignments() {
+            try {
+                const data = await DashboardUtils.fetchAPI('/student/assignments');
+                allAssignments = data.data || [];
+                renderAssignments(allAssignments);
+            } catch (error) {
+                console.error('Error loading assignments:', error);
+                document.getElementById('assignmentsList').innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>Failed to load assignments</p></div>';
+            }
+        }
+
+        function filterAssignments() {
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const status = document.getElementById('statusFilter').value;
+
+            const filtered = allAssignments.filter(a => {
+                const matchSearch = a.title.toLowerCase().includes(search) ||
+                    (a.courseTitle && a.courseTitle.toLowerCase().includes(search)) ||
+                    (a.lessonTitle && a.lessonTitle.toLowerCase().includes(search));
+                let matchStatus = true;
+                if (status === 'pending') matchStatus = !a.submission;
+                else if (status === 'submitted') matchStatus = a.submission && a.submission.grade === null;
+                else if (status === 'graded') matchStatus = a.submission && a.submission.grade !== null;
+                return matchSearch && matchStatus;
+            });
+
+            renderAssignments(filtered);
+        }
+
+        function renderAssignments(assignments) {
+            const container = document.getElementById('assignmentsList');
+
+            if (!assignments || assignments.length === 0) {
+                container.innerHTML = '<div class="empty-state"><i class="fas fa-tasks"></i><h3>No assignments found</h3><p>Assignments from your enrolled courses will appear here</p></div>';
+                return;
+            }
+
+            container.innerHTML = assignments.map(a => {
+                const sub = a.submission;
+                let statusHtml, statusClass;
+                if (!sub) {
+                    statusClass = 'pending';
+                    statusHtml = '<span class="status-badge pending"><i class="fas fa-clock"></i> Not Submitted</span>';
+                } else if (sub.grade === null || sub.grade === undefined) {
+                    statusClass = 'submitted';
+                    statusHtml = '<span class="status-badge submitted"><i class="fas fa-hourglass-half"></i> Submitted — Awaiting Grade</span>';
+                } else {
+                    statusClass = 'graded';
+                    statusHtml = `<span class="status-badge graded"><i class="fas fa-check-circle"></i> Graded: ${sub.grade}/${a.maxScore}</span>`;
+                }
+
+                const borderColors = { pending: '#f39c12', submitted: '#3498db', graded: '#27ae60' };
+                const borderColor = borderColors[statusClass] || '#27ae60';
+
+                return `
+                    <div class="assignment-card" style="border-top-color:${borderColor};">
+                        <div class="assignment-card-header">
+                            <h3>${escapeHtml(a.title)}</h3>
+                            <div class="meta">
+                                <i class="fas fa-book"></i> ${escapeHtml(a.courseTitle || '')}
+                                ${a.lessonTitle ? `&middot; <i class="fas fa-chalkboard"></i> ${escapeHtml(a.lessonTitle)}` : ''}
+                            </div>
+                        </div>
+                        <div class="assignment-card-body">
+                            <div class="desc">${escapeHtml(a.description) || 'No description'}</div>
+                            <div style="margin-bottom:10px;">${statusHtml}</div>
+                            ${sub && sub.submittedAt ? `<small style="color:#888;">Submitted: ${new Date(sub.submittedAt).toLocaleString()}</small>` : ''}
+                            <div class="assignment-footer">
+                                <small style="color:#aaa;">Max score: ${a.maxScore}</small>
+                                <button class="btn btn-primary btn-sm" onclick="openSubmitModal(${a.id})">
+                                    <i class="fas fa-eye"></i> ${sub ? 'View / Resubmit' : 'Submit'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function openSubmitModal(assignmentId) {
+            currentAssignmentId = assignmentId;
+            const a = allAssignments.find(x => x.id === assignmentId);
+            if (!a) return;
+
+            document.getElementById('modalTitle').textContent = a.title;
+            document.getElementById('modalCourse').textContent = a.courseTitle + (a.lessonTitle ? ' — ' + a.lessonTitle : '');
+            document.getElementById('modalDesc').textContent = a.description || 'No description provided.';
+
+            const existingDiv = document.getElementById('existingSubmission');
+            const submitForm = document.getElementById('submitForm');
+            document.getElementById('codeSubmission').value = '';
+
+            if (a.submission) {
+                const s = a.submission;
+                let feedbackHtml = '';
+                if (s.feedback) {
+                    feedbackHtml = `<div class="feedback"><strong>Feedback:</strong> ${escapeHtml(s.feedback)}</div>`;
+                }
+                existingDiv.style.display = 'block';
+                existingDiv.innerHTML = `
+                    <div class="submission-history">
+                        <h4>Your Submission</h4>
+                        <pre>${escapeHtml(s.codeSubmission || 'No code')}</pre>
+                        ${s.grade !== null ? `<p style="margin-top:8px;font-weight:600;color:#155724;">Grade: ${s.grade}/${a.maxScore}</p>` : ''}
+                        ${feedbackHtml}
+                        <small style="color:#888;">Submitted: ${new Date(s.submittedAt).toLocaleString()}</small>
+                    </div>
+                `;
+                if (s.grade !== null) {
+                    submitForm.style.display = 'none';
+                } else {
+                    submitForm.style.display = 'block';
+                }
+            } else {
+                existingDiv.style.display = 'none';
+                submitForm.style.display = 'block';
+            }
+
+            document.getElementById('submitModal').style.display = 'block';
+        }
+
+        function closeSubmitModal() {
+            document.getElementById('submitModal').style.display = 'none';
+            currentAssignmentId = null;
+        }
+
+        async function submitCurrentAssignment() {
+            if (!currentAssignmentId) return;
+            const code = document.getElementById('codeSubmission').value.trim();
+            if (!code) {
+                alert('Please write your answer before submitting.');
+                return;
+            }
+
+            try {
+                const token = sessionStorage.getItem('token');
+                const response = await fetch(`/api/assignments/${currentAssignmentId}/submit`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ codeSubmission: code })
+                });
+
+                if (response.ok) {
+                    alert('Assignment submitted successfully!');
+                    closeSubmitModal();
+                    loadAssignments();
+                } else {
+                    const err = await response.json();
+                    throw new Error(err.message || 'Failed to submit');
+                }
+            } catch (error) {
+                console.error('Submit error:', error);
+                alert(error.message || 'Failed to submit assignment');
+            }
+        }
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('submitModal');
+            if (event.target === modal) closeSubmitModal();
+        };
+    </script>
+<script>function logout(){localStorage.clear();sessionStorage.clear();location.replace('/login.html')}</script>
+</body>
+</html>

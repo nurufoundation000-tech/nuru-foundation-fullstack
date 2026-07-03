@@ -16,6 +16,9 @@ async function getCurrentUser(req, res) {
     }
 
     const { password_hash, ...userWithoutPassword } = user;
+    userWithoutPassword.fullName = userWithoutPassword.full_name;
+    userWithoutPassword.isActive = !!userWithoutPassword.is_active;
+    userWithoutPassword.mustChangePassword = !!userWithoutPassword.must_change_password;
     res.json({ success: true, user: { ...userWithoutPassword, role: role?.name } });
 
   } catch (error) {
@@ -58,6 +61,9 @@ async function updateProfile(req, res) {
 
     const user = await db.getOne('SELECT * FROM users WHERE id = ?', [req.user.userId]);
     const { password_hash, ...userWithoutPassword } = user;
+    userWithoutPassword.fullName = userWithoutPassword.full_name;
+    userWithoutPassword.isActive = !!userWithoutPassword.is_active;
+    userWithoutPassword.mustChangePassword = !!userWithoutPassword.must_change_password;
     res.json({ success: true, user: userWithoutPassword });
 
   } catch (error) {

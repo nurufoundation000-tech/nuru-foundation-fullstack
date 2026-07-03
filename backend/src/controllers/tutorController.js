@@ -1,5 +1,6 @@
 // controllers/tutorController.js - Tutor Dashboard Controller (CommonJS)
 const db = require('../config/database.js');
+const NotificationController = require('./notificationController.js');
 
 async function getTutorCourses(req, res) {
   try {
@@ -8,84 +9,31 @@ async function getTutorCourses(req, res) {
              (SELECT COUNT(*) FROM enrollments WHERE course_id = c.id) as enrollments_count,
              (SELECT COUNT(*) FROM lessons WHERE course_id = c.id) as lessons_count
       FROM courses c
-      WHERE c.tutor_id = ?
+      WHERE c.id IN (SELECT course_id FROM course_tutors WHERE tutor_id = ?)
       ORDER BY c.created_at DESC
     `, [req.user.userId]);
 
-    res.json({ success: true, data: courses });
+    const transformed = courses.map(c => ({
+      id: c.id,
+      title: c.title,
+      description: c.description,
+      category: c.category,
+      level: c.level,
+      isPublished: !!c.is_published,
+      thumbnailUrl: c.thumbnail_url,
+      _count: {
+        lessons: c.lessons_count || 0,
+        enrollments: c.enrollments_count || 0
+      },
+      createdAt: c.created_at,
+      updatedAt: c.updated_at
+    }));
+
+    res.json({ success: true, data: transformed });
 
   } catch (error) {
     console.error('Get tutor courses error:', error);
     res.status(500).json({ error: 'Failed to load tutor courses' });
-  }
-}
-
-async function createCourse(req, res) {
-  try {
-    const { title, description, category, level, isPublished } = req.body;
-
-    if (!title || !description || !category) {
-      return res.status(400).json({ error: 'Title, description, and category are required' });
-    }
-
-    const courseId = await db.insert('courses', {
-      title,
-      description,
-      category,
-      level: level || 'beginner',
-      is_published: isPublished || false,
-      tutor_id: req.user.userId,
-      created_at: new Date()
-    });
-
-    const course = await db.getOne('SELECT * FROM courses WHERE id = ?', [courseId]);
-
-    res.status(201).json({
-      success: true,
-      data: course,
-      message: 'Course created successfully'
-    });
-
-  } catch (error) {
-    console.error('Create course error:', error);
-    res.status(500).json({ error: 'Failed to create course' });
-  }
-}
-
-async function updateCourse(req, res) {
-  try {
-    const courseId = parseInt(req.params.id);
-
-    if (isNaN(courseId)) {
-      return res.status(400).json({ error: 'Invalid course ID' });
-    }
-
-    const { title, description, category, level, isPublished } = req.body;
-
-    const existingCourse = await db.getOne(`
-      SELECT id FROM courses WHERE id = ? AND tutor_id = ?
-    `, [courseId, req.user.userId]);
-
-    if (!existingCourse) {
-      return res.status(404).json({ error: 'Course not found or access denied' });
-    }
-
-    const updateData = { updated_at: new Date() };
-    if (title) updateData.title = title;
-    if (description) updateData.description = description;
-    if (category) updateData.category = category;
-    if (level) updateData.level = level;
-    if (isPublished !== undefined) updateData.is_published = isPublished;
-
-    await db.update('courses', courseId, updateData);
-
-    const course = await db.getOne('SELECT * FROM courses WHERE id = ?', [courseId]);
-
-    res.json({ success: true, data: course, message: 'Course updated successfully' });
-
-  } catch (error) {
-    console.error('Update course error:', error);
-    res.status(500).json({ error: 'Failed to update course' });
   }
 }
 
@@ -98,7 +46,7 @@ async function getCourseLessons(req, res) {
     }
 
     const course = await db.getOne(`
-      SELECT id FROM courses WHERE id = ? AND tutor_id = ?
+      SELECT id FROM courses WHERE id = ? AND id IN (SELECT course_id FROM course_tutors WHERE tutor_id = ?)
     `, [courseId, req.user.userId]);
 
     if (!course) {
@@ -120,7 +68,7 @@ async function getCourseLessons(req, res) {
 async function getTransactions(req, res) {
   try {
     const tutorCourses = await db.query(`
-      SELECT id FROM courses WHERE tutor_id = ?
+      SELECT id FROM courses WHERE id IN (SELECT course_id FROM course_tutors WHERE tutor_id = ?)
     `, [req.user.userId]);
 
     const courseIds = tutorCourses.map(c => c.id);
@@ -139,7 +87,19 @@ async function getTransactions(req, res) {
       ORDER BY i.paid_at DESC
     `, courseIds);
 
-    res.json({ success: true, data: transactions });
+    const transformed = transactions.map(t => ({
+      id: t.id,
+      student: { fullName: t.full_name, username: t.username, email: t.email },
+      course: { title: t.course_title, category: t.category },
+      type: t.type || 'initial',
+      amount: t.amount,
+      status: t.status,
+      mpesaReceipt: t.mpesa_receipt,
+      paidAt: t.paid_at,
+      createdAt: t.created_at
+    }));
+
+    res.json({ success: true, data: transformed });
   } catch (error) {
     console.error('Get tutor transactions error:', error);
     res.status(500).json({ error: 'Failed to get transactions' });
@@ -151,7 +111,7 @@ async function getTransactions(req, res) {
 async function getTutorLessons(req, res) {
   try {
     const tutorCourses = await db.query(
-      'SELECT id FROM courses WHERE tutor_id = ?',
+      'SELECT id FROM courses WHERE id IN (SELECT course_id FROM course_tutors WHERE tutor_id = ?)',
       [req.user.userId]
     );
     const courseIds = tutorCourses.map(c => c.id);
@@ -166,7 +126,7 @@ async function getTutorLessons(req, res) {
     const offset = (page - 1) * limit;
 
     const lessons = await db.query(
-      `SELECT l.*, c.title as course_title, c.id as course_id, c.tutor_id
+      `SELECT l.*, c.title as course_title, c.id as course_id
        FROM lessons l
        JOIN courses c ON l.course_id = c.id
        WHERE l.course_id IN (${placeholders})
@@ -174,6 +134,23 @@ async function getTutorLessons(req, res) {
        LIMIT ? OFFSET ?`,
       [...courseIds, limit, offset]
     );
+
+    // Fetch linked notes for all lessons
+    const lessonIds = lessons.map(l => l.id);
+    let linkedNotesMap = {};
+    if (lessonIds.length > 0) {
+      const notePlaceholders = lessonIds.map(() => '?').join(', ');
+      const linkedNotes = await db.query(
+        `SELECT ln.lesson_id, n.id, n.title FROM lesson_notes ln
+         JOIN course_notes n ON ln.note_id = n.id
+         WHERE ln.lesson_id IN (${notePlaceholders})`,
+        lessonIds
+      );
+      for (const ln of linkedNotes) {
+        if (!linkedNotesMap[ln.lesson_id]) linkedNotesMap[ln.lesson_id] = [];
+        linkedNotesMap[ln.lesson_id].push({ id: ln.id, title: ln.title });
+      }
+    }
 
     // Transform to nested structure expected by frontend
     const transformedLessons = lessons.map(lesson => ({
@@ -183,11 +160,15 @@ async function getTutorLessons(req, res) {
       video_url: lesson.video_url,
       order_index: lesson.order_index,
       liveLink: lesson.live_link || null,
+      sessionDate: lesson.session_date || null,
+      sessionTime: lesson.session_time || null,
+      durationMinutes: lesson.duration_minutes || 60,
       courseId: lesson.course_id,
       course: {
         id: lesson.course_id,
         title: lesson.course_title
       },
+      linkedNotes: linkedNotesMap[lesson.id] || [],
       createdAt: lesson.created_at,
       updatedAt: lesson.updated_at
     }));
@@ -214,14 +195,14 @@ async function getTutorLessons(req, res) {
 
 async function createTutorLesson(req, res) {
   try {
-    const { courseId, title, content, videoUrl, orderIndex, liveLink } = req.body;
+    const { courseId, title, content, videoUrl, orderIndex, liveLink, sessionDate, sessionTime, durationMinutes, noteIds } = req.body;
 
     if (!courseId || !title) {
       return res.status(400).json({ error: 'Course ID and title are required' });
     }
 
     const course = await db.getOne(
-      'SELECT id FROM courses WHERE id = ? AND tutor_id = ?',
+      'SELECT id FROM courses WHERE id = ? AND id IN (SELECT course_id FROM course_tutors WHERE tutor_id = ?)',
       [courseId, req.user.userId]
     );
 
@@ -236,9 +217,37 @@ async function createTutorLesson(req, res) {
       video_url: videoUrl || null,
       order_index: orderIndex || 0,
       live_link: liveLink || null,
+      session_date: sessionDate || null,
+      session_time: sessionTime || null,
+      duration_minutes: durationMinutes || 60,
       created_at: new Date(),
       updated_at: new Date()
     });
+
+    // Insert linked notes
+    if (noteIds && Array.isArray(noteIds) && noteIds.length > 0) {
+      for (const noteId of noteIds) {
+        await db.query('INSERT IGNORE INTO lesson_notes (lesson_id, note_id) VALUES (?, ?)', [lessonId, noteId]);
+      }
+    }
+
+    // Create notifications if lesson is scheduled
+    if (sessionDate) {
+      const enrollments = await db.query(
+        'SELECT student_id FROM enrollments WHERE course_id = ?',
+        [courseId]
+      );
+      const timeStr = sessionTime ? sessionTime.slice(0, 5) : '';
+      for (const enrollment of enrollments) {
+        await NotificationController.createNotification(
+          enrollment.student_id,
+          'New Lesson Scheduled',
+          `${title} — ${sessionDate}${timeStr ? ' at ' + timeStr : ''}`,
+          'info',
+          '/student-dashboard/live-sessions.html'
+        );
+      }
+    }
 
     const lesson = await db.getOne('SELECT * FROM lessons WHERE id = ?', [lessonId]);
 
@@ -257,12 +266,12 @@ async function updateTutorLesson(req, res) {
       return res.status(400).json({ error: 'Invalid lesson ID' });
     }
 
-    const { title, content, videoUrl, orderIndex, liveLink } = req.body;
+    const { title, content, videoUrl, orderIndex, liveLink, sessionDate, sessionTime, durationMinutes, noteIds } = req.body;
 
     const lesson = await db.getOne(
       `SELECT l.* FROM lessons l
        JOIN courses c ON l.course_id = c.id
-       WHERE l.id = ? AND c.tutor_id = ?`,
+       WHERE l.id = ? AND c.id IN (SELECT course_id FROM course_tutors WHERE tutor_id = ?)`,
       [lessonId, req.user.userId]
     );
 
@@ -276,8 +285,21 @@ async function updateTutorLesson(req, res) {
     if (videoUrl !== undefined) updateData.video_url = videoUrl;
     if (orderIndex !== undefined) updateData.order_index = orderIndex;
     if (liveLink !== undefined) updateData.live_link = liveLink;
+    if (sessionDate !== undefined) updateData.session_date = sessionDate;
+    if (sessionTime !== undefined) updateData.session_time = sessionTime;
+    if (durationMinutes !== undefined) updateData.duration_minutes = durationMinutes;
 
     await db.update('lessons', lessonId, updateData);
+
+    // Sync linked notes (replace all)
+    if (noteIds !== undefined) {
+      await db.query('DELETE FROM lesson_notes WHERE lesson_id = ?', [lessonId]);
+      if (Array.isArray(noteIds) && noteIds.length > 0) {
+        for (const noteId of noteIds) {
+          await db.query('INSERT IGNORE INTO lesson_notes (lesson_id, note_id) VALUES (?, ?)', [lessonId, noteId]);
+        }
+      }
+    }
 
     const updatedLesson = await db.getOne('SELECT * FROM lessons WHERE id = ?', [lessonId]);
 
@@ -299,7 +321,7 @@ async function deleteTutorLesson(req, res) {
     const lesson = await db.getOne(
       `SELECT l.* FROM lessons l
        JOIN courses c ON l.course_id = c.id
-       WHERE l.id = ? AND c.tutor_id = ?`,
+       WHERE l.id = ? AND c.id IN (SELECT course_id FROM course_tutors WHERE tutor_id = ?)`,
       [lessonId, req.user.userId]
     );
 
@@ -321,7 +343,7 @@ async function deleteTutorLesson(req, res) {
 async function getTutorAssignments(req, res) {
   try {
     const tutorCourses = await db.query(
-      'SELECT id FROM courses WHERE tutor_id = ?',
+      'SELECT id FROM courses WHERE id IN (SELECT course_id FROM course_tutors WHERE tutor_id = ?)',
       [req.user.userId]
     );
     const courseIds = tutorCourses.map(c => c.id);
@@ -397,7 +419,7 @@ async function createTutorAssignment(req, res) {
     const lesson = await db.getOne(
       `SELECT l.* FROM lessons l
        JOIN courses c ON l.course_id = c.id
-       WHERE l.id = ? AND c.tutor_id = ?`,
+       WHERE l.id = ? AND c.id IN (SELECT course_id FROM course_tutors WHERE tutor_id = ?)`,
       [lessonId, req.user.userId]
     );
 
@@ -437,7 +459,7 @@ async function updateTutorAssignment(req, res) {
       `SELECT a.* FROM assignments a
        JOIN lessons l ON a.lesson_id = l.id
        JOIN courses c ON l.course_id = c.id
-       WHERE a.id = ? AND c.tutor_id = ?`,
+       WHERE a.id = ? AND c.id IN (SELECT course_id FROM course_tutors WHERE tutor_id = ?)`,
       [assignmentId, req.user.userId]
     );
 
@@ -473,7 +495,7 @@ async function deleteTutorAssignment(req, res) {
       `SELECT a.* FROM assignments a
        JOIN lessons l ON a.lesson_id = l.id
        JOIN courses c ON l.course_id = c.id
-       WHERE a.id = ? AND c.tutor_id = ?`,
+       WHERE a.id = ? AND c.id IN (SELECT course_id FROM course_tutors WHERE tutor_id = ?)`,
       [assignmentId, req.user.userId]
     );
 
@@ -495,7 +517,7 @@ async function deleteTutorAssignment(req, res) {
 async function getTutorSubmissions(req, res) {
   try {
     const tutorCourses = await db.query(
-      'SELECT id FROM courses WHERE tutor_id = ?',
+      'SELECT id FROM courses WHERE id IN (SELECT course_id FROM course_tutors WHERE tutor_id = ?)',
       [req.user.userId]
     );
     const courseIds = tutorCourses.map(c => c.id);
@@ -593,7 +615,7 @@ async function gradeSubmission(req, res) {
        JOIN assignments a ON s.assignment_id = a.id
        JOIN lessons l ON a.lesson_id = l.id
        JOIN courses c ON l.course_id = c.id
-       WHERE s.id = ? AND c.tutor_id = ?`,
+       WHERE s.id = ? AND c.id IN (SELECT course_id FROM course_tutors WHERE tutor_id = ?)`,
       [submissionId, req.user.userId]
     );
 
@@ -621,7 +643,7 @@ async function gradeSubmission(req, res) {
 async function getTutorNotes(req, res) {
   try {
     const tutorCourses = await db.query(
-      'SELECT id FROM courses WHERE tutor_id = ?',
+      'SELECT id FROM courses WHERE id IN (SELECT course_id FROM course_tutors WHERE tutor_id = ?)',
       [req.user.userId]
     );
     const courseIds = tutorCourses.map(c => c.id);
@@ -689,7 +711,7 @@ async function createTutorNote(req, res) {
     }
 
     const course = await db.getOne(
-      'SELECT id FROM courses WHERE id = ? AND tutor_id = ?',
+      'SELECT id FROM courses WHERE id = ? AND id IN (SELECT course_id FROM course_tutors WHERE tutor_id = ?)',
       [courseId, req.user.userId]
     );
 
@@ -729,7 +751,7 @@ async function updateTutorNote(req, res) {
     const note = await db.getOne(
       `SELECT n.* FROM course_notes n
        JOIN courses c ON n.course_id = c.id
-       WHERE n.id = ? AND c.tutor_id = ?`,
+       WHERE n.id = ? AND c.id IN (SELECT course_id FROM course_tutors WHERE tutor_id = ?)`,
       [noteId, req.user.userId]
     );
 
@@ -765,7 +787,7 @@ async function deleteTutorNote(req, res) {
     const note = await db.getOne(
       `SELECT n.* FROM course_notes n
        JOIN courses c ON n.course_id = c.id
-       WHERE n.id = ? AND c.tutor_id = ?`,
+       WHERE n.id = ? AND c.id IN (SELECT course_id FROM course_tutors WHERE tutor_id = ?)`,
       [noteId, req.user.userId]
     );
 
@@ -803,7 +825,7 @@ async function getTutorStudents(req, res) {
 async function getTutorEnrollments(req, res) {
   try {
     const tutorCourses = await db.query(
-      'SELECT id FROM courses WHERE tutor_id = ?',
+      'SELECT id FROM courses WHERE id IN (SELECT course_id FROM course_tutors WHERE tutor_id = ?)',
       [req.user.userId]
     );
     const courseIds = tutorCourses.map(c => c.id);
@@ -875,7 +897,7 @@ async function createTutorEnrollment(req, res) {
     }
 
     const course = await db.getOne(
-      'SELECT id FROM courses WHERE id = ? AND tutor_id = ?',
+      'SELECT id FROM courses WHERE id = ? AND id IN (SELECT course_id FROM course_tutors WHERE tutor_id = ?)',
       [courseId, req.user.userId]
     );
 
@@ -899,7 +921,7 @@ async function createTutorEnrollment(req, res) {
     });
 
     const enrollment = await db.getOne(
-      `SELECT e.*, u.full_name, u.email, c.title as course_title
+      `SELECT e.*, u.full_name, u.username, u.email, c.title as course_title
        FROM enrollments e
        JOIN users u ON e.student_id = u.id
        JOIN courses c ON e.course_id = c.id
@@ -907,7 +929,14 @@ async function createTutorEnrollment(req, res) {
       [enrollmentId]
     );
 
-    res.status(201).json({ success: true, data: enrollment, message: 'Student enrolled successfully' });
+    const transformed = {
+      id: enrollment.id,
+      student: { fullName: enrollment.full_name, username: enrollment.username, email: enrollment.email },
+      course: { title: enrollment.course_title },
+      enrolledAt: enrollment.enrolled_at
+    };
+
+    res.status(201).json({ success: true, data: transformed, message: 'Student enrolled successfully' });
   } catch (error) {
     console.error('Create enrollment error:', error);
     res.status(500).json({ error: 'Failed to enroll student' });
@@ -925,7 +954,7 @@ async function deleteTutorEnrollment(req, res) {
     const enrollment = await db.getOne(
       `SELECT e.* FROM enrollments e
        JOIN courses c ON e.course_id = c.id
-       WHERE e.id = ? AND c.tutor_id = ?`,
+       WHERE e.id = ? AND c.id IN (SELECT course_id FROM course_tutors WHERE tutor_id = ?)`,
       [enrollmentId, req.user.userId]
     );
 
@@ -949,7 +978,10 @@ async function reorderNotes(req, res) {
       return res.status(400).json({ error: 'items array is required' });
     }
 
-    const tutorCourses = await db.query('SELECT id FROM courses WHERE tutor_id = ?', [req.user.userId]);
+    const tutorCourses = await db.query(
+      'SELECT id FROM courses WHERE id IN (SELECT course_id FROM course_tutors WHERE tutor_id = ?)',
+      [req.user.userId]
+    );
     const courseIds = tutorCourses.map(c => c.id);
     if (courseIds.length === 0) {
       return res.status(403).json({ error: 'No courses found' });
@@ -981,7 +1013,10 @@ async function reorderLessons(req, res) {
       return res.status(400).json({ error: 'items array is required' });
     }
 
-    const tutorCourses = await db.query('SELECT id FROM courses WHERE tutor_id = ?', [req.user.userId]);
+    const tutorCourses = await db.query(
+      'SELECT id FROM courses WHERE id IN (SELECT course_id FROM course_tutors WHERE tutor_id = ?)',
+      [req.user.userId]
+    );
     const courseIds = tutorCourses.map(c => c.id);
     if (courseIds.length === 0) {
       return res.status(403).json({ error: 'No courses found' });
@@ -1006,10 +1041,37 @@ async function reorderLessons(req, res) {
   }
 }
 
+async function getCourseNotes(req, res) {
+  try {
+    const courseId = parseInt(req.params.courseId);
+
+    if (isNaN(courseId)) {
+      return res.status(400).json({ error: 'Invalid course ID' });
+    }
+
+    const course = await db.getOne(
+      'SELECT id FROM courses WHERE id = ? AND id IN (SELECT course_id FROM course_tutors WHERE tutor_id = ?)',
+      [courseId, req.user.userId]
+    );
+
+    if (!course) {
+      return res.status(403).json({ error: 'Course not found or access denied' });
+    }
+
+    const notes = await db.query(
+      `SELECT id, title, order_index FROM course_notes WHERE course_id = ? ORDER BY order_index ASC, title ASC`,
+      [courseId]
+    );
+
+    res.json({ success: true, data: notes });
+  } catch (error) {
+    console.error('Get course notes error:', error);
+    res.status(500).json({ error: 'Failed to load course notes' });
+  }
+}
+
 module.exports = {
   getTutorCourses,
-  createCourse,
-  updateCourse,
   getCourseLessons,
   getTransactions,
   getTutorLessons,
@@ -1031,5 +1093,6 @@ module.exports = {
   createTutorEnrollment,
   deleteTutorEnrollment,
   reorderNotes,
-  reorderLessons
+  reorderLessons,
+  getCourseNotes
 };

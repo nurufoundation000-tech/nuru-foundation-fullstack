@@ -86,8 +86,11 @@ if (fs.existsSync(publicHtmlPath)) {
       if (/\.(jpg|jpeg|png|webp|gif|svg|ico)$/i.test(filePath)) {
         res.setHeader('Cache-Control', 'public, max-age=86400');
       }
-      if (/\.(css|js)$/i.test(filePath)) {
+      if (/\.(css)$/i.test(filePath)) {
         res.setHeader('Cache-Control', 'public, max-age=3600');
+      }
+      if (/\.(js)$/i.test(filePath)) {
+        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
       }
     }
   }));

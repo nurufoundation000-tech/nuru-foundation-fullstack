@@ -4,19 +4,48 @@ async function getUpcomingSessions(req, res) {
   try {
     const studentId = req.user.userId;
     const sessions = await db.query(`
-      SELECT ls.*, c.title as course_title
-      FROM live_sessions ls
-      JOIN courses c ON ls.course_id = c.id
-      WHERE ls.session_date >= CURDATE()
-      ORDER BY ls.session_date ASC, ls.session_time ASC
+      SELECT l.*, c.title as course_title
+      FROM lessons l
+      JOIN courses c ON l.course_id = c.id
+      JOIN enrollments e ON e.course_id = l.course_id AND e.student_id = ?
+      WHERE l.session_date >= CURDATE()
+      ORDER BY l.session_date ASC, l.session_time ASC
       LIMIT 50
-    `);
+    `, [studentId]);
 
-    res.json({ success: true, data: sessions });
+    const enriched = sessions.map(s => ({
+      id: s.id,
+      lesson_id: s.id,
+      title: s.title,
+      course_title: s.course_title,
+      session_date: s.session_date,
+      session_time: s.session_time,
+      duration_minutes: s.duration_minutes || 60,
+      description: s.content ? s.content.substring(0, 200) : null,
+      meeting_link: s.live_link || null,
+      startingSoon: s.session_date === getTodayDate() && isWithinNextHour(s.session_time)
+    }));
+
+    res.json({ success: true, data: enriched });
   } catch (error) {
     console.error('Get upcoming sessions error:', error);
     res.status(500).json({ error: 'Failed to load sessions' });
   }
+}
+
+function getTodayDate() {
+  const d = new Date();
+  return d.toISOString().split('T')[0];
+}
+
+function isWithinNextHour(timeStr) {
+  if (!timeStr) return false;
+  const now = new Date();
+  const [h, m] = timeStr.split(':').map(Number);
+  const sessionTime = new Date();
+  sessionTime.setHours(h, m, 0);
+  const diffMs = sessionTime - now;
+  return diffMs > 0 && diffMs <= 3600000; // within next 60 minutes
 }
 
 async function getCourseSessions(req, res) {
@@ -102,7 +131,7 @@ async function getTutorSessions(req, res) {
       SELECT ls.*, c.title as course_title
       FROM live_sessions ls
       JOIN courses c ON ls.course_id = c.id
-      WHERE ls.created_by = ? OR c.tutor_id = ?
+      WHERE ls.created_by = ? OR c.id IN (SELECT course_id FROM course_tutors WHERE tutor_id = ?)
       ORDER BY ls.session_date DESC, ls.session_time DESC
     `, [tutorId, tutorId]);
 

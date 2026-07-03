@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <script>(function(){var t=sessionStorage.getItem('token');if(!t){location.replace('/login.html');return}var x=new XMLHttpRequest();x.open('GET','/api/auth/verify',false);x.setRequestHeader('Authorization','Bearer '+t);try{x.send();if(x.status===401||x.status===403){sessionStorage.removeItem('token');sessionStorage.removeItem('user');location.replace('/login.html')}}catch(e){sessionStorage.removeItem('token');sessionStorage.removeItem('user');location.replace('/login.html')}})();</script>
+    <script src="/scripts/auth-guard.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Transactions - NURU Tutor</title>

@@ -89,7 +89,7 @@ class AdminPanel {
 
             // Filter to only show tutor's own courses
             const allCourses = await response.json();
-            this.courses = allCourses.filter(course => course.tutorId === this.getCurrentUserId());
+            this.courses = allCourses.filter(course => course.tutorIds?.includes(this.getCurrentUserId()));
 
             this.renderCourses();
         } catch (error) {

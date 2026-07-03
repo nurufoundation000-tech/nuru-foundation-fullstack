@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <script>(function(){var t=sessionStorage.getItem('token');if(!t){location.replace('/login.html');return}var x=new XMLHttpRequest();x.open('GET','/api/auth/verify',false);x.setRequestHeader('Authorization','Bearer '+t);try{x.send();if(x.status===401||x.status===403){sessionStorage.removeItem('token');sessionStorage.removeItem('user');location.replace('/login.html')}}catch(e){sessionStorage.removeItem('token');sessionStorage.removeItem('user');location.replace('/login.html')}})();</script>
+    <script src="/scripts/auth-guard.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lessons - Tutor Dashboard</title>
@@ -10,498 +10,124 @@
     <link rel="stylesheet" href="../styles/root.css">
     <link rel="stylesheet" href="../styles/header.css">
     <link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
+    <script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Poppins', sans-serif; background: #f8f9fa; color: #333; }
+        .tutor-container { display: flex; min-height: 100vh; }
+        .tutor-sidebar { width: 260px; background: linear-gradient(135deg, #27ae60, #2ecc71); color: white; padding: 20px 0; position: fixed; height: 100vh; overflow-y: auto; }
+        .tutor-brand { padding: 0 20px 20px; border-bottom: 1px solid #4a8b5c; margin-bottom: 20px; }
+        .tutor-brand h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 5px; }
+        .tutor-brand p { font-size: 0.9rem; opacity: 0.8; }
+        .tutor-nav { list-style: none; padding: 0 10px; }
+        .tutor-nav li { margin-bottom: 5px; }
+        .tutor-nav a { display: flex; align-items: center; padding: 12px 15px; color: #ecf0f1; text-decoration: none; border-radius: 8px; transition: all 0.3s ease; }
+        .tutor-nav a:hover, .tutor-nav a.active { background: rgba(255,255,255,0.1); color: white; }
+        .tutor-nav i { width: 20px; margin-right: 10px; font-size: 1.1rem; }
+        .tutor-main { flex: 1; margin-left: 260px; padding: 20px; }
+        .tutor-header { background: white; padding: 25px 30px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; }
+        .tutor-header h1 { color: #27ae60; font-size: 2rem; margin-bottom: 0; }
+        .header-actions { display: flex; gap: 15px; }
+        .btn { padding: 10px 20px; border: none; border-radius: 8px; font-size: 0.9rem; font-weight: 500; cursor: pointer; transition: all 0.3s ease; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; }
+        .btn-primary { background: var(--primary-color); color: white; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        .btn-secondary { background: #6c757d; color: white; }
+        .btn-secondary:hover { background: #5a6268; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-success:hover { background: #218838; }
+        .btn-info { background: #17a2b8; color: white; }
+        .btn-info:hover { background: #138496; }
 
-        body {
-            font-family: 'Poppins', sans-serif;
-            background: #f8f9fa;
-            color: #333;
-        }
+        .filters-section { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .filters-row { display: flex; gap: 15px; align-items: center; flex-wrap: wrap; }
+        .search-box { flex: 1; min-width: 250px; position: relative; }
+        .search-box input { width: 100%; padding: 12px 45px 12px 15px; border: 2px solid #e9ecef; border-radius: 8px; font-size: 1rem; transition: border-color 0.3s ease; }
+        .search-box input:focus { outline: none; border-color: var(--primary-color); }
+        .search-box i { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: #6c757d; }
+        .filter-select { padding: 12px 15px; border: 2px solid #e9ecef; border-radius: 8px; font-size: 1rem; min-width: 150px; }
 
-        .tutor-container {
-            display: flex;
-            min-height: 100vh;
-        }
+        .lessons-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 20px; }
+        .lesson-card { background: white; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); overflow: hidden; transition: transform 0.3s ease, box-shadow 0.3s ease; }
+        .lesson-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.15); }
+        .lesson-header { background: linear-gradient(135deg, #3498db, #2980b9); color: white; padding: 20px; display: flex; align-items: center; gap: 15px; }
+        .lesson-icon { font-size: 2rem; opacity: 0.9; }
+        .lesson-title-info h3 { margin: 0; font-size: 1.2rem; font-weight: 600; }
+        .lesson-course { margin: 0; font-size: 0.9rem; opacity: 0.8; }
+        .lesson-content { padding: 20px; }
+        .lesson-description { color: #7f8c8d; margin-bottom: 15px; display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .lesson-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; font-size: 0.9rem; color: #6c757d; }
+        .lesson-stats { display: flex; gap: 15px; }
+        .stat-item { display: flex; align-items: center; gap: 5px; }
+        .lesson-actions { display: flex; gap: 10px; }
+        .action-btn { padding: 8px 12px; border: none; border-radius: 6px; font-size: 0.8rem; font-weight: 500; cursor: pointer; transition: all 0.3s ease; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; }
+        .btn-view { background: #3498db; color: white; }
+        .btn-view:hover { background: #2980b9; }
+        .btn-edit { background: #f39c12; color: white; }
+        .btn-edit:hover { background: #e67e22; }
+        .btn-delete { background: #e74c3c; color: white; }
+        .btn-delete:hover { background: #c0392b; }
 
-        /* Sidebar */
-        .tutor-sidebar {
-            width: 260px;
-            background: linear-gradient(135deg, #27ae60, #2ecc71);
-            color: white;
-            padding: 20px 0;
-            position: fixed;
-            height: 100vh;
-            overflow-y: auto;
-        }
+        .pagination { display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: 30px; }
+        .pagination-btn { padding: 10px 15px; border: 2px solid #e9ecef; background: white; color: #6c757d; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; }
+        .pagination-btn:hover, .pagination-btn.active { border-color: var(--primary-color); color: var(--primary-color); }
+        .pagination-info { color: #6c757d; font-size: 0.9rem; }
 
-        .tutor-brand {
-            padding: 0 20px 20px;
-            border-bottom: 1px solid #4a8b5c;
-            margin-bottom: 20px;
-        }
+        /* Editor view */
+        .editor-view { display: none; }
+        .editor-view.active { display: block; }
+        .list-view { display: block; }
+        .list-view.hidden { display: none; }
 
-        .tutor-brand h1 {
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin-bottom: 5px;
-        }
+        .editor-header { background: white; padding: 20px 30px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+        .editor-header h2 { color: #2c3e50; font-size: 1.5rem; }
+        .editor-header-actions { display: flex; gap: 10px; }
 
-        .tutor-brand p {
-            font-size: 0.9rem;
-            opacity: 0.8;
-        }
+        .editor-panel { background: white; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); padding: 30px; margin-bottom: 20px; }
 
-        .tutor-nav {
-            list-style: none;
-            padding: 0 10px;
-        }
+        .editor-title-input { width: 100%; font-size: 1.8rem; font-weight: 700; padding: 15px 0; border: none; border-bottom: 2px solid #e9ecef; margin-bottom: 20px; outline: none; transition: border-color 0.3s ease; font-family: 'Poppins', sans-serif; }
+        .editor-title-input:focus { border-bottom-color: var(--primary-color); }
 
-        .tutor-nav li {
-            margin-bottom: 5px;
-        }
+        #lessonQuillEditor { height: 500px; margin-bottom: 20px; }
 
-        .tutor-nav a {
-            display: flex;
-            align-items: center;
-            padding: 12px 15px;
-            color: #ecf0f1;
-            text-decoration: none;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-        }
+        .editor-meta-row { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 20px; }
+        .editor-meta-row .form-group { flex: 1; min-width: 200px; }
+        .editor-meta-row .form-group-small { flex: 0 0 150px; }
+        .editor-meta-row label { display: block; margin-bottom: 5px; font-weight: 500; color: #2c3e50; }
+        .editor-meta-row select, .editor-meta-row input { width: 100%; padding: 12px; border: 2px solid #e9ecef; border-radius: 8px; font-size: 1rem; }
+        .editor-meta-row select:focus, .editor-meta-row input:focus { outline: none; border-color: var(--primary-color); }
 
-        .tutor-nav a:hover,
-        .tutor-nav a.active {
-            background: rgba(255,255,255,0.1);
-            color: white;
-        }
+        .editor-actions { display: flex; gap: 15px; justify-content: flex-end; margin-top: 20px; padding-top: 20px; border-top: 1px solid #e9ecef; }
 
-        .tutor-nav i {
-            width: 20px;
-            margin-right: 10px;
-            font-size: 1.1rem;
-        }
-
-        /* Main Content */
-        .tutor-main {
-            flex: 1;
-            margin-left: 260px;
-            padding: 20px;
-        }
-
-        .tutor-header {
-            background: white;
-            padding: 25px 30px;
-            border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            margin-bottom: 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .tutor-header h1 {
-            color: #27ae60;
-            font-size: 2rem;
-            margin-bottom: 0;
-        }
-
-        .header-actions {
-            display: flex;
-            gap: 15px;
-        }
-
-        .btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .btn-primary {
-            background: var(--primary-color);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        }
-
-        .btn-secondary {
-            background: #6c757d;
-            color: white;
-        }
-
-        .btn-secondary:hover {
-            background: #5a6268;
-        }
-
-        /* Filters and Search */
-        .filters-section {
-            background: white;
-            padding: 20px;
-            border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-        }
-
-        .filters-row {
-            display: flex;
-            gap: 15px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-
-        .search-box {
-            flex: 1;
-            min-width: 250px;
-            position: relative;
-        }
-
-        .search-box input {
-            width: 100%;
-            padding: 12px 45px 12px 15px;
-            border: 2px solid #e9ecef;
-            border-radius: 8px;
-            font-size: 1rem;
-            transition: border-color 0.3s ease;
-        }
-
-        .search-box input:focus {
-            outline: none;
-            border-color: var(--primary-color);
-        }
-
-        .search-box i {
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #6c757d;
-        }
-
-        .filter-select {
-            padding: 12px 15px;
-            border: 2px solid #e9ecef;
-            border-radius: 8px;
-            font-size: 1rem;
-            min-width: 150px;
-        }
-
-        /* Lessons Grid */
-        .lessons-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-            gap: 20px;
-        }
-
-        .lesson-card {
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            overflow: hidden;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .lesson-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-        }
-
-        .lesson-header {
-            background: linear-gradient(135deg, #3498db, #2980b9);
-            color: white;
-            padding: 20px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .lesson-icon {
-            font-size: 2rem;
-            opacity: 0.9;
-        }
-
-        .lesson-title-info h3 {
-            margin: 0;
-            font-size: 1.2rem;
-            font-weight: 600;
-        }
-
-        .lesson-course {
-            margin: 0;
-            font-size: 0.9rem;
-            opacity: 0.8;
-        }
-
-        .lesson-content {
-            padding: 20px;
-        }
-
-        .lesson-description {
-            color: #7f8c8d;
-            margin-bottom: 15px;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-
-        .lesson-meta {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            font-size: 0.9rem;
-            color: #6c757d;
-        }
-
-        .lesson-stats {
-            display: flex;
-            gap: 15px;
-        }
-
-        .stat-item {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .lesson-actions {
-            display: flex;
-            gap: 10px;
-        }
-
-        .action-btn {
-            padding: 8px 12px;
-            border: none;
-            border-radius: 6px;
-            font-size: 0.8rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .btn-view {
-            background: #3498db;
-            color: white;
-        }
-
-        .btn-view:hover {
-            background: #2980b9;
-        }
-
-        .btn-edit {
-            background: #f39c12;
-            color: white;
-        }
-
-        .btn-edit:hover {
-            background: #e67e22;
-        }
-
-        .btn-delete {
-            background: #e74c3c;
-            color: white;
-        }
-
-        .btn-delete:hover {
-            background: #c0392b;
-        }
-
-        /* Pagination */
-        .pagination {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 10px;
-            margin-top: 30px;
-        }
-
-        .pagination-btn {
-            padding: 10px 15px;
-            border: 2px solid #e9ecef;
-            background: white;
-            color: #6c757d;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .pagination-btn:hover,
-        .pagination-btn.active {
-            border-color: var(--primary-color);
-            color: var(--primary-color);
-        }
-
-        .pagination-info {
-            color: #6c757d;
-            font-size: 0.9rem;
-        }
-
-        /* Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-        }
-
-        .modal-content {
-            background: white;
-            margin: 5% auto;
-            padding: 30px;
-            border-radius: 15px;
-            width: 90%;
-            max-width: 600px;
-            position: relative;
-        }
-
-        .modal-close {
-            position: absolute;
-            top: 15px;
-            right: 20px;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: #6c757d;
-        }
-
-        .modal h2 {
-            color: #2c3e50;
-            margin-bottom: 20px;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 500;
-            color: #2c3e50;
-        }
-
-        .form-group input,
-        .form-group textarea,
-        .form-group select {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e9ecef;
-            border-radius: 8px;
-            font-size: 1rem;
-            transition: border-color 0.3s ease;
-        }
-
-        .form-group input:focus,
-        .form-group textarea:focus,
-        .form-group select:focus {
-            outline: none;
-            border-color: var(--primary-color);
-        }
-
-        .form-group textarea {
-            resize: vertical;
-            min-height: 100px;
-        }
-
-        #lessonQuillEditor { height: 250px; margin-bottom: 20px; }
-
-        .preview-modal .modal-content { max-width: 800px; }
+        /* Preview Modal */
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); }
+        .modal-content { background: white; margin: 5% auto; padding: 30px; border-radius: 15px; width: 90%; max-width: 800px; position: relative; }
+        .modal-close { position: absolute; top: 15px; right: 20px; font-size: 1.5rem; cursor: pointer; color: #6c757d; }
+        .modal h2 { color: #2c3e50; margin-bottom: 20px; }
         .preview-content { padding: 20px; line-height: 1.8; max-height: 70vh; overflow-y: auto; }
         .preview-content img { max-width: 100%; }
         .preview-content iframe { max-width: 100%; border-radius: 8px; }
         .preview-content blockquote { border-left: 4px solid #3498db; padding-left: 20px; color: #555; }
         .preview-content pre { background: #f8f9fa; padding: 15px; border-radius: 8px; overflow-x: auto; }
         .preview-content code { background: #f0f0f0; padding: 2px 6px; border-radius: 4px; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: 500; color: #2c3e50; }
+        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 12px; border: 2px solid #e9ecef; border-radius: 8px; font-size: 1rem; }
 
-        .modal-actions {
-            display: flex;
-            gap: 15px;
-            justify-content: flex-end;
-            margin-top: 30px;
-        }
+        .loading { text-align: center; padding: 60px 20px; color: #7f8c8d; }
+        .empty-state { text-align: center; padding: 60px 20px; color: #7f8c8d; }
+        .empty-state i { font-size: 4rem; margin-bottom: 20px; opacity: 0.5; }
 
-        /* Loading and Empty States */
-        .loading {
-            text-align: center;
-            padding: 60px 20px;
-            color: #7f8c8d;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            color: #7f8c8d;
-        }
-
-        .empty-state i {
-            font-size: 4rem;
-            margin-bottom: 20px;
-            opacity: 0.5;
-        }
-
-        /* Responsive */
         @media (max-width: 768px) {
-            .tutor-container {
-                flex-direction: column;
-            }
-
-            .tutor-sidebar {
-                width: 100%;
-                height: auto;
-                position: relative;
-            }
-
-            .tutor-main {
-                margin-left: 0;
-            }
-
-            .tutor-header {
-                flex-direction: column;
-                gap: 15px;
-                text-align: center;
-            }
-
-            .filters-row {
-                flex-direction: column;
-                align-items: stretch;
-            }
-
-            .lessons-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .lesson-actions {
-                flex-direction: column;
-            }
-
-            .modal-content {
-                margin: 10% auto;
-                width: 95%;
-            }
+            .tutor-container { flex-direction: column; }
+            .tutor-sidebar { width: 100%; height: auto; position: relative; }
+            .tutor-main { margin-left: 0; }
+            .tutor-header { flex-direction: column; gap: 15px; text-align: center; }
+            .filters-row { flex-direction: column; align-items: stretch; }
+            .lessons-grid { grid-template-columns: 1fr; }
+            .lesson-actions { flex-direction: column; }
+            .editor-title-input { font-size: 1.3rem; }
+            .editor-meta-row { flex-direction: column; }
+            #lessonQuillEditor { height: 350px; }
         }
     </style>
 </head>
@@ -527,90 +153,114 @@
 
         <!-- Main Content -->
         <main class="tutor-main">
-            <div class="tutor-header">
-                <h1>Course Lessons</h1>
-                <div class="header-actions">
-                    <button class="btn btn-secondary" onclick="refreshLessons()">
-                        <i class="fas fa-sync-alt"></i> Refresh
-                    </button>
-                    <button class="btn btn-primary" onclick="openCreateModal()">
-                        <i class="fas fa-plus"></i> Add Lesson
-                    </button>
-                </div>
-            </div>
-
-            <!-- Filters and Search -->
-            <div class="filters-section">
-                <div class="filters-row">
-                    <div class="search-box">
-                        <input type="text" id="searchInput" placeholder="Search lessons..." onkeyup="filterLessons()">
-                        <i class="fas fa-search"></i>
+            <!-- List View -->
+            <div id="listView" class="list-view">
+                <div class="tutor-header">
+                    <h1>Course Lessons</h1>
+                    <div class="header-actions">
+                        <button class="btn btn-secondary" onclick="refreshLessons()">
+                            <i class="fas fa-sync-alt"></i> Refresh
+                        </button>
+                        <button class="btn btn-primary" onclick="openEditor('create')">
+                            <i class="fas fa-plus"></i> Add Lesson
+                        </button>
                     </div>
-                    <select class="filter-select" id="courseFilter" onchange="filterLessons()">
-                        <option value="">All Courses</option>
-                    </select>
+                </div>
+
+                <div class="filters-section">
+                    <div class="filters-row">
+                        <div class="search-box">
+                            <input type="text" id="searchInput" placeholder="Search lessons..." onkeyup="filterLessons()">
+                            <i class="fas fa-search"></i>
+                        </div>
+                        <select class="filter-select" id="courseFilter" onchange="filterLessons()">
+                            <option value="">All Courses</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="lessonsContainer">
+                    <div class="loading">Loading lessons...</div>
+                </div>
+
+                <div class="pagination" id="paginationContainer" style="display: none;">
+                    <button class="pagination-btn" id="prevBtn" onclick="changePage(currentPage - 1)">
+                        <i class="fas fa-chevron-left"></i> Previous
+                    </button>
+                    <span class="pagination-info" id="paginationInfo"></span>
+                    <button class="pagination-btn" id="nextBtn" onclick="changePage(currentPage + 1)">
+                        Next <i class="fas fa-chevron-right"></i>
+                    </button>
                 </div>
             </div>
 
-            <!-- Lessons Grid -->
-            <div id="lessonsContainer">
-                <div class="loading">Loading lessons...</div>
-            </div>
+            <!-- Editor View (full page) -->
+            <div id="editorView" class="editor-view">
+                <div class="editor-header">
+                    <h2 id="editorTitle">Create New Lesson</h2>
+                    <div class="editor-header-actions">
+                        <button class="btn btn-secondary" onclick="backToList()">
+                            <i class="fas fa-arrow-left"></i> Back
+                        </button>
+                    </div>
+                </div>
 
-            <!-- Pagination -->
-            <div class="pagination" id="paginationContainer" style="display: none;">
-                <button class="pagination-btn" id="prevBtn" onclick="changePage(currentPage - 1)">
-                    <i class="fas fa-chevron-left"></i> Previous
-                </button>
-                <span class="pagination-info" id="paginationInfo"></span>
-                <button class="pagination-btn" id="nextBtn" onclick="changePage(currentPage + 1)">
-                    Next <i class="fas fa-chevron-right"></i>
-                </button>
+                <div class="editor-panel">
+                    <div class="editor-meta-row">
+                        <div class="form-group">
+                            <label for="lessonCourse">Course *</label>
+                            <select id="lessonCourse" required></select>
+                        </div>
+                        <div class="form-group">
+                            <label for="lessonVideo">Video URL</label>
+                            <input type="url" id="lessonVideo" placeholder="https://example.com/video.mp4">
+                        </div>
+                        <div class="form-group">
+                            <label for="lessonLiveLink">Live Session / Meeting Link</label>
+                            <input type="url" id="lessonLiveLink" placeholder="https://zoom.us/j/...">
+                        </div>
+                        <div class="form-group form-group-small">
+                            <label for="lessonOrder">Order Index</label>
+                            <input type="number" id="lessonOrder" min="1" placeholder="1">
+                        </div>
+                        <div class="form-group">
+                            <label for="lessonDate">Session Date (optional)</label>
+                            <input type="date" id="lessonDate">
+                        </div>
+                        <div class="form-group">
+                            <label for="lessonTime">Session Time</label>
+                            <input type="time" id="lessonTime">
+                        </div>
+                        <div class="form-group form-group-small">
+                            <label for="lessonDuration">Duration (min)</label>
+                            <input type="number" id="lessonDuration" min="1" value="60">
+                        </div>
+                        <div class="form-group" style="min-width: 250px;">
+                            <label for="lessonLinkedNotes">Linked Notes</label>
+                            <div id="linkedNotesContainer" style="max-height:150px;overflow-y:auto;border:2px solid #e9ecef;border-radius:8px;padding:8px;">
+                                <p style="color:#999;font-size:0.85rem;">Select a course first</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <input type="text" id="lessonTitle" class="editor-title-input" placeholder="Lesson title..." required>
+
+                    <div id="lessonQuillEditor"></div>
+
+                    <div class="editor-actions">
+                        <button type="button" class="btn btn-info" onclick="previewLesson()">
+                            <i class="fas fa-eye"></i> Preview
+                        </button>
+                        <button type="button" class="btn btn-secondary" onclick="backToList()">
+                            <i class="fas fa-times"></i> Cancel
+                        </button>
+                        <button type="button" class="btn btn-success" onclick="saveLesson()">
+                            <i class="fas fa-save"></i> Save Lesson
+                        </button>
+                    </div>
+                </div>
             </div>
         </main>
-    </div>
-
-    <!-- Create/Edit Lesson Modal -->
-    <div id="lessonModal" class="modal">
-        <div class="modal-content">
-            <span class="modal-close" onclick="closeModal()">&times;</span>
-            <h2 id="modalTitle">Add New Lesson</h2>
-            <form id="lessonForm">
-                <div class="form-group">
-                    <label for="lessonCourse">Course *</label>
-                    <select id="lessonCourse" required>
-                        <option value="">Select Course</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="lessonTitle">Lesson Title *</label>
-                    <input type="text" id="lessonTitle" required>
-                </div>
-                <div class="form-group">
-                    <label>Lesson Content</label>
-                    <div id="lessonQuillEditor"></div>
-                </div>
-                <div class="form-group">
-                    <label for="lessonVideo">Video URL</label>
-                    <input type="url" id="lessonVideo" placeholder="https://example.com/video.mp4">
-                </div>
-                <div class="form-group">
-                    <label for="lessonLiveLink">Live Session / Meeting Link</label>
-                    <input type="url" id="lessonLiveLink" placeholder="https://zoom.us/j/..., https://meet.google.com/...">
-                </div>
-                <div class="form-group">
-                    <label for="lessonOrder">Order Index</label>
-                    <input type="number" id="lessonOrder" min="1" placeholder="1">
-                </div>
-                <div class="modal-actions">
-                    <button type="button" class="btn btn-secondary" onclick="previewLesson()">
-                        <i class="fas fa-eye"></i> Preview
-                    </button>
-                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Save Lesson</button>
-                </div>
-            </form>
-        </div>
     </div>
 
     <!-- Preview Modal -->
@@ -631,6 +281,8 @@
     let filteredLessons = [];
     let courses = [];
     let lessonQuill = null;
+    let editingLessonId = null;
+    let courseNotesCache = {};
 
     document.addEventListener('DOMContentLoaded', function() {
         initializeLessonsPage();
@@ -640,7 +292,7 @@
         if (lessonQuill) return;
         lessonQuill = new Quill('#lessonQuillEditor', {
             theme: 'snow',
-            placeholder: 'Write lesson content here...',
+            placeholder: 'Write lesson content here... Include explanations, code samples, images, and more...',
             modules: {
                 toolbar: [
                     [{ 'header': [1, 2, 3, false] }],
@@ -692,7 +344,7 @@
     function initializeLessonsPage() {
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.get('action') === 'create') {
-            openCreateModal();
+            setTimeout(() => openEditor('create'), 500);
         }
         setTimeout(() => {
             checkTutorAccess();
@@ -772,6 +424,63 @@
             option.textContent = course.title;
             courseSelect.appendChild(option);
         });
+
+        courseSelect.onchange = function() {
+            const courseId = parseInt(this.value);
+            if (!isNaN(courseId)) {
+                loadCourseNotes(courseId);
+            } else {
+                document.getElementById('linkedNotesContainer').innerHTML = '<p style="color:#999;font-size:0.85rem;">Select a course first</p>';
+            }
+        };
+    }
+
+    async function loadCourseNotes(courseId) {
+        if (courseNotesCache[courseId]) {
+            renderLinkedNotesCheckboxes(courseId, courseNotesCache[courseId]);
+            return;
+        }
+        try {
+            const token = sessionStorage.getItem('token');
+            const response = await fetch(`${API_BASE_URL}/tutor/courses/${courseId}/notes`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (response.ok) {
+                const data = await response.json();
+                const notes = data.data || [];
+                courseNotesCache[courseId] = notes;
+                renderLinkedNotesCheckboxes(courseId, notes);
+            }
+        } catch (error) {
+            console.error('Error loading course notes:', error);
+            document.getElementById('linkedNotesContainer').innerHTML = '<p style="color:#999;font-size:0.85rem;">Failed to load notes</p>';
+        }
+    }
+
+    function renderLinkedNotesCheckboxes(courseId, notes) {
+        const container = document.getElementById('linkedNotesContainer');
+        if (!notes || notes.length === 0) {
+            container.innerHTML = '<p style="color:#999;font-size:0.85rem;">No notes available for this course</p>';
+            return;
+        }
+        container.innerHTML = notes.map(note => `
+            <label style="display:flex;align-items:center;gap:8px;padding:4px 0;cursor:pointer;font-size:0.9rem;">
+                <input type="checkbox" class="note-checkbox" value="${note.id}">
+                ${note.title}
+            </label>
+        `).join('');
+    }
+
+    function getSelectedNoteIds() {
+        const checkboxes = document.querySelectorAll('.note-checkbox:checked');
+        return Array.from(checkboxes).map(cb => parseInt(cb.value));
+    }
+
+    function setSelectedNoteIds(noteIds) {
+        const checkboxes = document.querySelectorAll('.note-checkbox');
+        checkboxes.forEach(cb => {
+            cb.checked = noteIds.includes(parseInt(cb.value));
+        });
     }
 
     async function loadLessons(page = 1) {
@@ -837,7 +546,7 @@
                     <i class="fas fa-chalkboard-teacher"></i>
                     <h3>No lessons found</h3>
                     <p>You haven't created any lessons yet.</p>
-                    <button class="btn btn-primary" onclick="openCreateModal()">
+                    <button class="btn btn-primary" onclick="openEditor('create')">
                         <i class="fas fa-plus"></i> Create Your First Lesson
                     </button>
                 </div>
@@ -871,6 +580,8 @@
                                         <i class="fas fa-sort-numeric-up"></i> ${lesson.orderIndex || 'N/A'}
                                     </span>
                                     ${lesson.liveLink ? '<span class="stat-item"><i class="fas fa-video"></i> Live</span>' : ''}
+                                    ${lesson.sessionDate ? `<span class="stat-item"><i class="fas fa-calendar"></i> ${new Date(lesson.sessionDate).toLocaleDateString()}</span>` : ''}
+                                    ${lesson.linkedNotes && lesson.linkedNotes.length > 0 ? `<span class="stat-item"><i class="fas fa-link"></i> ${lesson.linkedNotes.length} notes</span>` : ''}
                                 </div>
                                 <small>${new Date(lesson.createdAt).toLocaleDateString()}</small>
                             </div>
@@ -940,31 +651,63 @@
         loadLessons(currentPage);
     }
 
-    function openCreateModal() {
-        document.getElementById('modalTitle').textContent = 'Add New Lesson';
-        document.getElementById('lessonForm').reset();
+    function backToList() {
+        document.getElementById('editorView').classList.remove('active');
+        document.getElementById('listView').classList.remove('hidden');
+        editingLessonId = null;
+        loadLessons(currentPage);
+    }
+
+    function openEditor(mode) {
+        editingLessonId = null;
+        document.getElementById('editorTitle').textContent = 'Create New Lesson';
+        document.getElementById('lessonTitle').value = '';
+        document.getElementById('lessonCourse').value = '';
+        document.getElementById('lessonVideo').value = '';
         document.getElementById('lessonLiveLink').value = '';
-        document.getElementById('lessonModal').style.display = 'block';
-        setTimeout(() => initLessonQuill(), 100);
-        if (lessonQuill) lessonQuill.setText('');
+        document.getElementById('lessonOrder').value = '';
+        document.getElementById('lessonDate').value = '';
+        document.getElementById('lessonTime').value = '';
+        document.getElementById('lessonDuration').value = '60';
+        document.getElementById('linkedNotesContainer').innerHTML = '<p style="color:#999;font-size:0.85rem;">Select a course first</p>';
+
+        document.getElementById('listView').classList.add('hidden');
+        document.getElementById('editorView').classList.add('active');
+
+        setTimeout(() => {
+            initLessonQuill();
+            if (lessonQuill) lessonQuill.setText('');
+        }, 100);
     }
 
     function editLesson(lessonId) {
         const lesson = allLessons.find(l => l.id === lessonId);
         if (!lesson) return;
 
-        document.getElementById('modalTitle').textContent = 'Edit Lesson';
+        editingLessonId = lessonId;
+        document.getElementById('editorTitle').textContent = 'Edit Lesson';
         document.getElementById('lessonCourse').value = lesson.courseId;
         document.getElementById('lessonTitle').value = lesson.title;
         document.getElementById('lessonVideo').value = lesson.video_url || '';
         document.getElementById('lessonLiveLink').value = lesson.liveLink || '';
         document.getElementById('lessonOrder').value = lesson.orderIndex || '';
+        document.getElementById('lessonDate').value = lesson.sessionDate || '';
+        document.getElementById('lessonTime').value = lesson.sessionTime ? lesson.sessionTime.slice(0, 5) : '';
+        document.getElementById('lessonDuration').value = lesson.durationMinutes || '60';
 
-        document.getElementById('lessonForm').dataset.lessonId = lessonId;
-        document.getElementById('lessonModal').style.display = 'block';
-        setTimeout(() => {
+        document.getElementById('listView').classList.add('hidden');
+        document.getElementById('editorView').classList.add('active');
+
+        setTimeout(async () => {
             initLessonQuill();
             if (lessonQuill) lessonQuill.root.innerHTML = lesson.content || '';
+            // Load linked notes
+            if (lesson.courseId) {
+                await loadCourseNotes(lesson.courseId);
+                if (lesson.linkedNotes && lesson.linkedNotes.length > 0) {
+                    setSelectedNoteIds(lesson.linkedNotes.map(n => n.id));
+                }
+            }
         }, 100);
     }
 
@@ -998,12 +741,6 @@
         window.location.href = `assignments.html?lessonId=${lessonId}`;
     }
 
-    function closeModal() {
-        document.getElementById('lessonModal').style.display = 'none';
-        document.getElementById('lessonForm').reset();
-        delete document.getElementById('lessonForm').dataset.lessonId;
-    }
-
     function previewLesson() {
         if (!lessonQuill) return;
         const content = lessonQuill.root.innerHTML;
@@ -1015,25 +752,50 @@
         document.getElementById('previewModal').style.display = 'none';
     }
 
-    document.getElementById('lessonForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
+    async function saveLesson() {
+        const courseId = parseInt(document.getElementById('lessonCourse').value);
+        const title = document.getElementById('lessonTitle').value.trim();
+
+        if (isNaN(courseId)) {
+            alert('Please select a course.');
+            document.getElementById('lessonCourse').focus();
+            return;
+        }
+
+        if (!title) {
+            alert('Please enter a lesson title.');
+            document.getElementById('lessonTitle').focus();
+            return;
+        }
+
+        const sessionDate = document.getElementById('lessonDate').value || null;
+        const sessionTime = document.getElementById('lessonTime').value || null;
+
+        if (sessionDate && !sessionTime) {
+            alert('Please set a session time when a date is selected.');
+            document.getElementById('lessonTime').focus();
+            return;
+        }
 
         const lessonData = {
-            courseId: parseInt(document.getElementById('lessonCourse').value),
-            title: document.getElementById('lessonTitle').value,
+            courseId,
+            title,
             content: lessonQuill ? lessonQuill.root.innerHTML : '',
             videoUrl: document.getElementById('lessonVideo').value || null,
             liveLink: document.getElementById('lessonLiveLink').value || null,
-            orderIndex: parseInt(document.getElementById('lessonOrder').value) || 0
+            orderIndex: parseInt(document.getElementById('lessonOrder').value) || 0,
+            sessionDate,
+            sessionTime,
+            durationMinutes: parseInt(document.getElementById('lessonDuration').value) || 60,
+            noteIds: getSelectedNoteIds()
         };
 
         try {
             const token = sessionStorage.getItem('token');
-            const lessonId = this.dataset.lessonId;
             let response;
 
-            if (lessonId) {
-                response = await fetch(`${API_BASE_URL}/tutor/lessons/${lessonId}`, {
+            if (editingLessonId) {
+                response = await fetch(`${API_BASE_URL}/tutor/lessons/${editingLessonId}`, {
                     method: 'PUT',
                     headers: {
                         'Authorization': `Bearer ${token}`,
@@ -1053,16 +815,16 @@
             }
 
             if (response.ok) {
-                closeModal();
-                loadLessons(currentPage);
+                backToList();
             } else {
-                throw new Error('Failed to save lesson');
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Failed to save lesson');
             }
         } catch (error) {
             console.error('Error saving lesson:', error);
             alert('Failed to save lesson. Please try again.');
         }
-    });
+    }
 
     function logout() {
         sessionStorage.removeItem('token');
@@ -1071,9 +833,7 @@
     }
 
     window.onclick = function(event) {
-        const modal = document.getElementById('lessonModal');
         const preview = document.getElementById('previewModal');
-        if (event.target === modal) closeModal();
         if (event.target === preview) closePreview();
     };
 </script>

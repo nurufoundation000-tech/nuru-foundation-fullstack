@@ -25,9 +25,10 @@ async function getDashboardStats(req, res) {
     `);
 
     const recentCourses = await db.query(`
-      SELECT c.id, c.title, u.full_name as tutor_name, c.created_at 
+      SELECT c.id, c.title,
+             (SELECT GROUP_CONCAT(u.full_name SEPARATOR ', ') FROM course_tutors ct JOIN users u ON ct.tutor_id = u.id WHERE ct.course_id = c.id) as tutor_name,
+             c.created_at
       FROM courses c
-      JOIN users u ON c.tutor_id = u.id
       ORDER BY c.created_at DESC LIMIT 5
     `);
 
@@ -61,14 +62,54 @@ async function getDashboardStats(req, res) {
 async function getCourses(req, res) {
   try {
     const courses = await db.query(`
-      SELECT c.*, u.full_name as tutor_name, u.email as tutor_email, cp.*
+      SELECT c.*, cp.*,
+             (SELECT COUNT(*) FROM enrollments WHERE course_id = c.id) as enrollments_count,
+             (SELECT COUNT(*) FROM lessons WHERE course_id = c.id) as lessons_count,
+             (SELECT COUNT(*) FROM course_tutors WHERE course_id = c.id) as tutors_count
       FROM courses c
-      JOIN users u ON c.tutor_id = u.id
       LEFT JOIN course_pricing cp ON c.id = cp.course_id
       ORDER BY c.created_at DESC
     `);
 
-    res.json({ success: true, data: courses });
+    // Fetch all tutor assignments in one query
+    let tutorMap = {};
+    if (courses.length > 0) {
+      const courseIds = courses.map(c => c.id);
+      const placeholders = courseIds.map(() => '?').join(',');
+      const tutors = await db.query(`
+        SELECT ct.course_id, u.id, u.full_name, u.email, u.username
+        FROM course_tutors ct
+        JOIN users u ON ct.tutor_id = u.id
+        WHERE ct.course_id IN (${placeholders})
+      `, courseIds);
+      tutors.forEach(t => {
+        if (!tutorMap[t.course_id]) tutorMap[t.course_id] = [];
+        tutorMap[t.course_id].push({ id: t.id, fullName: t.full_name, email: t.email, username: t.username });
+      });
+    }
+
+    const transformed = courses.map(c => ({
+      id: c.id,
+      title: c.title,
+      description: c.description,
+      category: c.category,
+      level: c.level,
+      isPublished: !!c.is_published,
+      thumbnailUrl: c.thumbnail_url,
+      tutorIds: (tutorMap[c.id] || []).map(t => t.id),
+      tutors: tutorMap[c.id] || [],
+      coursePricing: c.initial_payment != null ? {
+        initialPayment: c.initial_payment,
+        monthlyAmount: c.monthly_amount,
+        billingDuration: c.billing_duration,
+        isActive: !!c.is_active
+      } : null,
+      _count: { enrollments: c.enrollments_count || 0, lessons: c.lessons_count || 0 },
+      createdAt: c.created_at,
+      updatedAt: c.updated_at
+    }));
+
+    res.json({ success: true, data: transformed });
   } catch (error) {
     console.error('Get courses error:', error);
     res.status(500).json({ error: 'Failed to fetch courses' });
@@ -77,15 +118,23 @@ async function getCourses(req, res) {
 
 async function createCourse(req, res) {
   try {
-    const { title, description, category, level, thumbnailUrl, isPublished, pricing } = req.body;
+    const { title, description, category, level, thumbnailUrl, isPublished, pricing, tutorIds } = req.body;
 
     if (!title || !description) {
       return res.status(400).json({ error: 'Title and description are required' });
     }
 
-    const adminUser = await db.getOne(`
-      SELECT id FROM users WHERE role_id = (SELECT id FROM roles WHERE name = 'admin')
-    `);
+    if (!tutorIds || !Array.isArray(tutorIds) || tutorIds.length === 0) {
+      return res.status(400).json({ error: 'At least one tutor must be assigned to the course' });
+    }
+
+    // Validate all tutors exist
+    for (const tutorId of tutorIds) {
+      const tutor = await db.getOne('SELECT id FROM users WHERE id = ? AND role_id = (SELECT id FROM roles WHERE name = \'tutor\')', [tutorId]);
+      if (!tutor) {
+        return res.status(400).json({ error: `Tutor with id ${tutorId} not found` });
+      }
+    }
 
     const courseId = await db.insert('courses', {
       title,
@@ -94,9 +143,17 @@ async function createCourse(req, res) {
       level: level || 'Beginner',
       thumbnail_url: thumbnailUrl || '',
       is_published: isPublished || false,
-      tutor_id: adminUser?.id,
       created_at: new Date()
     });
+
+    // Assign all tutors to this course
+    for (const tutorId of tutorIds) {
+      await db.insert('course_tutors', {
+        course_id: courseId,
+        tutor_id: tutorId,
+        assigned_at: new Date()
+      });
+    }
 
     if (pricing && (pricing.initialPayment > 0 || pricing.monthlyAmount > 0)) {
       await db.insert('course_pricing', {
@@ -120,11 +177,23 @@ async function createCourse(req, res) {
 async function updateCourse(req, res) {
   try {
     const courseId = parseInt(req.params.id);
-    const { title, description, category, level, thumbnailUrl, isPublished, pricing } = req.body;
+    const { title, description, category, level, thumbnailUrl, isPublished, pricing, tutorIds } = req.body;
 
     const existingCourse = await db.getOne('SELECT id FROM courses WHERE id = ?', [courseId]);
     if (!existingCourse) {
       return res.status(404).json({ error: 'Course not found' });
+    }
+
+    if (tutorIds !== undefined) {
+      if (!Array.isArray(tutorIds) || tutorIds.length === 0) {
+        return res.status(400).json({ error: 'At least one tutor must be assigned to the course' });
+      }
+      for (const tutorId of tutorIds) {
+        const tutor = await db.getOne('SELECT id FROM users WHERE id = ? AND role_id = (SELECT id FROM roles WHERE name = \'tutor\')', [tutorId]);
+        if (!tutor) {
+          return res.status(400).json({ error: `Tutor with id ${tutorId} not found` });
+        }
+      }
     }
 
     const updateData = { updated_at: new Date() };
@@ -136,6 +205,17 @@ async function updateCourse(req, res) {
     if (isPublished !== undefined) updateData.is_published = isPublished;
 
     await db.update('courses', courseId, updateData);
+
+    if (tutorIds !== undefined) {
+      await db.query('DELETE FROM course_tutors WHERE course_id = ?', [courseId]);
+      for (const tutorId of tutorIds) {
+        await db.insert('course_tutors', {
+          course_id: courseId,
+          tutor_id: tutorId,
+          assigned_at: new Date()
+        });
+      }
+    }
 
     if (pricing) {
       const existingPricing = await db.getOne('SELECT id FROM course_pricing WHERE course_id = ?', [courseId]);
@@ -187,15 +267,31 @@ async function deleteCourse(req, res) {
 async function getEnrollments(req, res) {
   try {
     const enrollments = await db.query(`
-      SELECT e.*, u.full_name, u.email, c.title as course_title, t.full_name as tutor_name
+      SELECT e.*, u.full_name, u.username, u.email, c.title as course_title, c.category,
+             (SELECT GROUP_CONCAT(tu.full_name SEPARATOR ', ') FROM course_tutors ct JOIN users tu ON ct.tutor_id = tu.id WHERE ct.course_id = c.id) as tutor_name
       FROM enrollments e
       JOIN users u ON e.student_id = u.id
       JOIN courses c ON e.course_id = c.id
-      JOIN users t ON c.tutor_id = t.id
       ORDER BY e.enrolled_at DESC
     `);
 
-    res.json({ success: true, data: enrollments });
+    const transformed = enrollments.map(e => ({
+      id: e.id,
+      student_id: e.student_id,
+      course_id: e.course_id,
+      student: { fullName: e.full_name, username: e.username, email: e.email },
+      course: { title: e.course_title, category: e.category },
+      courseId: e.course_id,
+      enrolledAt: e.enrolled_at,
+      status: e.completion_status || 'active',
+      progress: e.progress || 0,
+      expires_at: e.expires_at,
+      last_accessed_at: e.last_accessed_at,
+      created_at: e.created_at,
+      tutor_name: e.tutor_name
+    }));
+
+    res.json({ success: true, data: transformed });
   } catch (error) {
     console.error('Get enrollments error:', error);
     res.status(500).json({ error: 'Failed to fetch enrollments' });
@@ -266,9 +362,9 @@ async function getStudents(req, res) {
 async function getCoursesList(req, res) {
   try {
     const courses = await db.query(`
-      SELECT c.id, c.title, c.category, u.full_name as tutor_name
+      SELECT c.id, c.title, c.category,
+             (SELECT GROUP_CONCAT(u.full_name SEPARATOR ', ') FROM course_tutors ct JOIN users u ON ct.tutor_id = u.id WHERE ct.course_id = c.id) as tutor_name
       FROM courses c
-      JOIN users u ON c.tutor_id = u.id
       ORDER BY c.title ASC
     `);
 
@@ -279,23 +375,57 @@ async function getCoursesList(req, res) {
   }
 }
 
+async function getTutors(req, res) {
+  try {
+    const tutors = await db.query(`
+      SELECT u.id, u.full_name, u.username, u.email
+      FROM users u
+      WHERE u.role_id = (SELECT id FROM roles WHERE name = 'tutor') AND u.is_active = 1
+      ORDER BY u.full_name ASC
+    `);
+
+    res.json({ success: true, data: tutors });
+  } catch (error) {
+    console.error('Get tutors error:', error);
+    res.status(500).json({ error: 'Failed to fetch tutors' });
+  }
+}
+
 async function getUsers(req, res) {
   try {
     const users = await db.query(`
       SELECT u.id, u.username, u.email, u.full_name, u.role_id, u.is_active, u.is_locked, 
              u.date_joined, u.created_at, u.updated_at, u.must_change_password,
              r.name as role_name,
-             (SELECT COUNT(*) FROM courses WHERE tutor_id = u.id) as courses_count,
+             (SELECT COUNT(*) FROM course_tutors WHERE tutor_id = u.id) as courses_count,
              (SELECT COUNT(*) FROM enrollments WHERE student_id = u.id) as enrollments_count
       FROM users u
       LEFT JOIN roles r ON u.role_id = r.id
       ORDER BY u.created_at DESC
     `);
 
-    // Remove any accidentally included password_hash (security)
-    const usersWithoutPassword = users.map(({ password_hash, ...user }) => user);
+    // Remove any accidentally included password_hash (security) and transform
+    const transformed = users.map(({ password_hash, ...user }) => ({
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      fullName: user.full_name,
+      full_name: user.full_name,
+      roleId: user.role_id,
+      role: { name: user.role_name },
+      role_name: user.role_name,
+      isActive: !!user.is_active,
+      is_active: user.is_active,
+      isLocked: !!user.is_locked,
+      dateJoined: user.created_at,
+      createdAt: user.created_at,
+      updatedAt: user.updated_at,
+      mustChangePassword: !!user.must_change_password,
+      coursesCount: user.courses_count || 0,
+      enrollmentsCount: user.enrollments_count || 0
+    }));
 
-    res.json({ success: true, data: usersWithoutPassword, total: usersWithoutPassword.length });
+    res.json({ success: true, data: transformed, total: transformed.length });
   } catch (error) {
     console.error('Get users error:', error);
     res.status(500).json({ error: 'Failed to fetch users' });
@@ -357,6 +487,10 @@ async function createUser(req, res) {
       LEFT JOIN roles r ON u.role_id = r.id WHERE u.id = ?
     `, [userId]);
     const { password_hash, ...userWithoutPassword } = user;
+    userWithoutPassword.fullName = userWithoutPassword.full_name;
+    userWithoutPassword.isActive = !!userWithoutPassword.is_active;
+    userWithoutPassword.mustChangePassword = !!userWithoutPassword.must_change_password;
+    userWithoutPassword.role = userWithoutPassword.role_name;
 
     // Send welcome email
     let emailStatus = { sent: false, error: null, generatedPassword: null };
@@ -443,6 +577,10 @@ async function updateUser(req, res) {
       LEFT JOIN roles r ON u.role_id = r.id WHERE u.id = ?
     `, [parseInt(id)]);
     const { password_hash, ...userWithoutPassword } = user;
+    userWithoutPassword.fullName = userWithoutPassword.full_name;
+    userWithoutPassword.isActive = !!userWithoutPassword.is_active;
+    userWithoutPassword.mustChangePassword = !!userWithoutPassword.must_change_password;
+    userWithoutPassword.role = userWithoutPassword.role_name;
     
     res.json({ success: true, data: userWithoutPassword });
   } catch (error) {
@@ -516,9 +654,47 @@ async function getAnalytics(req, res) {
       GROUP BY c.id ORDER BY count DESC LIMIT 10
     `);
 
-    const paidInvoices = await db.query('SELECT COUNT(*) as count FROM invoices WHERE status = \'paid\'');
-    const pendingInvoices = await db.query('SELECT COUNT(*) as count FROM invoices WHERE status = \'pending\'');
-    const lockedInvoices = await db.query('SELECT COUNT(*) as count FROM invoices WHERE status = \'locked\'');
+    // Course completion rates (real progress data)
+    const progressData = await db.query(`
+      SELECT e.id,
+        COALESCE(lp.completed, 0) as completed_lessons,
+        COALESCE(lc.total, 0) as total_lessons,
+        COALESCE(np.read_count, 0) as read_notes,
+        COALESCE(nc.total, 0) as total_notes
+      FROM enrollments e
+      LEFT JOIN (SELECT course_id, COUNT(*) as total FROM lessons GROUP BY course_id) lc ON e.course_id = lc.course_id
+      LEFT JOIN (SELECT enrollment_id, SUM(is_completed) as completed FROM lesson_progress GROUP BY enrollment_id) lp ON e.id = lp.enrollment_id
+      LEFT JOIN (SELECT course_id, COUNT(*) as total FROM course_notes GROUP BY course_id) nc ON e.course_id = nc.course_id
+      LEFT JOIN (SELECT np.student_id, cn.course_id, COUNT(*) as read_count FROM note_progress np JOIN course_notes cn ON np.note_id = cn.id GROUP BY np.student_id, cn.course_id) np ON e.student_id = np.student_id AND e.course_id = np.course_id
+    `);
+
+    let completed = 0, inProgress = 0, notStarted = 0;
+    for (const p of progressData) {
+      const totalItems = (p.total_lessons || 0) + (p.total_notes || 0);
+      const completedItems = (p.completed_lessons || 0) + (p.read_notes || 0);
+      if (totalItems === 0 || completedItems === 0) {
+        notStarted++;
+      } else if (completedItems >= totalItems) {
+        completed++;
+      } else {
+        inProgress++;
+      }
+    }
+    const totalEnrolledProgress = completed + inProgress + notStarted;
+    const completionRates = totalEnrolledProgress > 0 ? [
+      Math.round(completed / totalEnrolledProgress * 100),
+      Math.round(inProgress / totalEnrolledProgress * 100),
+      Math.round(notStarted / totalEnrolledProgress * 100)
+    ] : [0, 0, 100];
+
+    // Invoice/payment status distribution
+    const invoiceStatus = await db.getOne(`
+      SELECT
+        SUM(CASE WHEN status = 'paid' THEN 1 ELSE 0 END) as paid,
+        SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending,
+        SUM(CASE WHEN status = 'locked' THEN 1 ELSE 0 END) as locked
+      FROM invoices
+    `);
 
     res.json({
       success: true,
@@ -526,12 +702,11 @@ async function getAnalytics(req, res) {
       coursePopularity: { labels: coursePopularity.map(r => r.title), data: coursePopularity.map(r => r.count) },
       enrollmentTrends: { labels: enrollmentTrends.map(r => r.date), data: enrollmentTrends.map(r => r.count) },
       revenue: { labels: revenue.map(r => r.date), data: revenue.map(r => r.total) },
-      completionRates: [
-        Math.round((paidInvoices[0]?.count || 0) / Math.max((pendingInvoices[0]?.count || 0) + (paidInvoices[0]?.count || 0), 1) * 100),
-        Math.round((pendingInvoices[0]?.count || 0) / Math.max((pendingInvoices[0]?.count || 0) + (lockedInvoices[0]?.count || 0), 1) * 100),
-        Math.round((lockedInvoices[0]?.count || 0) / Math.max((pendingInvoices[0]?.count || 0) + (lockedInvoices[0]?.count || 0), 1) * 100)
-      ],
-      geographic: { labels: ['Nairobi', 'Mombasa', 'Kisumu', 'Other'], data: [45, 20, 15, 20] },
+      completionRates,
+      paymentStatus: {
+        labels: ['Paid', 'Pending', 'Overdue'],
+        data: [invoiceStatus?.paid || 0, invoiceStatus?.pending || 0, invoiceStatus?.locked || 0]
+      },
       stats: { totalUsers: totalUsers[0]?.count || 0, totalCourses: totalCourses[0]?.count || 0, totalEnrollments: totalEnrollments[0]?.count || 0, totalRevenue: totalRevenue[0]?.total || 0 }
     });
   } catch (error) {
@@ -869,10 +1044,11 @@ async function getInstallmentSchedule(req, res) {
     }
 
     const invoices = await db.query(`
-      SELECT id, type, amount, status, due_date, month_number, paid_at, mpesa_receipt
-      FROM invoices
-      WHERE student_id = ? AND course_id = ?
-      ORDER BY created_at ASC
+      SELECT i.id, i.type, i.amount, i.status, i.due_date, i.month_number, i.paid_at, i.mpesa_receipt, c.title as course_title
+      FROM invoices i
+      JOIN courses c ON i.course_id = c.id
+      WHERE i.student_id = ? AND i.course_id = ?
+      ORDER BY i.created_at ASC
     `, [req.user.userId, courseId]);
 
     const pricing = await db.getOne(
@@ -880,10 +1056,13 @@ async function getInstallmentSchedule(req, res) {
       [courseId]
     );
 
+    const deposit = invoices.find(i => i.type === 'initial' || i.type === 'deposit');
+    const depositData = deposit ? { ...deposit, courseTitle: deposit.course_title } : null;
+
     res.json({
       success: true,
       data: {
-        deposit: invoices.find(i => i.type === 'initial' || i.type === 'deposit'),
+        deposit: depositData,
         monthlyInvoices: invoices.filter(i => i.type === 'monthly'),
         pricing: pricing ? {
           initialPayment: pricing.initial_payment,
@@ -908,6 +1087,7 @@ module.exports = {
   createEnrollment,
   getStudents,
   getCoursesList,
+  getTutors,
   getUsers,
   createUser,
   updateUser,

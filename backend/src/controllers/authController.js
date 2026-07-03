@@ -59,9 +59,14 @@ async function login(req, res) {
       { expiresIn: '24h' }
     );
 
+    const userResponse = { ...userWithoutPassword, role: roleName };
+    userResponse.fullName = userResponse.full_name;
+    userResponse.isActive = !!userResponse.is_active;
+    userResponse.mustChangePassword = !!userResponse.must_change_password;
+
     res.json({
       success: true,
-      user: { ...userWithoutPassword, role: roleName },
+      user: userResponse,
       token,
       message: 'Login successful'
     });
@@ -161,9 +166,14 @@ async function register(req, res) {
       { expiresIn: '24h' }
     );
 
+    const regUserResponse = { ...userWithoutPassword, role: roleName };
+    regUserResponse.fullName = regUserResponse.full_name;
+    regUserResponse.isActive = !!regUserResponse.is_active;
+    regUserResponse.mustChangePassword = !!regUserResponse.must_change_password;
+
     res.status(201).json({
       success: true,
-      user: { ...userWithoutPassword, role: roleName },
+      user: regUserResponse,
       token,
       emailStatus: emailStatus,
       message: emailStatus.sent 
@@ -183,7 +193,7 @@ async function verify(req, res) {
     if (!user || !user.is_active) {
       return res.status(401).json({ valid: false, error: 'User not found or inactive' });
     }
-    res.json({ valid: true, user: { id: user.id, email: user.email, username: user.username, full_name: user.full_name, role: req.user.roleName } });
+    res.json({ valid: true, user: { id: user.id, email: user.email, username: user.username, full_name: user.full_name, fullName: user.full_name, role: req.user.roleName } });
   } catch (error) {
     console.error('Verify error:', error);
     res.status(500).json({ valid: false, error: 'Verification failed' });

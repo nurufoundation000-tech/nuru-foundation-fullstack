@@ -64,6 +64,8 @@ class AuthService {
         this.token = null;
         sessionStorage.removeItem(this.config.tokenKey);
         sessionStorage.removeItem(this.config.userKey);
+        localStorage.removeItem(this.config.tokenKey);
+        localStorage.removeItem(this.config.userKey);
         window.location.href = this.config.routes?.login || '/login.html';
     }
 

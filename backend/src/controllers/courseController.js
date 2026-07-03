@@ -5,12 +5,13 @@ const { generateInitialInvoices } = require('../lib/invoices.js');
 async function getAllCourses(req, res) {
   try {
     const courses = await db.query(`
-      SELECT c.*, u.full_name as tutor_name, u.username as tutor_username,
+      SELECT c.*,
+             (SELECT GROUP_CONCAT(u.full_name SEPARATOR ', ') FROM course_tutors ct JOIN users u ON ct.tutor_id = u.id WHERE ct.course_id = c.id) as tutor_name,
+             (SELECT GROUP_CONCAT(u.username SEPARATOR ', ') FROM course_tutors ct JOIN users u ON ct.tutor_id = u.id WHERE ct.course_id = c.id) as tutor_username,
              cp.initial_payment, cp.monthly_amount, cp.billing_duration,
              (SELECT COUNT(*) FROM enrollments WHERE course_id = c.id) as enrollments_count,
              (SELECT COUNT(*) FROM lessons WHERE course_id = c.id) as lessons_count
       FROM courses c
-      JOIN users u ON c.tutor_id = u.id
       LEFT JOIN course_pricing cp ON c.id = cp.course_id
       ORDER BY c.created_at DESC
     `);
@@ -32,10 +33,11 @@ async function getCourseById(req, res) {
     }
 
     const course = await db.getOne(`
-      SELECT c.*, u.full_name as tutor_name, u.username as tutor_username, u.bio as tutor_bio,
+      SELECT c.*,
+             (SELECT GROUP_CONCAT(u.full_name SEPARATOR ', ') FROM course_tutors ct JOIN users u ON ct.tutor_id = u.id WHERE ct.course_id = c.id) as tutor_name,
+             (SELECT GROUP_CONCAT(u.username SEPARATOR ', ') FROM course_tutors ct JOIN users u ON ct.tutor_id = u.id WHERE ct.course_id = c.id) as tutor_username,
              cp.initial_payment, cp.monthly_amount, cp.billing_duration
       FROM courses c
-      JOIN users u ON c.tutor_id = u.id
       LEFT JOIN course_pricing cp ON c.id = cp.course_id
       WHERE c.id = ?
     `, [courseId]);

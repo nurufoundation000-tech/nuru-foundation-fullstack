@@ -84,6 +84,8 @@ function checkAuth(requiredRole = null) {
 function logout() {
     sessionStorage.removeItem('token');
     sessionStorage.removeItem('user');
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
     window.location.href = '/login.html';
 }
 
@@ -251,7 +253,7 @@ class DashboardSidebar extends HTMLElement {
                 { href: '/student-dashboard/my-courses.html', icon: 'fa-book', label: 'My Courses' },
                 { href: '/student-dashboard/live-sessions.html', icon: 'fa-video', label: 'Live Sessions' },
                 { href: '/student-dashboard/progress.html', icon: 'fa-chart-line', label: 'Progress' },
-                { href: '/student-dashboard/notes.html', icon: 'fa-sticky-note', label: 'My Notes' },
+                { href: '/student-dashboard/assignments.html', icon: 'fa-tasks', label: 'Assignments' },
                 { href: '/student-dashboard/payment.html', icon: 'fa-credit-card', label: 'Payments' },
                 { href: '/student-dashboard/certificates.html', icon: 'fa-certificate', label: 'Certificates' },
                 { href: '/student-dashboard/notifications.html', icon: 'fa-bell', label: 'Notifications' },

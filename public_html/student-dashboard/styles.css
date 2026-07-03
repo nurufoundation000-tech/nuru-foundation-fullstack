@@ -29,10 +29,11 @@
     color: #888;
 }
 
-.course-card .card-actions {
+.content-card .card-actions {
     display: flex;
     gap: 10px;
     margin-top: 15px;
+    align-items: center;
 }
 
 /* --- Notes Grid --- */
@@ -92,6 +93,10 @@
     margin-top: 12px;
 }
 
+.btn-primary {
+    border: 2px solid transparent;
+}
+
 .btn-outline {
     background: transparent;
     border: 2px solid var(--primary-color);
@@ -105,7 +110,7 @@
     align-items: center;
     justify-content: center;
     gap: 8px;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
 }
 
 .btn-outline:hover {

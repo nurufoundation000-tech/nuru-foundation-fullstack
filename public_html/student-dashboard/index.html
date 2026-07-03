@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <script>(function(){var t=sessionStorage.getItem('token');if(!t){location.replace('/login.html');return}var x=new XMLHttpRequest();x.open('GET','/api/auth/verify',false);x.setRequestHeader('Authorization','Bearer '+t);try{x.send();if(x.status===401||x.status===403){sessionStorage.removeItem('token');sessionStorage.removeItem('user');location.replace('/login.html')}}catch(e){sessionStorage.removeItem('token');sessionStorage.removeItem('user');location.replace('/login.html')}})();</script>
+    <script src="/scripts/auth-guard.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - NURU FOUNDATION</title>
@@ -15,7 +15,7 @@
     <base href="/">
     <style>
         body { background: #f8f9fa; }
-        .dashboard-header { text-align: center; padding: 30px 20px; background: linear-gradient(135deg, var(--primary-color), var(--accent-color-1)); color: white; border-radius: var(--border-radius-lg); margin-bottom: 30px; }
+        .dashboard-header { text-align: center; padding: 30px 20px; background: linear-gradient(135deg, var(--primary-color), var(--accent-color-1)); color: white; border-radius: var(--border-radius-lg); margin-bottom: 25px; }
         .dashboard-header h1 { margin: 0 0 10px 0; font-size: 2rem; }
         .dashboard-header p { margin: 0; opacity: 0.9; }
         .user-info { background: white; padding: 25px; border-radius: var(--border-radius-lg); margin-bottom: 25px; box-shadow: var(--shadow-md); }
@@ -24,6 +24,16 @@
         .user-detail-item { padding: 15px; background: #f8f9fa; border-radius: var(--border-radius-md); }
         .user-detail-item .label { font-size: 0.8rem; color: #888; margin-bottom: 5px; }
         .user-detail-item .value { font-weight: 600; color: #333; }
+        .continue-learning { margin-bottom: 25px; }
+        .continue-learning h2 { color: var(--primary-color); font-size: 1.3rem; margin-bottom: 15px; }
+        .continue-card { background: white; border-radius: var(--border-radius-lg); overflow: hidden; box-shadow: var(--shadow-md); display: flex; align-items: stretch; }
+        .continue-card-gradient { background: linear-gradient(135deg, var(--primary-color), var(--accent-color-1)); color: white; padding: 25px; display: flex; flex-direction: column; justify-content: center; min-width: 200px; }
+        .continue-card-gradient h3 { margin: 0 0 8px 0; font-size: 1.1rem; }
+        .continue-card-gradient p { margin: 0; opacity: 0.85; font-size: 0.85rem; }
+        .continue-card-body { flex: 1; padding: 25px; display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+        .continue-card-body .continue-progress { flex: 1; min-width: 180px; }
+        .continue-card-body .continue-progress .progress-text { font-size: 0.85rem; color: #666; margin-bottom: 8px; }
+        .continue-card-body .btn { flex-shrink: 0; }
         .enrolled-courses { margin-bottom: 25px; }
         .enrolled-courses h2 { color: var(--primary-color); font-size: 1.3rem; margin-bottom: 15px; }
         .courses-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
@@ -34,11 +44,16 @@
         .course-mini-card-body { padding: 15px; }
         .course-mini-card-body .progress-container { margin: 10px 0; }
         .quick-links { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
-        .quick-link-card { background: white; padding: 20px; border-radius: var(--border-radius-lg); text-align: center; box-shadow: var(--shadow-md); transition: transform 0.3s; cursor: pointer; }
+        .quick-link-card { background: white; padding: 20px; border-radius: var(--border-radius-lg); text-align: center; box-shadow: var(--shadow-md); transition: transform 0.3s; cursor: pointer; text-decoration: none; display: block; }
         .quick-link-card:hover { transform: translateY(-3px); }
         .quick-link-card i { font-size: 2rem; color: var(--primary-color); margin-bottom: 10px; }
         .quick-link-card h4 { margin: 0 0 5px 0; color: #333; }
         .quick-link-card p { margin: 0; color: #888; font-size: 0.85rem; }
+        @media (max-width: 600px) {
+            .continue-card { flex-direction: column; }
+            .continue-card-gradient { min-width: auto; padding: 20px; text-align: center; }
+            .continue-card-body { flex-direction: column; text-align: center; }
+        }
     </style>
 </head>
 <body>
@@ -52,25 +67,39 @@
                     <h1>Welcome to Your Dashboard</h1>
                     <p>Track your progress and access your learning resources</p>
                 </div>
-                
+
+                <stats-grid id="statsGrid" stats='[]'></stats-grid>
+
                 <div class="user-info">
                     <h2><i class="fas fa-user"></i> Your Profile</h2>
                     <div class="user-details" id="userDetails">
                         <div class="loading"><i class="fas fa-spinner fa-spin"></i></div>
                     </div>
                 </div>
-                
+
                 <div class="pending-invoices" id="pendingInvoicesSection" style="display: none;">
                     <h2><i class="fas fa-exclamation-triangle" style="color: #e74c3c;"></i> Pending Payments</h2>
                     <div id="pendingInvoicesList"></div>
                 </div>
-                
-                <div class="enrolled-courses">
-                <h2><i class="fas fa-book"></i> My Enrolled Courses</h2>
-                <div id="coursesList" class="courses-grid">
-                    <div class="loading"><i class="fas fa-spinner fa-spin"></i></div>
+
+                <div class="continue-learning" id="continueSection" style="display:none;">
+                    <h2><i class="fas fa-play-circle"></i> Continue Learning</h2>
+                    <div id="continueCard"></div>
                 </div>
-            </div>
+
+                <div class="upcoming-lessons" id="upcomingLessonsSection" style="display:none;margin-bottom:25px;">
+                    <h2 style="color:var(--primary-color);font-size:1.3rem;margin-bottom:15px;">
+                        <i class="fas fa-video"></i> Upcoming Lessons
+                    </h2>
+                    <div id="upcomingLessonsList" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px;"></div>
+                </div>
+
+                <div class="enrolled-courses">
+                    <h2><i class="fas fa-book"></i> My Enrolled Courses</h2>
+                    <div id="coursesList" class="courses-grid">
+                        <div class="loading"><i class="fas fa-spinner fa-spin"></i></div>
+                    </div>
+                </div>
             
             <h2 style="color: var(--primary-color); margin-bottom: 15px;"><i class="fas fa-bolt"></i> Quick Links</h2>
             <div class="quick-links">
@@ -84,11 +113,11 @@
                     <h4>View Progress</h4>
                     <p>Track achievements</p>
                 </a>
-                <a href="/student-dashboard/notes.html" class="quick-link-card">
-                    <i class="fas fa-sticky-note"></i>
-                    <h4>My Notes</h4>
-                    <p>Study materials</p>
-                </a>
+<a href="/student-dashboard/my-courses.html" class="quick-link-card">
+    <i class="fas fa-book"></i>
+    <h4>My Courses</h4>
+    <p>Continue learning</p>
+</a>
                 <a href="/community.html" class="quick-link-card">
                     <i class="fas fa-users"></i>
                     <h4>Community</h4>
@@ -102,7 +131,6 @@
 
     <script src="/scripts/config.js"></script>
     <script src="/scripts/dashboard.js"></script>
-    <script src="/scripts/courseSlugs.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
             await DashboardUtils.loadHeader();
@@ -113,6 +141,7 @@
             loadUserData();
             loadEnrolledCourses();
             loadPendingInvoices();
+            loadUpcomingLessons();
         });
         
         function loadUserData() {
@@ -146,7 +175,52 @@
                     return;
                 }
                 
-                container.innerHTML = data.data.slice(0, 6).map(enrollment => {
+                const enrollments = data.data;
+                const totalCourses = enrollments.length;
+                const completedCourses = enrollments.filter(e => e.progress === 100).length;
+                const totalLessons = enrollments.reduce((s, e) => s + (e.totalLessons || 0), 0);
+                const completedLessons = enrollments.reduce((s, e) => s + (e.completedLessons || 0), 0);
+                const totalNotes = enrollments.reduce((s, e) => s + (e.totalNotes || 0), 0);
+                const readNotes = enrollments.reduce((s, e) => s + (e.readNotes || 0), 0);
+                const avgProgress = totalCourses > 0 ? Math.round(enrollments.reduce((s, e) => s + (e.progress || 0), 0) / totalCourses) : 0;
+                
+                document.getElementById('statsGrid').setAttribute('stats', JSON.stringify([
+                    { value: totalCourses, label: 'Enrolled Courses' },
+                    { value: completedLessons, label: 'Lessons Done' },
+                    { value: readNotes, label: 'Notes Read' },
+                    { value: avgProgress + '%', label: 'Average Progress' }
+                ]));
+                
+                const sorted = [...enrollments].sort((a, b) => new Date(b.lastAccessedAt || 0) - new Date(a.lastAccessedAt || 0));
+                const recent = sorted[0];
+                if (recent && recent.lastAccessedAt) {
+                    const rc = recent.course;
+                    const rp = recent.progress || 0;
+                    document.getElementById('continueSection').style.display = 'block';
+                    document.getElementById('continueCard').innerHTML = `
+                        <div class="continue-card">
+                            <div class="continue-card-gradient">
+                                <h3>${escapeHtml(rc.title)}</h3>
+                                <p>Pick up where you left off</p>
+                            </div>
+                            <div class="continue-card-body">
+                                <div class="continue-progress">
+                                    <div class="progress-text">${rp}% Complete</div>
+                                    <div class="progress-container">
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" style="width: ${rp}%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <a href="/student-dashboard/reader.html?courseId=${rc.id}" class="btn btn-primary">
+                                    <i class="fas fa-play-circle"></i> Continue
+                                </a>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                container.innerHTML = enrollments.slice(0, 6).map(enrollment => {
                     const course = enrollment.course;
                     const progress = enrollment.progress || 0;
                     const lastAccessed = enrollment.lastAccessedAt;
@@ -166,8 +240,7 @@
                                 </div>
                                 <small style="color: #888; display: block; margin-bottom: 10px; font-size: 0.8rem;">${lastAccessedText}</small>
                                 <div style="display: flex; gap: 8px;">
-                                    <a href="/student-dashboard/my-courses.html" class="btn btn-primary btn-sm btn-block">View Course</a>
-                                    <a href="/student-dashboard/my-courses.html?id=${course.id}" class="btn btn-outline btn-sm" style="flex: 0 0 auto; white-space: nowrap;">Continue <i class="fas fa-arrow-right"></i></a>
+                                    <a href="/student-dashboard/reader.html?courseId=${course.id}" class="btn btn-primary btn-sm" style="flex:1;">Continue <i class="fas fa-arrow-right"></i></a>
                                 </div>
                             </div>
                         </div>
@@ -212,6 +285,66 @@
             }
         }
         
+        async function loadUpcomingLessons() {
+            try {
+                const data = await DashboardUtils.fetchAPI('/sessions/upcoming');
+                const sessions = data.data || [];
+                if (sessions.length === 0) return;
+
+                const container = document.getElementById('upcomingLessonsList');
+                const section = document.getElementById('upcomingLessonsSection');
+                section.style.display = 'block';
+
+                const now = new Date();
+                container.innerHTML = sessions.slice(0, 6).map(s => {
+                    const datePart = s.session_date instanceof Date
+                        ? s.session_date.toISOString().split('T')[0]
+                        : String(s.session_date).split(' ')[0];
+                    const timePart = s.session_time ? String(s.session_time).slice(0, 5) : '00:00';
+                    const sessionDate = new Date(datePart + 'T' + timePart);
+                    const diffMs = sessionDate - now;
+                    const hoursLeft = Math.floor(diffMs / (1000 * 60 * 60));
+                    const minsLeft = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+                    const dateStr = new Date(datePart).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+
+                    let countdownHtml;
+                    if (s.startingSoon) {
+                        countdownHtml = `<div class="countdown" style="background:#d4edda;padding:8px 12px;border-radius:8px;text-align:center;font-weight:600;color:#155724;margin:10px 0;">
+                            <i class="fas fa-circle" style="color:#155724;font-size:0.6rem;vertical-align:middle;"></i> Starting soon
+                        </div>`;
+                    } else if (hoursLeft > 0) {
+                        countdownHtml = `<div class="countdown" style="background:#f0f8ff;padding:8px 12px;border-radius:8px;text-align:center;font-weight:600;color:var(--primary-color);margin:10px 0;">
+                            <i class="far fa-clock"></i> Starts in ${hoursLeft}h ${minsLeft}m
+                        </div>`;
+                    } else {
+                        countdownHtml = `<div class="countdown" style="background:#f0f8ff;padding:8px 12px;border-radius:8px;text-align:center;font-weight:600;color:var(--primary-color);margin:10px 0;">
+                            <i class="far fa-clock"></i> Starts in ${minsLeft}m
+                        </div>`;
+                    }
+
+                    return `
+                        <div class="course-mini-card">
+                            <div class="course-mini-card-header" style="background:linear-gradient(135deg,#e74c3c,#c0392b);">
+                                <h3 style="font-size:0.9rem;">${escapeHtml(s.title)}</h3>
+                            </div>
+                            <div class="course-mini-card-body">
+                                <p style="font-size:0.85rem;color:#888;margin:0 0 8px;"><i class="fas fa-book"></i> ${escapeHtml(s.course_title || '')}</p>
+                                <div style="display:flex;gap:10px;font-size:0.85rem;color:#555;margin-bottom:8px;">
+                                    <span><i class="fas fa-calendar"></i> ${dateStr}</span>
+                                    <span><i class="fas fa-clock"></i> ${s.session_time ? s.session_time.slice(0,5) : ''}</span>
+                                    <span><i class="fas fa-hourglass-half"></i> ${s.duration_minutes} min</span>
+                                </div>
+                                ${countdownHtml}
+                                ${s.meeting_link ? `<a href="${escapeHtml(s.meeting_link)}" target="_blank" rel="noopener" class="btn btn-primary btn-sm btn-block" style="margin-top:8px;width:100%;text-align:center;"><i class="fas fa-video"></i> Join Now</a>` : ''}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error('Error loading upcoming lessons:', error);
+            }
+        }
+
         async function promptPayment(invoiceId) {
             const phone = prompt('Enter your M-Pesa phone number (format: 254...):');
             if (!phone) return;
@@ -227,12 +360,6 @@
             } catch (error) {
                 alert('Payment request failed. Please try again.');
                 console.error('Payment error:', error);
-            }
-        }
-                
-            } catch (error) {
-                console.error('Error loading courses:', error);
-                container.innerHTML = '<div class="error-message"><i class="fas fa-exclamation-triangle"></i> Failed to load courses</div>';
             }
         }
     </script>

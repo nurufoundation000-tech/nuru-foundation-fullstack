@@ -120,7 +120,12 @@ async function handleCallback(req, res) {
 
 async function checkPaymentStatus(req, res) {
   try {
-    const { checkoutRequestId } = req.params;
+    let { checkoutRequestId, invoiceId } = req.params;
+
+    if (!checkoutRequestId && invoiceId) {
+      const invoice = await db.getOne('SELECT checkout_request_id FROM invoices WHERE id = ?', [invoiceId]);
+      checkoutRequestId = invoice?.checkout_request_id;
+    }
 
     if (!checkoutRequestId) {
       return res.status(400).json({ error: 'Checkout request ID is required' });
@@ -130,6 +135,7 @@ async function checkPaymentStatus(req, res) {
       return res.json({
         success: true,
         status: 'simulated',
+        simulated: true,
         message: 'Payment simulation mode'
       });
     }
