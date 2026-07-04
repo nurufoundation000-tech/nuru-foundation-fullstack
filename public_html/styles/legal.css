@@ -1,0 +1,167 @@
+main {
+    display: block;
+    max-width: 780px;
+    margin: 110px auto 80px;
+    padding: 48px clamp(24px, 5vw, 56px);
+    background: var(--background-light);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+    position: relative;
+    line-height: 1.75;
+    color: var(--text-dark);
+}
+
+/* The page's single h1 sits inside the card, banner-style */
+main h1 {
+    font-family: var(--font-family-heading);
+    font-weight: 400;
+    color: var(--background-light);
+    background: linear-gradient(135deg, var(--primary-color), var(--accent-color-1));
+    font-size: clamp(1.5rem, 3.5vw, 2rem);
+    letter-spacing: 0.2px;
+    margin: -48px calc(-1 * clamp(24px, 5vw, 56px)) 28px;
+    padding: 40px clamp(24px, 5vw, 56px) 26px;
+    border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0;
+}
+
+main h2 {
+    font-family: var(--font-family-heading);
+    font-weight: 400;
+    color: var(--primary-color);
+    font-size: 1.3rem;
+    margin: 36px 0 14px;
+    padding-bottom: 8px;
+    border-bottom: 3px solid var(--secondary-color);
+    display: inline-block;
+}
+
+main p {
+    margin-bottom: 16px;
+    color: var(--text-dark);
+    font-size: 1.02rem;
+}
+
+main ol,
+main ul {
+    margin: 0 0 20px 1.4rem;
+}
+
+main ol ol,
+main ul ul {
+    margin-top: 8px;
+}
+
+main li {
+    margin-bottom: 8px;
+}
+
+main a {
+    color: var(--accent-color-1);
+    text-decoration: underline;
+    text-decoration-color: rgba(56, 178, 172, 0.4);
+    text-underline-offset: 3px;
+    transition: color 0.2s ease;
+}
+
+main a:hover,
+main a:focus-visible {
+    color: var(--accent-color-2);
+}
+
+/* ---- Contact callout used at the bottom of legal pages ---------------- */
+.legal-contact-callout {
+    margin-top: 36px;
+    padding: 20px 24px;
+    background: rgba(106, 5, 114, 0.06);
+    border-left: 4px solid var(--primary-color);
+    border-radius: var(--border-radius-md);
+}
+
+.legal-contact-callout p {
+    margin: 0;
+}
+
+.legal-contact-callout a {
+    font-weight: 600;
+}
+
+/* ---- FAQ-specific: accordion built on native <details>/<summary> ------
+   Fully crawlable, no JS required, works with schema.org FAQPage markup. */
+.faq-item {
+    border: 1px solid rgba(106, 5, 114, 0.12);
+    border-radius: var(--border-radius-md);
+    margin-bottom: 14px;
+    overflow: hidden;
+    background: var(--background-light);
+}
+
+.faq-item summary {
+    list-style: none;
+    cursor: pointer;
+    padding: 18px 48px 18px 20px;
+    font-family: var(--font-family-heading);
+    font-weight: 400;
+    font-size: 1.08rem;
+    color: var(--primary-color);
+    position: relative;
+    transition: background 0.2s ease;
+}
+
+.faq-item summary::-webkit-details-marker {
+    display: none;
+}
+
+.faq-item summary::after {
+    content: "+";
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.4rem;
+    color: var(--secondary-color);
+    transition: transform 0.25s ease;
+}
+
+.faq-item[open] summary::after {
+    transform: translateY(-50%) rotate(45deg);
+}
+
+.faq-item summary:hover {
+    background: rgba(247, 183, 49, 0.08);
+}
+
+.faq-item .faq-answer {
+    padding: 0 20px 20px;
+    color: var(--text-dark);
+}
+
+.faq-item .faq-answer p:last-child {
+    margin-bottom: 0;
+}
+
+/* ---- Responsive ---------------------------------------------------------- */
+@media (max-width: 640px) {
+    main {
+        margin: 100px auto 60px;
+        padding: 32px 20px;
+        border-radius: var(--border-radius-md);
+    }
+
+    main h1 {
+        margin: -32px -20px 24px;
+        padding: 30px 20px 22px;
+        border-radius: var(--border-radius-md) var(--border-radius-md) 0 0;
+    }
+
+    main h2 {
+        font-size: 1.15rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .faq-item summary::after,
+    main a {
+        transition: none;
+    }
+}
