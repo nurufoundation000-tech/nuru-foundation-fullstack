@@ -204,6 +204,41 @@ async function createInvoice(data) {
   });
 }
 
+async function markDepositAndMonthsPaid(invoiceId, monthsPaid, paymentData) {
+  const invoice = await db.getOne('SELECT * FROM invoices WHERE id = ?', [invoiceId]);
+  if (!invoice) return;
+
+  await markInvoicePaid(invoiceId, paymentData);
+
+  if (monthsPaid > 0 && (invoice.type === 'initial' || invoice.type === 'deposit')) {
+    const monthlyInvoices = await db.query(`
+      SELECT id FROM invoices 
+      WHERE student_id = ? AND course_id = ? AND type = 'monthly' AND status = 'pending'
+      ORDER BY month_number ASC
+      LIMIT ?
+    `, [invoice.student_id, invoice.course_id, monthsPaid]);
+
+    for (const mi of monthlyInvoices) {
+      await db.update('invoices', mi.id, {
+        status: 'paid',
+        paid_at: new Date(),
+        payment_method: paymentData.method || 'mpesa',
+        transaction_id: paymentData.transactionId || null,
+        mpesa_receipt: paymentData.receiptNumber || null
+      });
+    }
+  }
+
+  const hasUnpaid = await db.getOne(`
+    SELECT id FROM invoices 
+    WHERE student_id = ? AND status IN ('pending', 'locked')
+  `, [invoice.student_id]);
+
+  if (!hasUnpaid) {
+    await db.query('UPDATE users SET is_locked = 0 WHERE id = ?', [invoice.student_id]);
+  }
+}
+
 module.exports = {
   getGlobalSettings,
   generateInitialInvoices,
@@ -213,5 +248,6 @@ module.exports = {
   getStudentInvoices,
   getInvoiceById,
   markInvoicePaid,
+  markDepositAndMonthsPaid,
   createInvoice
 };

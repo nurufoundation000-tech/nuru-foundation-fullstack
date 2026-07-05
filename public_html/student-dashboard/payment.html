@@ -191,6 +191,41 @@
             font-size: 14px;
             font-weight: 600;
         }
+        .balance-summary {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        .summary-card {
+            flex: 1;
+            min-width: 200px;
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .summary-card i {
+            font-size: 32px;
+        }
+        .summary-card.total-paid i { color: #27ae60; }
+        .summary-card.total-pending i { color: #f39c12; }
+        .summary-card.next-due i { color: #3498db; }
+        .summary-label {
+            display: block;
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 4px;
+        }
+        .summary-value {
+            display: block;
+            font-size: 22px;
+            font-weight: 700;
+            color: #333;
+        }
         .grace-period-warning {
             background: #fff3cd;
             border: 1px solid #ffc107;
@@ -199,6 +234,39 @@
             border-radius: 8px;
             margin-top: 10px;
             font-size: 14px;
+        }
+        .submissions-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .submissions-table th,
+        .submissions-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        .submissions-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+        }
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .status-badge.pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+        .status-badge.verified {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status-badge.rejected {
+            background: #f8d7da;
+            color: #721c24;
         }
     </style>
 </head>
@@ -212,6 +280,30 @@
             <page-header title="Payments" subtitle="Manage your course payments" icon="fa-credit-card"></page-header>
             
             <div id="alertContainer"></div>
+            
+            <div id="balanceSummary" class="balance-summary">
+                <div class="summary-card total-paid">
+                    <i class="fas fa-check-circle"></i>
+                    <div>
+                        <span class="summary-label">Total Paid</span>
+                        <span class="summary-value" id="totalPaid">KES 0</span>
+                    </div>
+                </div>
+                <div class="summary-card total-pending">
+                    <i class="fas fa-clock"></i>
+                    <div>
+                        <span class="summary-label">Total Pending</span>
+                        <span class="summary-value" id="totalPending">KES 0</span>
+                    </div>
+                </div>
+                <div class="summary-card next-due">
+                    <i class="fas fa-calendar-alt"></i>
+                    <div>
+                        <span class="summary-label">Next Due</span>
+                        <span class="summary-value" id="nextDue">---</span>
+                    </div>
+                </div>
+            </div>
             
             <div id="pendingPaymentsSection">
                 <h2 style="margin-bottom: 20px; color: var(--primary-color);">Pending Payments</h2>
@@ -238,6 +330,13 @@
                 <h2 style="margin-bottom: 20px; color: var(--primary-color);">Payment History</h2>
                 <div id="paymentHistoryContainer">
                     <div class="loading"><i class="fas fa-spinner fa-spin"></i><p>Loading history...</p></div>
+                </div>
+            </div>
+
+            <div id="mySubmissionsSection" style="margin-top: 40px;">
+                <h2 style="margin-bottom: 20px; color: var(--primary-color);">My Payment Submissions</h2>
+                <div id="mySubmissionsContainer">
+                    <div class="loading"><i class="fas fa-spinner fa-spin"></i><p>Loading submissions...</p></div>
                 </div>
             </div>
         </div>
@@ -276,6 +375,27 @@
             <button class="btn" id="payBtn" onclick="processPayment()">
                 <span id="payBtnText">Pay Now</span>
             </button>
+
+            <div id="paybillFallback" style="display: none; margin-top: 20px; padding-top: 20px; border-top: 2px dashed #ddd;">
+                <h3 style="color: #333; font-size: 16px; margin-bottom: 15px;"><i class="fas fa-info-circle"></i> Pay via M-Pesa Paybill</h3>
+                <div id="paybillDetails" style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                    <p style="margin: 5px 0; font-size: 14px;"><strong>Paybill:</strong> <span id="displayPaybill">---</span></p>
+                    <p style="margin: 5px 0; font-size: 14px;"><strong>Till Number:</strong> <span id="displayTill">---</span></p>
+                    <p style="margin: 5px 0; font-size: 14px;"><strong>Account (Student ID):</strong> <span id="displayStudentId">---</span></p>
+                    <p style="margin: 5px 0; font-size: 14px;"><strong>Account (Invoice ID):</strong> <span id="displayInvoiceId">---</span></p>
+                </div>
+                <p style="font-size: 13px; color: #666; margin-bottom: 10px;">After sending the payment via M-Pesa, enter the transaction ID below:</p>
+                <div style="display: flex; gap: 10px;">
+                    <input type="text" id="transactionIdInput" placeholder="M-Pesa transaction ID" style="flex: 1; padding: 12px; border: 2px solid #e1e1e1; border-radius: 8px; font-size: 16px;">
+                    <button class="btn" id="submitTransactionBtn" onclick="submitMpesaTransaction()" style="white-space: nowrap;">
+                        <span id="submitTxBtnText">Submit</span>
+                    </button>
+                </div>
+                <div id="submitTxError" class="error-message" style="display: none; margin-top: 10px;"></div>
+                <div id="submitTxSuccess" style="display: none; margin-top: 10px; padding: 10px; background: #d4edda; border: 1px solid #28a745; border-radius: 8px; color: #155724;">
+                    <i class="fas fa-check-circle"></i> Payment submitted! Awaiting admin verification.
+                </div>
+            </div>
         </div>
     </div>
 
@@ -294,6 +414,7 @@
             await loadPayments();
             await loadCreditBalance();
             await loadInstallments();
+            await loadMySubmissions();
         });
         
         async function loadCreditBalance() {
@@ -521,11 +642,36 @@
                     // Show all non-paid invoices including locked ones
                     renderPendingPayments(data.data.filter(inv => inv.status !== 'paid'));
                     renderPaymentHistory(data.data.filter(inv => inv.status === 'paid'));
+                    renderBalanceSummary(data.data);
                 }
             } catch (error) {
                 console.error('Error loading payments:', error);
                 showAlert('Failed to load payments. Please refresh the page.', 'danger');
             }
+        }
+
+        function renderBalanceSummary(invoices) {
+            const totalPaid = invoices
+                .filter(inv => inv.status === 'paid')
+                .reduce((sum, inv) => sum + inv.amount, 0);
+            const totalPending = invoices
+                .filter(inv => inv.status !== 'paid')
+                .reduce((sum, inv) => sum + inv.amount, 0);
+            
+            const unpaid = invoices.filter(inv => inv.status !== 'paid');
+            let nextDueText = '---';
+            if (unpaid.length > 0) {
+                unpaid.sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
+                const next = unpaid[0];
+                const due = new Date(next.dueDate);
+                const now = new Date();
+                const daysLeft = Math.ceil((due - now) / (1000 * 60 * 60 * 24));
+                nextDueText = `KES ${next.amount.toLocaleString()} - ${due.toLocaleDateString()}${daysLeft > 0 ? ` (${daysLeft} days)` : daysLeft === 0 ? ' (Due today)' : ' (Overdue)'}`;
+            }
+            
+            document.getElementById('totalPaid').textContent = `KES ${totalPaid.toLocaleString()}`;
+            document.getElementById('totalPending').textContent = `KES ${totalPending.toLocaleString()}`;
+            document.getElementById('nextDue').textContent = nextDueText;
         }
 
         function renderPendingPayments(invoices) {
@@ -677,9 +823,10 @@
             // Update payment preview
             if (monthlyAmount && monthlyAmount > 0) {
                 const months = parseInt(document.getElementById('monthsSelect')?.value || 1);
-                const total = monthlyAmount * months;
+                const total = amount + (monthlyAmount * months);
                 paymentAmountPreview.innerHTML = `
-                    <strong>Total: KES ${total.toLocaleString()}</strong> (${months} month${months > 1 ? 's' : ''} × KES ${monthlyAmount.toLocaleString()})
+                    <strong>Total: KES ${total.toLocaleString()}</strong> 
+                    (Deposit KES ${amount.toLocaleString()} + ${months} month${months > 1 ? 's' : ''} × KES ${monthlyAmount.toLocaleString()})
                 `;
             } else {
                 paymentAmountPreview.innerHTML = '';
@@ -705,9 +852,10 @@
             const paymentAmountPreview = document.getElementById('paymentAmountPreview');
             
             if (currentInvoice && currentInvoice.monthlyAmount && currentInvoice.monthlyAmount > 0) {
-                const total = currentInvoice.monthlyAmount * months;
+                const total = currentInvoice.amount + (currentInvoice.monthlyAmount * months);
                 paymentAmountPreview.innerHTML = `
-                    <strong>Total: KES ${total.toLocaleString()}</strong> (${months} month${months > 1 ? 's' : ''} × KES ${currentInvoice.monthlyAmount.toLocaleString()})
+                    <strong>Total: KES ${total.toLocaleString()}</strong> 
+                    (Deposit KES ${currentInvoice.amount.toLocaleString()} + ${months} month${months > 1 ? 's' : ''} × KES ${currentInvoice.monthlyAmount.toLocaleString()})
                 `;
             }
         }
@@ -765,7 +913,11 @@
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`
                     },
-                    body: JSON.stringify({ phoneNumber: phone, months: months })
+                    body: JSON.stringify({ 
+                        phoneNumber: phone, 
+                        months: months,
+                        amount: currentInvoice.amount + (currentInvoice.monthlyAmount ? currentInvoice.monthlyAmount * months : 0)
+                    })
                 });
                 
                 if (response.status === 401 || response.status === 403) {
@@ -880,6 +1032,9 @@
                         console.log('[DEBUG] Check Payment Status button created');
                     }
                     
+                    // Show paybill fallback so student can submit transaction ID if STK push fails
+                    showPaybillFallback(data);
+                    
                     // Auto-refresh payments after 5 seconds
                     setTimeout(async () => {
                         await loadPayments();
@@ -971,6 +1126,180 @@
                     <span>${message}</span>
                 </div>
             `;
+        }
+
+        async function loadMySubmissions() {
+            try {
+                const token = sessionStorage.getItem('token');
+                if (!token) return;
+
+                const response = await fetch('/api/student/my-submissions', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.status === 401 || response.status === 403) return;
+
+                const data = await response.json();
+                if (data.success) {
+                    renderMySubmissions(data.data);
+                }
+            } catch (error) {
+                console.error('Error loading submissions:', error);
+            }
+        }
+
+        function renderMySubmissions(submissions) {
+            const container = document.getElementById('mySubmissionsContainer');
+
+            if (!submissions || submissions.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-file-invoice"></i>
+                        <p>No payment submissions yet</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = `
+                <div style="overflow-x: auto;">
+                    <table class="submissions-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Course</th>
+                                <th>Amount</th>
+                                <th>Transaction ID</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${submissions.map(sub => `
+                                <tr>
+                                    <td>${new Date(sub.submitted_at).toLocaleDateString()}</td>
+                                    <td>${sub.course_title}</td>
+                                    <td>KES ${parseFloat(sub.amount).toLocaleString()}</td>
+                                    <td style="font-family: monospace;">${sub.transaction_id}</td>
+                                    <td><span class="status-badge ${sub.status}">${sub.status.toUpperCase()}</span></td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+
+        function showPaybillFallback(data) {
+            const fallback = document.getElementById('paybillFallback');
+            const displayPaybill = document.getElementById('displayPaybill');
+            const displayTill = document.getElementById('displayTill');
+            const displayStudentId = document.getElementById('displayStudentId');
+            const displayInvoiceId = document.getElementById('displayInvoiceId');
+
+            if (data.mpesa_paybill) {
+                displayPaybill.textContent = data.mpesa_paybill;
+            } else {
+                displayPaybill.textContent = '---';
+            }
+            if (data.mpesa_till_number) {
+                displayTill.textContent = data.mpesa_till_number;
+            } else {
+                displayTill.textContent = '---';
+            }
+
+            // Get student ID and invoice ID from stored data
+            const token = sessionStorage.getItem('token');
+            if (token) {
+                try {
+                    const parts = token.split('.');
+                    if (parts.length === 3) {
+                        const payload = JSON.parse(atob(parts[1]));
+                        displayStudentId.textContent = payload.userId || '---';
+                    }
+                } catch (e) {
+                    displayStudentId.textContent = '---';
+                }
+            }
+            displayInvoiceId.textContent = currentInvoice?.id || '---';
+
+            fallback.style.display = 'block';
+        }
+
+        async function submitMpesaTransaction() {
+            const transactionId = document.getElementById('transactionIdInput').value.trim();
+            const errorEl = document.getElementById('submitTxError');
+            const successEl = document.getElementById('submitTxSuccess');
+            const submitBtn = document.getElementById('submitTransactionBtn');
+            const submitBtnText = document.getElementById('submitTxBtnText');
+            const monthsSelect = document.getElementById('monthsSelect');
+
+            errorEl.style.display = 'none';
+            successEl.style.display = 'none';
+
+            if (!transactionId) {
+                errorEl.textContent = 'Please enter your M-Pesa transaction ID';
+                errorEl.style.display = 'block';
+                return;
+            }
+
+            if (!currentInvoice) {
+                errorEl.textContent = 'No invoice selected. Please try again.';
+                errorEl.style.display = 'block';
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtnText.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+
+            try {
+                const token = sessionStorage.getItem('token');
+                if (!token) {
+                    window.location.href = '/login.html';
+                    return;
+                }
+
+                const months = parseInt(monthsSelect?.value || 1);
+
+                const response = await fetch('/api/student/submit-transaction', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        invoiceId: currentInvoice.id,
+                        transactionId: transactionId,
+                        months: months,
+                        amount: currentInvoice.amount + (currentInvoice.monthlyAmount ? currentInvoice.monthlyAmount * months : 0)
+                    })
+                });
+
+                if (response.status === 401 || response.status === 403) {
+                    window.location.href = '/login.html';
+                    return;
+                }
+
+                const data = await response.json();
+
+                if (data.success) {
+                    successEl.style.display = 'block';
+                    errorEl.style.display = 'none';
+                    document.getElementById('transactionIdInput').value = '';
+                    setTimeout(() => {
+                        closeMpesaModal();
+                        loadMySubmissions();
+                    }, 2000);
+                } else {
+                    errorEl.textContent = data.error || 'Failed to submit transaction';
+                    errorEl.style.display = 'block';
+                }
+            } catch (error) {
+                errorEl.textContent = 'An error occurred. Please try again.';
+                errorEl.style.display = 'block';
+            } finally {
+                submitBtn.disabled = false;
+                submitBtnText.textContent = 'Submit';
+            }
         }
     </script>
 <script>function logout(){localStorage.clear();sessionStorage.clear();location.replace('/login.html')}</script>
