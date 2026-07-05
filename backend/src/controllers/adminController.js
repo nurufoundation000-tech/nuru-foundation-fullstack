@@ -143,6 +143,7 @@ async function createCourse(req, res) {
       level: level || 'Beginner',
       thumbnail_url: thumbnailUrl || '',
       is_published: isPublished || false,
+      tutor_id: tutorIds[0],
       created_at: new Date()
     });
 
@@ -862,10 +863,12 @@ async function updateGlobalSettings(req, res) {
     const settingsPath = './global-billing.json';
     const existing = fs.existsSync(settingsPath)
       ? JSON.parse(fs.readFileSync(settingsPath, 'utf8'))
-      : { billingDay: 1, gracePeriodDays: 2 };
+      : { billingDay: 1, gracePeriodDays: 2, mpesa_paybill: '', mpesa_till_number: '' };
 
     if (req.body.billingDay !== undefined) existing.billingDay = req.body.billingDay;
     if (req.body.gracePeriodDays !== undefined) existing.gracePeriodDays = req.body.gracePeriodDays;
+    if (req.body.mpesa_paybill !== undefined) existing.mpesa_paybill = req.body.mpesa_paybill;
+    if (req.body.mpesa_till_number !== undefined) existing.mpesa_till_number = req.body.mpesa_till_number;
 
     fs.writeFileSync(settingsPath, JSON.stringify(existing, null, 2));
     res.json({ success: true, data: existing, message: 'Global billing settings saved' });
@@ -1077,6 +1080,119 @@ async function getInstallmentSchedule(req, res) {
   }
 }
 
+async function getStudentPaymentSummary(req, res) {
+  try {
+    const studentId = parseInt(req.params.id);
+
+    if (isNaN(studentId)) {
+      return res.status(400).json({ error: 'Invalid student ID' });
+    }
+
+    const student = await db.getOne('SELECT id, full_name, email, username FROM users WHERE id = ?', [studentId]);
+
+    if (!student) {
+      return res.status(404).json({ error: 'Student not found' });
+    }
+
+    const invoices = await db.query(`
+      SELECT i.*, c.title as course_title
+      FROM invoices i
+      JOIN courses c ON i.course_id = c.id
+      WHERE i.student_id = ?
+      ORDER BY i.course_id, i.created_at ASC
+    `, [studentId]);
+
+    const totalPaid = invoices
+      .filter(i => i.status === 'paid')
+      .reduce((sum, i) => sum + (i.amount || 0), 0);
+
+    const totalPending = invoices
+      .filter(i => i.status === 'pending')
+      .reduce((sum, i) => sum + (i.amount || 0), 0);
+
+    const totalOverdue = invoices
+      .filter(i => i.status === 'locked')
+      .reduce((sum, i) => sum + (i.amount || 0), 0);
+
+    const enrolledCourses = await db.query(`
+      SELECT c.id, c.title, cp.initial_payment, cp.monthly_amount, cp.billing_duration
+      FROM enrollments e
+      JOIN courses c ON e.course_id = c.id
+      LEFT JOIN course_pricing cp ON cp.course_id = c.id
+      WHERE e.student_id = ?
+      ORDER BY c.title
+    `, [studentId]);
+
+    const courseMap = {};
+    for (const inv of invoices) {
+      if (!courseMap[inv.course_id]) {
+        courseMap[inv.course_id] = [];
+      }
+      courseMap[inv.course_id].push(inv);
+    }
+
+    const courses = enrolledCourses.map(ec => {
+      const courseInvoices = courseMap[ec.id] || [];
+      const deposit = courseInvoices.find(i => i.type === 'initial' || i.type === 'deposit');
+      const monthly = courseInvoices.filter(i => i.type === 'monthly');
+      const paidMonthly = monthly.filter(i => i.status === 'paid');
+      const monthlyPaidAmount = paidMonthly.reduce((sum, i) => sum + (i.amount || 0), 0);
+      const monthlyTotalAmount = monthly.reduce((sum, i) => sum + (i.amount || 0), 0);
+
+      return {
+        courseId: ec.id,
+        courseTitle: ec.title,
+        initialPayment: ec.initial_payment || 0,
+        monthlyAmount: ec.monthly_amount || 0,
+        billingDuration: ec.billing_duration || 0,
+        deposit: deposit ? {
+          id: deposit.id,
+          amount: deposit.amount,
+          status: deposit.status,
+          paidAt: deposit.paid_at
+        } : null,
+        monthlyInvoices: {
+          total: monthly.length,
+          paid: paidMonthly.length,
+          pending: monthly.filter(i => i.status === 'pending').length,
+          overdue: monthly.filter(i => i.status === 'locked').length,
+          paidAmount: monthlyPaidAmount,
+          totalAmount: monthlyTotalAmount
+        },
+        balanceRemaining: monthly.filter(i => i.status !== 'paid').reduce((sum, i) => sum + (i.amount || 0), 0) + 
+          (deposit && deposit.status !== 'paid' ? (deposit.amount || 0) : 0)
+      };
+    });
+
+    res.json({
+      success: true,
+      data: {
+        student: {
+          id: student.id,
+          fullName: student.full_name,
+          email: student.email,
+          username: student.username
+        },
+        summary: {
+          totalPaid,
+          totalPending,
+          totalOverdue,
+          totalOwed: totalPending + totalOverdue,
+          invoiceCount: invoices.length,
+          paidCount: invoices.filter(i => i.status === 'paid').length,
+          pendingCount: invoices.filter(i => i.status === 'pending').length,
+          overdueCount: invoices.filter(i => i.status === 'locked').length
+        },
+        invoices,
+        courses
+      }
+    });
+  } catch (error) {
+    console.error('Get student payment summary error:', error);
+    res.status(500).json({ error: 'Failed to load payment summary' });
+  }
+}
+
 module.exports = {
   getDashboardStats,
   getCourses,
@@ -1104,5 +1220,6 @@ module.exports = {
   unlockInvoice,
   updateEnrollment,
   adminDeleteEnrollment,
-  getInstallmentSchedule
+  getInstallmentSchedule,
+  getStudentPaymentSummary
 };

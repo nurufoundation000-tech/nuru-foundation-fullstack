@@ -8,20 +8,22 @@ const {
   isMpesaConfigured,
   simulatePayment 
 } = require('../lib/mpesa.js');
-const { markInvoicePaid } = require('../lib/invoices.js');
+const { markInvoicePaid, markDepositAndMonthsPaid, getGlobalSettings } = require('../lib/invoices.js');
 
 async function initiatePayment(req, res) {
   try {
-    const { invoiceId, phoneNumber, amount, months } = req.body;
+    const invoiceId = req.params.invoiceId;
+    const { phoneNumber, amount, months } = req.body;
 
-    if (!invoiceId || !phoneNumber) {
-      return res.status(400).json({ error: 'Invoice ID and phone number are required' });
+    if (!phoneNumber) {
+      return res.status(400).json({ error: 'Phone number is required' });
     }
 
     const invoice = await db.getOne(`
-      SELECT i.*, c.title as course_title 
+      SELECT i.*, c.title as course_title, cp.initial_payment, cp.monthly_amount
       FROM invoices i
       JOIN courses c ON i.course_id = c.id
+      LEFT JOIN course_pricing cp ON cp.course_id = c.id
       WHERE i.id = ? AND i.student_id = ?
     `, [invoiceId, req.user.userId]);
 
@@ -34,18 +36,43 @@ async function initiatePayment(req, res) {
     }
 
     const monthsCount = parseInt(months) || 1;
-    const paymentAmount = (amount || invoice.amount) * monthsCount;
+    let paymentAmount;
+    if (invoice.type === 'initial' || invoice.type === 'deposit') {
+      const monthlyAmount = invoice.monthly_amount || invoice.amount;
+      paymentAmount = invoice.amount + (monthlyAmount * monthsCount);
+    } else {
+      paymentAmount = (amount || invoice.amount) * monthsCount;
+    }
     const formattedPhone = formatPhoneNumber(phoneNumber);
 
     if (!formattedPhone) {
       return res.status(400).json({ error: 'Invalid phone number format' });
     }
 
+    const globalSettings = await getGlobalSettings();
+    const paybillInfo = {
+      mpesa_paybill: globalSettings.mpesa_paybill || '',
+      mpesa_till_number: globalSettings.mpesa_till_number || ''
+    };
+
     if (!isMpesaConfigured()) {
       const simResult = simulatePayment(invoiceId, paymentAmount);
+      const paymentData = {
+        method: 'simulated',
+        transactionId: simResult.checkoutRequestId,
+        receiptNumber: `SIM${Date.now()}`
+      };
+      if (invoice.type === 'initial' || invoice.type === 'deposit') {
+        await markDepositAndMonthsPaid(invoiceId, monthsCount, paymentData);
+      } else {
+        await markInvoicePaid(invoiceId, paymentData);
+      }
       return res.json({
         success: true,
         ...simResult,
+        totalAmount: paymentAmount,
+        monthsPaid: monthsCount,
+        ...paybillInfo,
         message: 'Payment simulated. In production, STK push would be sent.'
       });
     }
@@ -62,12 +89,16 @@ async function initiatePayment(req, res) {
     }
 
     await db.update('invoices', invoiceId, {
-      checkout_request_id: result.checkoutRequestId
+      checkout_request_id: result.checkoutRequestId,
+      months_count: (invoice.type === 'initial' || invoice.type === 'deposit') ? monthsCount : null
     });
 
     res.json({
       success: true,
       checkoutRequestId: result.checkoutRequestId,
+      totalAmount: paymentAmount,
+      monthsPaid: (invoice.type === 'initial' || invoice.type === 'deposit') ? monthsCount : 0,
+      ...paybillInfo,
       message: 'STK push sent to your phone'
     });
 
@@ -94,7 +125,7 @@ async function handleCallback(req, res) {
     }
 
     const invoice = await db.getOne(`
-      SELECT id, student_id, amount FROM invoices 
+      SELECT * FROM invoices 
       WHERE checkout_request_id = ?
     `, [parsed.checkoutRequestId]);
 
@@ -103,11 +134,19 @@ async function handleCallback(req, res) {
       return res.status(404).json({ error: 'Invoice not found' });
     }
 
-    await markInvoicePaid(invoice.id, {
-      method: 'mpesa',
-      transactionId: parsed.checkoutRequestId,
-      receiptNumber: parsed.receiptNumber
-    });
+    if ((invoice.type === 'initial' || invoice.type === 'deposit') && invoice.months_count > 0) {
+      await markDepositAndMonthsPaid(invoice.id, invoice.months_count, {
+        method: 'mpesa',
+        transactionId: parsed.checkoutRequestId,
+        receiptNumber: parsed.receiptNumber
+      });
+    } else {
+      await markInvoicePaid(invoice.id, {
+        method: 'mpesa',
+        transactionId: parsed.checkoutRequestId,
+        receiptNumber: parsed.receiptNumber
+      });
+    }
 
     console.log('[M-Pesa] Invoice marked as paid:', invoice.id);
 
@@ -127,17 +166,35 @@ async function checkPaymentStatus(req, res) {
       checkoutRequestId = invoice?.checkout_request_id;
     }
 
-    if (!checkoutRequestId) {
-      return res.status(400).json({ error: 'Checkout request ID is required' });
-    }
-
     if (!isMpesaConfigured()) {
+      if (invoiceId) {
+        const invoice = await db.getOne('SELECT * FROM invoices WHERE id = ?', [invoiceId]);
+        if (invoice && invoice.status !== 'paid') {
+          if ((invoice.type === 'initial' || invoice.type === 'deposit') && (invoice.months_count || 0) > 0) {
+            await markDepositAndMonthsPaid(invoiceId, invoice.months_count, {
+              method: 'simulated',
+              transactionId: `SIM_${Date.now()}`,
+              receiptNumber: `SIM${Date.now()}`
+            });
+          } else {
+            await markInvoicePaid(invoiceId, {
+              method: 'simulated',
+              transactionId: `SIM_${Date.now()}`,
+              receiptNumber: `SIM${Date.now()}`
+            });
+          }
+        }
+      }
       return res.json({
         success: true,
-        status: 'simulated',
+        status: 'paid',
         simulated: true,
-        message: 'Payment simulation mode'
+        message: 'Payment confirmed (simulation mode)'
       });
+    }
+
+    if (!checkoutRequestId) {
+      return res.status(400).json({ error: 'Checkout request ID is required' });
     }
 
     const result = await queryTransactionStatus(checkoutRequestId);
@@ -151,15 +208,23 @@ async function checkPaymentStatus(req, res) {
       invoiceStatus = 'paid';
 
       const invoice = await db.getOne(`
-        SELECT id FROM invoices WHERE checkout_request_id = ?
+        SELECT * FROM invoices WHERE checkout_request_id = ?
       `, [checkoutRequestId]);
 
       if (invoice) {
-        await markInvoicePaid(invoice.id, {
-          method: 'mpesa',
-          transactionId: checkoutRequestId,
-          receiptNumber: result.mpesaReceiptNumber
-        });
+        if ((invoice.type === 'initial' || invoice.type === 'deposit') && (invoice.months_count || 0) > 0) {
+          await markDepositAndMonthsPaid(invoice.id, invoice.months_count, {
+            method: 'mpesa',
+            transactionId: checkoutRequestId,
+            receiptNumber: result.mpesaReceiptNumber
+          });
+        } else {
+          await markInvoicePaid(invoice.id, {
+            method: 'mpesa',
+            transactionId: checkoutRequestId,
+            receiptNumber: result.mpesaReceiptNumber
+          });
+        }
       }
     }
 

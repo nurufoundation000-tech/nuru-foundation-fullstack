@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="/scripts/auth-guard.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Confirmations - NURU FOUNDATION Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Fredoka+One&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="../styles/root.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f8f9fa;
+            color: #333;
+        }
+
+        .admin-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .admin-sidebar {
+            width: 260px;
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: white;
+            padding: 20px 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .admin-brand {
+            padding: 0 20px 20px;
+            border-bottom: 1px solid #4a6278;
+            margin-bottom: 20px;
+        }
+
+        .admin-brand h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .admin-nav {
+            list-style: none;
+            padding: 0 10px;
+        }
+
+        .admin-nav li {
+            margin-bottom: 5px;
+        }
+
+        .admin-nav a {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            color: #ecf0f1;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .admin-nav a:hover,
+        .admin-nav a.active {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+
+        .admin-nav i {
+            width: 20px;
+            margin-right: 10px;
+        }
+
+        .admin-main {
+            flex: 1;
+            margin-left: 260px;
+            padding: 20px;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .page-header h1 {
+            font-size: 1.8rem;
+            color: #2c3e50;
+        }
+
+        .page-header p {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        .filter-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .filter-tab {
+            padding: 8px 20px;
+            border: 2px solid #ddd;
+            border-radius: 20px;
+            background: white;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .filter-tab:hover {
+            border-color: #2c3e50;
+        }
+
+        .filter-tab.active {
+            background: #2c3e50;
+            color: white;
+            border-color: #2c3e50;
+        }
+
+        .filter-tab .badge {
+            background: #e74c3c;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            margin-left: 5px;
+        }
+
+        .filter-tab.active .badge {
+            background: white;
+            color: #2c3e50;
+        }
+
+        .submissions-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .submissions-table th {
+            background: #f8f9fa;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+            border-bottom: 2px solid #eee;
+        }
+
+        .submissions-table td {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            vertical-align: middle;
+        }
+
+        .submissions-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .status-badge.pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-badge.verified {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-badge.rejected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .action-btn {
+            padding: 6px 14px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 13px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .action-btn.verify {
+            background: #27ae60;
+            color: white;
+        }
+
+        .action-btn.verify:hover {
+            background: #219a52;
+        }
+
+        .action-btn.reject {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .action-btn.reject:hover {
+            background: #c0392b;
+        }
+
+        .action-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .empty-state i {
+            font-size: 60px;
+            color: #ddd;
+            margin-bottom: 20px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .student-info {
+            font-size: 13px;
+            color: #6c757d;
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-close {
+            float: right;
+            border: none;
+            background: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            justify-content: flex-end;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #2c3e50;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #34495e;
+        }
+
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+
+        .btn-secondary {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #7f8c8d;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 14px;
+            resize: vertical;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <nav class="admin-sidebar">
+            <div class="admin-brand">
+                <h1>NURU Admin</h1>
+                <p style="font-size: 0.8rem; opacity: 0.7;">Payment Confirmations</p>
+            </div>
+            <ul class="admin-nav">
+                <li><a href="index.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                <li><a href="users.html"><i class="fas fa-users"></i> User Management</a></li>
+                <li><a href="courses.html"><i class="fas fa-book"></i> Course Management</a></li>
+                <li><a href="enrollments.html"><i class="fas fa-clipboard-list"></i> Enrollments</a></li>
+                <li><a href="analytics.html"><i class="fas fa-chart-bar"></i> Analytics</a></li>
+                <li><a href="transactions.html"><i class="fas fa-credit-card"></i> Transactions</a></li>
+                <li><a href="invoices.html"><i class="fas fa-file-invoice"></i> Invoices</a></li>
+                <li><a href="student-payments.html"><i class="fas fa-money-check"></i> Student Payments</a></li>
+                <li><a href="payment-confirmations.html" class="active"><i class="fas fa-check-double"></i> Payment Confirmations</a></li>
+                <li><a href="course-pricing.html"><i class="fas fa-tag"></i> Course Pricing</a></li>
+                <li><a href="settings.html"><i class="fas fa-cog"></i> System Settings</a></li>
+                <li><a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </nav>
+
+        <main class="admin-main">
+            <div class="page-header">
+                <div>
+                    <h1>Payment Confirmations</h1>
+                    <p>Review and verify student payment submissions</p>
+                </div>
+            </div>
+
+            <div class="filter-tabs">
+                <button class="filter-tab active" data-status="" onclick="loadSubmissions('')">All</button>
+                <button class="filter-tab" data-status="pending" onclick="loadSubmissions('pending')">Pending <span class="badge" id="pendingCount">0</span></button>
+                <button class="filter-tab" data-status="verified" onclick="loadSubmissions('verified')">Verified</button>
+                <button class="filter-tab" data-status="rejected" onclick="loadSubmissions('rejected')">Rejected</button>
+            </div>
+
+            <div id="submissionsContainer">
+                <div class="loading"><i class="fas fa-spinner fa-spin"></i><p>Loading submissions...</p></div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Confirm Modal -->
+    <div class="modal-overlay" id="confirmModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeConfirmModal()">&times;</button>
+            <h3 id="confirmTitle" style="margin-bottom: 15px;">Confirm</h3>
+            <p id="confirmMessage" style="color: #666; margin-bottom: 20px;"></p>
+            <div id="rejectReasonGroup" style="display: none;">
+                <label style="font-weight: 500; color: #555;">Reason for rejection:</label>
+                <textarea id="rejectReason" rows="3" placeholder="Optional reason..."></textarea>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeConfirmModal()">Cancel</button>
+                <button class="btn" id="confirmActionBtn" onclick="executeConfirm()">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/scripts/config.js"></script>
+    <script>
+        let currentFilter = '';
+        let pendingAction = null;
+        let pendingSubmissionId = null;
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+            if (!token) {
+                window.location.href = '/login.html';
+                return;
+            }
+            try {
+                const parts = token.split('.');
+                if (parts.length === 3) {
+                    const payload = JSON.parse(atob(parts[1]));
+                    const role = payload.role?.name || payload.role;
+                    if (role !== 'admin') {
+                        window.location.href = '/login.html';
+                        return;
+                    }
+                }
+            } catch (e) {
+                window.location.href = '/login.html';
+                return;
+            }
+            loadSubmissions('pending');
+        });
+
+        async function loadSubmissions(status) {
+            currentFilter = status || '';
+            document.querySelectorAll('.filter-tab').forEach(tab => {
+                tab.classList.toggle('active', tab.dataset.status === currentFilter);
+            });
+
+            const container = document.getElementById('submissionsContainer');
+            container.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i><p>Loading submissions...</p></div>';
+
+            try {
+                const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+                const url = status ? `${API_URL}/admin/payment-submissions?status=${status}` : `${API_URL}/admin/payment-submissions`;
+                const response = await fetch(url, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.status === 401 || response.status === 403) {
+                    window.location.href = '/login.html';
+                    return;
+                }
+
+                const data = await response.json();
+
+                if (data.success) {
+                    renderSubmissions(data.data);
+                    updatePendingCount(data.data);
+                } else {
+                    container.innerHTML = `<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>Failed to load submissions</p></div>`;
+                }
+            } catch (error) {
+                container.innerHTML = `<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>Error loading submissions</p></div>`;
+            }
+        }
+
+        function updatePendingCount(submissions) {
+            const pending = submissions.filter(s => s.status === 'pending').length;
+            document.getElementById('pendingCount').textContent = pending;
+        }
+
+        function renderSubmissions(submissions) {
+            const container = document.getElementById('submissionsContainer');
+
+            if (!submissions || submissions.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-check-circle"></i>
+                        <p>No submissions found</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = `
+                <div style="overflow-x: auto;">
+                    <table class="submissions-table">
+                        <thead>
+                            <tr>
+                                <th>Student</th>
+                                <th>Course</th>
+                                <th>Amount</th>
+                                <th>Transaction ID</th>
+                                <th>Phone</th>
+                                <th>Submitted</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${submissions.map(sub => `
+                                <tr>
+                                    <td>
+                                        <strong>${sub.student_name || sub.username}</strong>
+                                        <div class="student-info">${sub.student_email || ''}</div>
+                                    </td>
+                                    <td>${sub.course_title}</td>
+                                    <td>KES ${parseFloat(sub.amount).toLocaleString()}</td>
+                                    <td style="font-family: monospace; font-size: 13px;">${sub.transaction_id}</td>
+                                    <td>${sub.phone_number || '-'}</td>
+                                    <td>${new Date(sub.submitted_at).toLocaleDateString()}</td>
+                                    <td>
+                                        <span class="status-badge ${sub.status}">${sub.status.toUpperCase()}</span>
+                                        ${sub.admin_name ? `<div class="student-info">by ${sub.admin_name}</div>` : ''}
+                                        ${sub.admin_notes ? `<div class="student-info" style="font-style: italic;">"${sub.admin_notes}"</div>` : ''}
+                                    </td>
+                                    <td>
+                                        ${sub.status === 'pending' ? `
+                                            <button class="action-btn verify" onclick="showVerifyModal(${sub.id})">
+                                                <i class="fas fa-check"></i> Verify
+                                            </button>
+                                            <button class="action-btn reject" onclick="showRejectModal(${sub.id})" style="margin-left: 5px;">
+                                                <i class="fas fa-times"></i> Reject
+                                            </button>
+                                        ` : '-'}
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+
+        function showVerifyModal(submissionId) {
+            pendingSubmissionId = submissionId;
+            pendingAction = 'verify';
+            document.getElementById('confirmTitle').textContent = 'Verify Payment';
+            document.getElementById('confirmMessage').textContent = 'Are you sure you want to verify this payment? This will mark the invoice as paid and unlock the student if all dues are cleared.';
+            document.getElementById('rejectReasonGroup').style.display = 'none';
+            const btn = document.getElementById('confirmActionBtn');
+            btn.textContent = 'Verify';
+            btn.className = 'btn btn-primary';
+            document.getElementById('confirmModal').classList.add('show');
+        }
+
+        function showRejectModal(submissionId) {
+            pendingSubmissionId = submissionId;
+            pendingAction = 'reject';
+            document.getElementById('confirmTitle').textContent = 'Reject Payment';
+            document.getElementById('confirmMessage').textContent = 'Are you sure you want to reject this payment submission? The student will be notified.';
+            document.getElementById('rejectReasonGroup').style.display = 'block';
+            document.getElementById('rejectReason').value = '';
+            const btn = document.getElementById('confirmActionBtn');
+            btn.textContent = 'Reject';
+            btn.className = 'btn btn-danger';
+            document.getElementById('confirmModal').classList.add('show');
+        }
+
+        function closeConfirmModal() {
+            document.getElementById('confirmModal').classList.remove('show');
+            pendingAction = null;
+            pendingSubmissionId = null;
+        }
+
+        async function executeConfirm() {
+            if (!pendingAction || !pendingSubmissionId) return;
+
+            const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+            const btn = document.getElementById('confirmActionBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+
+            try {
+                let url, body = {};
+
+                if (pendingAction === 'verify') {
+                    url = `${API_URL}/admin/verify-submission/${pendingSubmissionId}`;
+                } else {
+                    url = `${API_URL}/admin/reject-submission/${pendingSubmissionId}`;
+                    body.reason = document.getElementById('rejectReason').value;
+                }
+
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(body)
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    closeConfirmModal();
+                    loadSubmissions(currentFilter);
+                } else {
+                    alert('Error: ' + (data.error || 'Operation failed'));
+                }
+            } catch (error) {
+                alert('Error processing request');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = pendingAction === 'verify' ? 'Verify' : 'Reject';
+            }
+        }
+
+        function logout() {
+            localStorage.clear();
+            sessionStorage.clear();
+            location.replace('/login.html');
+        }
+    </script>
+</body>
+</html>

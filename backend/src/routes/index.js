@@ -9,6 +9,7 @@ const StudentController = require('../controllers/studentController.js');
 const TutorController = require('../controllers/tutorController.js');
 const AdminController = require('../controllers/adminController.js');
 const MpesaController = require('../controllers/mpesaController.js');
+const PaymentController = require('../controllers/paymentController.js');
 const CohortController = require('../controllers/cohortController.js');
 const UploadController = require('../controllers/uploadController.js');
 const SessionController = require('../controllers/sessionController.js');
@@ -64,6 +65,10 @@ router.get('/student/invoices', authenticateToken, requireRole(['student']), Stu
 router.post('/student/pay/:invoiceId', authenticateToken, requireRole(['student']), MpesaController.initiatePayment);
 router.get('/student/payment-status/:invoiceId', authenticateToken, requireRole(['student']), MpesaController.checkPaymentStatus);
 router.get('/student/course-notes-access/:courseId', authenticateToken, requireRole(['student']), StudentController.checkNotesAccess);
+
+// Student Payment Submission
+router.post('/student/submit-transaction', authenticateToken, requireRole(['student']), PaymentController.submitTransaction);
+router.get('/student/my-submissions', authenticateToken, requireRole(['student']), PaymentController.getMySubmissions);
 
 // ==================== TUTOR DASHBOARD ROUTES ====================
 router.get('/tutor/courses', authenticateToken, requireRole(['tutor', 'admin']), TutorController.getTutorCourses);
@@ -138,6 +143,14 @@ router.get('/admin/transactions', authenticateToken, requireAdmin, AdminControll
 // Admin Invoices
 router.get('/admin/invoices', authenticateToken, requireAdmin, AdminController.getAdminInvoices);
 router.post('/admin/invoices/:id/unlock', authenticateToken, requireAdmin, AdminController.unlockInvoice);
+
+// Admin Student Payment Summary
+router.get('/admin/students/:id/payment-summary', authenticateToken, requireAdmin, AdminController.getStudentPaymentSummary);
+
+// Admin Payment Submission Verification
+router.get('/admin/payment-submissions', authenticateToken, requireAdmin, PaymentController.getPaymentSubmissions);
+router.post('/admin/verify-submission/:id', authenticateToken, requireAdmin, PaymentController.verifySubmission);
+router.post('/admin/reject-submission/:id', authenticateToken, requireAdmin, PaymentController.rejectSubmission);
 
 // Admin Enrollment Edit/Delete
 router.put('/admin/enrollments/:id', authenticateToken, requireAdmin, AdminController.updateEnrollment);
