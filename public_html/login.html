@@ -4,98 +4,205 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - NURU FOUNDATION</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Fredoka+One&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Fredoka+One&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="styles/root.css">
     <link rel="stylesheet" href="styles/header.css">
     <link rel="stylesheet" href="styles/footer.css">
     <style>
-        body {
-            font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color-1) 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        * {
+            box-sizing: border-box;
             margin: 0;
-            padding: 20px;
+            padding: 0;
         }
 
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            overflow-x: hidden;
+        }
+
+        /* Full Screen Split Layout Wrapper */
+        .page-wrapper {
+            display: flex;
+            width: 100vw;
+            min-height: 100vh;
+        }
+
+        /* Left Side: Dynamic Branding Panel */
+        .info-panel {
+            flex: 1;
+            background: linear-gradient(135deg, var(--primary-color, #1e3c72) 0%, var(--accent-color-1, #2a5298) 100%);
+            color: white;
+            padding: 60px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+        }
+
+        .info-panel::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: url('https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=1200&q=80') no-repeat center center;
+            background-size: cover;
+            opacity: 0.2;
+            mix-blend-mode: overlay;
+            z-index: 1;
+        }
+
+        .info-brand {
+            position: relative;
+            z-index: 2;
+        }
+
+        .info-brand h2 {
+            font-family: 'Fredoka One', cursive;
+            font-size: 2.5rem;
+            letter-spacing: 1px;
+        }
+
+        .info-content {
+            position: relative;
+            z-index: 2;
+            margin-top: auto;
+            margin-bottom: auto;
+            max-width: 550px;
+        }
+
+        .info-content h3 {
+            font-size: 3rem;
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 20px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        .info-content p {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.7;
+        }
+
+        /* Right Side: Login Form Panel */
         .login-container {
+            flex: 1;
             background: white;
-            border-radius: 15px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            padding: 40px;
-            width: 100%;
-            max-width: 400px;
+            padding: 80px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            max-width: 650px;
+            margin: 0 auto;
         }
 
         .login-header {
-            text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 40px;
         }
 
         .login-header h1 {
-            color: var(--primary-color);
+            color: #1a1a1a;
             margin-bottom: 10px;
-            font-size: 2rem;
+            font-size: 2.5rem;
+            font-weight: 700;
         }
 
         .login-header p {
             color: #666;
-            margin: 0;
+            font-size: 1rem;
         }
 
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 24px;
         }
 
         .form-group label {
             display: block;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
             color: #333;
             font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        /* Container to host input and the password icon toggle */
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
         }
 
         .form-group input {
             width: 100%;
-            padding: 12px 15px;
-            border: 2px solid #e1e1e1;
-            border-radius: 8px;
+            padding: 14px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
             font-size: 16px;
-            transition: border-color 0.3s;
+            background-color: #f8fafc;
+            color: #333;
+            transition: all 0.3s ease;
             box-sizing: border-box;
         }
 
         .form-group input:focus {
             outline: none;
-            border-color: var(--primary-color);
+            border-color: var(--primary-color, #1e3c72);
+            background-color: #fff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Password field specific right padding to avoid text overlapping the icon */
+        .form-group input[type="password"], 
+        .form-group input[type="text"]#password {
+            padding-right: 48px;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 16px;
+            color: #718096;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: color 0.2s;
+            user-select: none;
+        }
+
+        .password-toggle:hover {
+            color: var(--primary-color, #1e3c72);
         }
 
         .btn {
             width: 100%;
-            padding: 12px;
-            background: var(--primary-color);
+            padding: 15px;
+            background: var(--primary-color, #1e3c72);
             color: white;
             border: none;
-            border-radius: 8px;
+            border-radius: 10px;
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
-            transition: background 0.3s;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 14px rgba(30, 60, 114, 0.25);
         }
 
         .btn:hover {
-            background: var(--secondary-color);
+            background: var(--secondary-color, #2a5298);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(30, 60, 114, 0.35);
         }
 
         .btn:disabled {
             background: #ccc;
+            box-shadow: none;
+            transform: none;
             cursor: not-allowed;
         }
 
         .btn-secondary {
             background: #6c757d;
+            box-shadow: 0 4px 12px rgba(108, 117, 125, 0.2);
         }
 
         .btn-secondary:hover {
@@ -105,26 +212,24 @@
         .error-message {
             color: #e74c3c;
             font-size: 14px;
-            margin-top: 5px;
+            margin-top: 15px;
             display: none;
-        }
-
-        .success-message {
-            color: #28a745;
-            font-size: 14px;
-            margin-top: 5px;
-            display: none;
+            background: #fff5f5;
+            padding: 12px;
+            border-radius: 8px;
+            border-left: 4px solid #e74c3c;
         }
 
         .links {
             text-align: center;
-            margin-top: 20px;
+            margin-top: 30px;
         }
 
         .links a {
-            color: var(--primary-color);
+            color: var(--primary-color, #1e3c72);
             text-decoration: none;
-            font-size: 14px;
+            font-size: 15px;
+            font-weight: 500;
         }
 
         .links a:hover {
@@ -133,13 +238,14 @@
 
         .loading {
             display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid var(--primary-color);
+            width: 18px;
+            height: 18px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-top: 3px solid white;
             border-radius: 50%;
-            animation: spin 1s linear infinite;
+            animation: spin 0.8s linear infinite;
             margin-right: 10px;
+            vertical-align: middle;
         }
 
         @keyframes spin {
@@ -155,10 +261,12 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.5);
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(5px);
             z-index: 1000;
             align-items: center;
             justify-content: center;
+            padding: 20px;
         }
 
         .modal-overlay.active {
@@ -167,22 +275,23 @@
 
         .modal-content {
             background: white;
-            border-radius: 15px;
-            padding: 30px;
+            border-radius: 20px;
+            padding: 40px;
             width: 100%;
-            max-width: 450px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 480px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
             text-align: center;
         }
 
         .modal-content h2 {
-            color: var(--primary-color);
-            margin-bottom: 15px;
-            font-size: 1.5rem;
+            color: #1a1a1a;
+            margin-bottom: 12px;
+            font-size: 1.7rem;
+            font-weight: 700;
         }
 
         .modal-content p {
-            color: #666;
+            color: #555;
             margin-bottom: 25px;
             line-height: 1.6;
         }
@@ -191,70 +300,134 @@
             display: flex;
             flex-direction: column;
             gap: 12px;
-        }
-
-        .modal-buttons .btn {
-            padding: 14px;
+            margin-top: 20px;
         }
 
         .modal-error {
             color: #e74c3c;
             font-size: 14px;
-            margin-top: 10px;
+            margin-top: 12px;
             display: none;
+            background: #fff5f5;
+            padding: 10px;
+            border-radius: 6px;
         }
 
         .modal-error.show {
             display: block;
         }
 
-        .login-form-hidden {
-            display: none;
+        /* Responsive Breakpoints */
+        @media (max-width: 1024px) {
+            .login-container {
+                padding: 40px;
+            }
+            .info-panel {
+                padding: 40px;
+            }
+            .info-content h3 {
+                font-size: 2.2rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .page-wrapper {
+                flex-direction: column;
+            }
+            .info-panel {
+                flex: none;
+                height: 220px;
+                padding: 30px;
+                justify-content: center;
+                align-items: center;
+                text-align: center;
+            }
+            .info-content {
+                margin: 0;
+            }
+            .info-content h3 {
+                font-size: 1.6rem;
+                margin-bottom: 8px;
+            }
+            .info-content p {
+                font-size: 0.95rem;
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;  
+                overflow: hidden;
+            }
+            .login-container {
+                width: 100%;
+                max-width: 100%;
+                padding: 40px 24px;
+                margin: 0;
+            }
+            .login-header h1 {
+                font-size: 2rem;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="login-container">
-        <div class="login-header">
-            <h1>Welcome Back</h1>
-            <p>Sign in to your NURU FOUNDATION account</p>
+
+    <div class="page-wrapper">
+        <div class="info-panel">
+            <div class="info-brand">
+                <h2>NURU FOUNDATION</h2>
+            </div>
+            <div class="info-content">
+                <h3>Empowering Generations Through Education</h3>
+                <p>Welcome back to the Nuru Foundation Portal. Access your tailored space to learn, interact, and manage assignments seamlessly.</p>
+            </div>
+            <div></div>
         </div>
 
-        <form id="loginForm">
-            <div class="form-group">
-                <label for="email">Email</label>
-                <input type="email" id="email" name="email" required>
+        <div class="login-container">
+            <div class="login-header">
+                <h1>Welcome Back</h1>
+                <p>Sign in to your NURU FOUNDATION account</p>
             </div>
 
-            <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" name="password" required>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <div class="input-wrapper">
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <div class="input-wrapper">
+                        <input type="password" id="password" name="password" required>
+                        <i class="far fa-eye password-toggle" id="togglePasswordIcon"></i>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn" id="loginBtn">
+                    <span id="btnText">Login</span>
+                </button>
+
+                <div id="errorMessage" class="error-message"></div>
+            </form>
+
+            <div class="links">
+                <a href="apply-now-bt.html">Apply Now</a>
             </div>
-
-            <button type="submit" class="btn" id="loginBtn">
-                <span id="btnText">Login</span>
-            </button>
-
-            <div id="errorMessage" class="error-message"></div>
-        </form>
-
-        <!-- <div class="links">
-            <a href="apply-now-bt.html">Apply Now</a>
-        </div> -->
+        </div>
     </div>
 
-    <!-- Password Change Modal -->
     <div class="modal-overlay" id="passwordModal">
         <div class="modal-content">
             <h2>First Login - Set Up Your Password</h2>
             <p>Your account was created with a temporary password. For security, please set your own password to continue.</p>
             
-            <div class="form-group">
+            <div class="form-group" style="text-align: left;">
                 <label for="newPassword">New Password</label>
                 <input type="password" id="newPassword" placeholder="Enter new password (min 8 characters)" required>
             </div>
             
-            <div class="form-group">
+            <div class="form-group" style="text-align: left;">
                 <label for="confirmPassword">Confirm Password</label>
                 <input type="password" id="confirmPassword" placeholder="Confirm your password" required>
             </div>
@@ -271,9 +444,23 @@
     <script src="scripts/config.js"></script>
     <script src="scripts/auth.js"></script>
     <script>
+    // Handle Show/Hide Password Feature
+    document.getElementById('togglePasswordIcon').addEventListener('click', function () {
+        const passwordInput = document.getElementById('password');
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            this.classList.remove('fa-eye');
+            this.classList.add('fa-eye-slash');
+        } else {
+            passwordInput.type = 'password';
+            this.classList.remove('fa-eye-slash');
+            this.classList.add('fa-eye');
+        }
+    });
+
     // Check if user is already logged in
     if (authService.isLoggedIn()) {
-        const user = JSON.parse(sessionStorage.getItem('user') || '{}');
+        const user = JSON.parse(sessionStorage.getItem('user') || localStorage.getItem('user') || '{}');
         const userRole = user.role?.name || user.role;
         
         if (userRole === 'admin') {
@@ -331,7 +518,7 @@
         changeBtn.innerHTML = '<span class="loading"></span>Setting password...';
         
         try {
-            const token = sessionStorage.getItem('token');
+            const token = localStorage.getItem('token') || sessionStorage.getItem('token');
             const response = await fetch('/api/users/set-password', {
                 method: 'PUT',
                 headers: {
@@ -370,7 +557,7 @@
         skipBtn.innerHTML = '<span class="loading"></span>Processing...';
         
         try {
-            const token = sessionStorage.getItem('token');
+            const token = localStorage.getItem('token') || sessionStorage.getItem('token');
             const response = await fetch('/api/users/skip-password-change', {
                 method: 'PUT',
                 headers: {
@@ -382,7 +569,6 @@
             const data = await response.json();
             
             if (data.success) {
-                // Clear stored auth data
                 localStorage.removeItem('token');
                 localStorage.removeItem('user');
                 sessionStorage.removeItem('token');
@@ -422,15 +608,12 @@
             const user = result.user;
             const userRole = user?.role?.name || user?.role;
             
-            // Save user data first (before any redirects)
-            // Store in BOTH localStorage and sessionStorage for compatibility
             sessionStorage.setItem('token', result.token);
             sessionStorage.setItem('user', JSON.stringify(user));
             localStorage.setItem('user', JSON.stringify(user));
             localStorage.setItem('token', result.token);
             
             if (result.mustChangePassword) {
-                // First login - redirect to profile page to set password based on role
                 if (userRole === 'student') {
                     window.location.href = '/student-dashboard/profile.html';
                 } else if (userRole === 'tutor' || userRole === 'teacher') {
@@ -439,7 +622,6 @@
                     window.location.href = '/admin-dashboard/index.html';
                 }
             } else if (userRole === 'student') {
-                // Check for overdue invoices and pending initial payment (for students)
                 try {
                     const token = result.token;
                     const invoicesRes = await fetch('/api/student/invoices', {
@@ -447,7 +629,6 @@
                     });
                     const invoicesData = await invoicesRes.json();
                     
-                    // Redirect to payment page if has overdue invoices OR pending initial payment
                     if (invoicesData.success && (invoicesData.hasOverdue || invoicesData.pendingInitialPayment)) {
                         window.location.href = '/student-dashboard/payment.html';
                         return;
@@ -456,10 +637,8 @@
                     console.error('Error checking invoices:', err);
                 }
                 
-                // Normal login - redirect to dashboard
                 redirectToDashboard(userRole);
             } else {
-                // Normal login - redirect to dashboard (for admin/tutor)
                 redirectToDashboard(userRole);
             }
         } else {

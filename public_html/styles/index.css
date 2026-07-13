@@ -386,12 +386,10 @@
             justify-content: center;
             gap: 0.5rem;
         }
-        .requirements-dropdown summary::after {
-            content: 'â–¼';
-            font-size: 0.8em;
+        .requirements-dropdown summary i {
             transition: transform 0.3s ease;
         }
-        .requirements-dropdown details[open] summary::after {
+        .requirements-dropdown details[open] summary i {
             transform: rotate(180deg);
         }
         .requirements-dropdown ul {
@@ -472,7 +470,7 @@
             overflow: hidden;
         }
         .cta-section::before {
-            content: 'ðŸš€'; 
+            content: '🚀'; 
             position: absolute;
             top: 20%;
             left: 10%;
@@ -481,7 +479,7 @@
             animation: bounce 4s infinite ease-in-out;
         }
         .cta-section::after {
-            content: 'ðŸ’¡'; 
+            content: '💡'; 
             position: absolute;
             bottom: 25%;
             right: 15%;

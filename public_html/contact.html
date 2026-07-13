@@ -4,116 +4,510 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Contact Us - NURU FOUNDATION</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Fredoka+One&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Fredoka+One&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="styles/root.css">
-    <link rel="stylesheet" href="styles/contact.css">
     <link rel="stylesheet" href="styles/header.css">
     <link rel="stylesheet" href="styles/footer.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #ffffff;
+            color: #2d3748;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+  
+        .page-viewport-carrier {
+            padding-top: 100px; 
+            display: flex;
+            flex-grow: 1;
+            width: 100%;
+            background: #f7fafc;
+        }
+
+        /* Edge-to-Edge Fluid Workspace Grid */
+        .fluid-workspace {
+            display: flex;
+            width: 100%;
+            min-height: calc(100vh - 100px);
+        }
+
+        /* Left Split: Premium Dynamic Information Column */
+        .brand-universe-column {
+            flex: 1;
+            background: linear-gradient(135deg, var(--primary-color, #1e3c72) 0%, var(--accent-color-1, #2a5298) 100%);
+            color: white;
+            padding: 8% 6% 6% 8%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+        }
+
+        .brand-universe-column::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: url('https://images.unsplash.com/photo-1557804506-669a67965ba0?auto=format&fit=crop&w=1200&q=80') center center no-repeat;
+            background-size: cover;
+            opacity: 0.07;
+            mix-blend-mode: overlay;
+        }
+
+        .universe-intro {
+            position: relative;
+            z-index: 2;
+            max-width: 600px;
+        }
+
+        .universe-intro h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            line-height: 1.15;
+            margin-bottom: 20px;
+            letter-spacing: -1px;
+        }
+
+        .universe-intro p {
+            font-size: 1.15rem;
+            color: rgba(255, 255, 255, 0.85);
+            line-height: 1.7;
+        }
+
+        /* Access Communication Blocks Layout */
+        .communication-pipeline {
+            margin: 50px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            max-width: 500px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .pipeline-card {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            padding: 18px 24px;
+            border-radius: 16px;
+            text-decoration: none;
+            color: white;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        .pipeline-card:hover {
+            background: #ffffff;
+            color: var(--primary-color, #1e3c72);
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+        }
+
+        .pipeline-card.whatsapp-accent:hover {
+            color: #25D366;
+        }
+
+        .pipeline-icon-box {
+            font-size: 1.4rem;
+            width: 46px;
+            height: 46px;
+            background: rgba(255, 255, 255, 0.12);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .pipeline-card:hover .pipeline-icon-box {
+            background: rgba(30, 60, 114, 0.08);
+        }
+        .pipeline-card.whatsapp-accent:hover .pipeline-icon-box {
+            background: rgba(37, 211, 102, 0.08);
+        }
+
+        .pipeline-info h4 {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.7;
+            font-weight: 500;
+            margin-bottom: 3px;
+        }
+
+        .pipeline-info p {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .time-badge {
+            position: relative;
+            z-index: 2;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.95rem;
+            background: rgba(0, 0, 0, 0.15);
+            padding: 14px 22px;
+            border-radius: 14px;
+            border-left: 4px solid #ffffff;
+            max-width: fit-content;
+        }
+
+        /* Right Split: Spaced Full-Width Interactive Input Column */
+        .form-universe-column {
+            flex: 1.2;
+            background: #ffffff;
+            padding: 8% 8% 6% 6%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .form-universe-header {
+            margin-bottom: 45px;
+            max-width: 650px;
+        }
+
+        .form-universe-header h2 {
+            font-size: 2.5rem;
+            color: #1a202c;
+            font-weight: 700;
+            margin-bottom: 12px;
+            letter-spacing: -0.5px;
+        }
+
+        .form-universe-header p {
+            color: #718096;
+            font-size: 1.05rem;
+            line-height: 1.6;
+        }
+
+        .creative-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 28px;
+            max-width: 750px;
+        }
+
+        .input-row-box {
+            position: relative;
+        }
+
+        .input-row-box.full-span {
+            grid-column: span 2;
+        }
+
+        .input-row-box label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: #4a5568;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-input-element {
+            width: 100%;
+            padding: 16px 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 14px;
+            font-size: 16px;
+            background: #f8fafc;
+            color: #2d3748;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+            font-family: inherit;
+        }
+
+        .form-input-element:focus {
+            outline: none;
+            border-color: var(--primary-color, #1e3c72);
+            background: #ffffff;
+            box-shadow: 0 10px 25px rgba(30, 60, 114, 0.05);
+        }
+
+        textarea.form-input-element {
+            min-height: 160px;
+            resize: vertical;
+        }
+
+        .dispatch-action-btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, var(--primary-color, #1e3c72) 0%, var(--accent-color-1, #2a5298) 100%);
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            box-shadow: 0 10px 25px rgba(30, 60, 114, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .dispatch-action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 35px rgba(30, 60, 114, 0.35);
+        }
+
+        .dispatch-action-btn i {
+            transition: transform 0.3s;
+        }
+
+        .dispatch-action-btn:hover i {
+            transform: translate(4px, -4px);
+        }
+
+        .alert-toast-box {
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 1rem;
+            margin-bottom: 30px;
+            display: none;
+            max-width: 750px;
+        }
+
+        .alert-toast-box.success {
+            display: block;
+            background-color: #f0fff4;
+            color: #2f855a;
+            border: 1px solid #c6f6d5;
+            border-left: 5px solid #38a169;
+        }
+
+        /* Dynamic Media Layout Breakpoints */
+        @media (max-width: 1024px) {
+            .fluid-workspace {
+                flex-direction: column;
+            }
+            .brand-universe-column {
+                padding: 60px 40px;
+            }
+            .form-universe-column {
+                padding: 60px 40px;
+            }
+            .universe-intro h1 {
+                font-size: 2.8rem;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .page-viewport-carrier {
+                padding-top: 80px; /* Adapted for slightly shorter headers on small viewports */
+            }
+            .brand-universe-column {
+                padding: 40px 24px;
+            }
+            .universe-intro h1 {
+                font-size: 2.2rem;
+            }
+            .form-universe-column {
+                padding: 40px 24px;
+            }
+            .creative-grid {
+                grid-template-columns: 1fr;
+            }
+            .input-row-box.full-span {
+                grid-column: auto;
+            }
+        }
+    </style>
 </head>
 <body>
 
-<script src="scripts/header.js"></script>
-<div id="headerContainer"></div>
-
-<script>
-    // Load Header Content and initialize it
-    document.addEventListener('DOMContentLoaded', function() {
-        fetch('header.html')
-            .then(response => response.text())
-            .then(data => {
-                document.getElementById('headerContainer').innerHTML = data;
-
-                // Load config.js first (needed for auth.js)
-                const configScript = document.createElement('script');
-                configScript.src = 'scripts/config.js';
-                document.head.appendChild(configScript);
-
-                // Load auth.js
-                const authScript = document.createElement('script');
-                authScript.src = 'scripts/auth.js';
-                document.head.appendChild(authScript);
-
-                authScript.onload = () => {
-                    // Then call initHeader since header.js is already loaded via src
+  
+    <script src="scripts/header.js"></script>
+    <div id="headerContainer"></div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            fetch('header.html')
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('headerContainer').innerHTML = data;
                     if (typeof initHeader === 'function') {
                         initHeader();
                     }
-                };
-            })
-            .catch(error => console.error('Error loading header:', error));
-    });
-</script>
+                })
+                .catch(error => console.error('Error loading header:', error));
+        });
+    </script>
+   
 
-<section class="contact-hero">
-    <div class="container">
-        <h1>Contact Us</h1>
-        <p>Get in touch with NURU FOUNDATION. We're here to help you on your learning journey!</p>
+    <!-- Outermost Guard Viewport Container (Corrects Fixed Navbar Incursions) -->
+    <div class="page-viewport-carrier">
+        
+        <!-- Continuous Width Multi-Split Frame -->
+        <main class="fluid-workspace">
+            
+            <!-- Structural Section: Brand Presentation Column -->
+            <div class="brand-universe-column">
+                <div class="universe-intro">
+                    <h1>Connect<br>With Us</h1>
+                    <p>Have structural inquiries or application updates? Reach out and communicate directly through our institutional response loops.</p>
+                </div>
+
+                <!-- Live Communication Anchors -->
+                <div class="communication-pipeline">
+                    
+                    <!-- WhatsApp Access Link -->
+                    <a href="https://wa.me/254111480338" target="_blank" class="pipeline-card whatsapp-accent">
+                        <div class="pipeline-icon-box">
+                            <i class="fab fa-whatsapp"></i>
+                        </div>
+                        <div class="pipeline-info">
+                            <h4>WhatsApp Live</h4>
+                            <p>Chat Instantly</p>
+                        </div>
+                    </a>
+
+                    <!-- Cellular Connection Link -->
+                    <a href="tel:+254111480338" class="pipeline-card">
+                        <div class="pipeline-icon-box">
+                            <i class="fas fa-phone-alt"></i>
+                        </div>
+                        <div class="pipeline-info">
+                            <h4>Call Operations</h4>
+                            <p>+(254) 111 480 338</p>
+                        </div>
+                    </a>
+
+                    <!-- Institutional Support Mail Box -->
+                    <a href="mailto:info@nurufoundations.com" class="pipeline-card">
+                        <div class="pipeline-icon-box">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div class="pipeline-info">
+                            <h4>Support Mail</h4>
+                            <p>info@nurufoundations.com</p>
+                        </div>
+                    </a>
+
+                </div>
+
+                <!-- Office Operating Time Module -->
+                <div class="time-badge">
+                    <i class="far fa-clock"></i>
+                    <div>
+                        <p style="font-weight: 600; margin: 0;">Mon - Fri: 8AM - 5PM</p>
+                        <p style="opacity: 0.8; font-size: 0.85rem; margin: 0;">Saturday: 9AM - 1PM | Sunday: Closed</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Structural Section: Interactive Submission Workspace Column -->
+            <div class="form-universe-column">
+                <div class="form-universe-header">
+                    <h2>Drop Us A Line</h2>
+                    <p>Provide your verification credentials below and our registration desk will coordinate a response within 24 hours.</p>
+                </div>
+
+                <div id="statusToast" class="alert-toast-box"></div>
+
+                <form id="fluidContactForm">
+                    <div class="creative-grid">
+                        
+                        <!-- Input Element Box: Name -->
+                        <div class="input-row-box">
+                            <label for="clientName">Your Name</label>
+                            <input type="text" id="clientName" class="form-input-element" placeholder="First last-Name" required>
+                        </div>
+
+                        <!-- Input Element Box: Email -->
+                        <div class="input-row-box">
+                            <label for="clientEmail">Email Address</label>
+                            <input type="email" id="clientEmail" class="form-input-element" placeholder="name@gmail.com" required>
+                        </div>
+
+                        <!-- Input Element Box: Telephone -->
+                        <div class="input-row-box full-span">
+                            <label for="clientPhone">Phone Number</label>
+                            <input type="tel" id="clientPhone" class="form-input-element" placeholder="+(254) 111 480 338" required>
+                        </div>
+
+                        <!-- Input Element Box: Core Text Stream -->
+                        <div class="input-row-box full-span">
+                            <label for="clientMessage">Message Details</label>
+                            <textarea id="clientMessage" class="form-input-element" placeholder="Type your specific request details here..." required></textarea>
+                        </div>
+
+                        <!-- Action Submit Box -->
+                        <div class="input-row-box full-span" style="margin-top: 10px;">
+                            <button type="submit" class="dispatch-action-btn" id="sendBtn">
+                                <span>Send Message</span>
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+
+                    </div>
+                </form>
+            </div>
+
+        </main>
     </div>
-</section>
 
-<section class="contact-section">
-    <div class="container">
-        <div class="contact-grid">
-            <div class="contact-card">
-                <i class="fab fa-whatsapp"></i>
-                <h3>WhatsApp</h3>
-                <p>Chat with us directly on WhatsApp for quick responses.</p>
-                <a href="https://wa.me/1234567890" class="contact-link" target="_blank">Message us on WhatsApp</a>
-            </div>
-            <div class="contact-card">
-                <i class="fas fa-envelope"></i>
-                <h3>Email</h3>
-                <p>Send us an email for detailed inquiries or support.</p>
-                <a href="mailto:nurufoundations@gmail.com" class="contact-link">info@nurufoundation.org</a>
-            </div>
-            <div class="contact-card">
-                <i class="fab fa-facebook"></i>
-                <h3>Facebook</h3>
-                <p>Follow us on Facebook for updates and community discussions.</p>
-                <a href="https://facebook.com/nurufoundation" class="contact-link" target="_blank">Visit our Facebook</a>
-            </div>
-            <div class="contact-card">
-                <i class="fab fa-twitter"></i>
-                <h3>Twitter</h3>
-                <p>Stay updated with our latest tweets and announcements.</p>
-                <a href="https://twitter.com/nurufoundation" class="contact-link" target="_blank">Follow us on Twitter</a>
-            </div>
-            <div class="contact-card">
-                <i class="fab fa-instagram"></i>
-                <h3>Instagram</h3>
-                <p>Check out our visual stories and behind-the-scenes content.</p>
-                <a href="https://instagram.com/nurufoundation" class="contact-link" target="_blank">Follow us on Instagram</a>
-            </div>
-            <div class="contact-card">
-                <i class="fab fa-linkedin"></i>
-                <h3>LinkedIn</h3>
-                <p>Connect with us professionally and explore career opportunities.</p>
-                <a href="https://linkedin.com/company/nurufoundation" class="contact-link" target="_blank">Connect on LinkedIn</a>
-            </div>
-        </div>
-    </div>
-</section>
+   
+    <script src="scripts/footer.js"></script>
+    <div id="footerContainer"></div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            fetch('footer.html')
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('footerContainer').innerHTML = data;
 
-<script src="scripts/footer.js"></script>
-<div id="footerContainer"></div>
+                    const yearElement = document.getElementById('current-year');
+                    if (yearElement) {
+                        yearElement.textContent = new Date().getFullYear();
+                    }
 
-<script>
-    // Load Footer Content and initialize it
-    document.addEventListener('DOMContentLoaded', function() {
-        fetch('footer.html')
-            .then(response => response.text())
-            .then(data => {
-                document.getElementById('footerContainer').innerHTML = data;
+                    if (typeof startCourseRotation === 'function') {
+                        startCourseRotation();
+                    }
+                })
+                .catch(error => console.error('Error loading footer:', error));
+        });
+    </script>
+  
 
-                // 🔥 CRITICAL FIX: Manually call the init function AFTER the HTML is loaded.
-                if (typeof startCourseRotation === 'function') {
-                    startCourseRotation();
-                }
-            })
-            .catch(error => console.error('Error loading footer:', error));
-    });
-</script>
-
+    <script>
+        // Form Action Interface Pipeline interceptor
+        document.getElementById('fluidContactForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const actionButton = document.getElementById('sendBtn');
+            const toastDisplay = document.getElementById('statusToast');
+            
+            actionButton.disabled = true;
+            actionButton.innerHTML = '<span>Processing Dispatch...</span><i class="fas fa-spinner fa-spin"></i>';
+            
+            // Simulating communications gateway verification latency
+            setTimeout(() => {
+                toastDisplay.textContent = "Success! Communication payload securely routed to Nuru Foundation. Expect processing updates shortly.";
+                toastDisplay.className = "alert-toast-box success";
+                
+                document.getElementById('fluidContactForm').reset();
+                
+                actionButton.disabled = false;
+                actionButton.innerHTML = '<span>Send Message</span><i class="fas fa-paper-plane"></i>';
+            }, 1200);
+        });
+    </script>
 </body>
 </html>
