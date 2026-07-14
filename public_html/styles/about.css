@@ -179,12 +179,13 @@
             border-top-right-radius: var(--border-radius-lg);
             box-shadow: 0 -10px 30px rgba(0,0,0,0.05); /* Soft shadow for overlap */
         }
-        .story-grid {
-            display: grid;
-            grid-template-columns: 2fr 1fr; /* More space for text, less for image */
-            gap: 4rem;
-            align-items: center;
-        }
+       .story-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* equal width */
+    gap: 4rem;
+    align-items: center;
+}
+
         .story-text h2 {
             font-size: 3.5rem;
             margin-bottom: 2rem;
@@ -195,24 +196,32 @@
             font-size: 1.2rem;
             line-height: 1.9;
         }
-        .story-image {
-            border-radius: var(--border-radius-lg);
-            /*overflow: hidden;*/
-            box-shadow: var(--shadow-lg);
-            transform: rotate(-5deg); /* Playful tilt */
-            transition: transform 0.4s ease-in-out;
-            border: 5px solid var(--secondary-color); /* Colorful border */
-        }
-        .story-image:hover {
-            transform: rotate(0deg) scale(1.03);
-            border-color: var(--primary-color);
-        }
-        .story-image img {
-            width: 100%;
-            height: 450px;
-            object-fit: cover;
-            display: block;
-        }
+    .story-image {
+    width: 100%;
+    max-width: 100%;
+    border-radius: var(--border-radius-lg);
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(
+        to bottom, 
+        transparent 0%, 
+        black 10%, 
+        black 90%, 
+        transparent 100%
+    );
+    mask-image: linear-gradient(
+        to bottom, 
+        transparent 0%, 
+        black 10%, 
+        black 90%, 
+        transparent 100%
+    );
+}
+
+.story-image img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
 
         /* Mission & Vision / Values Section */
         .mvv-section {

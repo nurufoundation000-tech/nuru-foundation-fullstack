@@ -107,7 +107,7 @@
         }
 
        
-        .hero-section {
+        /* .hero-section {
             background: linear-gradient(135deg, var(--primary-color) 0%, #a40e94 100%);
             color: var(--text-light);
             padding: 8rem 0;
@@ -118,7 +118,23 @@
             align-items: center;
             justify-content: center;
             min-height: 70vh;
-        }
+        } */
+
+.hero-section {
+    background: 
+        linear-gradient(135deg, rgba(0, 0, 0, 0.5), rgba(164, 14, 148, 0.6)), /* keeps your color overlay */
+        url('https://www.shutterstock.com/image-photo/cute-pupil-writing-desk-classroom-600nw-1288136623.jpg') center/cover no-repeat; /* new background image */
+    color: var(--text-light);
+    padding: 8rem 0;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 70vh;
+}
+
 
         .hero-section::before {
             content: '';
@@ -370,12 +386,10 @@
             justify-content: center;
             gap: 0.5rem;
         }
-        .requirements-dropdown summary::after {
-            content: '▼';
-            font-size: 0.8em;
+        .requirements-dropdown summary i {
             transition: transform 0.3s ease;
         }
-        .requirements-dropdown details[open] summary::after {
+        .requirements-dropdown details[open] summary i {
             transform: rotate(180deg);
         }
         .requirements-dropdown ul {
@@ -582,4 +596,5 @@
                 gap: 0.8rem;
             }
         }
+
     
