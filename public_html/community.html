@@ -404,6 +404,25 @@
     </style>
 </head>
 <body>
+    <script src="scripts/header.js"></script>
+    <div id="headerContainer"></div>
+
+    <script>
+    
+        document.addEventListener('DOMContentLoaded', function() {
+            fetch('header.html')
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('headerContainer').innerHTML = data;
+                    
+                
+                    if (typeof initHeader === 'function') {
+                        initHeader();
+                    }
+                })
+                .catch(error => console.error('Error loading header:', error));
+        });
+    </script>
     <!-- Community Hero Section -->
     <section class="community-hero">
         <div class="hero-content">
@@ -598,5 +617,30 @@
             });
         });
     </script>
+    <script src="scripts/footer.js"></script>
+<div id="footerContainer"></div>
+
+    <script>
+        // Load Footer Content and initialize it
+        document.addEventListener('DOMContentLoaded', function() {
+            fetch('footer.html')
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('footerContainer').innerHTML = data;
+
+                    // Set current year in footer
+                    const yearElement = document.getElementById('current-year');
+                    if (yearElement) {
+                        yearElement.textContent = new Date().getFullYear();
+                    }
+
+                    // ðŸ”¥ CRITICAL FIX: Manually call the init function AFTER the HTML is loaded.
+                    if (typeof startCourseRotation === 'function') {
+                        startCourseRotation();
+                    }
+                })
+                .catch(error => console.error('Error loading footer:', error));
+    });
+</script>
 </body>
 </html>
