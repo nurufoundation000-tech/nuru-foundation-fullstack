@@ -107,7 +107,7 @@ async function queryTransactionStatus(checkoutRequestId) {
     };
 
     const response = await axios.post(
-      `${getBaseUrl()}/mpesa/stkquery/v1/query`,
+      `${getBaseUrl()}/mpesa/stkpushquery/v1/query`,
       payload,
       {
         headers: {

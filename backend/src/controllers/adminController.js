@@ -62,7 +62,9 @@ async function getDashboardStats(req, res) {
 async function getCourses(req, res) {
   try {
     const courses = await db.query(`
-      SELECT c.*, cp.*,
+      SELECT c.id, c.tutor_id, c.title, c.description, c.category, c.level,
+             c.thumbnail_url, c.is_published, c.created_at, c.updated_at, c.slug,
+             cp.initial_payment, cp.monthly_amount, cp.billing_duration, cp.is_active,
              (SELECT COUNT(*) FROM enrollments WHERE course_id = c.id) as enrollments_count,
              (SELECT COUNT(*) FROM lessons WHERE course_id = c.id) as lessons_count,
              (SELECT COUNT(*) FROM course_tutors WHERE course_id = c.id) as tutors_count
