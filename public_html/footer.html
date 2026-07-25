@@ -148,13 +148,14 @@
                     </ul>
 
                     <!-- Newsletter -->
-                    <!-- <div class="newsletter">
+                    <div class="newsletter">
                         <p>Get updates on new courses and events</p>
-                        <form class="newsletter-form">
-                            <input type="email" class="newsletter-input" placeholder="Your email address" required>
-                            <button type="submit" class="newsletter-btn">Subscribe</button>
+                        <form class="newsletter-form" id="newsletterForm">
+                            <input type="email" class="newsletter-input" id="newsletterEmail" placeholder="Your email address" required>
+                            <button type="submit" class="newsletter-btn" id="newsletterBtn">Subscribe</button>
                         </form>
-                    </div> -->
+                        <div id="newsletterStatus" style="font-size:0.8rem;margin-top:6px;"></div>
+                    </div>
                 </div>
             </div>
 
@@ -175,6 +176,49 @@
     <script>
         // Set current year
         document.getElementById('current-year').textContent = new Date().getFullYear();
+
+        // Newsletter form
+        const newsletterForm = document.getElementById('newsletterForm');
+        if (newsletterForm) {
+            newsletterForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const emailInput = document.getElementById('newsletterEmail');
+                const statusDiv = document.getElementById('newsletterStatus');
+                const btn = document.getElementById('newsletterBtn');
+                const email = emailInput.value.trim();
+
+                if (!email) return;
+
+                btn.disabled = true;
+                btn.textContent = 'Subscribing...';
+                statusDiv.textContent = '';
+
+                try {
+                    const API_BASE = window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : '/api';
+                    const response = await fetch(`${API_BASE}/newsletter/subscribe`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email })
+                    });
+                    const data = await response.json();
+
+                    if (response.ok && data.success) {
+                        statusDiv.textContent = data.message;
+                        statusDiv.style.color = '#27ae60';
+                        emailInput.value = '';
+                    } else {
+                        statusDiv.textContent = data.error || 'Subscription failed.';
+                        statusDiv.style.color = '#e74c3c';
+                    }
+                } catch (error) {
+                    statusDiv.textContent = 'Network error. Please try again.';
+                    statusDiv.style.color = '#e74c3c';
+                }
+
+                btn.disabled = false;
+                btn.textContent = 'Subscribe';
+            });
+        }
 
         const badges = document.querySelectorAll('.badge');
         badges.forEach(badge => {

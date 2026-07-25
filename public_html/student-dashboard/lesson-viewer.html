@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <script src="/scripts/auth-guard.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lesson Viewer - NURU FOUNDATION</title>
@@ -10,6 +9,8 @@
     <link rel="stylesheet" href="../styles/root.css">
     <link rel="stylesheet" href="../styles/header.css">
     <link rel="stylesheet" href="../styles/footer.css">
+    <script src="../scripts/config.js"></script>
+    <script src="../scripts/dashboard.js"></script>
     <style>
         body {
             font-family: 'Poppins', sans-serif;
@@ -405,7 +406,6 @@
     </style>
 </head>
 <body>
-    <script src="../scripts/header.js"></script>
     <div id="headerContainer"></div>
 
     <div class="lesson-container">
@@ -453,20 +453,9 @@
     <script>
         document.addEventListener('DOMContentLoaded', async function() {
             // Load header and footer
-            fetch('../header.html')
-                .then(response => response.text())
-                .then(data => {
-                    document.getElementById('headerContainer').innerHTML = data;
-                    if (typeof initHeader === 'function') {
-                        initHeader();
-                    }
-                });
-
-            fetch('../footer.html')
-                .then(response => response.text())
-                .then(data => {
-                    document.getElementById('footerContainer').innerHTML = data;
-                });
+            await DashboardUtils.loadHeader();
+            await DashboardUtils.loadFooter();
+            if (!DashboardUtils.checkAuth('student')) return;
 
             // Get course ID from URL parameters
             const urlParams = new URLSearchParams(window.location.search);
@@ -648,6 +637,33 @@
                 });
 
                 lessonBody.appendChild(assignmentsDiv);
+            }
+
+            // Live session section for scheduled lessons
+            if (lesson.live_link) {
+                const liveDiv = document.createElement('div');
+                liveDiv.style.cssText = 'background:#f8f9fa;border-radius:10px;padding:20px;margin-top:20px;';
+
+                if (lesson.isPast) {
+                    liveDiv.innerHTML = `
+                        <div style="display:flex;align-items:center;gap:10px;color:#6c757d;">
+                            <i class="fas fa-video-slash" style="font-size:1.2rem;"></i>
+                            <span><strong>Session Ended</strong><br>
+                            <span style="font-size:0.85rem;">This live session was held on ${lesson.session_date ? new Date(lesson.session_date).toLocaleDateString() : ''}.</span></span>
+                        </div>`;
+                } else {
+                    liveDiv.innerHTML = `
+                        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+                            <div>
+                                <strong><i class="fas fa-video"></i> Live Session</strong>
+                                ${lesson.session_date ? `<br><span style="font-size:0.85rem;color:#666;">${new Date(lesson.session_date).toLocaleDateString()} ${lesson.session_time || ''}</span>` : ''}
+                            </div>
+                            <a href="${lesson.live_link}" target="_blank" class="nav-btn" style="text-decoration:none;">
+                                <i class="fas fa-video"></i> Join Live Session
+                            </a>
+                        </div>`;
+                }
+                lessonBody.appendChild(liveDiv);
             }
 
             // Update navigation buttons

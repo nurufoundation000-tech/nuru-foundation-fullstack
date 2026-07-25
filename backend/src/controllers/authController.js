@@ -1,8 +1,9 @@
 // controllers/authController.js - Authentication Controller (CommonJS)
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 const db = require('../config/database.js');
-const { sendWelcomeEmail } = require('../lib/email.js');
+const { sendWelcomeEmail, sendPasswordResetEmail } = require('../lib/email.js');
 const { 
   generateInitialInvoices, 
   checkAndUpdateInvoiceStatuses, 
@@ -200,9 +201,93 @@ async function verify(req, res) {
   }
 }
 
+async function forgotPassword(req, res) {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ error: 'Email is required' });
+    }
+
+    const user = await db.getOne('SELECT id, email FROM users WHERE email = ? AND is_active = 1', [email.toLowerCase()]);
+
+    if (user) {
+      await db.query('UPDATE password_reset_tokens SET used = 1 WHERE email = ? AND used = 0', [email.toLowerCase()]);
+
+      const token = crypto.randomBytes(32).toString('hex');
+      const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
+
+      await db.insert('password_reset_tokens', {
+        email: email.toLowerCase(),
+        token,
+        expires_at: expiresAt,
+        used: 0
+      });
+
+      const resetLink = `${process.env.FRONTEND_URL || 'https://nurufoundations.com'}/reset-password.html?token=${token}&email=${encodeURIComponent(email.toLowerCase())}`;
+
+      try {
+        const emailResult = await sendPasswordResetEmail(email.toLowerCase(), resetLink);
+        console.log('Password reset email sent to:', email, 'Success:', emailResult.success);
+      } catch (emailError) {
+        console.error('Failed to send password reset email:', emailError.message);
+      }
+    }
+
+    res.json({
+      success: true,
+      message: 'If an account with that email exists, a password reset link has been sent.'
+    });
+
+  } catch (error) {
+    console.error('Forgot password error:', error);
+    res.status(500).json({ error: 'Failed to process request' });
+  }
+}
+
+async function resetPassword(req, res) {
+  try {
+    const { token, email, newPassword } = req.body;
+
+    if (!token || !email || !newPassword) {
+      return res.status(400).json({ error: 'Token, email, and new password are required' });
+    }
+
+    if (newPassword.length < 8) {
+      return res.status(400).json({ error: 'Password must be at least 8 characters long' });
+    }
+
+    const resetToken = await db.getOne(
+      'SELECT * FROM password_reset_tokens WHERE email = ? AND token = ? AND used = 0 AND expires_at > NOW()',
+      [email.toLowerCase(), token]
+    );
+
+    if (!resetToken) {
+      return res.status(400).json({ error: 'Invalid or expired reset token' });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 12);
+
+    await db.query('UPDATE users SET password_hash = ?, must_change_password = 0 WHERE email = ?', [hashedPassword, email.toLowerCase()]);
+
+    await db.query('UPDATE password_reset_tokens SET used = 1 WHERE id = ?', [resetToken.id]);
+
+    res.json({
+      success: true,
+      message: 'Password has been reset successfully. You can now log in with your new password.'
+    });
+
+  } catch (error) {
+    console.error('Reset password error:', error);
+    res.status(500).json({ error: 'Failed to reset password' });
+  }
+}
+
 module.exports = {
   login,
   register,
-  verify
+  verify,
+  forgotPassword,
+  resetPassword
 };
 

@@ -15,7 +15,14 @@ async function getStudentCourses(req, res) {
              (SELECT COUNT(*) FROM course_notes WHERE course_id = c.id) as total_notes,
              (SELECT COUNT(*) FROM note_progress np 
               JOIN course_notes cn ON np.note_id = cn.id 
-              WHERE np.student_id = e.student_id AND cn.course_id = c.id) as read_notes
+              WHERE np.student_id = e.student_id AND cn.course_id = c.id) as read_notes,
+             (SELECT COUNT(*) FROM assignments a
+              JOIN lessons l ON a.lesson_id = l.id
+              WHERE l.course_id = c.id) as total_assignments,
+             (SELECT COUNT(*) FROM submissions s
+              JOIN assignments a ON s.assignment_id = a.id
+              JOIN lessons l ON a.lesson_id = l.id
+              WHERE s.student_id = e.student_id AND l.course_id = c.id) as submitted_assignments
       FROM enrollments e
       JOIN courses c ON e.course_id = c.id
       WHERE e.student_id = ?
@@ -25,10 +32,12 @@ async function getStudentCourses(req, res) {
     const progressData = enrollments.map(enrollment => {
       const totalLessons = enrollment.total_lessons || 0;
       const totalNotes = enrollment.total_notes || 0;
+      const totalAssignments = enrollment.total_assignments || 0;
       const completedLessons = enrollment.completed_lessons || 0;
       const readNotes = enrollment.read_notes || 0;
-      const totalItems = totalLessons + totalNotes;
-      const completedItems = completedLessons + readNotes;
+      const submittedAssignments = enrollment.submitted_assignments || 0;
+      const totalItems = totalLessons + totalNotes + totalAssignments;
+      const completedItems = completedLessons + readNotes + submittedAssignments;
       const progress = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0;
 
       return {
@@ -39,6 +48,8 @@ async function getStudentCourses(req, res) {
         totalLessons,
         readNotes,
         totalNotes,
+        submittedAssignments,
+        totalAssignments,
         course: {
           id: enrollment.course_id,
           title: enrollment.title,
@@ -70,7 +81,14 @@ async function getProgress(req, res) {
              (SELECT COUNT(*) FROM course_notes WHERE course_id = c.id) as total_notes,
              (SELECT COUNT(*) FROM note_progress np 
               JOIN course_notes cn ON np.note_id = cn.id 
-              WHERE np.student_id = e.student_id AND cn.course_id = c.id) as read_notes
+              WHERE np.student_id = e.student_id AND cn.course_id = c.id) as read_notes,
+             (SELECT COUNT(*) FROM assignments a
+              JOIN lessons l ON a.lesson_id = l.id
+              WHERE l.course_id = c.id) as total_assignments,
+             (SELECT COUNT(*) FROM submissions s
+              JOIN assignments a ON s.assignment_id = a.id
+              JOIN lessons l ON a.lesson_id = l.id
+              WHERE s.student_id = e.student_id AND l.course_id = c.id) as submitted_assignments
       FROM enrollments e
       JOIN courses c ON e.course_id = c.id
       WHERE e.student_id = ?
@@ -80,10 +98,12 @@ async function getProgress(req, res) {
     const progressData = enrollments.map(enrollment => {
       const totalLessons = enrollment.total_lessons || 0;
       const totalNotes = enrollment.total_notes || 0;
+      const totalAssignments = enrollment.total_assignments || 0;
       const completedLessons = enrollment.completed_lessons || 0;
       const readNotes = enrollment.read_notes || 0;
-      const totalItems = totalLessons + totalNotes;
-      const completedItems = completedLessons + readNotes;
+      const submittedAssignments = enrollment.submitted_assignments || 0;
+      const totalItems = totalLessons + totalNotes + totalAssignments;
+      const completedItems = completedLessons + readNotes + submittedAssignments;
       const progress = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0;
 
       return {
@@ -95,6 +115,8 @@ async function getProgress(req, res) {
         totalLessons,
         readNotes,
         totalNotes,
+        submittedAssignments,
+        totalAssignments,
         course: {
           id: enrollment.course_id,
           title: enrollment.title,
@@ -165,11 +187,24 @@ async function completeLesson(req, res) {
         (SELECT COUNT(*) FROM course_notes WHERE course_id = ?) as total_notes,
         (SELECT COUNT(*) FROM note_progress np
          JOIN course_notes cn ON np.note_id = cn.id
-         WHERE np.student_id = ? AND cn.course_id = ?) as read_notes
-    `, [lesson.course_id, enrollment.id, lesson.course_id, req.user.userId, lesson.course_id]);
+         WHERE np.student_id = ? AND cn.course_id = ?) as read_notes,
+        (SELECT COUNT(*) FROM assignments a
+         JOIN lessons l ON a.lesson_id = l.id
+         WHERE l.course_id = ?) as total_assignments,
+        (SELECT COUNT(*) FROM submissions s
+         JOIN assignments a ON s.assignment_id = a.id
+         JOIN lessons l ON a.lesson_id = l.id
+         WHERE s.student_id = ? AND l.course_id = ?) as submitted_assignments
+    `, [lesson.course_id, enrollment.id, lesson.course_id, req.user.userId, lesson.course_id, lesson.course_id, req.user.userId, lesson.course_id]);
 
-    const totalItems = (counts.total_lessons || 0) + (counts.total_notes || 0);
-    const completedItems = (counts.completed_lessons || 0) + (counts.read_notes || 0);
+    const totalLessons = counts.total_lessons || 0;
+    const completedLessons = counts.completed_lessons || 0;
+    const totalNotes = counts.total_notes || 0;
+    const readNotes = counts.read_notes || 0;
+    const totalAssignments = counts.total_assignments || 0;
+    const submittedAssignments = counts.submitted_assignments || 0;
+    const totalItems = totalLessons + totalNotes + totalAssignments;
+    const completedItems = completedLessons + readNotes + submittedAssignments;
     const courseProgress = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) / 100 : 0;
 
     res.json({ success: true, message: 'Lesson marked as completed', courseProgress });
@@ -195,7 +230,15 @@ async function getLessons(req, res) {
       ORDER BY order_index ASC
     `, [courseId]);
 
-    res.json({ success: true, data: lessons });
+    const transformed = lessons.map(lesson => {
+      const isPast = lesson.session_date
+        ? new Date(`${String(lesson.session_date).split('T')[0]}T${lesson.session_time || '00:00'}`) < new Date()
+        : false;
+
+      return { ...lesson, isPast };
+    });
+
+    res.json({ success: true, data: transformed });
   } catch (error) {
     console.error('Get lessons error:', error);
     res.status(500).json({ error: 'Failed to load lessons' });
@@ -217,7 +260,11 @@ async function getLesson(req, res) {
       return res.status(404).json({ error: 'Lesson not found' });
     }
 
-    res.json({ success: true, data: lesson });
+    const isPast = lesson.session_date
+      ? new Date(`${String(lesson.session_date).split('T')[0]}T${lesson.session_time || '00:00'}`) < new Date()
+      : false;
+
+    res.json({ success: true, data: { ...lesson, isPast } });
   } catch (error) {
     console.error('Get lesson error:', error);
     res.status(500).json({ error: 'Failed to load lesson' });
@@ -489,7 +536,48 @@ async function getCourseNotes(req, res) {
       [new Date(), enrollment.id]
     );
 
-    res.json({ success: true, data: transformed });
+    const progress = await db.getOne(`
+      SELECT
+        (SELECT COUNT(*) FROM lessons WHERE course_id = ?) as total_lessons,
+        (SELECT COUNT(*) FROM lesson_progress lp
+         JOIN lessons l ON lp.lesson_id = l.id
+         WHERE lp.enrollment_id = ? AND lp.is_completed = 1) as completed_lessons,
+        (SELECT COUNT(*) FROM course_notes WHERE course_id = ?) as total_notes,
+        (SELECT COUNT(*) FROM note_progress np
+         JOIN course_notes cn ON np.note_id = cn.id
+         WHERE np.student_id = ? AND cn.course_id = ?) as read_notes,
+        (SELECT COUNT(*) FROM assignments a
+         JOIN lessons l ON a.lesson_id = l.id
+         WHERE l.course_id = ?) as total_assignments,
+        (SELECT COUNT(*) FROM submissions s
+         JOIN assignments a ON s.assignment_id = a.id
+         JOIN lessons l ON a.lesson_id = l.id
+         WHERE s.student_id = ? AND l.course_id = ?) as submitted_assignments
+    `, [courseId, enrollment.id, courseId, req.user.userId, courseId, courseId, req.user.userId, courseId]);
+
+    const totalLessons = progress.total_lessons || 0;
+    const completedLessons = progress.completed_lessons || 0;
+    const totalNotes = progress.total_notes || 0;
+    const readNotes = progress.read_notes || 0;
+    const totalAssignments = progress.total_assignments || 0;
+    const submittedAssignments = progress.submitted_assignments || 0;
+    const totalItems = totalLessons + totalNotes + totalAssignments;
+    const completedItems = completedLessons + readNotes + submittedAssignments;
+    const overallProgress = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0;
+
+    res.json({
+      success: true,
+      data: transformed,
+      courseProgress: {
+        totalLessons,
+        completedLessons,
+        totalNotes,
+        readNotes,
+        totalAssignments,
+        submittedAssignments,
+        overallProgress
+      }
+    });
   } catch (error) {
     console.error('Get course notes error:', error);
     res.status(500).json({ error: 'Failed to load course notes' });
@@ -542,11 +630,24 @@ async function markNoteRead(req, res) {
         (SELECT COUNT(*) FROM course_notes WHERE course_id = ?) as total_notes,
         (SELECT COUNT(*) FROM note_progress np
          JOIN course_notes cn ON np.note_id = cn.id
-         WHERE np.student_id = ? AND cn.course_id = ?) as read_notes
-    `, [note.course_id, enrollment.id, note.course_id, req.user.userId, note.course_id]);
+         WHERE np.student_id = ? AND cn.course_id = ?) as read_notes,
+        (SELECT COUNT(*) FROM assignments a
+         JOIN lessons l ON a.lesson_id = l.id
+         WHERE l.course_id = ?) as total_assignments,
+        (SELECT COUNT(*) FROM submissions s
+         JOIN assignments a ON s.assignment_id = a.id
+         JOIN lessons l ON a.lesson_id = l.id
+         WHERE s.student_id = ? AND l.course_id = ?) as submitted_assignments
+    `, [note.course_id, enrollment.id, note.course_id, req.user.userId, note.course_id, note.course_id, req.user.userId, note.course_id]);
 
-    const totalItems = (counts.total_lessons || 0) + (counts.total_notes || 0);
-    const completedItems = (counts.completed_lessons || 0) + (counts.read_notes || 0);
+    const totalLessons = counts.total_lessons || 0;
+    const completedLessons = counts.completed_lessons || 0;
+    const totalNotes = counts.total_notes || 0;
+    const readNotes = counts.read_notes || 0;
+    const totalAssignments = counts.total_assignments || 0;
+    const submittedAssignments = counts.submitted_assignments || 0;
+    const totalItems = totalLessons + totalNotes + totalAssignments;
+    const completedItems = completedLessons + readNotes + submittedAssignments;
     const courseProgress = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) / 100 : 0;
 
     res.json({ success: true, message: 'Note marked as read', courseProgress });

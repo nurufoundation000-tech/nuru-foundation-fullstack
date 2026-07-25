@@ -107,5 +107,34 @@ class AuthService {
     }
 }
 
+    async forgotPassword(email) {
+        try {
+            const response = await fetch(`${this.getApiUrl()}/auth/forgot-password`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email }),
+            });
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            return { success: false, error: error.message };
+        }
+    }
+
+    async resetPassword(token, email, newPassword) {
+        try {
+            const response = await fetch(`${this.getApiUrl()}/auth/reset-password`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ token, email, newPassword }),
+            });
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            return { success: false, error: error.message };
+        }
+    }
+}
+
 const authService = new AuthService();
 window.authService = authService;

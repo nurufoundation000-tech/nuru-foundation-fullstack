@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <script src="/scripts/auth-guard.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Course Notes - Nuru Foundation</title>
@@ -9,6 +8,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="../styles/root.css">
     <link rel="stylesheet" href="../styles/header.css">
+    <script src="/scripts/config.js"></script>
+    <script src="/scripts/dashboard.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Poppins', sans-serif; background: #f8f9fa; color: #333; }
@@ -485,18 +486,7 @@
     </style>
 </head>
 <body>
-    <div id="header-placeholder"></div>
-    <script>
-        fetch('../header.html').then(r => r.text()).then(h => {
-            document.getElementById('header-placeholder').innerHTML = h;
-            document.querySelector('.nav-links').innerHTML += `
-                <a href="index.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
-                <a href="my-courses.html"><i class="fas fa-book"></i> My Courses</a>
-                <a href="payment.html"><i class="fas fa-credit-card"></i> Payments</a>
-                <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
-            `;
-        });
-    </script>
+    <div id="headerContainer"></div>
 
     <div class="reader-container">
         <aside class="reader-sidebar" id="readerSidebar">
@@ -504,7 +494,7 @@
             <div class="progress-bar-container">
                 <div class="progress-bar-fill" id="progressFill" style="width: 0%"></div>
             </div>
-            <div class="progress-text" id="progressText">0 of 0 notes read</div>
+            <div class="progress-text" id="progressText">0% Complete</div>
             <ul class="note-list" id="noteList">
                 <li class="loading">Loading notes...</li>
             </ul>
@@ -548,7 +538,10 @@
     let currentIndex = -1;
     let courseId = null;
 
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', async () => {
+        await DashboardUtils.loadHeader();
+        await DashboardUtils.loadFooter();
+        if (!DashboardUtils.checkAuth('student')) return;
         const params = new URLSearchParams(window.location.search);
         courseId = params.get('courseId');
         if (!courseId) {
@@ -583,6 +576,7 @@
 
             const data = await response.json();
             notes = data.data || [];
+            window.courseProgress = data.courseProgress || {};
             renderSidebar();
             if (notes.length > 0) {
                 const savedNoteId = localStorage.getItem(`lastNote_${courseId}`);
@@ -611,9 +605,16 @@
         const list = document.getElementById('noteList');
         const readCount = notes.filter(n => n.isRead).length;
         const total = notes.length;
+        const progress = window.courseProgress || {};
+        const overallPct = progress.overallProgress || 0;
+        const totalItems = (progress.totalLessons || 0) + (progress.totalNotes || 0) + (progress.totalAssignments || 0);
+        const completedItems = (progress.completedLessons || 0) + (progress.readNotes || 0) + (progress.submittedAssignments || 0);
 
-        document.getElementById('progressFill').style.width = total > 0 ? `${(readCount / total) * 100}%` : '0%';
-        document.getElementById('progressText').textContent = `${readCount} of ${total} notes read`;
+        document.getElementById('progressFill').style.width = `${overallPct}%`;
+        document.getElementById('progressText').textContent =
+            totalItems > 0
+                ? `${overallPct}% Complete — ${completedItems} of ${totalItems} items`
+                : `${readCount} of ${total} notes read`;
 
         list.innerHTML = notes.map((note, i) => {
             const noteNum = String(note.orderIndex || (i + 1)).padStart(2, '0');
@@ -754,10 +755,11 @@
     function logout() {
         sessionStorage.removeItem('token');
         sessionStorage.removeItem('user');
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
         window.location.href = '/login.html';
     }
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
-<script>function logout(){localStorage.clear();sessionStorage.clear();location.replace('/login.html')}</script>
 </body>
 </html>

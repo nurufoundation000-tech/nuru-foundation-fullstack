@@ -15,6 +15,7 @@ const UploadController = require('../controllers/uploadController.js');
 const SessionController = require('../controllers/sessionController.js');
 const ForumController = require('../controllers/forumController.js');
 const NotificationController = require('../controllers/notificationController.js');
+const ContactController = require('../controllers/contactController.js');
 const { sendWelcomeEmail, getEmailStatus } = require('../lib/email.js');
 const { authenticateToken, requireRole } = require('../middleware/auth.js');
 const { generateInitialInvoices, checkAndUpdateInvoiceStatuses, isStudentLocked } = require('../lib/invoices.js');
@@ -26,6 +27,8 @@ const requireAdmin = [authenticateToken, requireRole(['admin'])];
 router.post('/auth/login', AuthController.login);
 router.post('/auth/register', AuthController.register);
 router.get('/auth/verify', authenticateToken, AuthController.verify);
+router.post('/auth/forgot-password', AuthController.forgotPassword);
+router.post('/auth/reset-password', AuthController.resetPassword);
 
 // ==================== USER ROUTES ====================
 router.get('/users/me', authenticateToken, UserController.getCurrentUser);
@@ -308,6 +311,10 @@ router.delete('/forum/posts/:id', authenticateToken, ForumController.deletePost)
 router.get('/notifications', authenticateToken, NotificationController.getNotifications);
 router.put('/notifications/:id/read', authenticateToken, NotificationController.markAsRead);
 router.put('/notifications/read-all', authenticateToken, NotificationController.markAllAsRead);
+
+// ==================== CONTACT & NEWSLETTER ROUTES ====================
+router.post('/contact', ContactController.submitContact);
+router.post('/newsletter/subscribe', ContactController.subscribeNewsletter);
 
 // ==================== EMAIL DIAGNOSTIC ROUTES ====================
 router.get('/admin/email-status', authenticateToken, requireAdmin, (req, res) => {

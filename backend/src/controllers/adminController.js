@@ -600,20 +600,43 @@ async function deleteUser(req, res) {
       return res.status(400).json({ error: 'Invalid user ID' });
     }
 
-    const user = await db.getOne('SELECT id, email, username FROM users WHERE id = ?', [userId]);
+    // Prevent admin from deleting themselves
+    if (userId === req.user.userId) {
+      return res.status(400).json({ error: 'Cannot delete your own account' });
+    }
+
+    const user = await db.getOne(
+      'SELECT id, email, username, role_id FROM users WHERE id = ?',
+      [userId]
+    );
 
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    await db.query('DELETE FROM users WHERE id = ?', [userId]);
-    console.log('User deleted:', user.email);
+    const role = await db.getOne('SELECT name FROM roles WHERE id = ?', [user.role_id]);
 
-    res.json({ success: true, message: 'User deleted successfully' });
+    // If tutor: disassociate from courses so courses remain assignable
+    if (role?.name === 'tutor') {
+      await db.query('DELETE FROM course_tutors WHERE tutor_id = ?', [userId]);
+    }
+
+    // Soft-delete: deactivate + anonymize. Row stays so all FK references resolve.
+    await db.query(
+      'UPDATE users SET is_active = 0, email = ?, username = ? WHERE id = ?',
+      [`deleted-${userId}@deleted.local`, `deleted-${userId}`, userId]
+    );
+
+    res.json({
+      success: true,
+      message: role?.name === 'tutor'
+        ? 'Tutor deactivated. Courses and content preserved for reassignment.'
+        : 'User deactivated successfully.'
+    });
 
   } catch (error) {
     console.error('Delete user error:', error);
-    res.status(500).json({ error: 'Failed to delete user' });
+    res.status(500).json({ error: 'Failed to delete user: ' + error.message });
   }
 }
 

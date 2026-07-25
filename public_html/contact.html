@@ -488,26 +488,46 @@
   
 
     <script>
-        // Form Action Interface Pipeline interceptor
-        document.getElementById('fluidContactForm').addEventListener('submit', function(e) {
+        const API_BASE = window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : '/api';
+
+        document.getElementById('fluidContactForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
             const actionButton = document.getElementById('sendBtn');
             const toastDisplay = document.getElementById('statusToast');
+            const name = document.getElementById('clientName').value.trim();
+            const email = document.getElementById('clientEmail').value.trim();
+            const phone = document.getElementById('clientPhone').value.trim();
+            const message = document.getElementById('clientMessage').value.trim();
             
             actionButton.disabled = true;
-            actionButton.innerHTML = '<span>Processing Dispatch...</span><i class="fas fa-spinner fa-spin"></i>';
+            actionButton.innerHTML = '<span>Sending...</span><i class="fas fa-spinner fa-spin"></i>';
             
-            // Simulating communications gateway verification latency
-            setTimeout(() => {
-                toastDisplay.textContent = "Success! Communication payload securely routed to Nuru Foundation. Expect processing updates shortly.";
-                toastDisplay.className = "alert-toast-box success";
+            try {
+                const response = await fetch(`${API_BASE}/contact`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, email, phone, message })
+                });
                 
-                document.getElementById('fluidContactForm').reset();
+                const data = await response.json();
                 
-                actionButton.disabled = false;
-                actionButton.innerHTML = '<span>Send Message</span><i class="fas fa-paper-plane"></i>';
-            }, 1200);
+                if (response.ok) {
+                    toastDisplay.textContent = "Thank you! Your message has been sent. We'll get back to you shortly.";
+                    toastDisplay.className = "alert-toast-box success";
+                    document.getElementById('fluidContactForm').reset();
+                } else {
+                    toastDisplay.textContent = data.error || 'Failed to send. Please try again.';
+                    toastDisplay.className = "alert-toast-box error";
+                }
+            } catch (error) {
+                toastDisplay.textContent = 'Network error. Please check your connection and try again.';
+                toastDisplay.className = "alert-toast-box error";
+                console.error('Contact form error:', error);
+            }
+            
+            actionButton.disabled = false;
+            actionButton.innerHTML = '<span>Send Message</span><i class="fas fa-paper-plane"></i>';
         });
     </script>
 </body>
