@@ -30,6 +30,19 @@
         .mark-all-btn { float: right; }
         .empty-state { text-align: center; padding: 80px 20px; }
         .empty-state i { font-size: 4rem; color: #ddd; margin-bottom: 15px; }
+        .mark-read-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 6px 12px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            white-space: nowrap;
+            flex-shrink: 0;
+            transition: background 0.2s;
+        }
+        .mark-read-btn:hover { background: var(--accent-color-1); }
     </style>
 </head>
 <body>
@@ -38,9 +51,11 @@
         <dashboard-sidebar active="notifications"></dashboard-sidebar>
         <div class="dashboard-main">
             <page-header title="Notifications" subtitle="Stay updated with your learning journey" icon="fa-bell">
+                <button class="btn btn-sm btn-outline" onclick="loadNotifications()" title="Refresh"><i class="fas fa-sync-alt"></i></button>
                 <button class="btn btn-sm btn-outline" onclick="markAllRead()" id="markAllBtn" style="display:none;"><i class="fas fa-check-double"></i> Mark All Read</button>
             </page-header>
             <div id="notifList"><div class="loading"><i class="fas fa-spinner fa-spin"></i></div></div>
+
         </div>
     </div>
     <div id="footerContainer"></div>
@@ -65,12 +80,13 @@
                     return;
                 }
 
-                if (data.unreadCount > 0) {
-                    document.getElementById('markAllBtn').style.display = 'inline-block';
+                const markAllBtn = document.getElementById('markAllBtn');
+                if (markAllBtn) {
+                    markAllBtn.style.display = data.unreadCount > 0 ? 'inline-block' : 'none';
                 }
 
                 container.innerHTML = '<div class="notif-list">' + notifs.map(n => `
-                    <div class="notif-item ${n.is_read ? '' : 'unread'}" onclick="${n.link ? `window.location.href='${n.link}'` : 'markRead(' + n.id + ', this)'}">
+                    <div class="notif-item ${n.is_read ? '' : 'unread'}" data-id="${n.id}" data-link="${escapeHtml(n.link || '')}">
                         <div class="notif-icon ${n.type}">
                             <i class="fas ${n.type === 'success' ? 'fa-check-circle' : n.type === 'error' ? 'fa-exclamation-circle' : n.type === 'warning' ? 'fa-exclamation-triangle' : 'fa-info-circle'}"></i>
                         </div>
@@ -79,9 +95,28 @@
                             <p>${escapeHtml(n.body)}</p>
                             <div class="notif-time">${new Date(n.created_at).toLocaleDateString()} ${new Date(n.created_at).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</div>
                         </div>
-                        ${!n.is_read ? '<i class="fas fa-circle" style="color:var(--primary-color);font-size:0.6rem;margin-top:8px;"></i>' : ''}
+                        ${!n.is_read ? `<button class="mark-read-btn" data-id="${n.id}"><i class="fas fa-check"></i> Mark Read</button>` : ''}
                     </div>
                 `).join('') + '</div>';
+
+                container.querySelectorAll('.notif-item').forEach(el => {
+                    el.addEventListener('click', (e) => {
+                        if (e.target.closest('.mark-read-btn')) return;
+                        const link = el.dataset.link;
+                        if (link) {
+                            window.location.href = link;
+                        } else {
+                            markRead(el.dataset.id, el);
+                        }
+                    });
+                });
+                container.querySelectorAll('.mark-read-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const item = btn.closest('.notif-item');
+                        markRead(btn.dataset.id, item);
+                    });
+                });
             } catch (error) {
                 console.error('Error:', error);
                 document.getElementById('notifList').innerHTML = '<div class="error-message"><i class="fas fa-exclamation-triangle"></i> Failed to load notifications</div>';
@@ -92,17 +127,22 @@
             try {
                 await DashboardUtils.fetchAPI(`/notifications/${id}/read`, { method: 'PUT' });
                 el.classList.remove('unread');
-                el.querySelector('.fa-circle')?.remove();
+                const btn = el.querySelector('.mark-read-btn');
+                if (btn) btn.remove();
             } catch (e) { console.error(e); }
         }
 
         async function markAllRead() {
             try {
                 await DashboardUtils.fetchAPI('/notifications/read-all', { method: 'PUT' });
-                document.querySelectorAll('.notif-item').forEach(el => { el.classList.remove('unread'); el.querySelector('.fa-circle')?.remove(); });
-                document.getElementById('markAllBtn').style.display = 'none';
+                document.querySelectorAll('.notif-item').forEach(el => { el.classList.remove('unread'); const b = el.querySelector('.mark-read-btn'); if (b) b.remove(); });
+                const mab = document.getElementById('markAllBtn');
+                if (mab) mab.style.display = 'none';
+                if (window.DashboardUtils) DashboardUtils.startNotificationPolling();
             } catch (e) { console.error(e); }
         }
+
+
     </script>
 <script>function logout(){localStorage.clear();sessionStorage.clear();location.replace('/login.html')}</script>
 </body>

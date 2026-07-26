@@ -1,5 +1,6 @@
 // controllers/adminController.js - Admin Dashboard Controller (CommonJS)
 const bcrypt = require('bcryptjs');
+const crypto = require('crypto');
 const db = require('../config/database.js');
 const { sendWelcomeEmail } = require('../lib/email.js');
 
@@ -495,30 +496,48 @@ async function createUser(req, res) {
     userWithoutPassword.mustChangePassword = !!userWithoutPassword.must_change_password;
     userWithoutPassword.role = userWithoutPassword.role_name;
 
-    // Send welcome email
-    let emailStatus = { sent: false, error: null, generatedPassword: null };
-    try {
-      const emailResult = await sendWelcomeEmail(email, username, generatedPassword);
-      emailStatus = {
-        sent: emailResult.success,
-        error: emailResult.error || null,
-        generatedPassword: emailResult.success ? null : generatedPassword
-      };
-      console.log('[Admin] Welcome email sent to:', email, 'Success:', emailResult.success);
-      if (!emailResult.success && emailResult.error) {
-        console.error('[Admin] Email error details:', emailResult.error);
+    // Generate a reset token for welcome email (no plaintext password)
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
+    await db.query('UPDATE password_reset_tokens SET used = 1 WHERE email = ? AND used = 0', [email.toLowerCase()]);
+    await db.insert('password_reset_tokens', {
+      email: email.toLowerCase(),
+      token: resetToken,
+      expires_at: expiresAt,
+      used: 0
+    });
+    const resetLink = `${process.env.FRONTEND_URL || 'https://nurufoundations.com'}/reset-password.html?token=${resetToken}&email=${encodeURIComponent(email.toLowerCase())}`;
+
+    // Send welcome email (check setting first)
+    let emailStatus = { sent: false, error: null };
+    const welcomeSetting = await db.getOne("SELECT setting_value FROM settings WHERE setting_key = 'welcomeEmail'");
+    const welcomeEnabled = welcomeSetting ? welcomeSetting.setting_value !== 'false' : true;
+    if (welcomeEnabled) {
+      try {
+        const emailResult = await sendWelcomeEmail(email, username, resetLink);
+        emailStatus = {
+          sent: emailResult.success,
+          error: emailResult.error || null
+        };
+        console.log('[Admin] Welcome email sent to:', email, 'Success:', emailResult.success);
+        if (!emailResult.success && emailResult.error) {
+          console.error('[Admin] Email error details:', emailResult.error);
+        }
+      } catch (emailError) {
+        console.error('[Admin] Failed to send welcome email:', emailError.message);
+        console.error('[Admin] Full error:', emailError);
+        emailStatus = { sent: false, error: emailError.message };
       }
-    } catch (emailError) {
-      console.error('[Admin] Failed to send welcome email:', emailError.message);
-      console.error('[Admin] Full error:', emailError);
-      emailStatus = { sent: false, error: emailError.message, generatedPassword: generatedPassword };
+    } else {
+      console.log('[Admin] Welcome email disabled by setting — skipping for:', email);
+      emailStatus = { sent: false, error: 'Welcome email disabled in settings' };
     }
 
     res.status(201).json({
       success: true,
       data: userWithoutPassword,
       emailStatus: emailStatus,
-      message: `User created! Credentials - Username: ${username}, Password: ${generatedPassword}`
+      message: `User created! Username: ${username}. A welcome email with a password reset link has been sent.`
     });
 
   } catch (error) {

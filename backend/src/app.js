@@ -213,6 +213,10 @@ const server = app.listen(PORT, HOST, () => {
   console.log(`============================================\n`);
 });
 
+// Initialize Socket.IO for real-time notifications
+const { initSocket } = require('./lib/socket.js');
+initSocket(server);
+
 server.on('error', (error) => {
   console.error('❌ Server error:', error);
   if (error.code === 'EADDRINUSE') {

@@ -1,6 +1,7 @@
 // lib/invoices.js - Invoice and Billing System (CommonJS)
 const db = require('../config/database.js');
 const fs = require('fs');
+const NotificationController = require('../controllers/notificationController.js');
 
 const GLOBAL_SETTINGS_PATH = './global-billing.json';
 
@@ -164,7 +165,11 @@ async function getInvoiceById(invoiceId) {
 }
 
 async function markInvoicePaid(invoiceId, paymentData) {
-  const invoice = await db.getOne('SELECT * FROM invoices WHERE id = ?', [invoiceId]);
+  const invoice = await db.getOne(`
+    SELECT i.*, c.title as course_title FROM invoices i
+    JOIN courses c ON i.course_id = c.id
+    WHERE i.id = ?
+  `, [invoiceId]);
   if (!invoice) return;
 
   await db.update('invoices', invoiceId, {
@@ -181,6 +186,14 @@ async function markInvoicePaid(invoiceId, paymentData) {
   if (invoice.type === 'initial' || invoice.type === 'deposit') {
     await generateMonthlyInvoices();
   }
+
+  NotificationController.createNotification(
+    studentId,
+    'Payment Received',
+    `KES ${parseFloat(invoice.amount).toLocaleString()} received for ${invoice.course_title || 'course'}`,
+    'success',
+    '/student-dashboard/payment.html'
+  );
 
   const hasUnpaid = await db.getOne(`
     SELECT id FROM invoices 

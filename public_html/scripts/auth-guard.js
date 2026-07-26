@@ -19,6 +19,17 @@
             return;
         }
 
+        try {
+            var payload = JSON.parse(atob(token.split('.')[1]));
+            if (payload.exp && Date.now() >= payload.exp * 1000) {
+                sessionStorage.removeItem('token');
+                sessionStorage.removeItem('user');
+                location.replace('/login.html');
+                return;
+            }
+        } catch (e) {
+        }
+
         var x = new XMLHttpRequest();
         x.open('GET', '/api/auth/verify', false);
         x.setRequestHeader('Authorization', 'Bearer ' + token);

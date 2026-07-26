@@ -316,22 +316,6 @@ class AdminDashboard {
                     { key: 'content', label: 'Content', type: 'textarea', required: true }
                 ]
             },
-            notifications: {
-                displayName: 'Notifications',
-                columns: [
-                    { key: 'id', label: 'ID', type: 'number' },
-                    { key: 'user.username', label: 'User', type: 'text' },
-                    { key: 'title', label: 'Title', type: 'text' },
-                    { key: 'body', label: 'Body', type: 'text' },
-                    { key: 'isRead', label: 'Read', type: 'boolean' },
-                    { key: 'createdAt', label: 'Created At', type: 'date' }
-                ],
-                formFields: [
-                    { key: 'userId', label: 'User ID', type: 'number', required: true },
-                    { key: 'title', label: 'Title', type: 'text', required: true },
-                    { key: 'body', label: 'Body', type: 'textarea' }
-                ]
-            },
             badges: {
                 displayName: 'Badges',
                 columns: [

@@ -238,14 +238,16 @@ async function createTutorLesson(req, res) {
         [courseId]
       );
       const timeStr = sessionTime ? sessionTime.slice(0, 5) : '';
-      for (const enrollment of enrollments) {
-        await NotificationController.createNotification(
-          enrollment.student_id,
-          'New Lesson Scheduled',
-          `${title} — ${sessionDate}${timeStr ? ' at ' + timeStr : ''}`,
-          'info',
-          '/student-dashboard/live-sessions.html'
-        );
+      const studentIds = enrollments.map(e => e.student_id);
+      const result = await NotificationController.createNotificationsForUsers(
+        studentIds,
+        'New Lesson Scheduled',
+        `${title} — ${sessionDate}${timeStr ? ' at ' + timeStr : ''}`,
+        'info',
+        '/student-dashboard/live-sessions.html'
+      );
+      if (!result.success) {
+        console.warn('Some notifications failed:', result.error);
       }
     }
 
@@ -611,7 +613,7 @@ async function gradeSubmission(req, res) {
     }
 
     const submission = await db.getOne(
-      `SELECT s.* FROM submissions s
+      `SELECT s.*, a.title as assignment_title FROM submissions s
        JOIN assignments a ON s.assignment_id = a.id
        JOIN lessons l ON a.lesson_id = l.id
        JOIN courses c ON l.course_id = c.id
@@ -628,6 +630,14 @@ async function gradeSubmission(req, res) {
       feedback: feedback || '',
       updated_at: new Date()
     });
+
+    NotificationController.createNotification(
+      submission.student_id,
+      'Assignment Graded',
+      `Your assignment "${submission.assignment_title}" has been graded: ${grade}`,
+      'info',
+      '/student-dashboard/assignments.html'
+    );
 
     const updatedSubmission = await db.getOne('SELECT * FROM submissions WHERE id = ?', [submissionId]);
 

@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="/styles/root.css">
     <link rel="stylesheet" href="/styles/dashboard.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <base href="/">
     <style>
         .sessions-list { margin-top: 20px; }
@@ -82,17 +83,37 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="/scripts/config.js"></script>
     <script src="/scripts/dashboard.js"></script>
     <script>
         let courses = [];
         let sessions = [];
+        let datePicker = null;
+        let timePicker = null;
 
         document.addEventListener('DOMContentLoaded', async () => {
             await DashboardUtils.loadHeader();
             if (!DashboardUtils.checkAuth('tutor')) return;
+            initPickers();
             await Promise.all([loadCourses(), loadSessions()]);
         });
+
+        function initPickers() {
+            datePicker = flatpickr('#sessionDate', {
+                dateFormat: 'Y-m-d',
+                minDate: 'today',
+                allowInput: true
+            });
+            timePicker = flatpickr('#sessionTime', {
+                enableTime: true,
+                noCalendar: true,
+                dateFormat: 'H:i',
+                time_24hr: true,
+                minuteIncrement: 15,
+                allowInput: true
+            });
+        }
 
         async function loadCourses() {
             try {
@@ -122,10 +143,10 @@
             }
 
             container.innerHTML = sessions.map(s => {
-                const dateStr = new Date(s.session_date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+                const dateStr = s.session_date ? new Date(s.session_date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }) : '';
                 const now = new Date();
-                const sessionDate = new Date(s.session_date + 'T' + s.session_time);
-                const isPast = sessionDate < now;
+                const sessionDate = s.session_date && s.session_time ? new Date(s.session_date + 'T' + s.session_time) : null;
+                const isPast = sessionDate ? sessionDate < now : true;
                 return `
                     <div class="session-card">
                         <div class="session-info">
@@ -133,7 +154,7 @@
                             <div style="font-size:0.8rem;color:#888;">${escapeHtml(s.course_title || '')}</div>
                             <div class="meta">
                                 <span><i class="fas fa-calendar"></i> ${dateStr}</span>
-                                <span><i class="fas fa-clock"></i> ${s.session_time.slice(0, 5)}</span>
+                                <span><i class="fas fa-clock"></i> ${s.session_time ? s.session_time.slice(0, 5) : '--:--'}</span>
                                 <span><i class="fas fa-hourglass-half"></i> ${s.duration_minutes} min</span>
                                 <span class="${isPast ? 'status-pending' : 'status-submitted'}" style="padding:2px 8px;border-radius:4px;font-size:0.75rem;">${isPast ? 'Ended' : 'Upcoming'}</span>
                             </div>
@@ -153,8 +174,8 @@
             document.getElementById('sessionTitle').value = '';
             document.getElementById('sessionDesc').value = '';
             document.getElementById('sessionLink').value = '';
-            document.getElementById('sessionDate').value = '';
-            document.getElementById('sessionTime').value = '';
+            if (datePicker) datePicker.clear();
+            if (timePicker) timePicker.clear();
             document.getElementById('sessionDuration').value = '60';
             document.getElementById('sessionCourse').value = '';
             document.getElementById('sessionModal').classList.add('show');
@@ -203,8 +224,8 @@
             document.getElementById('sessionTitle').value = session.title;
             document.getElementById('sessionDesc').value = session.description || '';
             document.getElementById('sessionLink').value = session.meeting_link;
-            document.getElementById('sessionDate').value = session.session_date;
-            document.getElementById('sessionTime').value = session.session_time;
+            if (datePicker && session.session_date) datePicker.setDate(session.session_date);
+            if (timePicker && session.session_time) timePicker.setDate(session.session_time);
             document.getElementById('sessionDuration').value = session.duration_minutes;
             document.getElementById('sessionModal').classList.add('show');
         }

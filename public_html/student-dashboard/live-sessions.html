@@ -98,12 +98,12 @@
             }
 
             container.innerHTML = `<div class="sessions-grid">${filtered.map(s => {
-                const sessionDate = new Date(s.session_date + 'T' + s.session_time);
-                const diffMs = sessionDate - now;
-                const isOngoing = diffMs <= 0 && diffMs > -(s.duration_minutes * 60 * 1000);
-                const isPast = diffMs <= -(s.duration_minutes * 60 * 1000);
-                const hoursLeft = Math.floor(diffMs / (1000 * 60 * 60));
-                const minsLeft = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+                const sessionDate = s.session_date && s.session_time ? new Date(s.session_date + 'T' + s.session_time) : null;
+                const diffMs = sessionDate ? sessionDate - now : 0;
+                const isOngoing = sessionDate ? diffMs <= 0 && diffMs > -(s.duration_minutes * 60 * 1000) : false;
+                const isPast = sessionDate ? diffMs <= -(s.duration_minutes * 60 * 1000) : true;
+                const hoursLeft = diffMs > 0 ? Math.floor(diffMs / (1000 * 60 * 60)) : 0;
+                const minsLeft = diffMs > 0 ? Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60)) : 0;
 
                 let countdownHtml;
                 if (isOngoing) {
@@ -116,7 +116,13 @@
                     countdownHtml = `<div class="countdown"><i class="far fa-clock"></i> Starts in ${minsLeft}m</div>`;
                 }
 
-                const dateStr = new Date(s.session_date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+                const dateStr = s.session_date ? new Date(s.session_date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }) : '';
+
+                function stripHtml(html) {
+                    const tmp = document.createElement('div');
+                    tmp.innerHTML = html || '';
+                    return tmp.textContent || tmp.innerText || '';
+                }
 
                 return `
                     <div class="session-card">
@@ -125,12 +131,12 @@
                             <div class="course-label"><i class="fas fa-book"></i> ${escapeHtml(s.course_title || '')}</div>
                             <div class="session-meta">
                                 <span><i class="fas fa-calendar"></i> ${dateStr}</span>
-                                <span><i class="fas fa-clock"></i> ${s.session_time.slice(0, 5)}</span>
+                                <span><i class="fas fa-clock"></i> ${s.session_time ? s.session_time.slice(0, 5) : '--:--'}</span>
                                 <span><i class="fas fa-hourglass-half"></i> ${s.duration_minutes} min</span>
                             </div>
-                            ${s.description ? `<p style="font-size:0.85rem;color:#666;margin:8px 0;">${escapeHtml(s.description)}</p>` : ''}
+                            ${s.description ? `<p style="font-size:0.85rem;color:#666;margin:8px 0;">${escapeHtml(stripHtml(s.description))}</p>` : ''}
                             ${countdownHtml}
-                            ${!isPast ? `<a href="${escapeHtml(s.meeting_link)}" target="_blank" rel="noopener" class="btn btn-primary btn-sm btn-block" style="margin-top: 10px;"><i class="fas fa-video"></i> Join Session</a>` : ''}
+                            ${!isPast && s.meeting_link ? `<a href="${escapeHtml(s.meeting_link)}" target="_blank" rel="noopener" class="btn btn-primary btn-sm btn-block" style="margin-top: 10px;"><i class="fas fa-video"></i> Join Session</a>` : ''}
                         </div>
                     </div>
                 `;

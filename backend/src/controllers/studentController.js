@@ -1,6 +1,7 @@
 // controllers/studentController.js - Student Dashboard Controller (CommonJS)
 const db = require('../config/database.js');
 const { isStudentLocked } = require('../lib/invoices.js');
+const NotificationController = require('./notificationController.js');
 
 async function getStudentCourses(req, res) {
   try {
@@ -178,6 +179,14 @@ async function completeLesson(req, res) {
       completed_at: new Date()
     });
 
+    NotificationController.createNotification(
+      req.user.userId,
+      'Lesson Completed',
+      `You completed: ${lesson.title}`,
+      'success',
+      '/student-dashboard/my-courses.html'
+    );
+
     const counts = await db.getOne(`
       SELECT
         (SELECT COUNT(*) FROM lessons WHERE course_id = ?) as total_lessons,
@@ -206,6 +215,22 @@ async function completeLesson(req, res) {
     const totalItems = totalLessons + totalNotes + totalAssignments;
     const completedItems = completedLessons + readNotes + submittedAssignments;
     const courseProgress = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) / 100 : 0;
+
+    // Check if all lessons completed (course completion)
+    if (totalLessons > 0 && completedLessons >= totalLessons) {
+      const completionSetting = await db.getOne("SELECT setting_value FROM settings WHERE setting_key = 'completionEmail'");
+      const completionEnabled = completionSetting ? completionSetting.setting_value !== 'false' : true;
+      if (completionEnabled) {
+        const courseInfo = await db.getOne('SELECT title FROM courses WHERE id = ?', [lesson.course_id]);
+        NotificationController.createNotification(
+          req.user.userId,
+          'Course Completed',
+          `Congratulations! You have completed all lessons in ${courseInfo ? courseInfo.title : 'your course'}.`,
+          'success',
+          '/student-dashboard/certificates.html'
+        );
+      }
+    }
 
     res.json({ success: true, message: 'Lesson marked as completed', courseProgress });
 

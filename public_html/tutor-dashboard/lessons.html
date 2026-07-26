@@ -11,7 +11,9 @@
     <link rel="stylesheet" href="../styles/root.css">
     <link rel="stylesheet" href="../styles/header.css">
     <link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Poppins', sans-serif; background: #f8f9fa; color: #333; }
@@ -284,9 +286,24 @@
     let lessonQuill = null;
     let editingLessonId = null;
     let courseNotesCache = {};
+    let lessonDatePicker = null;
+    let lessonTimePicker = null;
 
     document.addEventListener('DOMContentLoaded', function() {
         initializeLessonsPage();
+        lessonDatePicker = flatpickr('#lessonDate', {
+            dateFormat: 'Y-m-d',
+            minDate: 'today',
+            allowInput: true
+        });
+        lessonTimePicker = flatpickr('#lessonTime', {
+            enableTime: true,
+            noCalendar: true,
+            dateFormat: 'H:i',
+            time_24hr: true,
+            minuteIncrement: 15,
+            allowInput: true
+        });
     });
 
     function initLessonQuill() {
@@ -667,8 +684,8 @@
         document.getElementById('lessonVideo').value = '';
         document.getElementById('lessonLiveLink').value = '';
         document.getElementById('lessonOrder').value = '';
-        document.getElementById('lessonDate').value = '';
-        document.getElementById('lessonTime').value = '';
+        if (lessonDatePicker) lessonDatePicker.clear();
+        if (lessonTimePicker) lessonTimePicker.clear();
         document.getElementById('lessonDuration').value = '60';
         document.getElementById('linkedNotesContainer').innerHTML = '<p style="color:#999;font-size:0.85rem;">Select a course first</p>';
 
@@ -692,8 +709,8 @@
         document.getElementById('lessonVideo').value = lesson.video_url || '';
         document.getElementById('lessonLiveLink').value = lesson.liveLink || '';
         document.getElementById('lessonOrder').value = lesson.orderIndex || '';
-        document.getElementById('lessonDate').value = lesson.sessionDate || '';
-        document.getElementById('lessonTime').value = lesson.sessionTime ? lesson.sessionTime.slice(0, 5) : '';
+        if (lessonDatePicker && lesson.sessionDate) lessonDatePicker.setDate(lesson.sessionDate);
+        if (lessonTimePicker && lesson.sessionTime) lessonTimePicker.setDate(lesson.sessionTime);
         document.getElementById('lessonDuration').value = lesson.durationMinutes || '60';
 
         document.getElementById('listView').classList.add('hidden');

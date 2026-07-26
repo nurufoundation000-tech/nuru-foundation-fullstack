@@ -1,6 +1,7 @@
 // controllers/courseController.js - Course Controller (CommonJS)
 const db = require('../config/database.js');
 const { generateInitialInvoices } = require('../lib/invoices.js');
+const NotificationController = require('./notificationController.js');
 
 async function getAllCourses(req, res) {
   try {
@@ -88,6 +89,14 @@ async function enrollInCourse(req, res) {
       course_id: courseId,
       enrolled_at: new Date()
     });
+
+    NotificationController.createNotification(
+      req.user.userId,
+      'Enrolled Successfully',
+      `You have enrolled in: ${course.title}`,
+      'success',
+      '/student-dashboard/my-courses.html'
+    );
 
     // For paid courses, generate initial deposit invoice
     if (!course.is_free) {

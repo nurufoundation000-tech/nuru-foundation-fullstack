@@ -309,8 +309,10 @@ router.delete('/forum/posts/:id', authenticateToken, ForumController.deletePost)
 
 // ==================== NOTIFICATION ROUTES ====================
 router.get('/notifications', authenticateToken, NotificationController.getNotifications);
+router.get('/notifications/unread-count', authenticateToken, NotificationController.getUnreadCount);
 router.put('/notifications/:id/read', authenticateToken, NotificationController.markAsRead);
 router.put('/notifications/read-all', authenticateToken, NotificationController.markAllAsRead);
+router.post('/admin/notifications/bulk', authenticateToken, requireAdmin, NotificationController.bulkCreateNotifications);
 
 // ==================== CONTACT & NEWSLETTER ROUTES ====================
 router.post('/contact', ContactController.submitContact);
@@ -329,7 +331,8 @@ router.post('/admin/test-email', authenticateToken, requireAdmin, async (req, re
   }
   
   try {
-    const result = await sendWelcomeEmail(email, 'testuser', 'TestPassword123');
+    const testLink = `${process.env.FRONTEND_URL || 'https://nurufoundations.com'}/reset-password.html?token=test-token&email=${encodeURIComponent(email)}`;
+    const result = await sendWelcomeEmail(email, 'testuser', testLink);
     res.json(result);
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });

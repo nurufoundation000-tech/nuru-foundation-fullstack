@@ -132,21 +132,40 @@ async function register(req, res) {
 
     const user = await db.getOne('SELECT * FROM users WHERE id = ?', [userId]);
 
+    // Generate a reset token for welcome email (no plaintext password)
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
+    await db.query('UPDATE password_reset_tokens SET used = 1 WHERE email = ? AND used = 0', [email.toLowerCase()]);
+    await db.insert('password_reset_tokens', {
+      email: email.toLowerCase(),
+      token: resetToken,
+      expires_at: expiresAt,
+      used: 0
+    });
+    const resetLink = `${process.env.FRONTEND_URL || 'https://nurufoundations.com'}/reset-password.html?token=${resetToken}&email=${encodeURIComponent(email.toLowerCase())}`;
+
     let emailStatus = { sent: false, error: null };
-    try {
-      const emailResult = await sendWelcomeEmail(email, username, generatedPassword);
-      emailStatus = {
-        sent: emailResult.success,
-        error: emailResult.error || null
-      };
-      console.log('Welcome email sent to:', email, 'Success:', emailResult.success);
-      if (!emailResult.success && emailResult.error) {
-        console.error('[Auth] Email error details:', emailResult.error);
+    const welcomeSetting = await db.getOne("SELECT setting_value FROM settings WHERE setting_key = 'welcomeEmail'");
+    const welcomeEnabled = welcomeSetting ? welcomeSetting.setting_value !== 'false' : true;
+    if (welcomeEnabled) {
+      try {
+        const emailResult = await sendWelcomeEmail(email, username, resetLink);
+        emailStatus = {
+          sent: emailResult.success,
+          error: emailResult.error || null
+        };
+        console.log('Welcome email sent to:', email, 'Success:', emailResult.success);
+        if (!emailResult.success && emailResult.error) {
+          console.error('[Auth] Email error details:', emailResult.error);
+        }
+      } catch (emailError) {
+        console.error('Failed to send welcome email:', emailError.message);
+        console.error('[Auth] Full error:', emailError);
+        emailStatus = { sent: false, error: emailError.message };
       }
-    } catch (emailError) {
-      console.error('Failed to send welcome email:', emailError.message);
-      console.error('[Auth] Full error:', emailError);
-      emailStatus = { sent: false, error: emailError.message };
+    } else {
+      console.log('Welcome email disabled by setting — skipping for:', email);
+      emailStatus = { sent: false, error: 'Welcome email disabled in settings' };
     }
 
     let role = null;
@@ -236,7 +255,7 @@ async function forgotPassword(req, res) {
 
     res.json({
       success: true,
-      message: 'If an account with that email exists, a password reset link has been sent.'
+      message: 'A reset link has been sent to your email'
     });
 
   } catch (error) {
