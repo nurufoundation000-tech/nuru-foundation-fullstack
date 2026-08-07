@@ -32,8 +32,8 @@
         .assignment-footer { display:flex; justify-content:space-between; align-items:center; padding-top:12px; border-top:1px solid #eee; }
         .empty-state { text-align:center; padding:60px 20px; background:white; border-radius:var(--border-radius-lg); }
         .empty-state i { font-size:3rem; color:#ccc; margin-bottom:15px; }
-        .modal { display:none; position:fixed; z-index:1000; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.5); }
-        .modal-content { background:white; margin:5% auto; padding:30px; border-radius:15px; width:90%; max-width:700px; position:relative; max-height:80vh; overflow-y:auto; }
+        .modal { display:none; position:fixed; z-index:1000; left:0; top:0; width:100%; height:100%; overflow-y:auto; background:rgba(0,0,0,0.5); justify-content:center; align-items:center; }
+        .modal-content { background:white; margin:auto; padding:30px; border-radius:15px; width:90%; max-width:700px; position:relative; max-height:90vh; overflow-y:auto; }
         .modal-close { position:absolute; top:15px; right:20px; font-size:1.5rem; cursor:pointer; color:#6c757d; }
         .modal h2 { color:#2c3e50; margin-bottom:5px; }
         .modal .subtitle { color:#888; font-size:0.9rem; margin-bottom:20px; }
@@ -237,7 +237,7 @@
                 submitForm.style.display = 'block';
             }
 
-            document.getElementById('submitModal').style.display = 'block';
+            document.getElementById('submitModal').style.display = 'flex';
         }
 
         function closeSubmitModal() {

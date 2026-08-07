@@ -635,9 +635,9 @@ async function deleteUser(req, res) {
 
     const role = await db.getOne('SELECT name FROM roles WHERE id = ?', [user.role_id]);
 
-    // If tutor: disassociate from courses so courses remain assignable
+    // If tutor: preserve course_tutors links for history, clear legacy tutor_id field
     if (role?.name === 'tutor') {
-      await db.query('DELETE FROM course_tutors WHERE tutor_id = ?', [userId]);
+      await db.query('UPDATE courses SET tutor_id = NULL WHERE tutor_id = ?', [userId]);
     }
 
     // Soft-delete: deactivate + anonymize. Row stays so all FK references resolve.

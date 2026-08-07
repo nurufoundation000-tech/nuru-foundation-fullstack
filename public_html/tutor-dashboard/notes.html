@@ -82,8 +82,8 @@
         .editor-actions { display: flex; gap: 15px; justify-content: flex-end; margin-top: 20px; padding-top: 20px; border-top: 1px solid #e9ecef; }
 
         /* Preview Modal */
-        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); }
-        .modal-content { background: white; margin: 5% auto; padding: 30px; border-radius: 15px; width: 90%; max-width: 800px; position: relative; }
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow-y: auto; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; }
+        .modal-content { background: white; margin: auto; padding: 30px; border-radius: 15px; width: 90%; max-width: 800px; max-height: 90vh; overflow-y: auto; position: relative; }
         .modal-close { position: absolute; top: 15px; right: 20px; font-size: 1.5rem; cursor: pointer; color: #6c757d; }
         .modal h2 { color: #2c3e50; margin-bottom: 20px; }
         .preview-content { padding: 20px; line-height: 1.8; max-height: 70vh; overflow-y: auto; }
@@ -553,7 +553,7 @@
         if (!quill) return;
         const content = quill.root.innerHTML;
         document.getElementById('previewContent').innerHTML = content;
-        document.getElementById('previewModal').style.display = 'block';
+        document.getElementById('previewModal').style.display = 'flex';
     }
 
     function closePreview() {

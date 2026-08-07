@@ -424,7 +424,7 @@ class AdminPanel {
         document.getElementById('edit-note-id').value = noteId;
         document.getElementById('edit-note-title').value = title;
         document.getElementById('edit-note-content').value = content;
-        document.getElementById('edit-note-modal').style.display = 'block';
+        document.getElementById('edit-note-modal').style.display = 'flex';
     }
 
     async updateNote() {
