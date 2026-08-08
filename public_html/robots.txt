@@ -1,0 +1,15 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /uploads/
+Disallow: /student-dashboard/
+Disallow: /tutor-dashboard/
+Disallow: /admin-dashboard/
+Disallow: /login.html
+Disallow: /register.html
+Disallow: /forgot-password.html
+Disallow: /reset-password.html
+Disallow: /404.html
+Disallow: /err.html
+
+Sitemap: https://nurufoundations.com/sitemap.xml

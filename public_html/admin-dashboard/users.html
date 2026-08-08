@@ -1310,7 +1310,18 @@
         }
 
         function exportUsers() {
-            showToast('Export feature coming soon!', 'info');
+            if (!allUsers.length) { showToast('No users to export', 'info'); return; }
+            let csv = 'Username,Email,Full Name,Role\n';
+            allUsers.forEach(u => {
+                csv += `${u.username || ''},"${u.email || ''}","${u.fullName || u.full_name || ''}","${u.role_name || u.role?.name || 'student'}"\n`;
+            });
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `users_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
         }
 
         function logout() {

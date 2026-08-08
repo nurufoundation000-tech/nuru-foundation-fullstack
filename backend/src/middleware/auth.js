@@ -27,12 +27,7 @@ async function authenticateToken(req, res, next) {
     if (role?.name === 'student') {
       await checkAndUpdateInvoiceStatuses();
       const locked = await isStudentLocked(user.id);
-      if (locked) {
-        return res.status(403).json({ 
-          error: 'Account locked due to unpaid invoices. Please pay to regain access.',
-          locked: true 
-        });
-      }
+      req.userIsLocked = locked;
     }
 
     req.user = {
@@ -40,7 +35,8 @@ async function authenticateToken(req, res, next) {
       roleId: user.role_id,
       roleName: role?.name || 'student',
       username: user.username,
-      email: user.email
+      email: user.email,
+      isLocked: !!req.userIsLocked
     };
 
     next();
@@ -72,14 +68,29 @@ function requireRole(allowedRoles) {
   };
 }
 
+// Blocks access for students whose invoices are past due (locked) until they pay.
+// Paywall-exempt routes (payment, profile, notifications) must NOT use this middleware.
+function blockLockedStudent(req, res, next) {
+  if (req.user?.roleName === 'student' && req.user.isLocked) {
+    return res.status(403).json({
+      error: 'Account locked due to unpaid invoices. Please complete payment to regain access.',
+      locked: true
+    });
+  }
+  next();
+}
+
 const requireStudent = [authenticateToken, requireRole(['student'])];
 const requireTutor = [authenticateToken, requireRole(['tutor'])];
 const requireAdmin = [authenticateToken, requireRole(['admin'])];
+const requireStudentNotLocked = [authenticateToken, requireRole(['student']), blockLockedStudent];
 
 module.exports = {
   authenticateToken,
   requireRole,
   requireStudent,
   requireTutor,
-  requireAdmin
+  requireAdmin,
+  blockLockedStudent,
+  requireStudentNotLocked
 };

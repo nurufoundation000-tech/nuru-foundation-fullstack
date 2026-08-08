@@ -1079,7 +1079,18 @@
     }
 
     function exportCourses() {
-        alert('Export courses functionality to be implemented');
+        if (!allCourses.length) { alert('No courses to export'); return; }
+        let csv = 'ID,Title,Category,Level,Duration\n';
+        allCourses.forEach(c => {
+            csv += `${c.id},"${c.title || ''}","${c.category || ''}","${c.level || ''}","${c.duration || ''}"\n`;
+        });
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `courses_${new Date().toISOString().split('T')[0]}.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
     }
 
     // Enroll Student Functions

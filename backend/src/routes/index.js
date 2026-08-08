@@ -17,7 +17,7 @@ const ForumController = require('../controllers/forumController.js');
 const NotificationController = require('../controllers/notificationController.js');
 const ContactController = require('../controllers/contactController.js');
 const { sendWelcomeEmail, getEmailStatus } = require('../lib/email.js');
-const { authenticateToken, requireRole } = require('../middleware/auth.js');
+const { authenticateToken, requireRole, blockLockedStudent, requireStudentNotLocked } = require('../middleware/auth.js');
 const { generateInitialInvoices, checkAndUpdateInvoiceStatuses, isStudentLocked } = require('../lib/invoices.js');
 
 const requireTutor = [authenticateToken, requireRole(['tutor'])];
@@ -44,22 +44,22 @@ router.get('/courses/slug/:slug', CourseController.getCourseBySlug);
 router.post('/courses/:id/enroll', authenticateToken, CourseController.enrollInCourse);
 
 // ==================== STUDENT DASHBOARD ROUTES ====================
-router.get('/student/courses', authenticateToken, requireRole(['student', 'tutor', 'admin']), StudentController.getStudentCourses);
-router.get('/student/courses/progress', authenticateToken, requireRole(['student', 'admin']), StudentController.getProgress);
-router.put('/student/courses/:enrollmentId/progress', authenticateToken, requireRole(['student']), StudentController.updateProgress);
-router.post('/student/lessons/:lessonId/complete', authenticateToken, requireRole(['student']), StudentController.completeLesson);
-router.delete('/student/courses/:enrollmentId/unenroll', authenticateToken, requireRole(['student']), StudentController.unenrollFromCourse);
+router.get('/student/courses', authenticateToken, requireRole(['student', 'tutor', 'admin']), blockLockedStudent, StudentController.getStudentCourses);
+router.get('/student/courses/progress', authenticateToken, requireRole(['student', 'admin']), blockLockedStudent, StudentController.getProgress);
+router.put('/student/courses/:enrollmentId/progress', requireStudentNotLocked, StudentController.updateProgress);
+router.post('/student/lessons/:lessonId/complete', requireStudentNotLocked, StudentController.completeLesson);
+router.delete('/student/courses/:enrollmentId/unenroll', requireStudentNotLocked, StudentController.unenrollFromCourse);
 
 // ==================== STUDENT LESSON ROUTES ====================
-router.get('/student/lessons', authenticateToken, requireRole(['student', 'tutor', 'admin']), StudentController.getLessons);
+router.get('/student/lessons', authenticateToken, requireRole(['student', 'tutor', 'admin']), blockLockedStudent, StudentController.getLessons);
 router.post('/student/lessons', authenticateToken, requireRole(['tutor', 'admin']), StudentController.createLesson);
-router.get('/student/lessons/:id', authenticateToken, requireRole(['student', 'tutor', 'admin']), StudentController.getLesson);
+router.get('/student/lessons/:id', authenticateToken, requireRole(['student', 'tutor', 'admin']), blockLockedStudent, StudentController.getLesson);
 router.put('/student/lessons/:id', authenticateToken, requireRole(['tutor', 'admin']), StudentController.updateLesson);
 router.delete('/student/lessons/:id', authenticateToken, requireRole(['tutor', 'admin']), StudentController.deleteLesson);
 
 // ==================== STUDENT NOTES ROUTES ====================
-router.get('/student/notes/:courseId', authenticateToken, requireRole(['student', 'tutor', 'admin']), StudentController.getCourseNotes);
-router.post('/student/notes/:noteId/mark-read', authenticateToken, requireRole(['student']), StudentController.markNoteRead);
+router.get('/student/notes/:courseId', authenticateToken, requireRole(['student', 'tutor', 'admin']), blockLockedStudent, StudentController.getCourseNotes);
+router.post('/student/notes/:noteId/mark-read', requireStudentNotLocked, StudentController.markNoteRead);
 
 // ==================== STUDENT PAYMENT ROUTES ====================
 router.get('/student/credit-balance', authenticateToken, requireRole(['student']), StudentController.getCreditBalance);
@@ -284,28 +284,28 @@ ${invoice.transaction_id ? '<tr><td>Trans. ID</td><td>' + invoice.transaction_id
 });
 
 // ==================== STUDENT ASSIGNMENT ROUTES ====================
-router.get('/student/assignments', authenticateToken, requireRole(['student']), StudentController.getStudentAssignments);
-router.get('/assignments/:id', authenticateToken, requireRole(['student']), StudentController.getAssignment);
-router.post('/assignments/:id/submit', authenticateToken, requireRole(['student']), StudentController.submitAssignment);
+router.get('/student/assignments', requireStudentNotLocked, StudentController.getStudentAssignments);
+router.get('/assignments/:id', requireStudentNotLocked, StudentController.getAssignment);
+router.post('/assignments/:id/submit', requireStudentNotLocked, StudentController.submitAssignment);
 
 // ==================== FILE UPLOAD ROUTES ====================
 router.post('/upload/image', authenticateToken, requireRole(['tutor', 'admin']), UploadController.upload.single('file'), UploadController.uploadImage);
 router.post('/upload/file', authenticateToken, requireRole(['tutor', 'admin']), UploadController.upload.single('file'), UploadController.uploadFile);
 
 // ==================== LIVE SESSION ROUTES ====================
-router.get('/sessions/upcoming', authenticateToken, SessionController.getUpcomingSessions);
-router.get('/sessions/course/:courseId', authenticateToken, SessionController.getCourseSessions);
+router.get('/sessions/upcoming', authenticateToken, blockLockedStudent, SessionController.getUpcomingSessions);
+router.get('/sessions/course/:courseId', authenticateToken, blockLockedStudent, SessionController.getCourseSessions);
 router.post('/sessions', authenticateToken, requireRole(['tutor', 'admin']), SessionController.createSession);
 router.put('/sessions/:id', authenticateToken, requireRole(['tutor', 'admin']), SessionController.updateSession);
 router.delete('/sessions/:id', authenticateToken, requireRole(['tutor', 'admin']), SessionController.deleteSession);
 router.get('/tutor/sessions', authenticateToken, requireRole(['tutor', 'admin']), SessionController.getTutorSessions);
 
 // ==================== FORUM ROUTES ====================
-router.get('/forum/course/:courseId', authenticateToken, ForumController.getCoursePosts);
-router.get('/forum/posts/:id', authenticateToken, ForumController.getPost);
-router.post('/forum/posts', authenticateToken, ForumController.createPost);
-router.post('/forum/posts/:postId/comments', authenticateToken, ForumController.createComment);
-router.delete('/forum/posts/:id', authenticateToken, ForumController.deletePost);
+router.get('/forum/course/:courseId', authenticateToken, blockLockedStudent, ForumController.getCoursePosts);
+router.get('/forum/posts/:id', authenticateToken, blockLockedStudent, ForumController.getPost);
+router.post('/forum/posts', authenticateToken, blockLockedStudent, ForumController.createPost);
+router.post('/forum/posts/:postId/comments', authenticateToken, blockLockedStudent, ForumController.createComment);
+router.delete('/forum/posts/:id', authenticateToken, blockLockedStudent, ForumController.deletePost);
 
 // ==================== NOTIFICATION ROUTES ====================
 router.get('/notifications', authenticateToken, NotificationController.getNotifications);

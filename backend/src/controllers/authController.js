@@ -35,16 +35,11 @@ async function login(req, res) {
       role = await db.getOne('SELECT name FROM roles WHERE id = ?', [user.role_id]);
     }
 
+    let locked = false;
     if (role?.name === 'student') {
       await checkAndUpdateInvoiceStatuses();
       await generateInitialInvoices(user.id);
-      const locked = await isStudentLocked(user.id);
-      if (locked) {
-        return res.status(403).json({ 
-          error: 'Account locked due to unpaid invoices. Please pay to regain access.',
-          locked: true
-        });
-      }
+      locked = await isStudentLocked(user.id);
     }
 
     const { password_hash, ...userWithoutPassword } = user;
@@ -64,12 +59,17 @@ async function login(req, res) {
     userResponse.fullName = userResponse.full_name;
     userResponse.isActive = !!userResponse.is_active;
     userResponse.mustChangePassword = !!userResponse.must_change_password;
+    userResponse.isLocked = locked;
+    userResponse.is_locked = locked;
 
     res.json({
       success: true,
       user: userResponse,
       token,
-      message: 'Login successful'
+      locked,
+      message: locked
+        ? 'Login successful. Your account is locked due to unpaid invoices - please complete payment to regain access.'
+        : 'Login successful'
     });
 
   } catch (error) {

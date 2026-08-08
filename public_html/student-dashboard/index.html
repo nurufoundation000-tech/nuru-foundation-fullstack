@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <script src="/scripts/auth-guard.js"></script>
+    <script src="/scripts/paywall.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - NURU FOUNDATION</title>
@@ -275,9 +276,9 @@
                                 <strong>${escapeHtml(inv.course_title || 'Course')}</strong><br>
                                 <small>KES ${inv.amount} - ${inv.status === 'locked' ? 'OVERDUE' : 'Due: ' + new Date(inv.due_date).toLocaleDateString()}</small>
                             </div>
-                            <button class="btn btn-primary btn-sm" onclick="promptPayment(${inv.id})">
-                                <i class="fas fa-mobile-alt"></i> Pay Now
-                            </button>
+<a href="/student-dashboard/payment.html" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-mobile-alt"></i> Pay Now
+                                </a>
                         </div>
                     </div>
                 `).join('');
@@ -346,24 +347,7 @@
             }
         }
 
-        async function promptPayment(invoiceId) {
-            const phone = prompt('Enter your M-Pesa phone number (format: 254...):');
-            if (!phone) return;
-            
-            try {
-                const result = await DashboardUtils.fetchAPI(`/student/pay/${invoiceId}`, 'POST', { phoneNumber: phone });
-                
-                if (result.success || result.checkoutRequestId) {
-                    alert('STK Push sent to your phone. Please check your phone and enter your M-Pesa PIN.');
-                } else {
-                    alert(`Payment failed: ${result.error || 'Unknown error'}`);
-                }
-            } catch (error) {
-                alert('Payment request failed. Please try again.');
-                console.error('Payment error:', error);
-            }
-        }
-    </script>
+        </script>
 <script>function logout(){localStorage.clear();sessionStorage.clear();location.replace('/login.html')}</script>
 </body>
 </html>

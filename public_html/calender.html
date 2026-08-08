@@ -4,6 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Program Calendar - NURU Foundation</title>
+    <meta name="description" content="View the Nuru Foundation program calendar in Kenya: course cohort start dates, intake schedules and enrollment timelines for online tech classes.">
+    <link rel="canonical" href="https://nurufoundations.com/calender.html">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Nuru Foundation">
+    <meta property="og:title" content="Program Calendar - NURU Foundation">
+    <meta property="og:description" content="Course cohort start dates and enrollment timelines for Nuru Foundation online tech classes in Kenya.">
+    <meta property="og:url" content="https://nurufoundations.com/calender.html">
+    <meta property="og:image" content="https://nurufoundations.com/logo.jpg">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Program Calendar - NURU Foundation">
+    <meta name="twitter:description" content="Nuru Foundation course cohort and enrollment calendar.">
     <link rel="icon" href="logo.jpg" type="image/jpeg">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Fredoka+One&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -50,8 +61,8 @@
     <!-- Current Cohort Banner -->
     <section id="current-cohort">
         <div class="current-cohort-banner">
-            <h2 style="margin-bottom: 0.5rem; font-size: 1.8rem;">🎯 Currently Enrolling: Cohort 1 (Jan - April 2026)</h2>
-            <p style="font-size: 1.1rem; margin: 0;">Limited spots available! Registration closes January 25th, 2026</p>
+            <h2 style="margin-bottom: 0.5rem; font-size: 1.8rem;">🎯 Currently Enrolling: Cohort 2 (May - August 2026)</h2>
+            <p style="font-size: 1.1rem; margin: 0;">Limited spots available! Registration closes April 25th, 2026</p>
         </div>
     </section>
 
@@ -95,7 +106,7 @@
                         <div class="quarter-badge">Cohort 2</div>
                         <div class="quarter-status status-active">Enrolling Now</div>
                     </div>
-                    <h3 style="color: var(--primary-color); margin-bottom: 1rem;">May - July 2024</h3>
+                    <h3 style="color: var(--primary-color); margin-bottom: 1rem;">May - August 2026</h3>
                     <div class="quarter-timeline">
                         <div class="timeline-bar">
                             <div class="timeline-progress" style="width: 0%"></div>
@@ -118,7 +129,7 @@
                         <div class="quarter-badge">Cohort 3</div>
                         <div class="quarter-status status-upcoming">Upcoming</div>
                     </div>
-                    <h3 style="color: var(--primary-color); margin-bottom: 1rem;">August - October 2024</h3>
+                    <h3 style="color: var(--primary-color); margin-bottom: 1rem;">September - November 2026</h3>
                     <div class="quarter-timeline">
                         <div class="timeline-bar">
                             <div class="timeline-progress" style="width: 0%"></div>
@@ -140,7 +151,7 @@
                         <div class="quarter-badge">Cohort 4</div>
                         <div class="quarter-status">Planning</div>
                     </div>
-                    <h3 style="color: var(--primary-color); margin-bottom: 1rem;">November 2024 - January 2025</h3>
+                    <h3 style="color: var(--primary-color); margin-bottom: 1rem;">December 2026 - February 2027</h3>
                     <div class="quarter-timeline">
                         <div class="timeline-bar">
                             <div class="timeline-progress" style="width: 0%"></div>
@@ -321,13 +332,14 @@
            
             function updateCohortProgress() {
                 const now = new Date();
-                const cohort2Start = new Date('2024-05-01');
-                const cohort2End = new Date('2024-07-31');
+                const cohort2Start = new Date('2026-05-01');
+                const cohort2End = new Date('2026-08-31');
                 const totalDuration = cohort2End - cohort2Start;
                 const elapsed = now - cohort2Start;
                 
                 const progress = Math.min(Math.max((elapsed / totalDuration) * 100, 0), 100);
-                document.querySelector('.quarter-card.active .timeline-progress').style.width = progress + '%';
+                const activeBar = document.querySelector('.quarter-card.active .timeline-progress');
+                if (activeBar) activeBar.style.width = progress + '%';
             }
 
             updateCohortProgress();
@@ -352,10 +364,31 @@
             });
 
            
-            document.querySelectorAll('.nav-btn').forEach(btn => {
+            // Functional year navigation: shifts the static calendar between program years.
+            let currentYear = 2026;
+            function applyCalendarYear(year) {
+                document.querySelector('.year-title').textContent = year + ' Program Calendar';
+                const ranges = [
+                    ['February - April', year],
+                    ['May - August', year],
+                    ['September - November', year],
+                    ['December ' + year + ' - February ' + (year + 1)]
+                ];
+                let idx = 0;
+                document.querySelectorAll('.quarter-card').forEach(card => {
+                    if (card.classList.contains('premium') || card.classList.contains('corporate')) return;
+                    const h3 = card.querySelector('h3');
+                    if (h3 && idx < ranges.length) {
+                        h3.textContent = ranges[idx][0] + ' ' + ranges[idx][1];
+                        idx++;
+                    }
+                });
+            }
+            const navButtons = document.querySelectorAll('.nav-btn');
+            navButtons.forEach((btn, i) => {
                 btn.addEventListener('click', function() {
-                  
-                    alert('Year navigation would update the calendar view in a full implementation');
+                    currentYear = i === 0 ? currentYear - 1 : currentYear + 1;
+                    applyCalendarYear(currentYear);
                 });
             });
 
