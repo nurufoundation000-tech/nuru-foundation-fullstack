@@ -35,15 +35,20 @@ async function getUpcomingSessions(req, res) {
 
 function getTodayDate() {
   const d = new Date();
-  return d.toISOString().split('T')[0];
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 }
 
 function isWithinNextHour(timeStr) {
   if (!timeStr) return false;
   const now = new Date();
-  const [h, m] = timeStr.split(':').map(Number);
+  const parts = String(timeStr).split(':').map(Number);
+  const h = parts[0] || 0;
+  const m = parts[1] || 0;
   const sessionTime = new Date();
-  sessionTime.setHours(h, m, 0);
+  sessionTime.setHours(h, m, 0, 0);
   const diffMs = sessionTime - now;
   return diffMs > 0 && diffMs <= 3600000; // within next 60 minutes
 }

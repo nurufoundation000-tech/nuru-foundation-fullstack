@@ -146,6 +146,7 @@ router.get('/admin/transactions', authenticateToken, requireAdmin, AdminControll
 // Admin Invoices
 router.get('/admin/invoices', authenticateToken, requireAdmin, AdminController.getAdminInvoices);
 router.post('/admin/invoices/:id/unlock', authenticateToken, requireAdmin, AdminController.unlockInvoice);
+router.post('/admin/invoices/:id/lock', authenticateToken, requireAdmin, AdminController.lockInvoice);
 
 // Admin Student Payment Summary
 router.get('/admin/students/:id/payment-summary', authenticateToken, requireAdmin, AdminController.getStudentPaymentSummary);

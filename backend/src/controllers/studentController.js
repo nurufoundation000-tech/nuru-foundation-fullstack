@@ -3,6 +3,30 @@ const db = require('../config/database.js');
 const { isStudentLocked } = require('../lib/invoices.js');
 const NotificationController = require('./notificationController.js');
 
+function getDateParts(value) {
+  if (value instanceof Date) {
+    return {
+      year: value.getFullYear(),
+      month: String(value.getMonth() + 1).padStart(2, '0'),
+      day: String(value.getDate()).padStart(2, '0')
+    };
+  }
+  const s = String(value).split('T')[0].split(' ')[0];
+  return {
+    year: s.slice(0, 4),
+    month: s.slice(5, 7),
+    day: s.slice(8, 10)
+  };
+}
+
+function isLessonPast(sessionDate, sessionTime) {
+  if (!sessionDate) return false;
+  const parts = getDateParts(sessionDate);
+  const time = sessionTime ? String(sessionTime).split(' ')[0].slice(0, 5) : '00:00';
+  const session = new Date(`${parts.year}-${parts.month}-${parts.day}T${time}:00`);
+  return !isNaN(session.getTime()) && session.getTime() < Date.now();
+}
+
 async function getStudentCourses(req, res) {
   try {
     const enrollments = await db.query(`
@@ -249,19 +273,49 @@ async function getLessons(req, res) {
       return res.status(400).json({ error: 'courseId is required' });
     }
 
+    const enrollment = await db.getOne(`
+      SELECT id FROM enrollments WHERE student_id = ? AND course_id = ?
+    `, [req.user.userId, courseId]);
+    const enrollmentId = enrollment ? enrollment.id : null;
+
     const lessons = await db.query(`
-      SELECT * FROM lessons 
-      WHERE course_id = ? 
-      ORDER BY order_index ASC
-    `, [courseId]);
+      SELECT l.*, 
+        (SELECT lp.id FROM lesson_progress lp WHERE lp.lesson_id = l.id AND lp.enrollment_id = ? AND lp.is_completed = 1) as lp_id
+      FROM lessons l
+      WHERE l.course_id = ? 
+      ORDER BY l.order_index ASC
+    `, [enrollmentId, courseId]);
 
-    const transformed = lessons.map(lesson => {
-      const isPast = lesson.session_date
-        ? new Date(`${String(lesson.session_date).split('T')[0]}T${lesson.session_time || '00:00'}`) < new Date()
-        : false;
+    const transformed = [];
+    for (const lesson of lessons) {
+      const linkedNotes = await db.query(`
+        SELECT cn.id, cn.title, cn.order_index
+        FROM lesson_notes ln
+        JOIN course_notes cn ON ln.note_id = cn.id
+        WHERE ln.lesson_id = ?
+        ORDER BY cn.order_index ASC
+      `, [lesson.id]);
 
-      return { ...lesson, isPast };
-    });
+      transformed.push({
+        id: lesson.id,
+        course_id: lesson.course_id,
+        title: lesson.title,
+        content: lesson.content,
+        videoUrl: lesson.video_url,
+        orderIndex: lesson.order_index,
+        liveLink: lesson.live_link,
+        sessionDate: lesson.session_date,
+        sessionTime: lesson.session_time,
+        durationMinutes: lesson.duration_minutes,
+        isCompleted: !!lesson.lp_id,
+        isPast: isLessonPast(lesson.session_date, lesson.session_time),
+        linkedNotes: linkedNotes.map(n => ({
+          id: n.id,
+          title: n.title,
+          orderIndex: n.order_index || 0
+        }))
+      });
+    }
 
     res.json({ success: true, data: transformed });
   } catch (error) {
@@ -279,17 +333,51 @@ async function getLesson(req, res) {
       return res.status(400).json({ error: 'Invalid lesson ID' });
     }
 
-    const lesson = await db.getOne('SELECT * FROM lessons WHERE id = ?', [lessonId]);
+    const lesson = await db.getOne(`
+      SELECT l.*,
+        (SELECT lp.id FROM lesson_progress lp
+         JOIN enrollments e ON lp.enrollment_id = e.id
+         WHERE lp.lesson_id = l.id AND e.student_id = ? AND lp.is_completed = 1) as lp_id
+      FROM lessons l
+      WHERE l.id = ?
+    `, [req.user.userId, lessonId]);
     
     if (!lesson) {
       return res.status(404).json({ error: 'Lesson not found' });
     }
 
-    const isPast = lesson.session_date
-      ? new Date(`${String(lesson.session_date).split('T')[0]}T${lesson.session_time || '00:00'}`) < new Date()
-      : false;
+    const linkedNotes = await db.query(`
+      SELECT cn.id, cn.title, cn.order_index
+      FROM lesson_notes ln
+      JOIN course_notes cn ON ln.note_id = cn.id
+      WHERE ln.lesson_id = ?
+      ORDER BY cn.order_index ASC
+    `, [lessonId]);
 
-    res.json({ success: true, data: { ...lesson, isPast } });
+    const isPast = isLessonPast(lesson.session_date, lesson.session_time);
+
+    res.json({
+      success: true,
+      data: {
+        id: lesson.id,
+        course_id: lesson.course_id,
+        title: lesson.title,
+        content: lesson.content,
+        videoUrl: lesson.video_url,
+        orderIndex: lesson.order_index,
+        liveLink: lesson.live_link,
+        sessionDate: lesson.session_date,
+        sessionTime: lesson.session_time,
+        durationMinutes: lesson.duration_minutes,
+        isCompleted: !!lesson.lp_id,
+        isPast,
+        linkedNotes: linkedNotes.map(n => ({
+          id: n.id,
+          title: n.title,
+          orderIndex: n.order_index || 0
+        }))
+      }
+    });
   } catch (error) {
     console.error('Get lesson error:', error);
     res.status(500).json({ error: 'Failed to load lesson' });
@@ -382,7 +470,64 @@ async function updateProgress(req, res) {
 // Get credit balance
 async function getCreditBalance(req, res) {
   try {
-    res.json({ success: true, balance: 0 });
+    const enrollments = await db.query(`
+      SELECT e.id, e.course_id, e.enrolled_at, c.title as course_title, c.is_free,
+             cp.monthly_amount, cp.billing_duration
+      FROM enrollments e
+      JOIN courses c ON e.course_id = c.id
+      LEFT JOIN course_pricing cp ON c.id = cp.course_id
+      WHERE e.student_id = ? AND (c.is_free = 0 OR c.is_free IS NULL)
+    `, [req.user.userId]);
+
+    const data = [];
+
+    for (const enrollment of enrollments) {
+      const monthlyInvoices = await db.query(`
+        SELECT id, amount, status, due_date, month_number, paid_at
+        FROM invoices
+        WHERE student_id = ? AND course_id = ? AND type IN ('monthly', 'initial')
+        ORDER BY month_number ASC, created_at ASC
+      `, [req.user.userId, enrollment.course_id]);
+
+      const paidMonths = monthlyInvoices.filter(inv => inv.status === 'paid');
+      const monthsPaid = paidMonths.length;
+      const billingDuration = enrollment.billing_duration || paidMonths.length || 0;
+      const now = new Date();
+
+      let expiresAt = new Date(enrollment.enrolled_at);
+      expiresAt.setMonth(expiresAt.getMonth() + 1);
+
+      const lastPaid = paidMonths[paidMonths.length - 1];
+      if (lastPaid) {
+        const base = new Date(String(lastPaid.due_date).split('T')[0].split(' ')[0] + 'T00:00');
+        if (!isNaN(base.getTime())) {
+          const end = new Date(base);
+          end.setMonth(end.getMonth() + 1);
+          expiresAt = end;
+        }
+      }
+
+      const paidFuture = paidMonths.filter(inv => {
+        const d = new Date(String(inv.due_date).split('T')[0].split(' ')[0] + 'T00:00');
+        return !isNaN(d.getTime()) && d.getTime() > now.getTime();
+      });
+
+      const advanceCredit = paidFuture.length;
+      const isExpired = expiresAt.getTime() < now.getTime();
+
+      data.push({
+        courseId: enrollment.course_id,
+        courseTitle: enrollment.course_title,
+        monthlyAmount: enrollment.monthly_amount || 0,
+        billingDuration,
+        totalMonthsPaid: monthsPaid,
+        advanceCredit,
+        expiresAt,
+        isExpired
+      });
+    }
+
+    res.json({ success: true, data });
   } catch (error) {
     console.error('Get credit balance error:', error);
     res.status(500).json({ error: 'Failed to get balance' });

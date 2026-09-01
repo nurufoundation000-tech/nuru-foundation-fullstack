@@ -227,6 +227,13 @@
         .action-btn.unlock:hover {
             background: #219a52;
         }
+        .action-btn.lock {
+            background: #e74c3c;
+            color: white;
+        }
+        .action-btn.lock:hover {
+            background: #c0392b;
+        }
         .empty-state {
             text-align: center;
             padding: 60px;
@@ -429,7 +436,10 @@
                     <td><span class="status-badge ${inv.status}">${inv.status.toUpperCase()}</span></td>
                     <td>${new Date(inv.dueDate).toLocaleDateString()}</td>
                     <td>
-                        ${inv.status !== 'paid' ? `<button class="action-btn unlock" onclick="unlockStudent(${inv.id})"><i class="fas fa-unlock"></i> Unlock</button>` : '-'}
+                        ${inv.status !== 'paid' ? `
+                            ${inv.status === 'locked' ? `<button class="action-btn unlock" onclick="unlockStudent(${inv.id})"><i class="fas fa-unlock"></i> Unlock</button>` : ''}
+                            ${inv.status === 'pending' ? `<button class="action-btn lock" onclick="lockStudent(${inv.id})"><i class="fas fa-lock"></i> Lock</button>` : ''}
+                        ` : '-'}
                     </td>
                 </tr>
             `).join('');
@@ -454,6 +464,28 @@
                 }
             } catch (error) {
                 alert('Failed to unlock student');
+            }
+        }
+
+        async function lockStudent(invoiceId) {
+            if (!confirm('Are you sure you want to lock this student? This will restrict their access to courses and notes.')) return;
+            
+            try {
+                const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+                const response = await fetch(`${API_URL}/admin/invoices/${invoiceId}/lock`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert('Student locked successfully!');
+                    await loadInvoices();
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            } catch (error) {
+                alert('Failed to lock student');
             }
         }
 

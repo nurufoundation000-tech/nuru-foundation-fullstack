@@ -39,7 +39,6 @@ async function generateInitialInvoices(studentId) {
 
     if (!existing) {
       const dueDate = new Date();
-      dueDate.setDate(dueDate.getDate() + 7);
       const gracePeriodEnd = new Date(dueDate);
       gracePeriodEnd.setDate(gracePeriodEnd.getDate() + settings.gracePeriodDays);
 
@@ -224,6 +223,9 @@ async function markDepositAndMonthsPaid(invoiceId, monthsPaid, paymentData) {
   await markInvoicePaid(invoiceId, paymentData);
 
   if (monthsPaid > 0 && (invoice.type === 'initial' || invoice.type === 'deposit')) {
+    // Ensure enough monthly invoices exist for the prepaid months
+    await generateMonthlyInvoicesForStudent(invoice.student_id, invoice.course_id, monthsPaid);
+
     const monthlyInvoices = await db.query(`
       SELECT id FROM invoices 
       WHERE student_id = ? AND course_id = ? AND type = 'monthly' AND status = 'pending'
@@ -252,15 +254,107 @@ async function markDepositAndMonthsPaid(invoiceId, monthsPaid, paymentData) {
   }
 }
 
+async function generateMonthlyInvoicesForStudent(studentId, courseId, targetCount) {
+  const settings = await getGlobalSettings();
+  const billingDay = settings.billingDay || 1;
+  const today = new Date();
+
+  const pricing = await db.getOne(`
+    SELECT cp.monthly_amount, cp.billing_duration, cp.is_active
+    FROM course_pricing cp
+    WHERE cp.course_id = ?
+  `, [courseId]);
+
+  if (!pricing || !pricing.is_active || !pricing.monthly_amount || pricing.monthly_amount <= 0) {
+    return;
+  }
+
+  const billingDuration = pricing.billing_duration || 1;
+
+  const existingMonthly = await db.query(`
+    SELECT id, month_number FROM invoices 
+    WHERE student_id = ? AND course_id = ? AND type = 'monthly'
+    ORDER BY month_number ASC
+  `, [studentId, courseId]);
+
+  let nextMonthNumber = existingMonthly.length + 1;
+
+  while (existingMonthly.length < Math.min(targetCount, billingDuration)) {
+    let dueDate = new Date(today.getFullYear(), today.getMonth(), billingDay);
+    if (today.getDate() > billingDay) {
+      dueDate = new Date(today.getFullYear(), today.getMonth() + 1, billingDay);
+    }
+
+    const gracePeriodEnd = new Date(dueDate);
+    gracePeriodEnd.setDate(gracePeriodEnd.getDate() + settings.gracePeriodDays);
+
+    await db.insert('invoices', {
+      student_id: studentId,
+      course_id: courseId,
+      type: 'monthly',
+      month_number: nextMonthNumber,
+      amount: pricing.monthly_amount,
+      status: 'pending',
+      due_date: dueDate,
+      grace_period_end: gracePeriodEnd,
+      last_billed_at: today
+    });
+
+    existingMonthly.push({ id: null, month_number: nextMonthNumber });
+    nextMonthNumber++;
+  }
+}
+
+async function markMonthlyMonthsPaid(invoiceId, monthsCount, paymentData) {
+  const invoice = await db.getOne('SELECT * FROM invoices WHERE id = ?', [invoiceId]);
+  if (!invoice) return;
+
+  const count = Math.max(1, parseInt(monthsCount) || 1);
+
+  await markInvoicePaid(invoiceId, paymentData);
+
+  if (count > 1) {
+    await generateMonthlyInvoicesForStudent(invoice.student_id, invoice.course_id, count);
+
+    const additional = await db.query(`
+      SELECT id FROM invoices 
+      WHERE student_id = ? AND course_id = ? AND type = 'monthly' AND status = 'pending'
+      ORDER BY month_number ASC
+      LIMIT ?
+    `, [invoice.student_id, invoice.course_id, count - 1]);
+
+    for (const mi of additional) {
+      await db.update('invoices', mi.id, {
+        status: 'paid',
+        paid_at: new Date(),
+        payment_method: paymentData.method || 'mpesa',
+        transaction_id: paymentData.transactionId || null,
+        mpesa_receipt: paymentData.receiptNumber || null
+      });
+    }
+  }
+
+  const hasUnpaid = await db.getOne(`
+    SELECT id FROM invoices 
+    WHERE student_id = ? AND status IN ('pending', 'locked')
+  `, [invoice.student_id]);
+
+  if (!hasUnpaid) {
+    await db.query('UPDATE users SET is_locked = 0 WHERE id = ?', [invoice.student_id]);
+  }
+}
+
 module.exports = {
   getGlobalSettings,
   generateInitialInvoices,
   checkAndUpdateInvoiceStatuses,
   generateMonthlyInvoices,
+  generateMonthlyInvoicesForStudent,
   isStudentLocked,
   getStudentInvoices,
   getInvoiceById,
   markInvoicePaid,
   markDepositAndMonthsPaid,
+  markMonthlyMonthsPaid,
   createInvoice
 };

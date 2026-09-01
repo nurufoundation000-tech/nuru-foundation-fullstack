@@ -57,6 +57,36 @@
             line-height: 1.6;
         }
 
+        .assignment-desc-body {
+            margin-top: 10px;
+        }
+
+        .assignment-desc-body ul, .assignment-desc-body ol {
+            margin: 10px 0 10px 20px;
+        }
+
+        .assignment-desc-body pre {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 10px 0;
+        }
+
+        .assignment-desc-body blockquote {
+            border-left: 4px solid var(--primary-color, #3498db);
+            margin: 10px 0;
+            padding: 8px 15px;
+            background: #eef4fa;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .assignment-desc-body img {
+            max-width: 100%;
+            border-radius: 8px;
+        }
+
         .submission-section {
             background: white;
             border-radius: 15px;
@@ -286,7 +316,7 @@
                 ${assignment.description ? `
                     <div class="assignment-description">
                         <h4>Description:</h4>
-                        <p>${assignment.description}</p>
+                        <div class="assignment-desc-body">${assignment.description}</div>
                     </div>
                 ` : ''}
                 ${submission && submission.feedback ? `

@@ -214,12 +214,14 @@
                                         </div>
                                     </div>
                                 </div>
+                                <div id="nextLessonInfo"></div>
                                 <a href="/student-dashboard/reader.html?courseId=${rc.id}" class="btn btn-primary">
                                     <i class="fas fa-play-circle"></i> Continue
                                 </a>
                             </div>
                         </div>
                     `;
+                    loadNextLessonInfo(rc.id);
                 }
                 
                 container.innerHTML = enrollments.slice(0, 6).map(enrollment => {
@@ -287,6 +289,73 @@
             }
         }
         
+        function formatSessionDate(value) {
+            if (value instanceof Date) {
+                const y = value.getFullYear();
+                const m = String(value.getMonth() + 1).padStart(2, '0');
+                const d = String(value.getDate()).padStart(2, '0');
+                return `${y}-${m}-${d}`;
+            }
+            return String(value).split('T')[0].split(' ')[0];
+        }
+
+        function formatSessionTime(value) {
+            if (!value) return '';
+            const s = String(value).split(' ')[0];
+            return s.slice(0, 5);
+        }
+
+        async function loadNextLessonInfo(courseId) {
+            try {
+                const token = sessionStorage.getItem('token');
+                const res = await fetch(`/api/student/lessons?courseId=${courseId}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (!res.ok) return;
+                const data = await res.json();
+                const lessons = (data.data || []).filter(l => !l.isCompleted);
+                const lesson = lessons[0];
+                if (!lesson) return;
+
+                const nextInfo = document.getElementById('nextLessonInfo');
+                if (!nextInfo) return;
+
+                let html = `
+                    <div style="background:#f8f9fa;border-radius:10px;padding:15px;margin:15px 0;border:1px solid #e9ecef;">
+                        <div style="font-size:0.8rem;color:#6c757d;margin-bottom:8px;"><i class="fas fa-book-open"></i> Next Lesson</div>
+                        <div style="font-weight:600;color:#2c3e50;margin-bottom:8px;">${escapeHtml(lesson.title)}</div>
+                `;
+
+                if (lesson.videoUrl) {
+                    html += `
+                        <div style="margin:8px 0;">
+                            <a href="${escapeHtml(lesson.videoUrl)}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:8px;background:var(--primary-color);color:white;padding:10px 18px;border-radius:8px;font-weight:600;font-size:0.85rem;text-decoration:none;">
+                                <i class="fas fa-play-circle"></i> Watch Video
+                            </a>
+                        </div>`;
+                }
+
+                if (lesson.linkedNotes && lesson.linkedNotes.length > 0) {
+                    html += `
+                        <div style="font-size:0.85rem;color:#555;margin-top:6px;">
+                            <i class="fas fa-sticky-note"></i> Linked notes:
+                            <div style="margin-top:6px;">
+                            ${lesson.linkedNotes.map(n => `
+                                <a href="/student-dashboard/reader.html?courseId=${courseId}" style="display:inline-block;background:#eaf2fb;color:var(--primary-color);padding:4px 10px;border-radius:12px;font-size:0.78rem;margin:2px;text-decoration:none;">
+                                    ${escapeHtml(n.title)}
+                                </a>
+                            `).join('')}
+                            </div>
+                        </div>`;
+                }
+
+                html += `</div>`;
+                nextInfo.innerHTML = html;
+            } catch (error) {
+                console.error('Error loading next lesson info:', error);
+            }
+        }
+
         async function loadUpcomingLessons() {
             try {
                 const data = await DashboardUtils.fetchAPI('/sessions/upcoming');
@@ -299,18 +368,20 @@
 
                 const now = new Date();
                 container.innerHTML = sessions.slice(0, 6).map(s => {
-                    const datePart = s.session_date instanceof Date
-                        ? s.session_date.toISOString().split('T')[0]
-                        : String(s.session_date).split(' ')[0];
-                    const timePart = s.session_time ? String(s.session_time).slice(0, 5) : '00:00';
+                    const datePart = formatSessionDate(s.session_date);
+                    const timePart = formatSessionTime(s.session_time) || '00:00';
                     const sessionDate = new Date(datePart + 'T' + timePart);
                     const diffMs = sessionDate - now;
                     const hoursLeft = Math.floor(diffMs / (1000 * 60 * 60));
                     const minsLeft = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-                    const dateStr = new Date(datePart).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+                    const dateStr = new Date(datePart + 'T00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
 
                     let countdownHtml;
-                    if (s.startingSoon) {
+                    if (diffMs < 0) {
+                        countdownHtml = `<div class="countdown" style="background:#fff3cd;padding:8px 12px;border-radius:8px;text-align:center;font-weight:600;color:#856404;margin:10px 0;">
+                            <i class="fas fa-video"></i> Session underway
+                        </div>`;
+                    } else if (s.startingSoon) {
                         countdownHtml = `<div class="countdown" style="background:#d4edda;padding:8px 12px;border-radius:8px;text-align:center;font-weight:600;color:#155724;margin:10px 0;">
                             <i class="fas fa-circle" style="color:#155724;font-size:0.6rem;vertical-align:middle;"></i> Starting soon
                         </div>`;
@@ -333,7 +404,7 @@
                                 <p style="font-size:0.85rem;color:#888;margin:0 0 8px;"><i class="fas fa-book"></i> ${escapeHtml(s.course_title || '')}</p>
                                 <div style="display:flex;gap:10px;font-size:0.85rem;color:#555;margin-bottom:8px;">
                                     <span><i class="fas fa-calendar"></i> ${dateStr}</span>
-                                    <span><i class="fas fa-clock"></i> ${s.session_time ? s.session_time.slice(0,5) : ''}</span>
+                                    <span><i class="fas fa-clock"></i> ${formatSessionTime(s.session_time)}</span>
                                     <span><i class="fas fa-hourglass-half"></i> ${s.duration_minutes} min</span>
                                 </div>
                                 ${countdownHtml}

@@ -79,16 +79,39 @@
             renderSessions();
         }
 
+function formatSessionDate(value) {
+            if (value instanceof Date) {
+                const y = value.getFullYear();
+                const m = String(value.getMonth() + 1).padStart(2, '0');
+                const d = String(value.getDate()).padStart(2, '0');
+                return `${y}-${m}-${d}`;
+            }
+            return String(value).split('T')[0].split(' ')[0];
+        }
+
+        function formatSessionTime(value) {
+            if (!value) return '';
+            return String(value).split(' ')[0].slice(0, 5);
+        }
+
+        function sessionDateTime(s) {
+            const datePart = formatSessionDate(s.session_date);
+            const timePart = formatSessionTime(s.session_time) || '00:00';
+            return new Date(datePart + 'T' + timePart + ':00');
+        }
+
         function renderSessions() {
             const now = new Date();
-            const todayStr = now.toISOString().split('T')[0];
-            const timeStr = now.toTimeString().split(' ')[0];
+            const todayStr = formatSessionDate(now);
+            const timeStr = now.toTimeString().split(' ')[0].slice(0, 5);
 
             const filtered = allSessions.filter(s => {
+                const sDate = formatSessionDate(s.session_date);
+                const sTime = formatSessionTime(s.session_time);
                 if (currentTab === 'upcoming') {
-                    return s.session_date > todayStr || (s.session_date === todayStr && s.session_time >= timeStr);
+                    return sDate > todayStr || (sDate === todayStr && sTime >= timeStr);
                 }
-                return s.session_date < todayStr || (s.session_date === todayStr && s.session_time < timeStr);
+                return sDate < todayStr || (sDate === todayStr && sTime < timeStr);
             });
 
             const container = document.getElementById('sessionsList');
@@ -99,10 +122,10 @@
             }
 
             container.innerHTML = `<div class="sessions-grid">${filtered.map(s => {
-                const sessionDate = s.session_date && s.session_time ? new Date(s.session_date + 'T' + s.session_time) : null;
-                const diffMs = sessionDate ? sessionDate - now : 0;
-                const isOngoing = sessionDate ? diffMs <= 0 && diffMs > -(s.duration_minutes * 60 * 1000) : false;
-                const isPast = sessionDate ? diffMs <= -(s.duration_minutes * 60 * 1000) : true;
+                const sessionDate = sessionDateTime(s);
+                const diffMs = sessionDate - now;
+                const isOngoing = !isNaN(sessionDate.getTime()) && diffMs <= 0 && diffMs > -(s.duration_minutes * 60 * 1000);
+                const isPast = isNaN(sessionDate.getTime()) || diffMs <= -(s.duration_minutes * 60 * 1000);
                 const hoursLeft = diffMs > 0 ? Math.floor(diffMs / (1000 * 60 * 60)) : 0;
                 const minsLeft = diffMs > 0 ? Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60)) : 0;
 
@@ -117,7 +140,8 @@
                     countdownHtml = `<div class="countdown"><i class="far fa-clock"></i> Starts in ${minsLeft}m</div>`;
                 }
 
-                const dateStr = s.session_date ? new Date(s.session_date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }) : '';
+                const dateStr = formatSessionDate(s.session_date);
+                const dateDisplay = new Date(dateStr + 'T00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
 
                 function stripHtml(html) {
                     const tmp = document.createElement('div');
@@ -131,8 +155,8 @@
                             <h3>${escapeHtml(s.title)}</h3>
                             <div class="course-label"><i class="fas fa-book"></i> ${escapeHtml(s.course_title || '')}</div>
                             <div class="session-meta">
-                                <span><i class="fas fa-calendar"></i> ${dateStr}</span>
-                                <span><i class="fas fa-clock"></i> ${s.session_time ? s.session_time.slice(0, 5) : '--:--'}</span>
+                                <span><i class="fas fa-calendar"></i> ${dateDisplay}</span>
+                                <span><i class="fas fa-clock"></i> ${formatSessionTime(s.session_time) || '--:--'}</span>
                                 <span><i class="fas fa-hourglass-half"></i> ${s.duration_minutes} min</span>
                             </div>
                             ${s.description ? `<p style="font-size:0.85rem;color:#666;margin:8px 0;">${escapeHtml(stripHtml(s.description))}</p>` : ''}

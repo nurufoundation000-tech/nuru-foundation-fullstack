@@ -98,6 +98,7 @@ async function getCourses(req, res) {
       category: c.category,
       level: c.level,
       isPublished: !!c.is_published,
+      isFree: !!c.is_free,
       thumbnailUrl: c.thumbnail_url,
       tutorIds: (tutorMap[c.id] || []).map(t => t.id),
       tutors: tutorMap[c.id] || [],
@@ -121,7 +122,7 @@ async function getCourses(req, res) {
 
 async function createCourse(req, res) {
   try {
-    const { title, description, category, level, thumbnailUrl, isPublished, pricing, tutorIds } = req.body;
+    const { title, description, category, level, thumbnailUrl, isPublished, isFree, pricing, tutorIds } = req.body;
 
     if (!title || !description) {
       return res.status(400).json({ error: 'Title and description are required' });
@@ -139,6 +140,7 @@ async function createCourse(req, res) {
       }
     }
 
+    const isFreeCourse = !!isFree;
     const courseId = await db.insert('courses', {
       title,
       description,
@@ -146,6 +148,7 @@ async function createCourse(req, res) {
       level: level || 'Beginner',
       thumbnail_url: thumbnailUrl || '',
       is_published: isPublished || false,
+      is_free: isFreeCourse,
       tutor_id: tutorIds[0],
       created_at: new Date()
     });
@@ -159,7 +162,7 @@ async function createCourse(req, res) {
       });
     }
 
-    if (pricing && (pricing.initialPayment > 0 || pricing.monthlyAmount > 0)) {
+    if (!isFreeCourse && pricing && (pricing.initialPayment > 0 || pricing.monthlyAmount > 0)) {
       await db.insert('course_pricing', {
         course_id: courseId,
         initial_payment: pricing.initialPayment,
@@ -181,7 +184,7 @@ async function createCourse(req, res) {
 async function updateCourse(req, res) {
   try {
     const courseId = parseInt(req.params.id);
-    const { title, description, category, level, thumbnailUrl, isPublished, pricing, tutorIds } = req.body;
+    const { title, description, category, level, thumbnailUrl, isPublished, isFree, pricing, tutorIds } = req.body;
 
     const existingCourse = await db.getOne('SELECT id FROM courses WHERE id = ?', [courseId]);
     if (!existingCourse) {
@@ -207,6 +210,7 @@ async function updateCourse(req, res) {
     if (level) updateData.level = level;
     if (thumbnailUrl !== undefined) updateData.thumbnail_url = thumbnailUrl;
     if (isPublished !== undefined) updateData.is_published = isPublished;
+    if (isFree !== undefined) updateData.is_free = !!isFree;
 
     await db.update('courses', courseId, updateData);
 
@@ -221,7 +225,12 @@ async function updateCourse(req, res) {
       }
     }
 
-    if (pricing) {
+    if (isFree !== undefined && isFree) {
+      const existingPricing = await db.getOne('SELECT id FROM course_pricing WHERE course_id = ?', [courseId]);
+      if (existingPricing) {
+        await db.query('DELETE FROM course_pricing WHERE course_id = ?', [courseId]);
+      }
+    } else if (pricing) {
       const existingPricing = await db.getOne('SELECT id FROM course_pricing WHERE course_id = ?', [courseId]);
       if (existingPricing) {
         await db.update('course_pricing', existingPricing.id, {
@@ -1022,6 +1031,37 @@ async function unlockInvoice(req, res) {
   }
 }
 
+async function lockInvoice(req, res) {
+  try {
+    const invoiceId = parseInt(req.params.id);
+
+    if (isNaN(invoiceId)) {
+      return res.status(400).json({ error: 'Invalid invoice ID' });
+    }
+
+    const invoice = await db.getOne('SELECT * FROM invoices WHERE id = ?', [invoiceId]);
+    if (!invoice) {
+      return res.status(404).json({ error: 'Invoice not found' });
+    }
+
+    if (invoice.status === 'paid') {
+      return res.status(400).json({ error: 'Cannot lock a paid invoice' });
+    }
+
+    await db.update('invoices', invoiceId, {
+      status: 'locked',
+      locked_at: new Date()
+    });
+
+    await db.query('UPDATE users SET is_locked = 1 WHERE id = ?', [invoice.student_id]);
+
+    res.json({ success: true, message: 'Invoice locked and student access restricted' });
+  } catch (error) {
+    console.error('Lock invoice error:', error);
+    res.status(500).json({ error: 'Failed to lock invoice' });
+  }
+}
+
 // ==================== ADMIN ENROLLMENT UPDATE/DELETE ====================
 
 async function updateEnrollment(req, res) {
@@ -1262,6 +1302,7 @@ module.exports = {
   getAdminTransactions,
   getAdminInvoices,
   unlockInvoice,
+  lockInvoice,
   updateEnrollment,
   adminDeleteEnrollment,
   getInstallmentSchedule,
