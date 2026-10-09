@@ -149,6 +149,9 @@
                         <button class="btn btn-secondary" onclick="refreshNotes()">
                             <i class="fas fa-sync-alt"></i> Refresh
                         </button>
+                        <button class="btn btn-secondary" onclick="toggleReorderMode()" id="reorderToggleBtn">
+                            <i class="fas fa-arrows-alt"></i> <span id="reorderToggleLabel">Reorder Notes</span>
+                        </button>
                         <button class="btn btn-primary" onclick="openEditor('create')">
                             <i class="fas fa-plus"></i> Add Note
                         </button>
@@ -161,7 +164,7 @@
                             <input type="text" id="searchInput" placeholder="Search notes..." onkeyup="filterNotes()">
                             <i class="fas fa-search"></i>
                         </div>
-                        <select class="filter-select" id="courseFilter" onchange="filterNotes()">
+                        <select class="filter-select" id="courseFilter" onchange="onCourseFilterChange()">
                             <option value="">All Courses</option>
                         </select>
                     </div>
@@ -254,6 +257,7 @@
     let courses = [];
     let quill = null;
     let editingNoteId = null;
+    let reorderMode = false;
 
     document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => checkTutorAccess(), 100);
@@ -437,8 +441,7 @@
 
         container.innerHTML = `
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;">
-                <span style="color:#6c757d;font-size:0.9rem;"><i class="fas fa-grip-vertical"></i> Drag the cards below to reorder notes</span>
-                <button class="btn btn-secondary btn-sm" onclick="startOrdering()"><i class="fas fa-arrows-alt"></i> Reorder Notes</button>
+                <span style="color:#6c757d;font-size:0.9rem;"><i class="fas fa-book-open"></i> Click "Reorder Notes" above to arrange notes per course</span>
             </div>
             <div class="notes-grid" id="sortableNotes">
                 ${sorted.map((note, i) => `
@@ -448,12 +451,12 @@
                             <span class="drag-handle" style="margin-left:auto;"><i class="fas fa-grip-vertical"></i></span>
                         </div>
                         <div>
-                            <h3 class="note-title" style="margin-top:8px;">${note.title}</h3>
+                            <h3 class="note-title" style="margin-top:8px;">${escapeHtml(note.title)}</h3>
                             <div class="note-content">${truncateText(stripHtml(note.content))}</div>
                         </div>
                         <div class="note-meta">
                             <span class="note-course">
-                                <i class="fas fa-book"></i> ${note.course.title}
+                                <i class="fas fa-book"></i> ${escapeHtml(note.course?.title || '')}
                             </span>
                             <span class="note-date">
                                 ${new Date(note.updatedAt).toLocaleDateString()}
@@ -462,7 +465,7 @@
                                 <button class="action-btn" onclick="editNote(${note.id})" title="Edit">
                                     <i class="fas fa-edit"></i>
                                 </button>
-                                <button class="action-btn btn-delete" onclick="deleteNote(${note.id}, '${note.title.replace(/'/g, "\\'")}')" title="Delete">
+                                <button class="action-btn btn-delete" onclick="deleteNote(${note.id}, '${escapeHtml(note.title).replace(/'/g, "\\'")}')" title="Delete">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </div>
@@ -491,7 +494,145 @@
     }
 
     function startOrdering() {
+        if (!reorderMode) toggleReorderMode();
+        else document.getElementById('orderActionsBar').style.display = 'flex';
+    }
+
+    function onCourseFilterChange() {
+        if (reorderMode) toggleReorderMode();
+        loadNotes(1);
+    }
+
+    function toggleReorderMode() {
+        if (reorderMode) {
+            reorderMode = false;
+            document.getElementById('reorderToggleLabel').textContent = 'Reorder Notes';
+            hideOrderBar();
+            loadNotes(currentPage);
+            return;
+        }
+        reorderMode = true;
+        document.getElementById('reorderToggleLabel').textContent = 'Done Ordering';
+        loadAllNotesForOrder();
+    }
+
+    async function loadAllNotesForOrder() {
+        const container = document.getElementById('notesContainer');
+        container.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Loading notes...</div>';
+        document.getElementById('paginationContainer').style.display = 'none';
+
+        try {
+            const token = sessionStorage.getItem('token');
+            const response = await fetch(`${API_BASE_URL}/tutor/notes?limit=1000`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (!response.ok) throw new Error('Failed to load notes');
+
+            const data = await response.json();
+            if (!data.success) throw new Error(data.error || 'Failed to load notes');
+
+            const notes = (data.data || []).slice().sort((a, b) => (a.orderIndex || 0) - (b.orderIndex || 0));
+            renderOrderGrid(notes);
+        } catch (error) {
+            console.error('Error loading notes for ordering:', error);
+            container.innerHTML = `
+                <div class="error" style="text-align: center; padding: 40px;">
+                    <i class="fas fa-exclamation-triangle" style="font-size: 3rem; margin-bottom: 15px;"></i>
+                    <h3>Failed to load notes for ordering</h3>
+                    <p>${error.message}</p>
+                </div>`;
+        }
+    }
+
+    function renderOrderGrid(notes) {
+        const container = document.getElementById('notesContainer');
+        const groups = {};
+        notes.forEach(note => {
+            const cid = note.courseId;
+            if (!groups[cid]) groups[cid] = { course: note.course, items: [] };
+            groups[cid].items.push(note);
+        });
+
+        const courseIds = Object.keys(groups);
+        if (courseIds.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-sticky-note"></i>
+                    <h3>No notes to reorder</h3>
+                    <p>Create notes first, then use this view to arrange them per course.</p>
+                </div>`;
+            return;
+        }
+
+        container.innerHTML = `
+            <div style="background:#fff8e1;border:1px solid #f9a825;padding:12px 20px;border-radius:10px;margin-bottom:20px;font-size:0.9rem;color:#6d5b0f;">
+                <i class="fas fa-arrows-alt"></i> Use the <b>&#9650; / &#9660;</b> buttons or drag a card to arrange notes. Each course keeps its own order. Click <b>Save Order</b> when done.
+            </div>
+            ${courseIds.map(cid => {
+                const g = groups[cid];
+                return `
+                <div class="order-group" style="margin-bottom:30px;">
+                    <h3 style="color:#27ae60;font-size:1.1rem;margin-bottom:10px;"><i class="fas fa-book"></i> ${escapeHtml(g.course?.title || 'Course ' + cid)}</h3>
+                    <div class="notes-grid" id="sortableNotes-${cid}">
+                        ${g.items.map((note, i) => `
+                            <div class="note-card" data-id="${note.id}" data-order="${i}">
+                                <div style="display:flex;align-items:flex-start;">
+                                    <span class="note-order-badge">${i + 1}</span>
+                                    <span class="drag-handle" style="margin-left:auto;"><i class="fas fa-grip-vertical"></i></span>
+                                </div>
+                                <h3 class="note-title" style="margin-top:8px;">${escapeHtml(note.title)}</h3>
+                                <div class="note-meta">
+                                    <span class="note-date">${new Date(note.updatedAt).toLocaleDateString()}</span>
+                                    <div class="note-actions" style="gap:4px;">
+                                        <button class="action-btn" onclick="moveNote(${note.id}, -1, ${cid})" title="Move up"><i class="fas fa-chevron-up"></i></button>
+                                        <button class="action-btn" onclick="moveNote(${note.id}, 1, ${cid})" title="Move down"><i class="fas fa-chevron-down"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>`;
+            }).join('')}`;
+
+        document.querySelectorAll('.notes-grid[id^="sortableNotes-"]').forEach(el => {
+            Sortable.create(el, {
+                handle: '.drag-handle',
+                animation: 150,
+                ghostClass: 'sortable-ghost',
+                dragClass: 'dragging',
+                onEnd: function() {
+                    document.getElementById('orderActionsBar').style.display = 'flex';
+                }
+            });
+        });
+
         document.getElementById('orderActionsBar').style.display = 'flex';
+    }
+
+    function moveNote(noteId, dir, courseId) {
+        const el = document.getElementById('sortableNotes-' + courseId);
+        if (!el) return;
+        const cards = Array.from(el.querySelectorAll('.note-card'));
+        const idx = cards.findIndex(c => parseInt(c.dataset.id) === noteId);
+        if (idx === -1) return;
+        const target = idx + dir;
+        if (target < 0 || target >= cards.length) return;
+
+        if (dir < 0) {
+            el.insertBefore(cards[idx], cards[target]);
+        } else {
+            cards[target].insertAdjacentElement('afterend', cards[idx]);
+        }
+
+        updateOrderBadges(el);
+        document.getElementById('orderActionsBar').style.display = 'flex';
+    }
+
+    function updateOrderBadges(el) {
+        el.querySelectorAll('.note-card').forEach((card, i) => {
+            const badge = card.querySelector('.note-order-badge');
+            if (badge) badge.textContent = i + 1;
+        });
     }
 
     function hideOrderBar() {
@@ -499,12 +640,17 @@
     }
 
     function saveNoteOrder() {
-        const el = document.getElementById('sortableNotes');
-        if (!el) return;
-        const items = Array.from(el.querySelectorAll('.note-card')).map((card, index) => ({
-            id: parseInt(card.dataset.id),
-            orderIndex: index
-        }));
+        const items = [];
+        document.querySelectorAll('.notes-grid[id^="sortableNotes-"]').forEach(el => {
+            Array.from(el.querySelectorAll('.note-card')).forEach((card, index) => {
+                items.push({ id: parseInt(card.dataset.id), orderIndex: index });
+            });
+        });
+
+        if (items.length === 0) {
+            hideOrderBar();
+            return;
+        }
 
         fetch(`${API_BASE_URL}/tutor/notes/reorder`, {
             method: 'PUT',
@@ -518,8 +664,11 @@
         .then(data => {
             if (data.success) {
                 hideOrderBar();
-                const badgeEls = el.querySelectorAll('.note-order-badge');
-                badgeEls.forEach((badge, i) => { badge.textContent = i + 1; });
+                allNotes.forEach(note => {
+                    const item = items.find(it => it.id === note.id);
+                    if (item) note.orderIndex = item.orderIndex;
+                });
+                document.querySelectorAll('.notes-grid[id^="sortableNotes-"]').forEach(el => updateOrderBadges(el));
             } else {
                 alert('Failed to save order: ' + (data.error || 'Unknown error'));
             }
@@ -532,7 +681,8 @@
 
     function discardNoteOrder() {
         hideOrderBar();
-        loadNotes(currentPage);
+        if (reorderMode) loadAllNotesForOrder();
+        else loadNotes(currentPage);
     }
 
     function stripHtml(html) {
@@ -543,13 +693,8 @@
 
     function filterNotes() {
         const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-        const courseFilter = document.getElementById('courseFilter').value;
 
         let filtered = allNotes;
-
-        if (courseFilter) {
-            filtered = filtered.filter(note => note.courseId.toString() === courseFilter);
-        }
 
         if (searchTerm) {
             filtered = filtered.filter(note =>
@@ -562,8 +707,15 @@
         displayNotes(filtered);
     }
 
-    function refreshNotes() { loadNotes(currentPage); }
-    function changePage(page) { if (page >= 1 && page <= totalPages) loadNotes(page); }
+    function escapeHtml(str) {
+        if (!str) return '';
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    }
+
+    function refreshNotes() { if (reorderMode) loadAllNotesForOrder(); else loadNotes(currentPage); }
+    function changePage(page) { if (reorderMode) return; if (page >= 1 && page <= totalPages) loadNotes(page); }
     function updatePagination(pagination) {
         const container = document.getElementById('paginationContainer');
         const info = document.getElementById('paginationInfo');
@@ -584,7 +736,8 @@
     function backToList() {
         document.getElementById('editorView').classList.remove('active');
         document.getElementById('listView').classList.remove('hidden');
-        loadNotes(currentPage);
+        if (reorderMode) loadAllNotesForOrder();
+        else loadNotes(currentPage);
     }
 
     function openEditor(mode) {
@@ -631,7 +784,8 @@
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (response.ok) {
-                loadNotes();
+                if (reorderMode) loadAllNotesForOrder();
+                else loadNotes();
             } else {
                 throw new Error('Failed to delete note');
             }

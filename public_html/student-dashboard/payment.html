@@ -600,12 +600,15 @@
                 
                 if (data.success && data.isLocked) {
                     const alertContainer = document.getElementById('alertContainer');
+                    const isDeposit = data.level === 'deposit';
                     alertContainer.innerHTML = `
                         <div class="alert-box danger">
                             <i class="fas fa-lock"></i>
                             <div>
-                                <strong>Account Locked</strong>
-                                <p style="margin: 5px 0 0 0;">Your account is locked due to unpaid invoices. Please pay to regain access.</p>
+                                <strong>${isDeposit ? 'Deposit Required' : 'Account Locked'}</strong>
+                                <p style="margin: 5px 0 0 0;">${isDeposit
+                                    ? 'Your deposit is unpaid. You cannot access courses until the deposit is paid.'
+                                    : 'Your monthly payment is overdue. Free courses remain accessible; paid courses are locked until you pay.'}</p>
                             </div>
                         </div>
                     `;
@@ -783,7 +786,7 @@
                                     <td>${new Date(invoice.paidAt).toLocaleDateString()}</td>
                                     <td>
                                         ${invoice.mpesaReceipt || 'N/A'}
-                                        ${invoice.id ? '<br><a href="/api/receipt/' + invoice.id + '" target="_blank" style="font-size:0.8rem;color:#27ae60;text-decoration:none;"><i class="fas fa-print"></i> Receipt</a>' : ''}
+                                        ${invoice.id ? '<br><a href="#" onclick="openReceipt(' + invoice.id + ');return false;" style="font-size:0.8rem;color:#27ae60;text-decoration:none;"><i class="fas fa-print"></i> Receipt</a>' : ''}
                                     </td>
                                 </tr>
                             `).join('')}
@@ -791,6 +794,22 @@
                     </table>
                 </div>
             `;
+        }
+
+        function openReceipt(invoiceId) {
+            const token = sessionStorage.getItem('token');
+            if (!token) return;
+            fetch('/api/receipt/' + invoiceId, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            })
+                .then(res => res.ok ? res.text() : Promise.reject(new Error(res.status)))
+                .then(html => {
+                    const win = window.open('', '_blank');
+                    if (!win) { alert('Please allow pop-ups to view the receipt.'); return; }
+                    win.document.write(html);
+                    win.document.close();
+                })
+                .catch(() => alert('Unable to load receipt.'));
         }
 
         function openMpesaModal(invoiceId, courseTitle, amount, monthlyAmount = null) {

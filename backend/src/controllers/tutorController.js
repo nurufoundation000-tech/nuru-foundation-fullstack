@@ -114,10 +114,18 @@ async function getTutorLessons(req, res) {
       'SELECT id FROM courses WHERE id IN (SELECT course_id FROM course_tutors WHERE tutor_id = ?)',
       [req.user.userId]
     );
-    const courseIds = tutorCourses.map(c => c.id);
+    let courseIds = tutorCourses.map(c => c.id);
 
     if (courseIds.length === 0) {
       return res.json({ success: true, data: [], pagination: { page:1, pages:1, total:0 } });
+    }
+
+    const courseFilter = parseInt(req.query.courseId);
+    if (!isNaN(courseFilter)) {
+      if (!courseIds.includes(courseFilter)) {
+        return res.status(403).json({ error: 'Course not found or access denied' });
+      }
+      courseIds = [courseFilter];
     }
 
     const placeholders = courseIds.map(() => '?').join(', ');
@@ -126,11 +134,14 @@ async function getTutorLessons(req, res) {
     const offset = (page - 1) * limit;
 
     const lessons = await db.query(
-      `SELECT l.*, c.title as course_title, c.id as course_id
+      `SELECT l.id, l.title, l.content, l.video_url, l.order_index, l.created_at, l.updated_at, l.live_link, l.duration_minutes,
+             DATE_FORMAT(l.session_date, '%Y-%m-%d') AS session_date,
+             DATE_FORMAT(l.session_time, '%H:%i') AS session_time,
+             c.title as course_title, c.id as course_id
        FROM lessons l
        JOIN courses c ON l.course_id = c.id
        WHERE l.course_id IN (${placeholders})
-       ORDER BY l.course_id, l.order_index
+       ORDER BY l.course_id, l.order_index, l.created_at ASC
        LIMIT ? OFFSET ?`,
       [...courseIds, limit, offset]
     );
@@ -159,6 +170,7 @@ async function getTutorLessons(req, res) {
       content: lesson.content,
       video_url: lesson.video_url,
       order_index: lesson.order_index,
+      orderIndex: lesson.order_index,
       liveLink: lesson.live_link || null,
       sessionDate: lesson.session_date || null,
       sessionTime: lesson.session_time || null,
@@ -210,12 +222,18 @@ async function createTutorLesson(req, res) {
       return res.status(403).json({ error: 'Course not found or access denied' });
     }
 
+    const nextOrder = await db.getOne(
+      'SELECT COALESCE(MAX(order_index), -1) + 1 AS next_index FROM lessons WHERE course_id = ?',
+      [courseId]
+    );
+    const nextIndex = nextOrder ? nextOrder.next_index : 0;
+
     const lessonId = await db.insert('lessons', {
       course_id: courseId,
       title,
       content: content || '',
       video_url: videoUrl || null,
-      order_index: orderIndex || 0,
+      order_index: orderIndex !== undefined && orderIndex !== null ? orderIndex : nextIndex,
       live_link: liveLink || null,
       session_date: sessionDate || null,
       session_time: sessionTime || null,
@@ -656,10 +674,18 @@ async function getTutorNotes(req, res) {
       'SELECT id FROM courses WHERE id IN (SELECT course_id FROM course_tutors WHERE tutor_id = ?)',
       [req.user.userId]
     );
-    const courseIds = tutorCourses.map(c => c.id);
+    let courseIds = tutorCourses.map(c => c.id);
 
     if (courseIds.length === 0) {
       return res.json({ success: true, data: [], pagination: { page:1, pages:1, total:0 } });
+    }
+
+    const courseFilter = parseInt(req.query.courseId);
+    if (!isNaN(courseFilter)) {
+      if (!courseIds.includes(courseFilter)) {
+        return res.status(403).json({ error: 'Course not found or access denied' });
+      }
+      courseIds = [courseFilter];
     }
 
     const placeholders = courseIds.map(() => '?').join(', ');
@@ -672,7 +698,7 @@ async function getTutorNotes(req, res) {
        FROM course_notes n
        JOIN courses c ON n.course_id = c.id
        WHERE n.course_id IN (${placeholders})
-       ORDER BY n.updated_at DESC
+       ORDER BY n.order_index ASC, n.created_at ASC
        LIMIT ? OFFSET ?`,
       [...courseIds, limit, offset]
     );
@@ -729,11 +755,17 @@ async function createTutorNote(req, res) {
       return res.status(403).json({ error: 'Course not found or access denied' });
     }
 
+    const nextOrder = await db.getOne(
+      'SELECT COALESCE(MAX(order_index), -1) + 1 AS next_index FROM course_notes WHERE course_id = ?',
+      [courseId]
+    );
+    const nextIndex = nextOrder ? nextOrder.next_index : 0;
+
     const noteId = await db.insert('course_notes', {
       course_id: courseId,
       title,
       content,
-      order_index: orderIndex || 0,
+      order_index: orderIndex !== undefined && orderIndex !== null ? orderIndex : nextIndex,
       reference_url: referenceUrl || null,
       created_at: new Date(),
       updated_at: new Date()

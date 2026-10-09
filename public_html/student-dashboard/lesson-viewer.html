@@ -747,6 +747,15 @@
                 const d = String(value.getDate()).padStart(2, '0');
                 return `${y}-${m}-${d}`;
             }
+            if (typeof value === 'string' && value.indexOf('T') !== -1) {
+                const parsed = new Date(value);
+                if (!isNaN(parsed.getTime())) {
+                    const y = parsed.getFullYear();
+                    const m = String(parsed.getMonth() + 1).padStart(2, '0');
+                    const d = String(parsed.getDate()).padStart(2, '0');
+                    return `${y}-${m}-${d}`;
+                }
+            }
             return String(value).split('T')[0].split(' ')[0];
         }
 

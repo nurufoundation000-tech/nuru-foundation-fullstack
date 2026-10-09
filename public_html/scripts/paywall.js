@@ -13,17 +13,19 @@
         }
     }
 
+    // An unpaid deposit is a TOTAL block - the student may only use the payment tab.
+    // A monthly-locked student still has free courses, so they are NOT redirected.
     function handleLockedPayload(data) {
-        if (data && (data.locked === true || data.isLocked === true)) {
+        if (data && (data.lockLevel === 'deposit' || data.level === 'deposit')) {
             redirectToPayment();
             return true;
         }
         return false;
     }
 
-    // Page-level lock check: locked students may only access the payment tab.
+    // Page-level lock check: only deposit-locked students are forced to the payment tab.
     function checkLock() {
-        var token = sessionStorage.getItem('token');
+        var token = sessionStorage.getItem('token') || localStorage.getItem('token');
         if (!token || isPaymentPage()) return;
 
         fetch('/api/student/is-locked', {
@@ -31,14 +33,14 @@
         }).then(function (res) {
             return res.json().catch(function () { return {}; });
         }).then(function (data) {
-            if (data && data.isLocked === true) {
+            if (data && (data.level === 'deposit' || data.depositUnpaid === true)) {
                 redirectToPayment();
             }
         }).catch(function () {});
     }
 
-    // Patch the shared fetchAPI helper (dashboard.js) so any 403 {locked:true}
-    // response bounces the student to the payment tab instead of failing silently.
+    // Patch the shared fetchAPI helper (dashboard.js) so any 403 from a locked
+    // paid course (or a deposit-blocked endpoint) bounces the student to payment.
     function patchFetchAPI() {
         if (typeof window.fetchAPI !== 'function') return;
         var original = window.fetchAPI;

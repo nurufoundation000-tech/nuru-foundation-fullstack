@@ -208,6 +208,10 @@
             background: #f8d7da;
             color: #721c24;
         }
+        .status-badge.locked {
+            background: #f8d7da;
+            color: #721c24;
+        }
         .status-badge.paid {
             background: #d4edda;
             color: #155724;
@@ -319,8 +323,8 @@
                                 <div class="value" id="pendingCount" style="color: #f39c12;">0</div>
                             </div>
                             <div class="stat-card">
-                                <h3>Overdue</h3>
-                                <div class="value" id="overdueCount" style="color: #e74c3c;">0</div>
+                                <h3>Locked</h3>
+                                <div class="value" id="lockedCount" style="color: #e74c3c;">0</div>
                             </div>
                             <div class="stat-card">
                                 <h3>Paid</h3>
@@ -333,7 +337,7 @@
                             <select class="filter-select" id="statusFilter">
                                 <option value="">All Status</option>
                                 <option value="pending">Pending</option>
-                                <option value="overdue">Overdue</option>
+                                <option value="locked">Locked</option>
                                 <option value="paid">Paid</option>
                             </select>
                             <select class="filter-select" id="typeFilter">
@@ -394,7 +398,7 @@
         function updateStats() {
             document.getElementById('totalCount').textContent = allInvoices.length;
             document.getElementById('pendingCount').textContent = allInvoices.filter(i => i.status === 'pending').length;
-            document.getElementById('overdueCount').textContent = allInvoices.filter(i => i.status === 'overdue').length;
+            document.getElementById('lockedCount').textContent = allInvoices.filter(i => i.status === 'locked' || i.status === 'overdue').length;
             document.getElementById('paidCount').textContent = allInvoices.filter(i => i.status === 'paid').length;
         }
 
@@ -437,8 +441,8 @@
                     <td>${new Date(inv.dueDate).toLocaleDateString()}</td>
                     <td>
                         ${inv.status !== 'paid' ? `
-                            ${inv.status === 'locked' ? `<button class="action-btn unlock" onclick="unlockStudent(${inv.id})"><i class="fas fa-unlock"></i> Unlock</button>` : ''}
-                            ${inv.status === 'pending' ? `<button class="action-btn lock" onclick="lockStudent(${inv.id})"><i class="fas fa-lock"></i> Lock</button>` : ''}
+                            ${inv.status === 'locked' || inv.status === 'overdue' ? `<button class="action-btn unlock" onclick="unlockStudent(${inv.id})"><i class="fas fa-unlock"></i> Unlock</button>` : ''}
+                            ${inv.status === 'pending' || inv.status === 'locked' || inv.status === 'overdue' ? `<button class="action-btn lock" onclick="lockStudent(${inv.id})"><i class="fas fa-lock"></i> Lock</button>` : ''}
                         ` : '-'}
                     </td>
                 </tr>

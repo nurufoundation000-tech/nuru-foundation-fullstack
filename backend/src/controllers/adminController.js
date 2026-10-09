@@ -916,10 +916,11 @@ async function updateGlobalSettings(req, res) {
     const settingsPath = './global-billing.json';
     const existing = fs.existsSync(settingsPath)
       ? JSON.parse(fs.readFileSync(settingsPath, 'utf8'))
-      : { billingDay: 1, gracePeriodDays: 2, mpesa_paybill: '', mpesa_till_number: '' };
+      : { billingDay: 1, gracePeriodDays: 7, depositGraceDays: 1, mpesa_paybill: '', mpesa_till_number: '' };
 
     if (req.body.billingDay !== undefined) existing.billingDay = req.body.billingDay;
     if (req.body.gracePeriodDays !== undefined) existing.gracePeriodDays = req.body.gracePeriodDays;
+    if (req.body.depositGraceDays !== undefined) existing.depositGraceDays = req.body.depositGraceDays;
     if (req.body.mpesa_paybill !== undefined) existing.mpesa_paybill = req.body.mpesa_paybill;
     if (req.body.mpesa_till_number !== undefined) existing.mpesa_till_number = req.body.mpesa_till_number;
 

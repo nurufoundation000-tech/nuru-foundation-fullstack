@@ -114,14 +114,19 @@
                 return;
             }
             
-            container.innerHTML = courses.map(enrollment => {
+container.innerHTML = courses.map(enrollment => {
                 const c = enrollment.course;
                 const progress = enrollment.progress || 0;
+                const locked = !!c.locked;
+                const isFree = !!c.isFree;
                 return `
-                    <div class="content-card">
+                    <div class="content-card ${locked ? 'locked-card' : ''}" style="${locked ? 'opacity:0.75;' : ''}">
                         <div class="card-header">
                             <h3>${escapeHtml(c.title)}</h3>
-                            <span class="category">${escapeHtml(c.category || 'Course')}</span>
+                            <span class="category">${escapeHtml(c.category || 'Course')}
+                                ${isFree ? `<span style="background:#27ae60;color:#fff;padding:3px 10px;border-radius:12px;font-size:11px;margin-left:6px;">Free</span>` : ''}
+                                ${locked ? `<span style="background:#e74c3c;color:#fff;padding:3px 10px;border-radius:12px;font-size:11px;margin-left:6px;"><i class="fas fa-lock"></i> Locked</span>` : ''}
+                            </span>
                         </div>
                         <div class="card-body">
                             <p class="card-description">${escapeHtml(c.description || 'No description')}</p>
@@ -134,7 +139,10 @@
                                 <div class="progress-bar"><div class="progress-fill" style="width: ${progress}%"></div></div>
                             </div>
                             <div class="card-actions">
-                                <a href="/student-dashboard/reader.html?courseId=${c.id}" class="btn btn-primary btn-sm">Continue Learning</a>
+                                ${locked
+                                    ? `<a href="/student-dashboard/payment.html" class="btn btn-danger btn-sm"><i class="fas fa-lock"></i> Pay to Access</a>`
+                                    : `<a href="/student-dashboard/reader.html?courseId=${c.id}" class="btn btn-primary btn-sm">Continue Learning</a>`
+                                }
                             </div>
                         </div>
                     </div>

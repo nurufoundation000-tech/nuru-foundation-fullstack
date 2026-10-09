@@ -7,7 +7,7 @@ const { sendWelcomeEmail, sendPasswordResetEmail } = require('../lib/email.js');
 const { 
   generateInitialInvoices, 
   checkAndUpdateInvoiceStatuses, 
-  isStudentLocked 
+  getStudentLockState 
 } = require('../lib/invoices.js');
 
 async function login(req, res) {
@@ -36,10 +36,13 @@ async function login(req, res) {
     }
 
     let locked = false;
+    let lockLevel = 'none';
     if (role?.name === 'student') {
       await checkAndUpdateInvoiceStatuses();
       await generateInitialInvoices(user.id);
-      locked = await isStudentLocked(user.id);
+      const lockState = await getStudentLockState(user.id);
+      lockLevel = lockState.level;
+      locked = lockLevel !== 'none';
     }
 
     const { password_hash, ...userWithoutPassword } = user;
@@ -61,6 +64,7 @@ async function login(req, res) {
     userResponse.mustChangePassword = !!userResponse.must_change_password;
     userResponse.isLocked = locked;
     userResponse.is_locked = locked;
+    userResponse.lockLevel = lockLevel;
 
     res.json({
       success: true,
