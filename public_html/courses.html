@@ -4,35 +4,616 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NURU FOUNDATION - Empowering Futures</title>
-    <link rel="icon" href="logo.jpg" type="image/jpeg">
+    <link rel="icon" type="image/png" href="NewLogo.png">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Fredoka+One&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles/index.css">
-<link rel="stylesheet" href="styles/header.css">
-<link rel="stylesheet" href="styles/footer.css">
-
+    <link rel="stylesheet" href="styles/header.css">
+    <link rel="stylesheet" href="styles/footer.css">
+    <link rel="stylesheet" href="styles/courses.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+/* ============================================================
+   NURU FOUNDATION - COURSES PAGE STYLES
+   Concept 2: Track-by-Track Pathway Showcase
+   Strictly using the website's original brand color system
+   ============================================================ */
+
+/* Sticky Quick-Jump Track Bar */
+.track-jump-bar {
+    background: rgba(255, 255, 255, 0.96);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border-bottom: 2px solid rgba(106, 5, 114, 0.1);
+    position: sticky;
+    top: 68px;
+    z-index: 100;
+    padding: 0.85rem 0;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+    transition: top 0.3s ease;
+}
+
+.jump-nav-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.jump-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.55rem 1.25rem;
+    border-radius: 10px;
+    background: #ffffff;
+    color: var(--text-dark);
+    font-family: var(--font-family-body);
+    font-size: 0.92rem;
+    font-weight: 600;
+    text-decoration: none;
+    border: 1.5px solid #e2e8f0;
+    transition: all 0.25s ease;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+}
+
+.jump-btn i {
+    font-size: 0.9rem;
+    color: var(--primary-color);
+    transition: color 0.25s ease;
+}
+
+.jump-btn:hover {
+    background: var(--primary-color);
+    color: var(--text-light);
+    border-color: var(--primary-color);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(106, 5, 114, 0.2);
+}
+
+.jump-btn:hover i {
+    color: var(--secondary-color);
+}
+
+/* Track Section Layout */
+.track-section {
+    padding: 4.5rem 0;
+    position: relative;
+}
+
+.track-section:nth-of-type(even) {
+    background-color: #f8fafc;
+}
+
+.track-section:nth-of-type(odd) {
+    background-color: var(--background-light);
+}
+
+/* Track Header Box */
+.track-header-box {
+    background: #ffffff;
+    border: 1.5px solid #e2e8f0;
+    border-radius: var(--border-radius-lg, 15px);
+    padding: 2rem 2.25rem;
+    margin-bottom: 2.75rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+    position: relative;
+    overflow: hidden;
+}
+
+.track-header-box::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 6px;
+}
+
+/* Brand Track Accent Ribbons */
+.track-software .track-header-box::before {
+    background: var(--primary-color);
+}
+
+.track-data .track-header-box::before {
+    background: var(--accent-color-1);
+}
+
+.track-security .track-header-box::before {
+    background: var(--background-dark);
+}
+
+.track-stem .track-header-box::before {
+    background: var(--secondary-color);
+}
+
+.track-header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 0.75rem;
+}
+
+.track-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-size: 0.82rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 4px 12px;
+    border-radius: 8px;
+    flex-shrink: 0;
+}
+
+.track-pill.purple {
+    background: rgba(106, 5, 114, 0.1);
+    color: var(--primary-color);
+    border: 1px solid rgba(106, 5, 114, 0.2);
+}
+
+.track-pill.teal {
+    background: rgba(56, 178, 172, 0.12);
+    color: var(--accent-color-1);
+    border: 1px solid rgba(56, 178, 172, 0.25);
+}
+
+.track-pill.dark {
+    background: rgba(44, 62, 80, 0.1);
+    color: var(--background-dark);
+    border: 1px solid rgba(44, 62, 80, 0.25);
+}
+
+.track-pill.gold {
+    background: rgba(247, 183, 49, 0.15);
+    color: #b45309;
+    border: 1px solid rgba(247, 183, 49, 0.35);
+}
+
+.track-pathway-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: #f1f5f9;
+    color: #475569;
+    font-size: 0.82rem;
+    font-weight: 600;
+    padding: 4px 12px;
+    border-radius: 8px;
+    border: 1px solid #cbd5e1;
+    max-width: 100%;
+    word-break: break-word;
+    line-height: 1.45;
+}
+
+.track-header-box h2 {
+    font-size: 2.1rem;
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+    font-family: var(--font-family-heading);
+    line-height: 1.3;
+}
+
+.track-header-box p {
+    font-size: 1.05rem;
+    color: #555555;
+    margin: 0;
+    max-width: 900px;
+    line-height: 1.6;
+}
+
+/* Track Courses Grid */
+.track-courses-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 2rem;
+}
+
+/* Pathway Course Card */
+.pathway-course-card {
+    background: #ffffff;
+    border: 1.5px solid #e2e8f0;
+    border-radius: var(--border-radius-lg, 15px);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+    position: relative;
+    height: 100%;
+}
+
+.pathway-course-card:hover {
+    transform: translateY(-6px);
+    border-color: var(--primary-color);
+    box-shadow: var(--shadow-lg, 0 8px 30px rgba(0, 0, 0, 0.15));
+}
+
+/* Card Image & Badges */
+.card-image-wrap {
+    position: relative;
+    height: 190px;
+    overflow: hidden;
+    background: var(--background-dark);
+}
+
+.card-image-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.pathway-course-card:hover .card-image-wrap img {
+    transform: scale(1.06);
+}
+
+.card-image-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.05) 0%, rgba(0, 0, 0, 0.75) 100%);
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    padding: 0.85rem 1rem;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.card-progression-step {
+    background: rgba(255, 255, 255, 0.95);
+    color: var(--primary-color);
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.card-level-chip {
+    background: var(--primary-color);
+    color: var(--text-light);
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(106, 5, 114, 0.3);
+}
+
+/* Card Body Content */
+.card-content-wrap {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.card-content-wrap h3 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 0.65rem;
+    font-family: var(--font-family-body);
+    line-height: 1.35;
+}
+
+.card-desc-text {
+    font-size: 0.93rem;
+    color: #555555;
+    line-height: 1.6;
+    margin-bottom: 1.25rem;
+    flex-grow: 1;
+}
+
+/* Metadata Chips Row */
+.card-meta-chips {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 0.75rem 0;
+    border-top: 1px solid #f1f5f9;
+    border-bottom: 1px solid #f1f5f9;
+    margin-bottom: 1.15rem;
+    font-size: 0.84rem;
+    color: #475569;
+    font-weight: 600;
+}
+
+.card-meta-chips span {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.card-meta-chips i {
+    color: var(--accent-color-1);
+}
+
+/* Requirements Accordion */
+.card-reqs-dropdown {
+    margin-bottom: 1.25rem;
+}
+
+.card-reqs-dropdown details {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 0.6rem 0.85rem;
+    transition: all 0.25s ease;
+}
+
+.card-reqs-dropdown details[open] {
+    background: #ffffff;
+    border-color: rgba(106, 5, 114, 0.3);
+    box-shadow: 0 4px 12px rgba(106, 5, 114, 0.05);
+}
+
+.card-reqs-dropdown summary {
+    font-size: 0.84rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    list-style: none;
+    user-select: none;
+}
+
+.card-reqs-dropdown summary::-webkit-details-marker {
+    display: none;
+}
+
+.card-reqs-dropdown summary i.summary-icon {
+    color: var(--primary-color);
+    margin-right: 0.4rem;
+}
+
+.card-reqs-dropdown summary i.chevron-icon {
+    font-size: 0.8rem;
+    color: #94a3b8;
+    transition: transform 0.25s ease;
+}
+
+.card-reqs-dropdown details[open] summary i.chevron-icon {
+    transform: rotate(180deg);
+    color: var(--primary-color);
+}
+
+.card-reqs-dropdown ul {
+    margin: 0.65rem 0 0.2rem 0;
+    padding-left: 1.2rem;
+    font-size: 0.84rem;
+    color: #64748b;
+    line-height: 1.5;
+}
+
+.card-reqs-dropdown ul li {
+    margin-bottom: 0.35rem;
+}
+
+/* Details Action Button */
+.card-btn-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    background: var(--primary-color);
+    color: var(--text-light);
+    border: 2px solid transparent;
+    padding: 0.65rem 1rem;
+    border-radius: 10px;
+    font-family: var(--font-family-body);
+    font-size: 0.93rem;
+    font-weight: 600;
+    text-decoration: none;
+    text-align: center;
+    transition: all 0.25s ease;
+}
+
+.card-btn-action:hover {
+    background: var(--secondary-color);
+    color: var(--text-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(247, 183, 49, 0.35);
+}
+
+.card-btn-action i {
+    transition: transform 0.25s ease;
+}
+
+.card-btn-action:hover i {
+    transform: translateX(4px);
+}
+
+/* ============================================================
+   RESPONSIVE MEDIA QUERIES (Breakpoints: 1024px, 768px, 600px, 380px)
+   ============================================================ */
+
+/* Tablet Landscape & Medium Desktops (769px to 1024px) */
+@media (max-width: 1024px) {
+    .track-courses-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+    }
+
+    .track-header-box {
+        padding: 1.75rem 1.5rem;
+    }
+
+    .track-header-box h2 {
+        font-size: 1.85rem;
+    }
+}
+
+/* Tablet Portrait & Mobile Landscape (max-width: 768px) */
+@media (max-width: 768px) {
+    .track-jump-bar {
+        top: 60px;
+        padding: 0.55rem 0;
+        overflow: hidden;
+    }
+
+    .jump-nav-wrap {
+        display: flex;
+        flex-wrap: nowrap;
+        justify-content: flex-start;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.2rem 1rem;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+    }
+
+    .jump-nav-wrap::-webkit-scrollbar {
+        display: none;
+    }
+
+    .jump-btn {
+        flex: 0 0 auto;
+        white-space: nowrap;
+        padding: 0.45rem 0.95rem;
+        font-size: 0.84rem;
+        border-radius: 50px;
+    }
+
+    .track-section {
+        padding: 3.5rem 0;
+    }
+
+    .track-header-box {
+        padding: 1.5rem 1.25rem;
+        margin-bottom: 2rem;
+    }
+
+    .track-header-box h2 {
+        font-size: 1.65rem;
+    }
+
+    .track-header-box p {
+        font-size: 0.98rem;
+    }
+
+    .track-courses-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.25rem;
+    }
+
+    .card-content-wrap {
+        padding: 1.25rem;
+    }
+
+    .card-content-wrap h3 {
+        font-size: 1.2rem;
+    }
+
+    .card-btn-action {
+        width: 100%;
+        min-height: 44px;
+        padding: 0.75rem 1rem;
+    }
+}
+
+/* Mobile Portrait & Small Screens (max-width: 600px) */
+@media (max-width: 600px) {
+    .track-courses-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .track-header-top {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+
+    .track-pathway-chip {
+        font-size: 0.78rem;
+        line-height: 1.4;
+        padding: 4px 10px;
+    }
+
+    .track-header-box {
+        padding: 1.25rem 1rem;
+        border-radius: 12px;
+    }
+
+    .track-header-box h2 {
+        font-size: 1.45rem;
+    }
+
+    .track-header-box p {
+        font-size: 0.92rem;
+        line-height: 1.55;
+    }
+
+    .track-section {
+        padding: 2.75rem 0;
+    }
+
+    .card-image-wrap {
+        height: 180px;
+    }
+
+    .card-content-wrap {
+        padding: 1.2rem 1rem;
+    }
+
+    .card-content-wrap h3 {
+        font-size: 1.15rem;
+    }
+
+    .card-desc-text {
+        font-size: 0.88rem;
+    }
+
+    .card-meta-chips {
+        font-size: 0.8rem;
+    }
+}
+
+/* Extra Small Phones (max-width: 380px) */
+@media (max-width: 380px) {
+    .track-header-box h2 {
+        font-size: 1.3rem;
+    }
+
+    .card-image-wrap {
+        height: 165px;
+    }
+
+    .card-content-wrap {
+        padding: 1rem 0.85rem;
+    }
+}
+
+    </style>
 </head>
 <body>
 
+    <script src="scripts/header.js"></script>
+    <div id="headerContainer"></div>
 
-<script src="scripts/header.js"></script>
-<div id="headerContainer"></div>
+    <script>
+        fetch('header.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('headerContainer').innerHTML = data;
+                if (typeof initHeader === 'function') {
+                    setTimeout(initHeader, 100); 
+                }
+            })
+            .catch(error => console.error('Error loading header:', error));
+    </script>
 
-<script>
-    fetch('header.html')
-        .then(response => response.text())
-        .then(data => {
-            document.getElementById('headerContainer').innerHTML = data;
-    
-            if (typeof initHeader === 'function') {
-                setTimeout(initHeader, 100); 
-            }
-        })
-        .catch(error => console.error('Error loading header:', error));
-</script>
-
-
-   
+    <!-- Original Hero Section -->
     <section class="hero-section">
         <div class="container hero-content">
             <h1>Unlock Your Potential with NURU FOUNDATION!</h1>
@@ -41,430 +622,772 @@
         </div>
     </section>
 
-
-
-   <section id="courses" class="courses-section">
-    <div class="container">
-        <h2>Our Exciting Courses</h2>
-        <p style="font-size: 1.15rem; max-width: 900px; margin: 0 auto 3.5rem auto; color: #555;">
-            Dive into a world of knowledge with our carefully designed courses. From foundational computer skills to advanced AI, we have something for everyone!
-        </p>
-        <div class="course-grid">
-
-            <!-- Computer Packages -->
-            <div class="course-card">
-                <img src="https://images.unsplash.com/photo-1547658719-da2b51169166?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80" alt="Computer Packages" class="course-card-image">
-                <div class="course-card-content">
-                    <h3>Computer Packages</h3>
-                    <p class="description">Master essential digital literacy skills in Microsoft Office Suite, Google Tools, file management, cloud storage, and internet safety. Perfect for building practical office and academic computing skills.</p>
-                    <div class="course-info">
-                        <span><i class="far fa-clock"></i> 2½ Months</span>
-                        <span><i class="fas fa-tag"></i> Foundational</span>
-                    </div>
-                    <div class="requirements-dropdown">
-                        <details>
-                            <summary>Course Requirements <i class="fas fa-angle-down"></i></summary>
-                            <ul>
-                                <li>Basic computer familiarity</li>
-                                <li>No prior experience needed</li>
-                                <li>Access to a computer with internet</li>
-                            </ul>
-                        </details>
-                    </div>
-                    <a href="courses/computer-packages.html" class="btn btn-primary view-details-btn">View Full Details</a>
-                </div>
-            </div>
-
-            <!-- Programming with Python -->
-            <div class="course-card">
-                <img src="https://cdn.hashnode.com/res/hashnode/image/upload/v1637422966499/jx6h36yHp.jpeg" alt="Programming with Python" class="course-card-image">
-                <div class="course-card-content">
-                    <h3>Programming with Python</h3>
-                    <p class="description">Learn programming fundamentals, logic building, Python programming (Structured & OOP), data structures, algorithms, and build basic automation projects. Perfect for aspiring coders!</p>
-                    <div class="course-info">
-                        <span><i class="far fa-clock"></i> 6 Months</span>
-                        <span><i class="fas fa-tag"></i> Beginner to Intermediate</span>
-                    </div>
-                    <div class="requirements-dropdown">
-                        <details>
-                            <summary>Course Requirements <i class="fas fa-angle-down"></i></summary>
-                            <ul>
-                                <li>Basic computer literacy</li>
-                                <li>Logical thinking skills</li>
-                                <li>No prior programming experience needed</li>
-                            </ul>
-                        </details>
-                    </div>
-                    <a href="courses/programming-with-python.html" class="btn btn-primary view-details-btn">View Full Details</a>
-                </div>
-            </div>
-
-            <!-- Cybersecurity Level 1 - Essentials -->
-            <div class="course-card">
-                <img src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80" alt="Cybersecurity Essentials" class="course-card-image">
-                <div class="course-card-content">
-                    <h3>Cybersecurity - Level 1 (Essentials)</h3>
-                    <p class="description">Get started with cybersecurity fundamentals, networking concepts, operating systems security, malware identification, and ethical security practices. Build your foundation in digital protection.</p>
-                    <div class="course-info">
-                        <span><i class="far fa-clock"></i> 3 Months</span>
-                        <span><i class="fas fa-tag"></i> Beginner</span>
-                    </div>
-                    <div class="requirements-dropdown">
-                        <details>
-                            <summary>Course Requirements <i class="fas fa-angle-down"></i></summary>
-                            <ul>
-                                <li>Basic computer knowledge</li>
-                                <li>Interest in technology security</li>
-                                <li>No prior cybersecurity experience needed</li>
-                            </ul>
-                        </details>
-                    </div>
-                    <a href="courses/cybersecurity-level-1.html" class="btn btn-primary view-details-btn">View Full Details</a>
-                </div>
-            </div>
-
-            <!-- Cybersecurity Level 2 - Advanced -->
-            <div class="course-card">
-                <img src="https://images.unsplash.com/photo-1563089145-599997674d42?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80" alt="Cybersecurity Advanced" class="course-card-image">
-                <div class="course-card-content">
-                    <h3>Cybersecurity - Level 2 (Advanced)</h3>
-                    <p class="description">Master ethical hacking, penetration testing, network scanning, system exploitation, web application security, and cloud security. Learn to detect, prevent, and respond to cyber threats responsibly.</p>
-                    <div class="course-info">
-                        <span><i class="far fa-clock"></i> 6 Months</span>
-                        <span><i class="fas fa-tag"></i> Advanced</span>
-                    </div>
-                    <div class="requirements-dropdown">
-                        <details>
-                            <summary>Course Requirements <i class="fas fa-angle-down"></i></summary>
-                            <ul>
-                                <li>Completion of Cybersecurity Level 1</li>
-                                <li>Understanding of networking concepts</li>
-                                <li>Basic knowledge of operating systems</li>
-                            </ul>
-                        </details>
-                    </div>
-                    <a href="courses/cybersecurity-level-2.html" class="btn btn-primary view-details-btn">View Full Details</a>
-                </div>
-            </div>
-
-            <!-- Data Science -->
-            <div class="course-card">
-                <img src="https://analyzing-testing.netzsch.com/_Resources/Persistent/4/d/4/e/4d4ea9e36c3524300b40aa2ee2c37cf85ca4876d/NETZSCH_Data-Science_Big-Data-scaled-1847x1038-1600x899.webp" alt="Data Science" class="course-card-image">
-                <div class="course-card-content">
-                    <h3>Data Science</h3>
-                    <p class="description">Master modern data analysis, visualization, and machine learning skills. From Python for data analysis to Big Data, Cloud Computing, and AI integration. Complete with a hands-on capstone project.</p>
-                    <div class="course-info">
-                        <span><i class="far fa-clock"></i> 12 Months</span>
-                        <span><i class="fas fa-tag"></i> Advanced</span>
-                    </div>
-                    <div class="requirements-dropdown">
-                        <details>
-                            <summary>Course Requirements <i class="fas fa-angle-down"></i></summary>
-                            <ul>
-                                <li>Basic programming knowledge (Python preferred)</li>
-                                <li>Understanding of basic mathematics</li>
-                                <li>Analytical thinking skills</li>
-                            </ul>
-                        </details>
-                    </div>
-                    <a href="courses/data-science.html" class="btn btn-primary view-details-btn">View Full Details</a>
-                </div>
-            </div>
-
-            <!-- Data Analysis -->
-            <div class="course-card">
-                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQt8hktHHl2jPlOX-938tKjifIuLuxYDwUSnA&s" alt="Data Analysis" class="course-card-image">
-                <div class="course-card-content">
-                    <h3>Data Analysis (Analytics)</h3>
-                    <p class="description">Build competency in interpreting and presenting data for decision-making. Learn data cleaning, visualization, statistical analysis, and Business Intelligence using Python, Excel, and SQL.</p>
-                    <div class="course-info">
-                        <span><i class="far fa-clock"></i> 6 Months</span>
-                        <span><i class="fas fa-tag"></i> Intermediate</span>
-                    </div>
-                    <div class="requirements-dropdown">
-                        <details>
-                            <summary>Course Requirements <i class="fas fa-angle-down"></i></summary>
-                            <ul>
-                                <li>Basic computer literacy</li>
-                                <li>Foundational math skills</li>
-                                <li>No prior data analysis experience needed</li>
-                            </ul>
-                        </details>
-                    </div>
-                    <a href="courses/data-analysis.html" class="btn btn-primary view-details-btn">View Full Details</a>
-                </div>
-            </div>
-
-            <!-- Data Engineering -->
-            <div class="course-card">
-                <img src="https://cdn.prod.website-files.com/64fef88ee8b22d3d21b715a2/657c2bfd9d07f76a47c70ce8_64c0dfda42c1ee625bb4640c_Blog%2520image%2520(1).webp" alt="Data Engineering" class="course-card-image">
-                <div class="course-card-content">
-                    <h3>Data Engineering</h3>
-                    <p class="description">Learn to build and maintain reliable data infrastructure systems. Covers databases, data modeling, programming for data engineering (Python/SQL), data warehousing, and cloud platforms with a real-world capstone project.</p>
-                    <div class="course-info">
-                        <span><i class="far fa-clock"></i> 12 Months</span>
-                        <span><i class="fas fa-tag"></i> Advanced</span>
-                    </div>
-                    <div class="requirements-dropdown">
-                        <details>
-                            <summary>Course Requirements <i class="fas fa-angle-down"></i></summary>
-                            <ul>
-                                <li>Strong programming fundamentals</li>
-                                <li>Understanding of database concepts</li>
-                                <li>Basic knowledge of data structures</li>
-                            </ul>
-                        </details>
-                    </div>
-                    <a href="courses/data-engineering.html" class="btn btn-primary view-details-btn">View Full Details</a>
-                </div>
-            </div>
-
-            <!-- Web Development Level 1 -->
-            <div class="course-card">
-                <img src="https://images.unsplash.com/photo-1627398242454-45a1465c2479?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80" alt="Web Development Level 1" class="course-card-image">
-                <div class="course-card-content">
-                    <h3>Web Development - Level 1</h3>
-                    <p class="description">Start your web journey with HTML, CSS, and JavaScript basics. Learn responsive design, build your first projects, and create a professional portfolio. Perfect for absolute beginners!</p>
-                    <div class="course-info">
-                        <span><i class="far fa-clock"></i> 2 Months</span>
-                        <span><i class="fas fa-tag"></i> Beginner</span>
-                    </div>
-                    <div class="requirements-dropdown">
-                        <details>
-                            <summary>Course Requirements <i class="fas fa-angle-down"></i></summary>
-                            <ul>
-                                <li>Basic computer usage skills</li>
-                                <li>Creative thinking ability</li>
-                                <li>No prior web development experience needed</li>
-                            </ul>
-                        </details>
-                    </div>
-                    <a href="courses/web-development-level-1.html" class="btn btn-primary view-details-btn">View Full Details</a>
-                </div>
-            </div>
-
-            <!-- Web Development Level 2 -->
-            <div class="course-card">
-                <img src="https://images.unsplash.com/photo-1627398242454-45a1465c2479?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80" alt="Web Development Level 2" class="course-card-image">
-                <div class="course-card-content">
-                    <h3>Web Development - Level 2</h3>
-                    <p class="description">Advance your skills with JavaScript DOM manipulation, front-end frameworks, back-end basics, databases (SQL & NoSQL), RESTful APIs, and deployment. Build dynamic web applications!</p>
-                    <div class="course-info">
-                        <span><i class="far fa-clock"></i> 4 Months</span>
-                        <span><i class="fas fa-tag"></i> Intermediate</span>
-                    </div>
-                    <div class="requirements-dropdown">
-                        <details>
-                            <summary>Course Requirements <i class="fas fa-angle-down"></i></summary>
-                            <ul>
-                                <li>Completion of Web Development Level 1</li>
-                                <li>Basic understanding of HTML, CSS & JavaScript</li>
-                                <li>Logical problem-solving skills</li>
-                            </ul>
-                        </details>
-                    </div>
-                    <a href="courses/web-development-level-2.html" class="btn btn-primary view-details-btn">View Full Details</a>
-                </div>
-            </div>
-
-            <!-- Web Development Level 3 -->
-            <div class="course-card">
-                <img src="https://images.unsplash.com/photo-1627398242454-45a1465c2479?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80" alt="Web Development Level 3" class="course-card-image">
-                <div class="course-card-content">
-                    <h3>Web Development - Level 3</h3>
-                    <p class="description">Master full-stack development with advanced React and Node.js. Learn web security, authentication, advanced database integration, and deploy complete full-stack applications. Become job-ready!</p>
-                    <div class="course-info">
-                        <span><i class="far fa-clock"></i> 4 Months</span>
-                        <span><i class="fas fa-tag"></i> Advanced</span>
-                    </div>
-                    <div class="requirements-dropdown">
-                        <details>
-                            <summary>Course Requirements <i class="fas fa-angle-down"></i></summary>
-                            <ul>
-                                <li>Completion of Web Development Level 2</li>
-                                <li>Solid understanding of front-end and back-end basics</li>
-                                <li>Experience with databases and APIs</li>
-                            </ul>
-                        </details>
-                    </div>
-                    <a href="courses/web-development-level-3.html" class="btn btn-primary view-details-btn">View Full Details</a>
-                </div>
-            </div>
-
-            <!-- AI Essentials -->
-            <div class="course-card">
-                <img src="https://images.unsplash.com/photo-1677442136019-21780ecad995?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80" alt="AI Essentials" class="course-card-image">
-                <div class="course-card-content">
-                    <h3>AI Essentials</h3>
-                    <p class="description">Explore core AI concepts and their real-world applications. Learn prompt engineering and how to use generative AI tools for content creation, coding, and analytics. Perfect for understanding today's AI landscape.</p>
-                    <div class="course-info">
-                        <span><i class="far fa-clock"></i> Introductory</span>
-                        <span><i class="fas fa-tag"></i> Foundational</span>
-                    </div>
-                    <div class="requirements-dropdown">
-                        <details>
-                            <summary>Course Requirements <i class="fas fa-angle-down"></i></summary>
-                            <ul>
-                                <li>Basic computer skills</li>
-                                <li>Curiosity about technology's future</li>
-                                <li>No AI experience required</li>
-                            </ul>
-                        </details>
-                    </div>
-                    <a href="courses/ai-essentials.html" class="btn btn-primary view-details-btn">View Full Details</a>
-                </div>
-            </div>
-
-            <!-- Soft Skills -->
-            <div class="course-card">
-                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRQL_poqTGYY2DTlgwxLXLQLKxkDo3l2QXUmw&s" alt="Soft Skills" class="course-card-image">
-                <div class="course-card-content">
-                    <h3>Soft Skills (Orientation)</h3>
-                    <p class="description">Essential for life and career! Covers verbal & non-verbal communication, teamwork, problem-solving, adaptability, work ethic, integrity, and professionalism. Shape yourself into a holistic learner ready for any challenge.</p>
-                    <div class="course-info">
-                        <span><i class="far fa-clock"></i> Part of Orientation</span>
-                        <span><i class="fas fa-tag"></i> Life Skills</span>
-                    </div>
-                    <div class="requirements-dropdown">
-                        <details>
-                            <summary>Course Requirements <i class="fas fa-angle-down"></i></summary>
-                            <ul>
-                                <li>Openness to personal growth</li>
-                                <li>Desire to improve interpersonal skills</li>
-                                <li>Willingness to participate in group activities</li>
-                            </ul>
-                        </details>
-                    </div>
-                    <a href="courses/soft-skills.html" class="btn btn-primary view-details-btn">View Full Details</a>
-                </div>
-            </div>
-
-        </div> 
-    </div>
-</section>
-
-    <section class="testimonials-section">
+    <!-- Quick-Jump Track Navigation -->
+    <nav class="track-jump-bar" aria-label="Course Tracks Navigation">
         <div class="container">
-            <h2>What Our Learners Say</h2>
-            <div class="testimonial-grid">
-                <div class="testimonial-card">
-                    <p>"NURU FOUNDATION made learning Python so much fun! The instructors are amazing, and I can finally build my own small apps. Highly recommend for young aspiring coders!"</p>
-                    <div class="author">Dan S.</div>
-                    <div class="role">Student, 14 years old</div>
-                </div>
-                <div class="testimonial-card">
-                    <p>"As a guardian, I appreciate how NURU FOUNDATION keeps us informed. My child loves the Cybersecurity course, and I've seen a huge boost in their confidence and digital awareness."</p>
-                    <div class="author">Maria K.</div>
-                    <div class="role">Guardian</div>
-                </div>
-                <div class="testimonial-card">
-                    <p>"The Data Analysis course was incredibly practical. I've gained skills that are directly applicable to my career, and the support from the community is fantastic."</p>
-                    <div class="author">John P.</div>
-                    <div class="role">Adult Learner</div>
-                </div>
+            <div class="jump-nav-wrap">
+                <a href="#software-track" class="jump-btn">
+                    <i class="fas fa-code"></i> Software & Web (4)
+                </a>
+                <a href="#data-ai-track" class="jump-btn">
+                    <i class="fas fa-brain"></i> Data & AI (4)
+                </a>
+                <a href="#cyber-track" class="jump-btn">
+                    <i class="fas fa-shield-alt"></i> Cybersecurity (2)
+                </a>
+                <a href="#stem-track" class="jump-btn">
+                    <i class="fas fa-atom"></i> STEM & Foundations (4)
+                </a>
             </div>
         </div>
-    </section>
+    </nav>
 
-   
+    <div id="courses">
+
+        <!-- ============================================================
+             TRACK 1: Software Craftsmanship & Web Engineering
+             ============================================================ -->
+        <section id="software-track" class="track-section track-software">
+            <div class="container">
+                <!-- Track Header Box -->
+                <div class="track-header-box">
+                    <div class="track-header-top">
+                        <span class="track-pill purple">
+                            <i class="fas fa-code"></i> Track 01
+                        </span>
+                        <span class="track-pathway-chip">
+                            <i class="fas fa-route"></i> Pathway: Python -&gt; Web Dev Level 1 -&gt; Level 2 -&gt; Full-Stack Level 3
+                        </span>
+                    </div>
+                    <h2>Software Craftsmanship & Web Engineering</h2>
+                    <p>
+                        Develop algorithmic problem-solving in Python, craft responsive modern web interfaces, consume REST APIs, and deploy complete full-stack applications with React, Node.js, and database persistence.
+                    </p>
+                </div>
+
+                <!-- Courses Grid -->
+                <div class="track-courses-grid">
+
+                    <!-- Programming with Python -->
+                    <article class="pathway-course-card">
+                        <div class="card-image-wrap">
+                            <img src="https://cdn.hashnode.com/res/hashnode/image/upload/v1637422966499/jx6h36yHp.jpeg" alt="Programming with Python" loading="lazy">
+                            <div class="card-image-overlay">
+                                <span class="card-progression-step">Step 1.1</span>
+                                <span class="card-level-chip">Beginner+</span>
+                            </div>
+                        </div>
+                        <div class="card-content-wrap">
+                            <h3>Programming with Python</h3>
+                            <p class="card-desc-text">Learn programming fundamentals, logic building, Python programming (Structured & OOP), data structures, algorithms, and build basic automation projects. Perfect for aspiring coders!</p>
+                            
+                            <div class="card-meta-chips">
+                                <span><i class="far fa-clock"></i> 6 Months</span>
+                                <span><i class="fas fa-layer-group"></i> Beginner to Intermediate</span>
+                            </div>
+
+                            <div class="card-reqs-dropdown">
+                                <details>
+                                    <summary>
+                                        <span><i class="fas fa-clipboard-check summary-icon"></i> Prerequisites</span>
+                                        <i class="fas fa-chevron-down chevron-icon"></i>
+                                    </summary>
+                                    <ul>
+                                        <li>Basic computer literacy</li>
+                                        <li>Logical thinking skills</li>
+                                        <li>No prior programming experience needed</li>
+                                    </ul>
+                                </details>
+                            </div>
+
+                            <a href="courses/programming-with-python.html" class="card-btn-action">
+                                View Full Details <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    </article>
+
+                    <!-- Web Development Level 1 -->
+                    <article class="pathway-course-card">
+                        <div class="card-image-wrap">
+                            <img src="https://images.unsplash.com/photo-1627398242454-45a1465c2479?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80" alt="Web Development Level 1" loading="lazy">
+                            <div class="card-image-overlay">
+                                <span class="card-progression-step">Step 1.2</span>
+                                <span class="card-level-chip">Beginner</span>
+                            </div>
+                        </div>
+                        <div class="card-content-wrap">
+                            <h3>Web Development - Level 1</h3>
+                            <p class="card-desc-text">Start your web journey with HTML, CSS, and JavaScript basics. Learn responsive design, build your first projects, and create a professional portfolio. Perfect for absolute beginners!</p>
+                            
+                            <div class="card-meta-chips">
+                                <span><i class="far fa-clock"></i> 2 Months</span>
+                                <span><i class="fas fa-layer-group"></i> Beginner</span>
+                            </div>
+
+                            <div class="card-reqs-dropdown">
+                                <details>
+                                    <summary>
+                                        <span><i class="fas fa-clipboard-check summary-icon"></i> Prerequisites</span>
+                                        <i class="fas fa-chevron-down chevron-icon"></i>
+                                    </summary>
+                                    <ul>
+                                        <li>Basic computer usage skills</li>
+                                        <li>Creative thinking ability</li>
+                                        <li>No prior web development experience needed</li>
+                                    </ul>
+                                </details>
+                            </div>
+
+                            <a href="courses/web-development-l1.html" class="card-btn-action">
+                                View Full Details <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    </article>
+
+                    <!-- Web Development Level 2 -->
+                    <article class="pathway-course-card">
+                        <div class="card-image-wrap">
+                            <img src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80" alt="Web Development Level 2" loading="lazy">
+                            <div class="card-image-overlay">
+                                <span class="card-progression-step">Step 1.3</span>
+                                <span class="card-level-chip">Intermediate</span>
+                            </div>
+                        </div>
+                        <div class="card-content-wrap">
+                            <h3>Web Development - Level 2</h3>
+                            <p class="card-desc-text">Advance your skills with JavaScript DOM manipulation, front-end frameworks, back-end basics, databases (SQL & NoSQL), RESTful APIs, and deployment. Build dynamic web applications!</p>
+                            
+                            <div class="card-meta-chips">
+                                <span><i class="far fa-clock"></i> 4 Months</span>
+                                <span><i class="fas fa-layer-group"></i> Intermediate</span>
+                            </div>
+
+                            <div class="card-reqs-dropdown">
+                                <details>
+                                    <summary>
+                                        <span><i class="fas fa-clipboard-check summary-icon"></i> Prerequisites</span>
+                                        <i class="fas fa-chevron-down chevron-icon"></i>
+                                    </summary>
+                                    <ul>
+                                        <li>Completion of Web Development Level 1</li>
+                                        <li>Basic understanding of HTML, CSS & JavaScript</li>
+                                        <li>Logical problem-solving skills</li>
+                                    </ul>
+                                </details>
+                            </div>
+
+                            <a href="courses/web-development-l2.html" class="card-btn-action">
+                                View Full Details <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    </article>
+
+                    <!-- Web Development Level 3 -->
+                    <article class="pathway-course-card">
+                        <div class="card-image-wrap">
+                            <img src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80" alt="Web Development Level 3" loading="lazy">
+                            <div class="card-image-overlay">
+                                <span class="card-progression-step">Step 1.4</span>
+                                <span class="card-level-chip">Advanced</span>
+                            </div>
+                        </div>
+                        <div class="card-content-wrap">
+                            <h3>Web Development - Level 3</h3>
+                            <p class="card-desc-text">Master full-stack development with advanced React and Node.js. Learn web security, authentication, advanced database integration, and deploy complete full-stack applications. Become job-ready!</p>
+                            
+                            <div class="card-meta-chips">
+                                <span><i class="far fa-clock"></i> 4 Months</span>
+                                <span><i class="fas fa-layer-group"></i> Advanced</span>
+                            </div>
+
+                            <div class="card-reqs-dropdown">
+                                <details>
+                                    <summary>
+                                        <span><i class="fas fa-clipboard-check summary-icon"></i> Prerequisites</span>
+                                        <i class="fas fa-chevron-down chevron-icon"></i>
+                                    </summary>
+                                    <ul>
+                                        <li>Completion of Web Development Level 2</li>
+                                        <li>Solid understanding of front-end and back-end basics</li>
+                                        <li>Experience with databases and APIs</li>
+                                    </ul>
+                                </details>
+                            </div>
+
+                            <a href="courses/web-development-l3.html" class="card-btn-action">
+                                View Full Details <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    </article>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================================
+             TRACK 2: Frontier Intelligence & Data Systems
+             ============================================================ -->
+        <section id="data-ai-track" class="track-section track-data">
+            <div class="container">
+                <!-- Track Header Box -->
+                <div class="track-header-box">
+                    <div class="track-header-top">
+                        <span class="track-pill teal">
+                            <i class="fas fa-brain"></i> Track 02
+                        </span>
+                        <span class="track-pathway-chip">
+                            <i class="fas fa-route"></i> Pathway: AI Essentials -&gt; Business Analytics -&gt; Scaled Pipelines -&gt; Machine Learning
+                        </span>
+                    </div>
+                    <h2>Frontier Intelligence & Data Systems</h2>
+                    <p>
+                        From prompt engineering and generative AI tools to SQL analytics, high-throughput cloud data warehousing, statistical modeling, and predictive machine learning architectures.
+                    </p>
+                </div>
+
+                <!-- Courses Grid -->
+                <div class="track-courses-grid">
+
+                    <!-- AI Essentials -->
+                    <article class="pathway-course-card">
+                        <div class="card-image-wrap">
+                            <img src="https://images.unsplash.com/photo-1677442136019-21780ecad995?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80" alt="AI Essentials" loading="lazy">
+                            <div class="card-image-overlay">
+                                <span class="card-progression-step">Step 2.1</span>
+                                <span class="card-level-chip">Foundational</span>
+                            </div>
+                        </div>
+                        <div class="card-content-wrap">
+                            <h3>AI Essentials</h3>
+                            <p class="card-desc-text">Explore core AI concepts and their real-world applications. Learn prompt engineering and how to use generative AI tools for content creation, coding, and analytics. Perfect for understanding today's AI landscape.</p>
+                            
+                            <div class="card-meta-chips">
+                                <span><i class="far fa-clock"></i> Introductory</span>
+                                <span><i class="fas fa-layer-group"></i> Foundational</span>
+                            </div>
+
+                            <div class="card-reqs-dropdown">
+                                <details>
+                                    <summary>
+                                        <span><i class="fas fa-clipboard-check summary-icon"></i> Prerequisites</span>
+                                        <i class="fas fa-chevron-down chevron-icon"></i>
+                                    </summary>
+                                    <ul>
+                                        <li>Basic computer skills</li>
+                                        <li>Curiosity about technology's future</li>
+                                        <li>No AI experience required</li>
+                                    </ul>
+                                </details>
+                            </div>
+
+                            <a href="courses/ai-essentials.html" class="card-btn-action">
+                                View Full Details <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    </article>
+
+                    <!-- Data Analysis -->
+                    <article class="pathway-course-card">
+                        <div class="card-image-wrap">
+                            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQt8hktHHl2jPlOX-938tKjifIuLuxYDwUSnA&s" alt="Data Analysis (Analytics)" loading="lazy">
+                            <div class="card-image-overlay">
+                                <span class="card-progression-step">Step 2.2</span>
+                                <span class="card-level-chip">Intermediate</span>
+                            </div>
+                        </div>
+                        <div class="card-content-wrap">
+                            <h3>Data Analysis (Analytics)</h3>
+                            <p class="card-desc-text">Build competency in interpreting and presenting data for decision-making. Learn data cleaning, visualization, statistical analysis, and Business Intelligence using Python, Excel, and SQL.</p>
+                            
+                            <div class="card-meta-chips">
+                                <span><i class="far fa-clock"></i> 6 Months</span>
+                                <span><i class="fas fa-layer-group"></i> Intermediate</span>
+                            </div>
+
+                            <div class="card-reqs-dropdown">
+                                <details>
+                                    <summary>
+                                        <span><i class="fas fa-clipboard-check summary-icon"></i> Prerequisites</span>
+                                        <i class="fas fa-chevron-down chevron-icon"></i>
+                                    </summary>
+                                    <ul>
+                                        <li>Basic computer literacy</li>
+                                        <li>Foundational math skills</li>
+                                        <li>No prior data analysis experience needed</li>
+                                    </ul>
+                                </details>
+                            </div>
+
+                            <a href="courses/data-analysis.html" class="card-btn-action">
+                                View Full Details <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    </article>
+
+                    <!-- Data Engineering -->
+                    <article class="pathway-course-card">
+                        <div class="card-image-wrap">
+                            <img src="https://cdn.prod.website-files.com/64fef88ee8b22d3d21b715a2/657c2bfd9d07f76a47c70ce8_64c0dfda42c1ee625bb4640c_Blog%2520image%2520(1).webp" alt="Data Engineering" loading="lazy">
+                            <div class="card-image-overlay">
+                                <span class="card-progression-step">Step 2.3</span>
+                                <span class="card-level-chip">Advanced</span>
+                            </div>
+                        </div>
+                        <div class="card-content-wrap">
+                            <h3>Data Engineering</h3>
+                            <p class="card-desc-text">Learn to build and maintain reliable data infrastructure systems. Covers databases, data modeling, programming for data engineering (Python/SQL), data warehousing, and cloud platforms with a real-world capstone project.</p>
+                            
+                            <div class="card-meta-chips">
+                                <span><i class="far fa-clock"></i> 12 Months</span>
+                                <span><i class="fas fa-layer-group"></i> Advanced</span>
+                            </div>
+
+                            <div class="card-reqs-dropdown">
+                                <details>
+                                    <summary>
+                                        <span><i class="fas fa-clipboard-check summary-icon"></i> Prerequisites</span>
+                                        <i class="fas fa-chevron-down chevron-icon"></i>
+                                    </summary>
+                                    <ul>
+                                        <li>Strong programming fundamentals</li>
+                                        <li>Understanding of database concepts</li>
+                                        <li>Basic knowledge of data structures</li>
+                                    </ul>
+                                </details>
+                            </div>
+
+                            <a href="courses/data-engineering.html" class="card-btn-action">
+                                View Full Details <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    </article>
+
+                    <!-- Data Science -->
+                    <article class="pathway-course-card">
+                        <div class="card-image-wrap">
+                            <img src="https://analyzing-testing.netzsch.com/_Resources/Persistent/4/d/4/e/4d4ea9e36c3524300b40aa2ee2c37cf85ca4876d/NETZSCH_Data-Science_Big-Data-scaled-1847x1038-1600x899.webp" alt="Data Science" loading="lazy">
+                            <div class="card-image-overlay">
+                                <span class="card-progression-step">Step 2.4</span>
+                                <span class="card-level-chip">Advanced</span>
+                            </div>
+                        </div>
+                        <div class="card-content-wrap">
+                            <h3>Data Science</h3>
+                            <p class="card-desc-text">Master modern data analysis, visualization, and machine learning skills. From Python for data analysis to Big Data, Cloud Computing, and AI integration. Complete with a hands-on capstone project.</p>
+                            
+                            <div class="card-meta-chips">
+                                <span><i class="far fa-clock"></i> 12 Months</span>
+                                <span><i class="fas fa-layer-group"></i> Advanced</span>
+                            </div>
+
+                            <div class="card-reqs-dropdown">
+                                <details>
+                                    <summary>
+                                        <span><i class="fas fa-clipboard-check summary-icon"></i> Prerequisites</span>
+                                        <i class="fas fa-chevron-down chevron-icon"></i>
+                                    </summary>
+                                    <ul>
+                                        <li>Basic programming knowledge (Python preferred)</li>
+                                        <li>Understanding of basic mathematics</li>
+                                        <li>Analytical thinking skills</li>
+                                    </ul>
+                                </details>
+                            </div>
+
+                            <a href="courses/data-science.html" class="card-btn-action">
+                                View Full Details <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    </article>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================================
+             TRACK 3: Cybersecurity & Threat Defense
+             ============================================================ -->
+        <section id="cyber-track" class="track-section track-security">
+            <div class="container">
+                <!-- Track Header Box -->
+                <div class="track-header-box">
+                    <div class="track-header-top">
+                        <span class="track-pill dark">
+                            <i class="fas fa-shield-alt"></i> Track 03
+                        </span>
+                        <span class="track-pathway-chip">
+                            <i class="fas fa-route"></i> Pathway: Essentials Hardening (Level 1) -&gt; Offensive &amp; Cloud Defense (Level 2)
+                        </span>
+                    </div>
+                    <h2>Cybersecurity & Digital Defense</h2>
+                    <p>
+                        Protect digital infrastructure, master foundational network defense and malware mitigation, conduct ethical penetration testing, and fortify enterprise applications against sophisticated cyber intrusions.
+                    </p>
+                </div>
+
+                <!-- Courses Grid -->
+                <div class="track-courses-grid">
+
+                    <!-- Cybersecurity Level 1 -->
+                    <article class="pathway-course-card">
+                        <div class="card-image-wrap">
+                            <img src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80" alt="Cybersecurity - Level 1 (Essentials)" loading="lazy">
+                            <div class="card-image-overlay">
+                                <span class="card-progression-step">Step 3.1</span>
+                                <span class="card-level-chip">Beginner</span>
+                            </div>
+                        </div>
+                        <div class="card-content-wrap">
+                            <h3>Cybersecurity - Level 1 (Essentials)</h3>
+                            <p class="card-desc-text">Get started with cybersecurity fundamentals, networking concepts, operating systems security, malware identification, and ethical security practices. Build your foundation in digital protection.</p>
+                            
+                            <div class="card-meta-chips">
+                                <span><i class="far fa-clock"></i> 3 Months</span>
+                                <span><i class="fas fa-layer-group"></i> Beginner</span>
+                            </div>
+
+                            <div class="card-reqs-dropdown">
+                                <details>
+                                    <summary>
+                                        <span><i class="fas fa-clipboard-check summary-icon"></i> Prerequisites</span>
+                                        <i class="fas fa-chevron-down chevron-icon"></i>
+                                    </summary>
+                                    <ul>
+                                        <li>Basic computer knowledge</li>
+                                        <li>Interest in technology security</li>
+                                        <li>No prior cybersecurity experience needed</li>
+                                    </ul>
+                                </details>
+                            </div>
+
+                            <a href="courses/cybersecurity-l1.html" class="card-btn-action">
+                                View Full Details <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    </article>
+
+                    <!-- Cybersecurity Level 2 -->
+                    <article class="pathway-course-card">
+                        <div class="card-image-wrap">
+                            <img src="https://images.unsplash.com/photo-1563089145-599997674d42?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80" alt="Cybersecurity - Level 2 (Advanced)" loading="lazy">
+                            <div class="card-image-overlay">
+                                <span class="card-progression-step">Step 3.2</span>
+                                <span class="card-level-chip">Advanced</span>
+                            </div>
+                        </div>
+                        <div class="card-content-wrap">
+                            <h3>Cybersecurity - Level 2 (Advanced)</h3>
+                            <p class="card-desc-text">Master ethical hacking, penetration testing, network scanning, system exploitation, web application security, and cloud security. Learn to detect, prevent, and respond to cyber threats responsibly.</p>
+                            
+                            <div class="card-meta-chips">
+                                <span><i class="far fa-clock"></i> 6 Months</span>
+                                <span><i class="fas fa-layer-group"></i> Advanced</span>
+                            </div>
+
+                            <div class="card-reqs-dropdown">
+                                <details>
+                                    <summary>
+                                        <span><i class="fas fa-clipboard-check summary-icon"></i> Prerequisites</span>
+                                        <i class="fas fa-chevron-down chevron-icon"></i>
+                                    </summary>
+                                    <ul>
+                                        <li>Completion of Cybersecurity Level 1</li>
+                                        <li>Understanding of networking concepts</li>
+                                        <li>Basic knowledge of operating systems</li>
+                                    </ul>
+                                </details>
+                            </div>
+
+                            <a href="courses/cybersecurity-l2.html" class="card-btn-action">
+                                View Full Details <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    </article>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================================
+             TRACK 4: STEM Foundations & Leadership Literacy
+             ============================================================ -->
+        <section id="stem-track" class="track-section track-stem">
+            <div class="container">
+                <!-- Track Header Box -->
+                <div class="track-header-box">
+                    <div class="track-header-top">
+                        <span class="track-pill gold">
+                            <i class="fas fa-atom"></i> Track 04
+                        </span>
+                        <span class="track-pathway-chip">
+                            <i class="fas fa-route"></i> Pathway: Digital Literacy -&gt; Analytical STEM -&gt; Applied Physics &amp; Leadership
+                        </span>
+                    </div>
+                    <h2>STEM Foundations & Leadership Literacy</h2>
+                    <p>
+                        Essential digital literacy, mathematical intuition, physical sciences, and high-impact soft skills. These foundational competencies power success across all technology fields.
+                    </p>
+                </div>
+
+                <!-- Courses Grid -->
+                <div class="track-courses-grid">
+
+                    <!-- Computer Packages -->
+                    <article class="pathway-course-card">
+                        <div class="card-image-wrap">
+                            <img src="https://images.unsplash.com/photo-1547658719-da2b51169166?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80" alt="Computer Packages" loading="lazy">
+                            <div class="card-image-overlay">
+                                <span class="card-progression-step">Step 4.1</span>
+                                <span class="card-level-chip">Foundational</span>
+                            </div>
+                        </div>
+                        <div class="card-content-wrap">
+                            <h3>Computer Packages</h3>
+                            <p class="card-desc-text">Master essential digital literacy skills in Microsoft Office Suite, Google Tools, file management, cloud storage, and internet safety. Perfect for building practical office and academic computing skills.</p>
+                            
+                            <div class="card-meta-chips">
+                                <span><i class="far fa-clock"></i> 2.5 Months</span>
+                                <span><i class="fas fa-layer-group"></i> Foundational</span>
+                            </div>
+
+                            <div class="card-reqs-dropdown">
+                                <details>
+                                    <summary>
+                                        <span><i class="fas fa-clipboard-check summary-icon"></i> Prerequisites</span>
+                                        <i class="fas fa-chevron-down chevron-icon"></i>
+                                    </summary>
+                                    <ul>
+                                        <li>Basic computer familiarity</li>
+                                        <li>No prior experience needed</li>
+                                        <li>Access to a computer with internet</li>
+                                    </ul>
+                                </details>
+                            </div>
+
+                            <a href="courses/computer-packages.html" class="card-btn-action">
+                                View Full Details <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    </article>
+
+                    <!-- Mathematics -->
+                    <article class="pathway-course-card">
+                        <div class="card-image-wrap">
+                            <img src="https://media.istockphoto.com/id/468250833/photo/math-geometry-background.jpg?s=1024x1024&w=is&k=20&c=XRw2VwdE-d8FfhoUtKAr4lGdS67Ct4Z664pCd6gE0TU=" alt="Mathematics" loading="lazy">
+                            <div class="card-image-overlay">
+                                <span class="card-progression-step">Step 4.2</span>
+                                <span class="card-level-chip">All Levels</span>
+                            </div>
+                        </div>
+                        <div class="card-content-wrap">
+                            <h3>Mathematics</h3>
+                            <p class="card-desc-text">Strengthen analytical reasoning and logical deduction through algebra, geometry, trigonometry, and calculus for future careers in tech and science.</p>
+                            
+                            <div class="card-meta-chips">
+                                <span><i class="far fa-clock"></i> 12 Months</span>
+                                <span><i class="fas fa-layer-group"></i> All Levels</span>
+                            </div>
+
+                            <div class="card-reqs-dropdown">
+                                <details>
+                                    <summary>
+                                        <span><i class="fas fa-clipboard-check summary-icon"></i> Prerequisites</span>
+                                        <i class="fas fa-chevron-down chevron-icon"></i>
+                                    </summary>
+                                    <ul>
+                                        <li>Basic numeracy and curiosity for problem solving</li>
+                                        <li>Open to learners of all age groups (8+ to adults)</li>
+                                    </ul>
+                                </details>
+                            </div>
+
+                            <a href="courses/mathematics.html" class="card-btn-action">
+                                View Full Details <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    </article>
+
+                    <!-- Physics -->
+                    <article class="pathway-course-card">
+                        <div class="card-image-wrap">
+                            <img src="https://plus.unsplash.com/premium_photo-1673425015790-4b5581200415?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1yZWxhdGVkfDh8fHxlbnwwfHx8fHw%3D&auto=format&fit=crop&q=60&w=500" alt="Physics" loading="lazy">
+                            <div class="card-image-overlay">
+                                <span class="card-progression-step">Step 4.3</span>
+                                <span class="card-level-chip">Applied</span>
+                            </div>
+                        </div>
+                        <div class="card-content-wrap">
+                            <h3>Physics</h3>
+                            <p class="card-desc-text">Explore laws of motion, energy, electricity, magnetism, optics, and practical experiments that spark scientific discovery.</p>
+                            
+                            <div class="card-meta-chips">
+                                <span><i class="far fa-clock"></i> 12 Months</span>
+                                <span><i class="fas fa-layer-group"></i> Conceptual & Applied</span>
+                            </div>
+
+                            <div class="card-reqs-dropdown">
+                                <details>
+                                    <summary>
+                                        <span><i class="fas fa-clipboard-check summary-icon"></i> Prerequisites</span>
+                                        <i class="fas fa-chevron-down chevron-icon"></i>
+                                    </summary>
+                                    <ul>
+                                        <li>Basic mathematics understanding</li>
+                                        <li>Curiosity about physical laws and real-world science</li>
+                                    </ul>
+                                </details>
+                            </div>
+
+                            <a href="courses/physics.html" class="card-btn-action">
+                                View Full Details <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    </article>
+
+                    <!-- Soft Skills -->
+                    <article class="pathway-course-card">
+                        <div class="card-image-wrap">
+                            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRQL_poqTGYY2DTlgwxLXLQLKxkDo3l2QXUmw&s" alt="Soft Skills" loading="lazy">
+                            <div class="card-image-overlay">
+                                <span class="card-progression-step">Step 4.4</span>
+                                <span class="card-level-chip">Life Skills</span>
+                            </div>
+                        </div>
+                        <div class="card-content-wrap">
+                            <h3>Soft Skills (Orientation)</h3>
+                            <p class="card-desc-text">Essential for life and career! Covers verbal & non-verbal communication, teamwork, problem-solving, adaptability, work ethic, integrity, and professionalism. Shape yourself into a holistic learner ready for any challenge.</p>
+                            
+                            <div class="card-meta-chips">
+                                <span><i class="far fa-clock"></i> Part of Orientation</span>
+                                <span><i class="fas fa-layer-group"></i> Life Skills</span>
+                            </div>
+
+                            <div class="card-reqs-dropdown">
+                                <details>
+                                    <summary>
+                                        <span><i class="fas fa-clipboard-check summary-icon"></i> Prerequisites</span>
+                                        <i class="fas fa-chevron-down chevron-icon"></i>
+                                    </summary>
+                                    <ul>
+                                        <li>Openness to personal growth</li>
+                                        <li>Desire to improve interpersonal skills</li>
+                                        <li>Willingness to participate in group activities</li>
+                                    </ul>
+                                </details>
+                            </div>
+
+                            <a href="courses/softskills.html" class="card-btn-action">
+                                View Full Details <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    </article>
+
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- Original CTA Section with website brand colors -->
     <section class="cta-section">
         <div class="container">
             <h2>Ready to Start Your Learning Adventure?</h2>
             <p>Join the NURU FOUNDATION family today and embark on a journey of discovery, skill-building, and personal growth. Your future starts here!</p>
-            <a href="enroll.html" class="btn btn-primary">Join Us Now!</a>
+            <a href="apply-now-bt.html" class="btn btn-primary">Join Us Now!</a>
         </div>
     </section>
 
+    <!-- Smooth Anchor Scrolling -->
     <script>
-       
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
                 e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    const offset = 125; // Account for fixed header + sticky jump bar
+                    const bodyRect = document.body.getBoundingClientRect().top;
+                    const elementRect = target.getBoundingClientRect().top;
+                    const elementPosition = elementRect - bodyRect;
+                    const offsetPosition = elementPosition - offset;
 
-                document.querySelector(this.getAttribute('href')).scrollIntoView({
-                    behavior: 'smooth'
-                });
+                    window.scrollTo({
+                        top: offsetPosition,
+                        behavior: 'smooth'
+                    });
+                }
             });
         });
     </script>
 
+    <script src="scripts/footer.js"></script>
+    <div id="footerContainer"></div>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            fetch('footer.html')
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('footerContainer').innerHTML = data;
+                    if (typeof startCourseRotation === 'function') {
+                        startCourseRotation();
+                    }
+                })
+                .catch(error => console.error('Error loading footer:', error));
 
+            loadDynamicCourses();
+        });
 
-<script src="scripts/footer.js"></script>
-<div id="footerContainer"></div>
+        async function loadDynamicCourses() {
+            try {
+                const res = await fetch('/api/courses');
+                if (!res.ok) return;
+                const data = await res.json();
+                let courses = data.data || data.courses || [];
+                if (!Array.isArray(courses) || courses.length === 0) return;
 
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        fetch('footer.html')
-            .then(response => response.text())
-            .then(data => {
-                document.getElementById('footerContainer').innerHTML = data;
-                if (typeof startCourseRotation === 'function') {
-                    startCourseRotation();
-                }
-            })
-            .catch(error => console.error('Error loading footer:', error));
+                const existingLinks = new Set();
+                document.querySelectorAll('.pathway-course-card a[href*="courses/"]').forEach(a => {
+                    const href = a.getAttribute('href');
+                    if (href) existingLinks.add(href.replace('courses/', '').replace('.html', ''));
+                });
 
-        loadDynamicCourses();
-    });
+                courses = courses.filter(c => {
+                    const slug = (c.title || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+                    return !existingLinks.has(slug);
+                });
 
-    async function loadDynamicCourses() {
-        try {
-            const res = await fetch('/api/courses');
-            if (!res.ok) return;
-            const data = await res.json();
-            let courses = data.data || data.courses || [];
-            if (!Array.isArray(courses) || courses.length === 0) return;
+                if (courses.length === 0) return;
 
-            const existingLinks = new Set();
-            document.querySelectorAll('.course-card a[href*="courses/"]').forEach(a => {
-                const href = a.getAttribute('href');
-                if (href) existingLinks.add(href.replace('courses/', '').replace('.html', ''));
-            });
+                const grid = document.querySelector('.track-courses-grid');
+                if (!grid) return;
 
-            courses = courses.filter(c => {
-                const slug = (c.title || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-                return !existingLinks.has(slug);
-            });
-
-            if (courses.length === 0) return;
-
-            const section = document.querySelector('.courses-section') || document.querySelector('#courses');
-            if (!section) return;
-
-            const grid = document.querySelector('.courses-grid');
-            if (!grid) return;
-
-            courses.forEach(c => {
-                const col = document.createElement('div');
-                col.className = 'col-md-6 col-lg-4';
-                col.innerHTML = `
-                    <div class="course-card">
-                        <div class="course-image" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);display:flex;align-items:center;justify-content:center;height:200px;">
-                            <i class="fas fa-graduation-cap" style="font-size:4rem;color:rgba(255,255,255,0.5);"></i>
+                courses.forEach(c => {
+                    const card = document.createElement('article');
+                    card.className = 'pathway-course-card';
+                    card.innerHTML = `
+                        <div class="card-image-wrap" style="background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%); display:flex; align-items:center; justify-content:center; height:190px;">
+                            <i class="fas fa-graduation-cap" style="font-size:3.5rem; color:rgba(255,255,255,0.7);"></i>
                         </div>
-                        <div class="course-info">
+                        <div class="card-content-wrap">
                             <h3>${escapeHtml(c.title)}</h3>
-                            <p>${escapeHtml(c.description || '').substring(0, 100)}${c.description && c.description.length > 100 ? '...' : ''}</p>
-                            <div class="course-footer">
-                                <span class="course-duration"><i class="fas fa-tag"></i> ${escapeHtml(c.category || 'General')}</span>
+                            <p class="card-desc-text">${escapeHtml(c.description || '').substring(0, 140)}${c.description && c.description.length > 140 ? '...' : ''}</p>
+                            <div class="card-meta-chips">
+                                <span><i class="fas fa-tag"></i> ${escapeHtml(c.category || 'General')}</span>
                             </div>
                         </div>
-                    </div>
-                `;
-                grid.appendChild(col);
-            });
-        } catch (e) { console.error('Error loading dynamic courses:', e); }
-    }
+                    `;
+                    grid.appendChild(card);
+                });
+            } catch (e) { console.error('Error loading dynamic courses:', e); }
+        }
 
-    function escapeHtml(str) {
-        if (!str) return '';
-        const div = document.createElement('div');
-        div.textContent = str;
-        return div.innerHTML;
-    }
-</script>
+        function escapeHtml(str) {
+            if (!str) return '';
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+    </script>
 
 </body>
 </html>

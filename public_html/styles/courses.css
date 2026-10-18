@@ -1,0 +1,581 @@
+/* ============================================================
+   NURU FOUNDATION - COURSES PAGE STYLES
+   Concept 2: Track-by-Track Pathway Showcase
+   Strictly using the website's original brand color system
+   ============================================================ */
+
+/* Sticky Quick-Jump Track Bar */
+.track-jump-bar {
+    background: rgba(255, 255, 255, 0.96);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border-bottom: 2px solid rgba(106, 5, 114, 0.1);
+    position: sticky;
+    top: 68px;
+    z-index: 100;
+    padding: 0.85rem 0;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+    transition: top 0.3s ease;
+}
+
+.jump-nav-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.jump-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.55rem 1.25rem;
+    border-radius: 10px;
+    background: #ffffff;
+    color: var(--text-dark);
+    font-family: var(--font-family-body);
+    font-size: 0.92rem;
+    font-weight: 600;
+    text-decoration: none;
+    border: 1.5px solid #e2e8f0;
+    transition: all 0.25s ease;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+}
+
+.jump-btn i {
+    font-size: 0.9rem;
+    color: var(--primary-color);
+    transition: color 0.25s ease;
+}
+
+.jump-btn:hover {
+    background: var(--primary-color);
+    color: var(--text-light);
+    border-color: var(--primary-color);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(106, 5, 114, 0.2);
+}
+
+.jump-btn:hover i {
+    color: var(--secondary-color);
+}
+
+/* Track Section Layout */
+.track-section {
+    padding: 4.5rem 0;
+    position: relative;
+}
+
+.track-section:nth-of-type(even) {
+    background-color: #f8fafc;
+}
+
+.track-section:nth-of-type(odd) {
+    background-color: var(--background-light);
+}
+
+/* Track Header Box */
+.track-header-box {
+    background: #ffffff;
+    border: 1.5px solid #e2e8f0;
+    border-radius: var(--border-radius-lg, 15px);
+    padding: 2rem 2.25rem;
+    margin-bottom: 2.75rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+    position: relative;
+    overflow: hidden;
+}
+
+.track-header-box::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 6px;
+}
+
+/* Brand Track Accent Ribbons */
+.track-software .track-header-box::before {
+    background: var(--primary-color);
+}
+
+.track-data .track-header-box::before {
+    background: var(--accent-color-1);
+}
+
+.track-security .track-header-box::before {
+    background: var(--background-dark);
+}
+
+.track-stem .track-header-box::before {
+    background: var(--secondary-color);
+}
+
+.track-header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 0.75rem;
+}
+
+.track-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-size: 0.82rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 4px 12px;
+    border-radius: 8px;
+    flex-shrink: 0;
+}
+
+.track-pill.purple {
+    background: rgba(106, 5, 114, 0.1);
+    color: var(--primary-color);
+    border: 1px solid rgba(106, 5, 114, 0.2);
+}
+
+.track-pill.teal {
+    background: rgba(56, 178, 172, 0.12);
+    color: var(--accent-color-1);
+    border: 1px solid rgba(56, 178, 172, 0.25);
+}
+
+.track-pill.dark {
+    background: rgba(44, 62, 80, 0.1);
+    color: var(--background-dark);
+    border: 1px solid rgba(44, 62, 80, 0.25);
+}
+
+.track-pill.gold {
+    background: rgba(247, 183, 49, 0.15);
+    color: #b45309;
+    border: 1px solid rgba(247, 183, 49, 0.35);
+}
+
+.track-pathway-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: #f1f5f9;
+    color: #475569;
+    font-size: 0.82rem;
+    font-weight: 600;
+    padding: 4px 12px;
+    border-radius: 8px;
+    border: 1px solid #cbd5e1;
+    max-width: 100%;
+    word-break: break-word;
+    line-height: 1.45;
+}
+
+.track-header-box h2 {
+    font-size: 2.1rem;
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+    font-family: var(--font-family-heading);
+    line-height: 1.3;
+}
+
+.track-header-box p {
+    font-size: 1.05rem;
+    color: #555555;
+    margin: 0;
+    max-width: 900px;
+    line-height: 1.6;
+}
+
+/* Track Courses Grid */
+.track-courses-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 2rem;
+}
+
+/* Pathway Course Card */
+.pathway-course-card {
+    background: #ffffff;
+    border: 1.5px solid #e2e8f0;
+    border-radius: var(--border-radius-lg, 15px);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+    position: relative;
+    height: 100%;
+}
+
+.pathway-course-card:hover {
+    transform: translateY(-6px);
+    border-color: var(--primary-color);
+    box-shadow: var(--shadow-lg, 0 8px 30px rgba(0, 0, 0, 0.15));
+}
+
+/* Card Image & Badges */
+.card-image-wrap {
+    position: relative;
+    height: 190px;
+    overflow: hidden;
+    background: var(--background-dark);
+}
+
+.card-image-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.pathway-course-card:hover .card-image-wrap img {
+    transform: scale(1.06);
+}
+
+.card-image-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.05) 0%, rgba(0, 0, 0, 0.75) 100%);
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    padding: 0.85rem 1rem;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.card-progression-step {
+    background: rgba(255, 255, 255, 0.95);
+    color: var(--primary-color);
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.card-level-chip {
+    background: var(--primary-color);
+    color: var(--text-light);
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(106, 5, 114, 0.3);
+}
+
+/* Card Body Content */
+.card-content-wrap {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.card-content-wrap h3 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 0.65rem;
+    font-family: var(--font-family-body);
+    line-height: 1.35;
+}
+
+.card-desc-text {
+    font-size: 0.93rem;
+    color: #555555;
+    line-height: 1.6;
+    margin-bottom: 1.25rem;
+    flex-grow: 1;
+}
+
+/* Metadata Chips Row */
+.card-meta-chips {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 0.75rem 0;
+    border-top: 1px solid #f1f5f9;
+    border-bottom: 1px solid #f1f5f9;
+    margin-bottom: 1.15rem;
+    font-size: 0.84rem;
+    color: #475569;
+    font-weight: 600;
+}
+
+.card-meta-chips span {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.card-meta-chips i {
+    color: var(--accent-color-1);
+}
+
+/* Requirements Accordion */
+.card-reqs-dropdown {
+    margin-bottom: 1.25rem;
+}
+
+.card-reqs-dropdown details {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 0.6rem 0.85rem;
+    transition: all 0.25s ease;
+}
+
+.card-reqs-dropdown details[open] {
+    background: #ffffff;
+    border-color: rgba(106, 5, 114, 0.3);
+    box-shadow: 0 4px 12px rgba(106, 5, 114, 0.05);
+}
+
+.card-reqs-dropdown summary {
+    font-size: 0.84rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    list-style: none;
+    user-select: none;
+}
+
+.card-reqs-dropdown summary::-webkit-details-marker {
+    display: none;
+}
+
+.card-reqs-dropdown summary i.summary-icon {
+    color: var(--primary-color);
+    margin-right: 0.4rem;
+}
+
+.card-reqs-dropdown summary i.chevron-icon {
+    font-size: 0.8rem;
+    color: #94a3b8;
+    transition: transform 0.25s ease;
+}
+
+.card-reqs-dropdown details[open] summary i.chevron-icon {
+    transform: rotate(180deg);
+    color: var(--primary-color);
+}
+
+.card-reqs-dropdown ul {
+    margin: 0.65rem 0 0.2rem 0;
+    padding-left: 1.2rem;
+    font-size: 0.84rem;
+    color: #64748b;
+    line-height: 1.5;
+}
+
+.card-reqs-dropdown ul li {
+    margin-bottom: 0.35rem;
+}
+
+/* Details Action Button */
+.card-btn-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    background: var(--primary-color);
+    color: var(--text-light);
+    border: 2px solid transparent;
+    padding: 0.65rem 1rem;
+    border-radius: 10px;
+    font-family: var(--font-family-body);
+    font-size: 0.93rem;
+    font-weight: 600;
+    text-decoration: none;
+    text-align: center;
+    transition: all 0.25s ease;
+}
+
+.card-btn-action:hover {
+    background: var(--secondary-color);
+    color: var(--text-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(247, 183, 49, 0.35);
+}
+
+.card-btn-action i {
+    transition: transform 0.25s ease;
+}
+
+.card-btn-action:hover i {
+    transform: translateX(4px);
+}
+
+/* ============================================================
+   RESPONSIVE MEDIA QUERIES (Breakpoints: 1024px, 768px, 600px, 380px)
+   ============================================================ */
+
+/* Tablet Landscape & Medium Desktops (769px to 1024px) */
+@media (max-width: 1024px) {
+    .track-courses-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+    }
+
+    .track-header-box {
+        padding: 1.75rem 1.5rem;
+    }
+
+    .track-header-box h2 {
+        font-size: 1.85rem;
+    }
+}
+
+/* Tablet Portrait & Mobile Landscape (max-width: 768px) */
+@media (max-width: 768px) {
+    .track-jump-bar {
+        top: 60px;
+        padding: 0.55rem 0;
+        overflow: hidden;
+    }
+
+    .jump-nav-wrap {
+        display: flex;
+        flex-wrap: nowrap;
+        justify-content: flex-start;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.2rem 1rem;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+    }
+
+    .jump-nav-wrap::-webkit-scrollbar {
+        display: none;
+    }
+
+    .jump-btn {
+        flex: 0 0 auto;
+        white-space: nowrap;
+        padding: 0.45rem 0.95rem;
+        font-size: 0.84rem;
+        border-radius: 50px;
+    }
+
+    .track-section {
+        padding: 3.5rem 0;
+    }
+
+    .track-header-box {
+        padding: 1.5rem 1.25rem;
+        margin-bottom: 2rem;
+    }
+
+    .track-header-box h2 {
+        font-size: 1.65rem;
+    }
+
+    .track-header-box p {
+        font-size: 0.98rem;
+    }
+
+    .track-courses-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.25rem;
+    }
+
+    .card-content-wrap {
+        padding: 1.25rem;
+    }
+
+    .card-content-wrap h3 {
+        font-size: 1.2rem;
+    }
+
+    .card-btn-action {
+        width: 100%;
+        min-height: 44px;
+        padding: 0.75rem 1rem;
+    }
+}
+
+/* Mobile Portrait & Small Screens (max-width: 600px) */
+@media (max-width: 600px) {
+    .track-courses-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .track-header-top {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+
+    .track-pathway-chip {
+        font-size: 0.78rem;
+        line-height: 1.4;
+        padding: 4px 10px;
+    }
+
+    .track-header-box {
+        padding: 1.25rem 1rem;
+        border-radius: 12px;
+    }
+
+    .track-header-box h2 {
+        font-size: 1.45rem;
+    }
+
+    .track-header-box p {
+        font-size: 0.92rem;
+        line-height: 1.55;
+    }
+
+    .track-section {
+        padding: 2.75rem 0;
+    }
+
+    .card-image-wrap {
+        height: 180px;
+    }
+
+    .card-content-wrap {
+        padding: 1.2rem 1rem;
+    }
+
+    .card-content-wrap h3 {
+        font-size: 1.15rem;
+    }
+
+    .card-desc-text {
+        font-size: 0.88rem;
+    }
+
+    .card-meta-chips {
+        font-size: 0.8rem;
+    }
+}
+
+/* Extra Small Phones (max-width: 380px) */
+@media (max-width: 380px) {
+    .track-header-box h2 {
+        font-size: 1.3rem;
+    }
+
+    .card-image-wrap {
+        height: 165px;
+    }
+
+    .card-content-wrap {
+        padding: 1rem 0.85rem;
+    }
+}

@@ -386,7 +386,11 @@
             justify-content: center;
             gap: 0.5rem;
         }
+        .requirements-dropdown summary::-webkit-details-marker {
+            display: none;
+        }
         .requirements-dropdown summary i {
+            font-size: 0.85em;
             transition: transform 0.3s ease;
         }
         .requirements-dropdown details[open] summary i {
@@ -470,7 +474,7 @@
             overflow: hidden;
         }
         .cta-section::before {
-            content: '🚀'; 
+            content: '\1F680'; 
             position: absolute;
             top: 20%;
             left: 10%;
@@ -479,7 +483,7 @@
             animation: bounce 4s infinite ease-in-out;
         }
         .cta-section::after {
-            content: '💡'; 
+            content: '\1F4A1'; 
             position: absolute;
             bottom: 25%;
             right: 15%;
@@ -528,7 +532,7 @@
                 font-size: 1.1rem;
             }
             .course-grid, .testimonial-grid, .about-grid, .reason-grid {
-                grid-template-columns: 1fr;
+                grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             }
             .reason-card {
                 padding: 2rem;
@@ -564,8 +568,24 @@
             .cta-section p {
                 font-size: 1.1rem;
             }
+            .cta-section::before {
+                font-size: 3.5rem;
+                left: 5%;
+                opacity: 0.15;
+            }
+            .cta-section::after {
+                font-size: 3rem;
+                right: 5%;
+                opacity: 0.15;
+            }
             section {
                 padding: 3rem 0;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .course-grid, .testimonial-grid, .about-grid, .reason-grid {
+                grid-template-columns: 1fr;
             }
         }
 
@@ -594,6 +614,13 @@
                 flex-direction: column;
                 align-items: flex-start;
                 gap: 0.8rem;
+            }
+            .course-info span {
+                margin-top: 0;
+            }
+            .cta-section::before,
+            .cta-section::after {
+                display: none;
             }
         }
 

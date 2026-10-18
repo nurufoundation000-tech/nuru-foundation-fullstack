@@ -2,21 +2,31 @@
 <html lang="en">
 <head>
     <!-- Google Tag Manager -->
-<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-})(window,document,'script','dataLayer','GTM-5TRSMVV4');</script>
-<!-- End Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-5TRSMVV4');</script>
+    <!-- End Google Tag Manager -->
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>About Nuru Foundation | Individuals Coding & AI Classes Kenya</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Fredoka+One&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles/about.css">
-<link rel="stylesheet" href="styles/root.css">
-    <link rel="icon" href="logo.jpg" type="image/jpeg">
-    <!-- Font Awesome for icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="icon" type="image/png" href="NewLogo.png">
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Fredoka+One&display=swap" rel="stylesheet">
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="styles/root.css">
+    <link rel="stylesheet" href="styles/header.css">
+    <link rel="stylesheet" href="styles/footer.css">
+    <link rel="stylesheet" href="styles/about.css?v=2.1">
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <!-- Structured Data (JSON-LD) -->
     <script type="application/ld+json">
         {
         "@context": "https://schema.org",
@@ -30,114 +40,1324 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         }
     </script>
     <meta name="description" property="og:description" content="Discover Nuru Foundation, Kenya's leading youth-led coding school. We empower kids 8+ with Python, AI, and CBC-aligned digital skills through interactive online classes.">
-    <meta property="og:title" content="Nuru Foundation | Kids Coding Classes">
-    <meta property="og:type" content="website">
     <meta property="og:title" content="About Nuru Foundation | Mentoring the Next Tech Leaders">
-    <meta property="og:image" content="logo.jpg">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="NewLogo.png">
+
+    <!-- Embedded High-Priority Styles: Ensures 100% immediate styling when pasted into cPanel -->
+    <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --primary-color: #6a0572;
+            --primary-dark: #4a0050;
+            --primary-light: #8e1499;
+            --secondary-color: #f7b731;
+            --secondary-hover: #e1a320;
+            --accent-color-1: #38b2ac;
+            --accent-color-1-dark: #2c8e89;
+            --accent-color-2: #ef476f;
+            --text-dark: #1e293b;
+            --text-muted: #64748b;
+            --text-light: #ffffff;
+            --background-light: #ffffff;
+            --background-soft: #f8fafc;
+            --background-alt: #f1f5f9;
+            --background-dark: #2c3e50;
+
+            --font-family-body: 'Poppins', sans-serif;
+            --font-family-heading: 'Fredoka One', cursive;
+
+            --border-radius-xl: 20px;
+            --border-radius-lg: 16px;
+            --border-radius-md: 12px;
+            --border-radius-sm: 8px;
+
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+            --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.07);
+            --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.12);
+            --shadow-hover: 0 20px 45px rgba(106, 5, 114, 0.18);
+
+            --gradient-hero-overlay: linear-gradient(135deg, rgba(26, 16, 44, 0.93) 0%, rgba(44, 62, 80, 0.89) 55%, rgba(106, 5, 114, 0.85) 100%);
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-family-body);
+            line-height: 1.7;
+            color: var(--text-dark);
+            background-color: var(--background-soft);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: var(--font-family-heading);
+            color: var(--primary-color);
+            line-height: 1.3;
+            letter-spacing: 0.02em;
+        }
+
+        p {
+            margin-bottom: 1rem;
+            font-size: 1.05rem;
+            color: #475569;
+        }
+
+        a {
+            color: var(--primary-color);
+            text-decoration: none;
+            transition: all 0.25s ease;
+        }
+
+        .container {
+            max-width: 1220px;
+            margin: 0 auto;
+            padding: 0 1.75rem;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.6rem;
+            background-color: var(--secondary-color);
+            color: #1e293b;
+            padding: 0.95rem 2.2rem;
+            border-radius: var(--border-radius-md);
+            font-weight: 700;
+            font-size: 1.05rem;
+            font-family: var(--font-family-body);
+            letter-spacing: 0.03em;
+            transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+            box-shadow: 0 4px 14px rgba(247, 183, 49, 0.35);
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            background-color: var(--secondary-hover);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 22px rgba(247, 183, 49, 0.45);
+            color: #0f172a;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: var(--text-light);
+            box-shadow: 0 4px 14px rgba(106, 5, 114, 0.3);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+            color: var(--text-light);
+            box-shadow: 0 8px 22px rgba(106, 5, 114, 0.45);
+        }
+
+        .btn-outline-white {
+            background: rgba(255, 255, 255, 0.12);
+            color: #ffffff;
+            border: 1.5px solid rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(8px);
+            box-shadow: none;
+        }
+
+        .btn-outline-white:hover {
+            background: #ffffff;
+            color: var(--primary-color);
+            border-color: #ffffff;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Section Headers & Badges */
+        .section-header-block {
+            text-align: center;
+            max-width: 820px;
+            margin: 0 auto 3.5rem auto;
+        }
+
+        .section-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.45rem 1.1rem;
+            border-radius: 999px;
+            font-size: 0.88rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 1rem;
+        }
+
+        .section-pill.purple {
+            background: rgba(106, 5, 114, 0.1);
+            color: var(--primary-color);
+            border: 1px solid rgba(106, 5, 114, 0.2);
+        }
+
+        .section-pill.gold {
+            background: rgba(247, 183, 49, 0.15);
+            color: #b7791f;
+            border: 1px solid rgba(247, 183, 49, 0.35);
+        }
+
+        .section-pill.teal {
+            background: rgba(56, 178, 172, 0.12);
+            color: var(--accent-color-1-dark);
+            border: 1px solid rgba(56, 178, 172, 0.3);
+        }
+
+        .section-title {
+            font-size: 2.8rem;
+            margin-bottom: 1.1rem;
+            color: var(--primary-color);
+        }
+
+        .section-subtitle {
+            font-size: 1.15rem;
+            color: var(--text-muted);
+            line-height: 1.8;
+        }
+
+        /* HERO SECTION - CINEMATIC TEAM BACKGROUND + STORY HIGHLIGHTS */
+        .about-hero {
+            position: relative;
+            min-height: 90vh;
+            display: flex;
+            align-items: center;
+            padding: 8rem 0 5rem;
+            background-color: #1a102c;
+            background-image: var(--gradient-hero-overlay), url('NuruTeam.jpeg');
+            background-position: center 30%;
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-attachment: scroll;
+            color: var(--text-light);
+            overflow: hidden;
+        }
+
+        .about-hero::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 120px;
+            background: linear-gradient(to top, var(--background-soft) 0%, rgba(248, 250, 252, 0) 100%);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .hero-inner {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+        }
+
+        .hero-main-content {
+            max-width: 900px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .hero-pill-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0.55rem 1.4rem;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            border-radius: 999px;
+            color: var(--secondary-color);
+            font-size: 0.95rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            margin-bottom: 1.75rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .about-hero h1 {
+            font-size: 3.5rem;
+            color: #ffffff;
+            margin-bottom: 1.5rem;
+            line-height: 1.25;
+            text-shadow: 0 4px 18px rgba(0, 0, 0, 0.5);
+        }
+
+        .about-hero h1 span.highlight-gold {
+            color: var(--secondary-color);
+            background: linear-gradient(135deg, #f7b731 0%, #ffde59 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-desc {
+            font-size: 1.3rem;
+            line-height: 1.8;
+            color: rgba(255, 255, 255, 0.94);
+            max-width: 820px;
+            margin: 0 auto 2.5rem;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+        }
+
+        .hero-cta-group {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 1.25rem;
+            margin-bottom: 4.5rem;
+        }
+
+        /* Hero Highlight Story Cards Strip */
+        .hero-story-strip {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .hero-story-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: var(--border-radius-lg);
+            padding: 1.5rem 1.25rem;
+            text-align: left;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+        }
+
+        .hero-story-card:hover {
+            background: rgba(255, 255, 255, 0.18);
+            transform: translateY(-5px);
+            border-color: rgba(247, 183, 49, 0.6);
+            box-shadow: 0 14px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .story-card-icon {
+            width: 46px;
+            height: 46px;
+            border-radius: 12px;
+            background: rgba(247, 183, 49, 0.2);
+            color: var(--secondary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            border: 1px solid rgba(247, 183, 49, 0.4);
+        }
+
+        .hero-story-card h4 {
+            font-size: 1.15rem;
+            color: #ffffff;
+            margin-bottom: 0.5rem;
+            font-family: var(--font-family-body);
+            font-weight: 700;
+        }
+
+        .hero-story-card p {
+            font-size: 0.92rem;
+            line-height: 1.55;
+            color: rgba(255, 255, 255, 0.85);
+            margin-bottom: 0;
+        }
+
+        /* STORY & JOURNEY SECTION */
+        .story-section {
+            padding: 6rem 0;
+            background-color: var(--background-soft);
+            position: relative;
+            z-index: 2;
+        }
+
+        .story-grid {
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        .story-text h2 {
+            font-size: 2.75rem;
+            color: var(--primary-color);
+            margin-bottom: 1.75rem;
+            line-height: 1.25;
+        }
+
+        .story-lead-p {
+            font-size: 1.22rem;
+            line-height: 1.85;
+            color: #334155;
+            margin-bottom: 1.5rem;
+            font-weight: 500;
+        }
+
+        .story-text p {
+            font-size: 1.05rem;
+            line-height: 1.8;
+            color: #475569;
+            margin-bottom: 1.25rem;
+        }
+
+        .story-quote-card {
+            background: #ffffff;
+            border-left: 5px solid var(--secondary-color);
+            border-radius: var(--border-radius-sm);
+            padding: 1.25rem 1.5rem;
+            margin: 2rem 0;
+            box-shadow: var(--shadow-sm);
+            font-style: italic;
+            color: #334155;
+            font-size: 1.05rem;
+            line-height: 1.7;
+        }
+
+        .story-quote-card i {
+            color: var(--primary-color);
+            margin-right: 0.5rem;
+            font-size: 1.2rem;
+        }
+
+        /* Story Visual Showcase Card */
+        .story-visual-wrap {
+            position: relative;
+        }
+
+        .story-photo-card {
+            background: #ffffff;
+            border-radius: var(--border-radius-xl);
+            padding: 1rem;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid #e2e8f0;
+            transition: transform 0.3s ease;
+        }
+
+        .story-photo-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .story-photo-inner {
+            position: relative;
+            border-radius: var(--border-radius-lg);
+            overflow: hidden;
+        }
+
+        .story-photo-inner img {
+            width: 100%;
+            height: 380px;
+            object-fit: cover;
+            object-position: center 25%;
+            display: block;
+        }
+
+        .story-badge-overlay {
+            position: absolute;
+            bottom: 1rem;
+            left: 1rem;
+            right: 1rem;
+            background: rgba(26, 16, 44, 0.88);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: var(--border-radius-md);
+            padding: 0.85rem 1.2rem;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .story-badge-overlay i {
+            color: var(--secondary-color);
+            font-size: 1.4rem;
+        }
+
+        .story-badge-overlay span {
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+
+        /* Story Metric Counters */
+        .story-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .story-stat-box {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: var(--border-radius-md);
+            padding: 1.2rem 1rem;
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .story-stat-number {
+            font-size: 1.9rem;
+            font-family: var(--font-family-heading);
+            color: var(--primary-color);
+            line-height: 1.1;
+            margin-bottom: 0.25rem;
+        }
+
+        .story-stat-label {
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        /* GUIDING STARS (MISSION, VISION, VALUES) */
+        .mvv-section {
+            padding: 6.5rem 0;
+            background: #ffffff;
+            position: relative;
+        }
+
+        .mvv-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2.25rem;
+        }
+
+        .mvv-card {
+            background: #ffffff;
+            border-radius: var(--border-radius-xl);
+            padding: 3rem 2.25rem;
+            box-shadow: var(--shadow-md);
+            border: 1.5px solid #e2e8f0;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .mvv-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+        }
+
+        .mvv-card.mission::before { background: var(--accent-color-1); }
+        .mvv-card.vision::before { background: var(--secondary-color); }
+        .mvv-card.values::before { background: var(--primary-color); }
+
+        .mvv-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-hover);
+            border-color: #cbd5e1;
+        }
+
+        .mvv-icon-bubble {
+            width: 72px;
+            height: 72px;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin-bottom: 1.75rem;
+        }
+
+        .mvv-card.mission .mvv-icon-bubble {
+            background: rgba(56, 178, 172, 0.12);
+            color: var(--accent-color-1);
+            border: 1px solid rgba(56, 178, 172, 0.3);
+        }
+
+        .mvv-card.vision .mvv-icon-bubble {
+            background: rgba(247, 183, 49, 0.15);
+            color: #d97706;
+            border: 1px solid rgba(247, 183, 49, 0.4);
+        }
+
+        .mvv-card.values .mvv-icon-bubble {
+            background: rgba(106, 5, 114, 0.1);
+            color: var(--primary-color);
+            border: 1px solid rgba(106, 5, 114, 0.25);
+        }
+
+        .mvv-card h3 {
+            font-size: 1.95rem;
+            margin-bottom: 1.1rem;
+        }
+
+        .mvv-card.mission h3 { color: var(--accent-color-1); }
+        .mvv-card.vision h3 { color: #d97706; }
+        .mvv-card.values h3 { color: var(--primary-color); }
+
+        .mvv-card p {
+            font-size: 1.05rem;
+            line-height: 1.75;
+            color: #475569;
+            margin-bottom: 0;
+        }
+
+        .values-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.85rem;
+            margin-top: 0.5rem;
+        }
+
+        .values-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            font-size: 0.98rem;
+            line-height: 1.6;
+            color: #475569;
+        }
+
+        .values-list li i {
+            color: var(--primary-color);
+            font-size: 1rem;
+            margin-top: 0.3rem;
+            flex-shrink: 0;
+        }
+
+        .values-list strong {
+            color: #1e293b;
+            font-weight: 700;
+        }
+
+        /* OUR APPROACH / PEDAGOGY SECTION */
+        .approach-section {
+            padding: 6.5rem 0;
+            background: var(--background-soft);
+            position: relative;
+        }
+
+        .approach-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.75rem;
+        }
+
+        .approach-card {
+            background: #ffffff;
+            border-radius: var(--border-radius-lg);
+            padding: 2.25rem 1.75rem;
+            box-shadow: var(--shadow-sm);
+            border: 1.5px solid #e2e8f0;
+            transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .approach-card:hover {
+            transform: translateY(-7px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--primary-color);
+        }
+
+        .approach-icon-wrap {
+            width: 62px;
+            height: 62px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.75rem;
+            margin-bottom: 1.5rem;
+            background: rgba(106, 5, 114, 0.08);
+            color: var(--primary-color);
+            border: 1px solid rgba(106, 5, 114, 0.15);
+            transition: all 0.3s ease;
+        }
+
+        .approach-card:hover .approach-icon-wrap {
+            background: var(--primary-color);
+            color: var(--secondary-color);
+            transform: scale(1.05);
+        }
+
+        .approach-card h3 {
+            font-size: 1.45rem;
+            color: #1e293b;
+            margin-bottom: 0.85rem;
+            font-family: var(--font-family-body);
+            font-weight: 700;
+        }
+
+        .approach-card p {
+            font-size: 0.98rem;
+            line-height: 1.7;
+            color: #64748b;
+            margin-bottom: 0;
+        }
+
+        /* TEAM SECTION - EXECUTIVE 3D FLIP CARDS */
+        .team-section {
+            padding: 6.5rem 0;
+            background: #ffffff;
+            position: relative;
+        }
+
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+            gap: 2rem;
+        }
+
+        .team-member-card {
+            background-color: transparent;
+            perspective: 1000px;
+            height: 420px;
+        }
+
+        .card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.65s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-style: preserve-3d;
+            cursor: pointer;
+        }
+
+        .team-member-card:hover .card-inner,
+        .team-member-card.is-flipped .card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .card-front, .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            border-radius: var(--border-radius-xl);
+            padding: 2rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            box-shadow: var(--shadow-md);
+            border: 1.5px solid #e2e8f0;
+            background: #ffffff;
+        }
+
+        .card-front {
+            transition: border-color 0.3s ease;
+        }
+
+        .team-member-card:hover .card-front {
+            border-color: var(--primary-color);
+        }
+
+        .avatar-wrapper {
+            position: relative;
+            margin-bottom: 1.25rem;
+        }
+
+        .card-front img {
+            width: 135px;
+            height: 135px;
+            border-radius: 50%;
+            object-fit: cover;
+            display: block;
+            border: 4px solid #ffffff;
+            box-shadow: 0 4px 18px rgba(106, 5, 114, 0.2);
+            outline: 3px solid var(--primary-color);
+        }
+
+        .card-front h3 {
+            font-size: 1.35rem;
+            color: #1e293b;
+            margin: 0.5rem 0 0.4rem 0;
+            font-family: var(--font-family-body);
+            font-weight: 700;
+        }
+
+        .card-front .role {
+            font-size: 0.92rem;
+            color: var(--primary-color);
+            font-weight: 600;
+            line-height: 1.4;
+            max-width: 90%;
+            margin-bottom: 1rem;
+        }
+
+        .flip-hint {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #94a3b8;
+            background: #f8fafc;
+            padding: 0.35rem 0.85rem;
+            border-radius: 999px;
+            border: 1px solid #e2e8f0;
+            margin-top: auto;
+            transition: all 0.25s ease;
+        }
+
+        .team-member-card:hover .flip-hint {
+            color: var(--primary-color);
+            border-color: rgba(106, 5, 114, 0.3);
+            background: rgba(106, 5, 114, 0.06);
+        }
+
+        /* Back Face */
+        .card-back {
+            background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+            transform: rotateY(180deg);
+            border-color: var(--primary-color);
+        }
+
+        .card-back h3 {
+            font-size: 1.25rem;
+            color: var(--primary-color);
+            margin-bottom: 1.25rem;
+            font-family: var(--font-family-body);
+            font-weight: 700;
+        }
+
+        .social-links {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 0.9rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .social-links a {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: #ffffff;
+            border: 1.5px solid #e2e8f0;
+            color: #334155;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            transition: all 0.25s ease;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+        }
+
+        .social-links a:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 14px rgba(0,0,0,0.12);
+        }
+
+        .social-links a.twitter:hover {
+            background: #000000;
+            color: #ffffff;
+            border-color: #000000;
+        }
+
+        .social-links a.linkedin:hover {
+            background: #0077b5;
+            color: #ffffff;
+            border-color: #0077b5;
+        }
+
+        .social-links a.whatsapp:hover {
+            background: #25D366;
+            color: #ffffff;
+            border-color: #25D366;
+        }
+
+        .social-links a.portfolio:hover {
+            background: var(--accent-color-1);
+            color: #ffffff;
+            border-color: var(--accent-color-1);
+        }
+
+        .social-links a.phone:hover {
+            background: var(--primary-color);
+            color: #ffffff;
+            border-color: var(--primary-color);
+        }
+
+        .social-links a.facebook:hover {
+            background: #1877f2;
+            color: #ffffff;
+            border-color: #1877f2;
+        }
+
+        .social-links a.instagram:hover {
+            background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+            color: #ffffff;
+            border-color: transparent;
+        }
+
+        .team-email-block {
+            margin-top: 0.5rem;
+            width: 100%;
+        }
+
+        .team-email-label {
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            font-weight: 700;
+            color: #94a3b8;
+            margin-bottom: 0.35rem;
+        }
+
+        .team-email-link {
+            display: inline-block;
+            color: var(--primary-color);
+            font-size: 0.86rem;
+            font-weight: 700;
+            padding: 0.5rem 0.85rem;
+            background: rgba(106, 5, 114, 0.08);
+            border-radius: var(--border-radius-sm);
+            border: 1px solid rgba(106, 5, 114, 0.2);
+            word-break: break-all;
+            transition: all 0.25s ease;
+        }
+
+        .team-email-link:hover {
+            background: var(--primary-color);
+            color: #ffffff;
+            border-color: var(--primary-color);
+        }
+
+        /* COMMUNITY & GLOBAL REACH SECTION */
+        .community-section {
+            padding: 6.5rem 0;
+            background: var(--background-soft);
+            position: relative;
+        }
+
+        .community-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.75rem;
+        }
+
+        .community-card {
+            background: #ffffff;
+            border-radius: var(--border-radius-lg);
+            padding: 2.5rem 1.75rem;
+            box-shadow: var(--shadow-sm);
+            border: 1.5px solid #e2e8f0;
+            transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .community-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--secondary-color);
+            transition: all 0.3s ease;
+        }
+
+        .community-card:hover {
+            transform: translateY(-7px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--primary-color);
+        }
+
+        .community-card:hover::before {
+            background: var(--primary-color);
+            height: 6px;
+        }
+
+        .community-card i {
+            font-size: 2.75rem;
+            color: var(--primary-color);
+            margin-bottom: 1.25rem;
+            display: block;
+        }
+
+        .community-card h3 {
+            font-size: 1.45rem;
+            color: #1e293b;
+            margin-bottom: 0.85rem;
+            font-family: var(--font-family-body);
+            font-weight: 700;
+        }
+
+        .community-card p {
+            font-size: 0.98rem;
+            line-height: 1.7;
+            color: #64748b;
+            margin-bottom: 0;
+        }
+
+        /* CALL TO ACTION SECTION */
+        .about-cta-section {
+            padding: 6.5rem 0;
+            background: linear-gradient(135deg, var(--primary-color) 0%, #4a0050 50%, var(--background-dark) 100%);
+            color: var(--text-light);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .about-cta-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -20%;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(247, 183, 49, 0.15) 0%, rgba(247, 183, 49, 0) 70%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .about-cta-section h2 {
+            font-size: 3.25rem;
+            color: #ffffff;
+            margin-bottom: 1.25rem;
+            text-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .about-cta-section p {
+            font-size: 1.3rem;
+            line-height: 1.8;
+            color: rgba(255, 255, 255, 0.92);
+            max-width: 800px;
+            margin: 0 auto 2.75rem;
+        }
+
+        .about-cta-section .btn {
+            padding: 1.1rem 3rem;
+            font-size: 1.15rem;
+        }
+
+        /* RESPONSIVE DESIGN (TABLET & MOBILE) */
+        @media (max-width: 1024px) {
+            .about-hero h1 { font-size: 2.85rem; }
+            .hero-desc { font-size: 1.15rem; }
+            .hero-story-strip { grid-template-columns: repeat(2, 1fr); gap: 1.25rem; }
+            .story-grid { grid-template-columns: 1fr; gap: 3rem; }
+            .story-photo-inner img { height: 320px; }
+            .mvv-grid { grid-template-columns: 1fr; gap: 2rem; }
+            .approach-grid { grid-template-columns: repeat(2, 1fr); gap: 1.5rem; }
+            .community-grid { grid-template-columns: repeat(2, 1fr); gap: 1.5rem; }
+            .section-title { font-size: 2.4rem; }
+            .about-cta-section h2 { font-size: 2.6rem; }
+        }
+
+        @media (max-width: 768px) {
+            .about-hero {
+                padding: 6.5rem 0 4rem;
+                min-height: auto;
+            }
+            .about-hero h1 { font-size: 2.3rem; }
+            .hero-desc { font-size: 1.05rem; margin-bottom: 2rem; }
+            .hero-cta-group { margin-bottom: 3rem; flex-direction: column; width: 100%; }
+            .hero-cta-group .btn { width: 100%; }
+            .hero-story-strip { grid-template-columns: 1fr; gap: 1rem; }
+            
+            .story-section, .mvv-section, .approach-section, .team-section, .community-section, .about-cta-section {
+                padding: 4.5rem 0;
+            }
+            .story-text h2 { font-size: 2.2rem; }
+            .story-lead-p { font-size: 1.1rem; }
+            .story-stats-grid { grid-template-columns: 1fr; gap: 0.75rem; }
+            .section-title { font-size: 2.1rem; }
+            
+            .approach-grid { grid-template-columns: 1fr; }
+            .community-grid { grid-template-columns: 1fr; }
+            
+            .team-grid {
+                grid-template-columns: 1fr;
+                max-width: 360px;
+                margin: 0 auto;
+            }
+            .about-cta-section h2 { font-size: 2.1rem; }
+            .about-cta-section p { font-size: 1.1rem; }
+        }
+
+        @media (max-width: 480px) {
+            .container { padding: 0 1.25rem; }
+            .about-hero h1 { font-size: 1.95rem; }
+            .story-text h2 { font-size: 1.85rem; }
+            .section-title { font-size: 1.85rem; }
+            .btn { padding: 0.85rem 1.8rem; font-size: 0.98rem; }
+        }
+    </style>
 </head>
 <body>
     <!-- Google Tag Manager (noscript) -->
-<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5TRSMVV4"
-height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-<!-- End Google Tag Manager (noscript) -->
-<script src="scripts/header.js"></script>
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5TRSMVV4"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
 
-<div id="headerContainer"></div>
+    <!-- Dynamic Header -->
+    <script src="scripts/header.js"></script>
+    <div id="headerContainer"></div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            fetch('header.html')
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('headerContainer').innerHTML = data;
+                    if (typeof initHeader === 'function') {
+                        setTimeout(initHeader, 100);
+                    }
+                })
+                .catch(error => console.error('Error loading header:', error));
+        });
+    </script>
 
-<script>
-    // Load Header Content and initialize it
-    document.addEventListener('DOMContentLoaded', function() {
-        fetch('header.html')
-            .then(response => response.text())
-            .then(data => {
-                document.getElementById('headerContainer').innerHTML = data;
-                
-                // ðŸ”¥ CRITICAL FIX: Manually call the init function AFTER the HTML is loaded.
-                if (typeof initHeader === 'function') {
-                    initHeader();
-                }
-            })
-            .catch(error => console.error('Error loading header:', error));
-    });
-</script>
-
-   
+    <!-- ============================================================
+         HERO SECTION: CINEMATIC TEAM BACKGROUND + STORY HIGHLIGHTS
+         ============================================================ -->
     <section class="about-hero">
-        <div class="container hero-content">
-            <h1>About Nuru Foundation: Empowering Individuals in Kenya with Coding & AI Skills</h1>
-            <p>Nuru Foundations is commited to empowering youth through innovative education and technology, fostering creativity, leadership, and practical skills that shape a brighter, knowledge-driven future.</p>
-            <a href="#our-mission" class="btn">Explore Our Journey</a>
+        <div class="container hero-inner">
+            <div class="hero-main-content">
+                <span class="hero-pill-badge">
+                    <i class="fas fa-sparkles"></i> Empowering Kenya's Youth Through Tech
+                </span>
+                <h1>About Nuru Foundation: Empowering Individuals in Kenya with <span class="highlight-gold">Coding &amp; AI Skills</span></h1>
+                <p class="hero-desc">Nuru Foundation is committed to empowering youth through innovative education and technology, fostering creativity, leadership, and practical skills that shape a brighter, knowledge-driven future.</p>
+                
+                <div class="hero-cta-group">
+                    <a href="#our-story" class="btn">
+                        <i class="fas fa-book-open"></i> Explore Our Journey
+                    </a>
+                    <a href="#team" class="btn btn-outline-white">
+                        <i class="fas fa-users"></i> Meet Our Team
+                    </a>
+                </div>
+            </div>
+
+            <!-- Integrated Hero Story Highlights Strip -->
+            <div class="hero-story-strip">
+                <div class="hero-story-card">
+                    <div class="story-card-icon">
+                        <i class="fas fa-fire"></i>
+                    </div>
+                    <h4>100% Youth-Led</h4>
+                    <p>Driven by the very energetic young innovators we empower, building real-world solutions that matter.</p>
+                </div>
+                <div class="hero-story-card">
+                    <div class="story-card-icon">
+                        <i class="fas fa-laptop-code"></i>
+                    </div>
+                    <h4>Future-Ready Tech</h4>
+                    <p>Practical Python, Full-Stack Web, Cyber Defense &amp; AI Essentials designed for tomorrow's economy.</p>
+                </div>
+                <div class="hero-story-card">
+                    <div class="story-card-icon">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <h4>Holistic Growth</h4>
+                    <p>Harmonizing technical STEM with Soft Skills, Ethics, Financial Literacy and one-on-one mentorship.</p>
+                </div>
+                <div class="hero-story-card">
+                    <div class="story-card-icon">
+                        <i class="fas fa-globe-africa"></i>
+                    </div>
+                    <h4>Community-Centered</h4>
+                    <p>Connecting students, parents, schools, and communities across Kenya and beyond.</p>
+                </div>
+            </div>
         </div>
     </section>
 
-
-    <section class="story-section">
+    <!-- ============================================================
+         OUR STORY / JOURNEY SECTION
+         ============================================================ -->
+    <section id="our-story" class="story-section">
         <div class="container">
             <div class="story-grid">
                 <div class="story-text">
+                    <span class="section-pill purple">
+                        <i class="fas fa-compass"></i> Our Origin Story
+                    </span>
                     <h2>From a Spark to a Brighter Future!</h2>
-                    <p>NURU FOUNDATION began with a simple yet powerful vision, to make quality learning accessible to <b>everyone</b>, especially the young and energetic minds within our communities. We recognized a growing need for engaging, modern education that goes beyond traditional textbooks - and we decided to light that path.</p>
-                 
+                    <p class="story-lead-p">
+                        NURU FOUNDATION began with a simple yet powerful vision: to make quality learning accessible to <b>everyone</b>, especially the young and energetic minds within our communities. We recognized a growing need for engaging, modern education that goes beyond traditional textbooks - and we decided to light that path.
+                    </p>
+                    <p>
+                        We are a youth-driven initiative, powered by the very people we aim to empower! Our mission is to create a learning environment where curiosity thrives, creativity blossoms, and education becomes an exciting adventure. From the brilliance of <b>Mathematics</b> to the innovation of <b>AI Essentials</b>, we help learners discover, explore, and grow.
+                    </p>
+                    <p>
+                        Our journey is about building connections - between students, parents, schools, and communities - through a dynamic virtual learning platform. We're making education not only <b>effective</b> but also <b>enjoyable</b>, turning complex subjects into meaningful and fun experiences for learners of all ages.
+                    </p>
+                    <div class="story-quote-card">
+                        <i class="fas fa-quote-left"></i> A diverse community of learners growing and learning together under one bright light.
+                    </div>
                 </div>
 
-                  <div class="story-image">
-                    <img src="NuruTeam.jpeg" alt="Group of Nuru Foundation Team">
+                <div class="story-visual-wrap">
+                    <div class="story-photo-card">
+                        <div class="story-photo-inner">
+                            <img src="NuruTeam.jpeg" alt="Nuru Foundation Team on the ground" loading="lazy">
+                            <div class="story-badge-overlay">
+                                <i class="fas fa-users-cog"></i>
+                                <div>
+                                    <strong>The Nuru Foundation Team</strong><br>
+                                    <span>Educators, Developers &amp; Community Builders</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="story-stats-grid">
+                        <div class="story-stat-box">
+                            <div class="story-stat-number">14+</div>
+                            <div class="story-stat-label">Programs &amp; Tracks</div>
+                        </div>
+                        <div class="story-stat-box">
+                            <div class="story-stat-number">10+</div>
+                            <div class="story-stat-label">Dedicated Leaders</div>
+                        </div>
+                        <div class="story-stat-box">
+                            <div class="story-stat-number">100%</div>
+                            <div class="story-stat-label">Mentorship-Driven</div>
+                        </div>
+                    </div>
                 </div>
-                   <p> We are a youth-driven initiative, powered by the very people we aim to empower! Our mission is to create a learning environment where curiosity thrives, creativity blossoms, and education becomes an exciting adventure. From the brilliance of <b>Mathematics</b> to the innovation of <b>AI Essentials</b>, we help learners discover, explore, and grow.</p>
-                    <p>Our journey is about building connections - between students, parents, schools, and communities - through a dynamic virtual learning platform. Weâ€™re making education not only <b>effective</b> but also <b>enjoyable</b>, turning complex subjects into meaningful and fun experiences for learners of all ages.</p>
-                    <p><em>A diverse community of learners growing and learning together under one bright light.</em></p>
-                
             </div>
         </div>
     </section>
 
-
-    <section class="mvv-section">
+    <!-- ============================================================
+         GUIDING STARS (MISSION, VISION, VALUES)
+         ============================================================ -->
+    <section id="our-mission" class="mvv-section">
         <div class="container">
-            <h2 class="mvv-heading">Our Guiding Stars</h2>
+            <div class="section-header-block">
+                <span class="section-pill gold">
+                    <i class="fas fa-star"></i> Core Foundations
+                </span>
+                <h2 class="section-title">Our Guiding Stars</h2>
+                <p class="section-subtitle">
+                    The unwavering principles and forward-thinking vision that shape every class, curriculum, and community partnership we foster.
+                </p>
+            </div>
+
             <div class="mvv-grid">
+                <!-- Mission -->
                 <div class="mvv-card mission">
-                    <i class="fas fa-bullseye"></i>
+                    <div class="mvv-icon-bubble">
+                        <i class="fas fa-bullseye"></i>
+                    </div>
                     <h3>Our Mission</h3>
                     <p>To illuminate minds through technology, innovation, and real knowledge - empowering young people to build, think, and create solutions that shape a better tomorrow.</p>
                 </div>
+
+                <!-- Vision -->
                 <div class="mvv-card vision">
-                    <i class="fas fa-eye"></i>
+                    <div class="mvv-icon-bubble">
+                        <i class="fas fa-eye"></i>
+                    </div>
                     <h3>Our Vision</h3>
                     <p>To become Africa's leading youth-driven foundation in transforming education through creativity, technology, and human development - inspiring a generation that learns to build, not just consume.</p>
                 </div>
+
+                <!-- Values -->
                 <div class="mvv-card values">
-                    <i class="fas fa-hand-holding-heart"></i>
+                    <div class="mvv-icon-bubble">
+                        <i class="fas fa-hand-holding-heart"></i>
+                    </div>
                     <h3>Our Values</h3>
-                    <p><strong>Accessibility:</strong> Education for all - no limits, no barriers. <strong>Engagement:</strong> Learning that inspires curiosity and creativity.<strong>Excellence:</strong> Striving for quality and innovation in all we do. <strong>Community:</strong>Growing stronger together through collaboration. <strong>Empowerment:</strong> Building skills and confidence for a brighter future.</p>
+                    <ul class="values-list">
+                        <li>
+                            <i class="fas fa-check-circle"></i>
+                            <div><strong>Accessibility:</strong> Education for all - no limits, no barriers.</div>
+                        </li>
+                        <li>
+                            <i class="fas fa-check-circle"></i>
+                            <div><strong>Engagement:</strong> Learning that inspires curiosity and creativity.</div>
+                        </li>
+                        <li>
+                            <i class="fas fa-check-circle"></i>
+                            <div><strong>Excellence:</strong> Striving for quality and innovation in all we do.</div>
+                        </li>
+                        <li>
+                            <i class="fas fa-check-circle"></i>
+                            <div><strong>Community:</strong> Growing stronger together through collaboration.</div>
+                        </li>
+                        <li>
+                            <i class="fas fa-check-circle"></i>
+                            <div><strong>Empowerment:</strong> Building skills and confidence for a brighter future.</div>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </div>
     </section>
 
-    
-    <section class="approach-section">
+    <!-- ============================================================
+         OUR APPROACH / PEDAGOGY SECTION
+         ============================================================ -->
+    <section id="approach" class="approach-section">
         <div class="container">
-            <h2>Lighting the Spark of Smart Learning!"</h2>
+            <div class="section-header-block">
+                <span class="section-pill teal">
+                    <i class="fas fa-lightbulb"></i> How We Teach
+                </span>
+                <h2 class="section-title">Lighting the Spark of Smart Learning</h2>
+                <p class="section-subtitle">
+                    Our dynamic methodology bridges academic excellence with hands-on technical literacy and holistic character development.
+                </p>
+            </div>
+
             <div class="approach-grid">
                 <div class="approach-card">
-                    <i class="fas fa-brain"></i>
+                    <div class="approach-icon-wrap">
+                        <i class="fas fa-brain"></i>
+                    </div>
                     <h3>Holistic Development</h3>
                     <p>We don't just teach; we nurture the whole person! Our programs blend core academics like Mathematics and Physics with crucial <b>Soft Skills, Ethics, Financial Literacy, and Career Guidance</b>.</p>
                 </div>
+
                 <div class="approach-card">
-                    <i class="fas fa-laptop-code"></i>
+                    <div class="approach-icon-wrap">
+                        <i class="fas fa-laptop-code"></i>
+                    </div>
                     <h3>Future-Ready Skills</h3>
-                    <p>Dive into <b>Computer Literacy, Programming, Databases, and AI Essentials</b>  empowering learners with practical, future-ready skills for the jobs of tomorrow.</p>
+                    <p>Dive into <b>Computer Literacy, Programming, Databases, and AI Essentials</b> empowering learners with practical, future-ready skills for the jobs of tomorrow.</p>
                 </div>
+
                 <div class="approach-card">
-                    <i class="fas fa-users"></i>
+                    <div class="approach-icon-wrap">
+                        <i class="fas fa-users"></i>
+                    </div>
                     <h3>Community-Centric</h3>
                     <p>We connect with students, parents, schools, churches, and community groups. Learning is a shared journey, and we keep everyone informed and involved every step of the way.</p>
                 </div>
+
                 <div class="approach-card">
-                    <i class="fas fa-magic"></i>
+                    <div class="approach-icon-wrap">
+                        <i class="fas fa-magic"></i>
+                    </div>
                     <h3>Engaging Virtual Platform</h3>
                     <p>Our virtual classroom is interactive, dynamic, and engaging - designed to make learning both effective and enjoyable. With recorded sessions and LMS, we're reimagining what online education can be.</p>
                 </div>
@@ -145,490 +1365,439 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         </div>
     </section>
 
-   
-   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- ============================================================
+         TEAM SECTION: MEET THE PASSIONATE MINDS (FLIP CARDS)
+         ============================================================ -->
+    <section id="team" class="team-section">
+        <div class="container">
+            <div class="section-header-block">
+                <span class="section-pill purple">
+                    <i class="fas fa-user-friends"></i> Leadership &amp; Mentors
+                </span>
+                <h2 class="section-title">Meet the Passionate Minds Behind NURU Foundation</h2>
+                <p class="section-subtitle">
+                    We are a dedicated team of educators, tech enthusiasts, and community builders, united by our passion for empowering the next generation. Each of us is committed to making your learning journey extraordinary!
+                </p>
+            </div>
 
-<style>
-    /* Section & Grid Layout */
-    .team-section {
-        padding: 4rem 0;
-        text-align: center;
-    }
-    .team-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 2rem;
-        padding: 20px;
-    }
-
-    /* Flip Card Core Logic */
-    .team-member-card {
-        background-color: transparent;
-        perspective: 1000px;
-        height: 400px; /* Fixed height is necessary for the flip effect */
-    }
-
-    .card-inner {
-        position: relative;
-        width: 100%;
-        height: 100%;
-        text-align: center;
-        transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-        transform-style: preserve-3d;
-        cursor: pointer;
-    }
-
-    .team-member-card:hover .card-inner {
-        transform: rotateY(180deg);
-    }
-
-    .card-front, .card-back {
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        -webkit-backface-visibility: hidden;
-        backface-visibility: hidden;
-        border-radius: 15px;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        background: #ffffff;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        padding: 1.5rem;
-        border: 1px solid #eee;
-    }
-
-    /* Front Styles */
-    .card-front img, .member-avatar {
-        width: 150px;
-        height: 150px;
-        border-radius: 50%;
-        object-fit: cover;
-        margin-bottom: 1.5rem;
-        border: 4px solid var(--primary-color, #6200ea);
-    }
-
-    .member-avatar {
-        background: linear-gradient(135deg, var(--primary-color, #6200ea), #a40e94);
-        color: #fff;
-        font-weight: bold;
-        font-size: 42px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        text-transform: uppercase;
-    }
-
-    .card-front h3 { margin: 10px 0 5px 0; font-size: 1.4rem; }
-    .role { color: #666; font-style: italic; font-size: 0.95rem; }
-
-    /* Back Styles */
-    .card-back {
-        background: linear-gradient(135deg, #ffffff 0%, #f9f9f9 100%);
-        transform: rotateY(180deg);
-    }
-
-    .card-back h3 { margin-bottom: 1.5rem; color: var(--primary-color, #6200ea); }
-
-    .social-links {
-        display: flex;
-        gap: 1.5rem;
-    }
-
-    .social-links a {
-        font-size: 28px;
-        color: #333;
-        transition: all 0.3s ease;
-    }
-
-    .social-links a:hover {
-        transform: translateY(-5px);
-        color: var(--primary-color, #6200ea);
-    }
-
-    .social-links a.whatsapp:hover { color: #25D366; }
-    .social-links a.linkedin:hover { color: #0077b5; }
-    .social-links a.phone:hover { color: #34b7f1; }
-
-    .twitter {
-    color: #000; /* X color */
-}
-
-</style>
-
-<section class="team-section">
-    <div class="container">
-        <h2>Meet the Passionate Minds Behind NURU Foundation</h2>
-        <p style="max-width: 800px; margin: 0 auto 3.5rem auto;">We are a dedicated team of educators, tech enthusiasts, and community builders, united by our passion for empowering the next generation. Each of us is committed to making your learning journey extraordinary!</p>
-        
-        <div class="team-grid">
-            
-            <div class="team-member-card">
-                <div class="card-inner">
-                    <div class="card-front">
-                        <img src="https://cdn.gamma.app/ukmb7lc2a5ol1cl/454a156e35ba481a9fe4797925e5e722/original/3c87d6c5-c6fb-43a0-a3d0-85640fa20b7b.jpg" alt="Joshua Nuru">
-                        <h3>Joshua Nuru</h3>
-                        <p class="role">Executive Director & Founder</p>
-                    </div>
-                    <div class="card-back">
-                        <h3>Get in Touch</h3>
-                        <div class="social-links">
-
-
-                            <a href="https://x.com/nurujoshua496" class="twitter" target="_blank" rel="noopener noreferrer">
-    <i class="fab fa-x-twitter"></i>
-</a>
-
-<!-- <a href="https://www.instagram.com/_just_call.me_nuru_" class="instagram" target="_blank" rel="noopener noreferrer">
-    <i class="fab fa-instagram"></i>
-</a> -->
-
-                            <a href="https://joshua-nuruportfolio.netlify.app/" class="portfolio" target="_blank" rel="noopener noreferrer">
-    <i class="fas fa-globe"></i>
-</a>
-
-<a href="https://www.linkedin.com/in/joshua-nuru" class="linkedin" target="_blank" rel="noopener noreferrer">
-    <i class="fab fa-linkedin"></i>
-</a>
+            <div class="team-grid">
+                
+                <!-- 1. Joshua Nuru -->
+                <div class="team-member-card">
+                    <div class="card-inner">
+                        <div class="card-front">
+                            <div class="avatar-wrapper">
+                                <img src="https://cdn.gamma.app/ukmb7lc2a5ol1cl/454a156e35ba481a9fe4797925e5e722/original/3c87d6c5-c6fb-43a0-a3d0-85640fa20b7b.jpg" alt="Joshua Nuru" loading="lazy">
+                            </div>
+                            <h3>Joshua Nuru</h3>
+                            <p class="role">Executive Director &amp; Founder</p>
+                            <span class="flip-hint"><i class="fas fa-sync-alt"></i> Flip for contacts</span>
                         </div>
-                        <br>
-                         <h3>Email:</h3>
-                        
-                        <p style="color:purple"><b>ceo@nurufoundations.com</b></p>
-                        
+                        <div class="card-back">
+                            <h3>Connect with Joshua</h3>
+                            <div class="social-links">
+                                <a href="https://x.com/nurujoshua496" class="twitter" target="_blank" rel="noopener noreferrer" title="X (Twitter)">
+                                    <i class="fab fa-x-twitter"></i>
+                                </a>
+                                <a href="https://nurujoshua.vercel.app/" class="portfolio" target="_blank" rel="noopener noreferrer" title="Portfolio">
+                                    <i class="fas fa-globe"></i>
+                                </a>
+                                <a href="https://www.linkedin.com/in/joshua-nuru" class="linkedin" target="_blank" rel="noopener noreferrer" title="LinkedIn">
+                                    <i class="fab fa-linkedin-in"></i>
+                                </a>
+                            </div>
+                            <div class="team-email-block">
+                                <div class="team-email-label">Email Direct</div>
+                                <a href="mailto:ceo@nurufoundations.com" class="team-email-link">ceo@nurufoundations.com</a>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="team-member-card">
-                <div class="card-inner">
-                    <div class="card-front">
-                        <!--<div class="member-avatar">DM</div>-->
-                        
-                          <img src="Dan.JPG">
-                        <h3>Daniel M. Muumbi</h3>
-                        <p class="role">Executive Vice Director</p>
-                    </div>
-                    <div class="card-back">
-                        <h3>Connect with Daniel</h3>
-                        <div class="social-links">
-                           <a href="https://dandevs.netlify.app/" class="portfolio" target="_blank" rel="noopener noreferrer">
-    <i class="fas fa-globe"></i>
-</a>
-
-<a href="https://wa.me/254714202946" class="whatsapp" target="_blank" rel="noopener noreferrer">
-    <i class="fab fa-whatsapp"></i>
-</a>
-
-<a href="https://www.linkedin.com/in/daniel-muumbi-8912b6288/" class="linkedin" target="_blank" rel="noopener noreferrer">
-    <i class="fab fa-linkedin"></i>
-</a>
+                <!-- 2. Daniel M. Muumbi -->
+                <div class="team-member-card">
+                    <div class="card-inner">
+                        <div class="card-front">
+                            <div class="avatar-wrapper">
+                                <img src="Dan.JPG" alt="Daniel M. Muumbi" loading="lazy">
+                            </div>
+                            <h3>Daniel M. Muumbi</h3>
+                            <p class="role">Executive Vice Director</p>
+                            <span class="flip-hint"><i class="fas fa-sync-alt"></i> Flip for contacts</span>
                         </div>
-                        
-                         <br>
-                         <h3>Email:</h3>
-                        
-                        <p style="color:purple; font-size:14px"><b>vicedirector@nurufoundations.com</b></p>
+                        <div class="card-back">
+                            <h3>Connect with Daniel</h3>
+                            <div class="social-links">
+                                <a href="https://dandevs.netlify.app/" class="portfolio" target="_blank" rel="noopener noreferrer" title="Portfolio">
+                                    <i class="fas fa-globe"></i>
+                                </a>
+                                <a href="https://wa.me/254714202946" class="whatsapp" target="_blank" rel="noopener noreferrer" title="WhatsApp">
+                                    <i class="fab fa-whatsapp"></i>
+                                </a>
+                                <a href="https://www.linkedin.com/in/daniel-muumbi-8912b6288/" class="linkedin" target="_blank" rel="noopener noreferrer" title="LinkedIn">
+                                    <i class="fab fa-linkedin-in"></i>
+                                </a>
+                            </div>
+                            <div class="team-email-block">
+                                <div class="team-email-label">Email Direct</div>
+                                <a href="mailto:vicedirector@nurufoundations.com" class="team-email-link">vicedirector@nurufoundations.com</a>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="team-member-card">
-                <div class="card-inner">
-                    <div class="card-front">
-                        <img src="https://cdn.gamma.app/ukmb7lc2a5ol1cl/68172f2de5454e5ca072e95665f93bf7/original/e4af67af-7923-4e4c-8eae-455a93e0a9e0.jpg" alt="Abel Churchil">
-                        <h3>Abel Churchil</h3>
-                        <p class="role">Programs Director</p>
-                    </div>
-                    <div class="card-back">
-                        <h3>View Portfolio</h3>
-                        <div class="social-links">
-                            <a href="#" class="phone"><i class="fas fa-phone-alt"></i></a>
-                            <a href="#" class="whatsapp"><i class="fab fa-whatsapp"></i></a>
-                            <a href="#" class="linkedin"><i class="fab fa-linkedin"></i></a>
+                <!-- 3. Abel Churchil -->
+                <div class="team-member-card">
+                    <div class="card-inner">
+                        <div class="card-front">
+                            <div class="avatar-wrapper">
+                                <img src="https://cdn.gamma.app/ukmb7lc2a5ol1cl/68172f2de5454e5ca072e95665f93bf7/original/e4af67af-7923-4e4c-8eae-455a93e0a9e0.jpg" alt="Abel Churchil" loading="lazy">
+                            </div>
+                            <h3>Abel Churchil</h3>
+                            <p class="role">Programs Director</p>
+                            <span class="flip-hint"><i class="fas fa-sync-alt"></i> Flip for contacts</span>
                         </div>
-                         <br>
-                         <h3>Email:</h3>
-                        
-                        <p style="color:purple; font-size:14px"><b>programs@nurufoundations.com</b></p>
+                        <div class="card-back">
+                            <h3>Connect with Abel</h3>
+                            <div class="social-links">
+                                <a href="#" class="phone" title="Phone"><i class="fas fa-phone-alt"></i></a>
+                                <a href="#" class="whatsapp" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                                <a href="#" class="linkedin" title="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                            </div>
+                            <div class="team-email-block">
+                                <div class="team-email-label">Email Direct</div>
+                                <a href="mailto:programs@nurufoundations.com" class="team-email-link">programs@nurufoundations.com</a>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="team-member-card">
-                <div class="card-inner">
-                    <div class="card-front">
-                        <img src="https://cdn.gamma.app/ukmb7lc2a5ol1cl/c32e14edac3647e7a49f4585f94381b2/original/image.png" alt="Dancan Ogolla">
-                        <h3>Dancan Ogolla</h3>
-                        <p class="role">Operations Director</p>
-                    </div>
-                    <div class="card-back">
-                        <h3>Get in Touch</h3>
-                        <div class="social-links">
-                            <a href="#" class="phone"><i class="fas fa-phone-alt"></i></a>
-                            <a href="#" class="whatsapp"><i class="fab fa-whatsapp"></i></a>
-                            <a href="#" class="linkedin"><i class="fab fa-linkedin"></i></a>
+                <!-- 4. Dancan Ogolla -->
+                <div class="team-member-card">
+                    <div class="card-inner">
+                        <div class="card-front">
+                            <div class="avatar-wrapper">
+                                <img src="https://cdn.gamma.app/ukmb7lc2a5ol1cl/c32e14edac3647e7a49f4585f94381b2/original/image.png" alt="Dancan Ogolla" loading="lazy">
+                            </div>
+                            <h3>Dancan Ogolla</h3>
+                            <p class="role">Operations Director</p>
+                            <span class="flip-hint"><i class="fas fa-sync-alt"></i> Flip for contacts</span>
                         </div>
-                        
-                         <br>
-                         <h3>Email:</h3>
-                        
-                        <p style="color:purple; font-size:14px"><b>operations@nurufoundations.com</b></p>
+                        <div class="card-back">
+                            <h3>Connect with Dancan</h3>
+                            <div class="social-links">
+                                <a href="#" class="phone" title="Phone"><i class="fas fa-phone-alt"></i></a>
+                                <a href="#" class="whatsapp" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                                <a href="#" class="linkedin" title="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                            </div>
+                            <div class="team-email-block">
+                                <div class="team-email-label">Email Direct</div>
+                                <a href="mailto:operations@nurufoundations.com" class="team-email-link">operations@nurufoundations.com</a>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="team-member-card">
-                <div class="card-inner">
-                    <div class="card-front">
-                        <img src="https://cdn.gamma.app/ukmb7lc2a5ol1cl/171f0d9f8ca44c9c871202bdf864917d/original/unnamed.jpg" alt="Mercyline Kemunto">
-                        <h3>Mercyline Kemunto</h3>
-                        <p class="role">Finance & Administration Director</p>
-                    </div>
-                    <div class="card-back">
-                        <h3>Connect</h3>
-                        <div class="social-links">
-                           <a href="tel:+254111480338" class="phone">
-    <i class="fas fa-phone-alt"></i>
-</a>
-
-<a href="https://wa.me/254111480338" class="whatsapp" target="_blank" rel="noopener noreferrer">
-    <i class="fab fa-whatsapp"></i>
-</a>
-
-<a href="https://www.linkedin.com/in/mercyline-kemunto" class="linkedin" target="_blank" rel="noopener noreferrer">
-    <i class="fab fa-linkedin"></i>
-</a>
+                <!-- 5. Mercyline Kemunto -->
+                <div class="team-member-card">
+                    <div class="card-inner">
+                        <div class="card-front">
+                            <div class="avatar-wrapper">
+                                <img src="https://cdn.gamma.app/ukmb7lc2a5ol1cl/171f0d9f8ca44c9c871202bdf864917d/original/unnamed.jpg" alt="Mercyline Kemunto" loading="lazy">
+                            </div>
+                            <h3>Mercyline Kemunto</h3>
+                            <p class="role">Finance &amp; Administration Director</p>
+                            <span class="flip-hint"><i class="fas fa-sync-alt"></i> Flip for contacts</span>
                         </div>
-                         <br>
-                         <h3>Email:</h3>
-                        
-                        <p style="color:purple; font-size:15px"><b>finance@nurufoundations.com</b></p>
+                        <div class="card-back">
+                            <h3>Connect with Mercyline</h3>
+                            <div class="social-links">
+                                <a href="tel:+254111480338" class="phone" title="Phone">
+                                    <i class="fas fa-phone-alt"></i>
+                                </a>
+                                <a href="https://wa.me/254111480338" class="whatsapp" target="_blank" rel="noopener noreferrer" title="WhatsApp">
+                                    <i class="fab fa-whatsapp"></i>
+                                </a>
+                                <a href="https://www.linkedin.com/in/mercyline-kemunto" class="linkedin" target="_blank" rel="noopener noreferrer" title="LinkedIn">
+                                    <i class="fab fa-linkedin-in"></i>
+                                </a>
+                            </div>
+                            <div class="team-email-block">
+                                <div class="team-email-label">Email Direct</div>
+                                <a href="mailto:finance@nurufoundations.com" class="team-email-link">finance@nurufoundations.com</a>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="team-member-card">
-                <div class="card-inner">
-                    <div class="card-front">
-                        <img src="https://cdn.gamma.app/ukmb7lc2a5ol1cl/fbfc3e32c7604df5abf9a69cc79d9489/original/ac3e1db7-924e-4ff1-a8b6-115d8c454dc2.jpg" alt="Ian Masinde">
-                        <h3>Ian Masinde</h3>
-                        <p class="role">Technology & Systems Director</p>
-                    </div>
-                    <div class="card-back">
-                        <h3>Tech Support</h3>
-                        <div class="social-links">
-                            <a href="#" class="phone"><i class="fas fa-phone-alt"></i></a>
-                            <a href="#" class="whatsapp"><i class="fab fa-whatsapp"></i></a>
-                            <a href="#" class="linkedin"><i class="fab fa-linkedin"></i></a>
+                <!-- 6. Ian Masinde -->
+                <div class="team-member-card">
+                    <div class="card-inner">
+                        <div class="card-front">
+                            <div class="avatar-wrapper">
+                                <img src="https://cdn.gamma.app/ukmb7lc2a5ol1cl/fbfc3e32c7604df5abf9a69cc79d9489/original/ac3e1db7-924e-4ff1-a8b6-115d8c454dc2.jpg" alt="Ian Masinde" loading="lazy">
+                            </div>
+                            <h3>Ian Masinde</h3>
+                            <p class="role">Technology &amp; Systems Director</p>
+                            <span class="flip-hint"><i class="fas fa-sync-alt"></i> Flip for contacts</span>
                         </div>
-                         <br>
-                         <h3>Email:</h3>
-                        
-                        <p style="color:purple"><b>tech@nurufoundations.com</b></p>
+                            <div class="card-back">
+                                <h3>Connect With Ian</h3>
+                                <div class="social-links">
+                                    <a href="https://portfolio-gamma-gules-34.vercel.app/" class="portfolio" target="_blank" rel="noopener noreferrer">
+                                        <i class="fas fa-globe"></i>
+                                    </a>
+                                    <a href="https://wa.me/254792238421" class="whatsapp" target="_blank" rel="noopener noreferrer">
+                                        <i class="fab fa-whatsapp"></i>
+                                    </a>
+                                    <a href="https://www.linkedin.com/in/ian-masinde-834640265/" class="linkedin" target="_blank" rel="noopener noreferrer">
+                                        <i class="fab fa-linkedin"></i>
+                                    </a>
+                                </div>
+                                 <br>
+                                <h3>Email:</h3>
+                                
+                                <p style="color:purple"><b>tech@nurufoundations.com</b>
+                                </p>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="team-member-card">
-                <div class="card-inner">
-                    <div class="card-front">
-                        <img src="https://cdn.gamma.app/ukmb7lc2a5ol1cl/01b441b84a0941629ca0953db18433fb/original/image.png" alt="Jackson Tikani">
-                        <h3>Jackson Tikani</h3>
-                        <p class="role">Youth Development Coordinator</p>
-                    </div>
-                    <div class="card-back">
-                        <h3>Reach Out</h3>
-                        <div class="social-links">
-                           <a href="tel:0796001877" class="phone">
-    <i class="fas fa-phone"></i>
-</a>
-
-<a href="https://wa.me/254796001877" class="whatsapp" target="_blank">
-    <i class="fab fa-whatsapp"></i>
-</a>
-
-<a href="https://www.facebook.com/osiligi.jaccxtar" class="facebook" target="_blank">
-    <i class="fab fa-facebook-f"></i>
-</a>
+                <!-- 7. Jackson Tikani -->
+                <div class="team-member-card">
+                    <div class="card-inner">
+                        <div class="card-front">
+                            <div class="avatar-wrapper">
+                                <img src="https://cdn.gamma.app/ukmb7lc2a5ol1cl/01b441b84a0941629ca0953db18433fb/original/image.png" alt="Jackson Tikani" loading="lazy">
+                            </div>
+                            <h3>Jackson Tikani</h3>
+                            <p class="role">Youth Development Coordinator</p>
+                            <span class="flip-hint"><i class="fas fa-sync-alt"></i> Flip for contacts</span>
                         </div>
-                          <br>
-                         <h3>Email:</h3>
-                        
-                        <p style="color:purple; font-size:14px"><b>youthdev@nurufoundations.com</b></p>
+                        <div class="card-back">
+                            <h3>Connect with Jackson</h3>
+                            <div class="social-links">
+                                <a href="tel:0796001877" class="phone" title="Phone">
+                                    <i class="fas fa-phone-alt"></i>
+                                </a>
+                                <a href="https://wa.me/254796001877" class="whatsapp" target="_blank" title="WhatsApp">
+                                    <i class="fab fa-whatsapp"></i>
+                                </a>
+                                <a href="https://www.facebook.com/osiligi.jaccxtar" class="facebook" target="_blank" rel="noopener noreferrer" title="Facebook">
+                                    <i class="fab fa-facebook-f"></i>
+                                </a>
+                            </div>
+                            <div class="team-email-block">
+                                <div class="team-email-label">Email Direct</div>
+                                <a href="mailto:youthdev@nurufoundations.com" class="team-email-link">youthdev@nurufoundations.com</a>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="team-member-card">
-                <div class="card-inner">
-                    <div class="card-front">
-                        <img src="https://cdn.gamma.app/ukmb7lc2a5ol1cl/1ac188ce2b434aadad4e1b8c0f6dedcc/original/32772d47-bcee-477b-a744-e7a43b17d068.jpg" alt="Magdaline Muthui">
-                        <h3>Magdaline Muthui</h3>
-                        <p class="role">Communications & Branding Director</p>
-                    </div>
-                    <div class="card-back">
-                        <h3>Let's Talk</h3>
-                        <div class="social-links">
-                           <a href="https://www.linkedin.com/in/magdaline-muthui" class="linkedin" target="_blank" rel="noopener noreferrer">
-    <i class="fab fa-linkedin"></i>
-</a>
-
-<a href="https://www.instagram.com/magdahthequeen/" class="instagram" target="_blank" rel="noopener noreferrer">
-    <i class="fab fa-instagram"></i>
-</a>
-
-<a href="https://www.facebook.com/magdaline.muthui.92" class="facebook" target="_blank" rel="noopener noreferrer">
-    <i class="fab fa-facebook"></i>
-</a>
+                <!-- 8. Magdaline Muthui -->
+                <div class="team-member-card">
+                    <div class="card-inner">
+                        <div class="card-front">
+                            <div class="avatar-wrapper">
+                                <img src="https://cdn.gamma.app/ukmb7lc2a5ol1cl/1ac188ce2b434aadad4e1b8c0f6dedcc/original/32772d47-bcee-477b-a744-e7a43b17d068.jpg" alt="Magdaline Muthui" loading="lazy">
+                            </div>
+                            <h3>Magdaline Muthui</h3>
+                            <p class="role">Communications &amp; Branding Director</p>
+                            <span class="flip-hint"><i class="fas fa-sync-alt"></i> Flip for contacts</span>
                         </div>
-                           <br>
-                         <h3>Email:</h3>
-                        
-                        <p style="color:purple; font-size:14px"><b>communication@nurufoundations.com</b></p>
+                        <div class="card-back">
+                            <h3>Connect with Magdaline</h3>
+                            <div class="social-links">
+                                <a href="https://www.linkedin.com/in/magdaline-muthui" class="linkedin" target="_blank" rel="noopener noreferrer" title="LinkedIn">
+                                    <i class="fab fa-linkedin-in"></i>
+                                </a>
+                                <a href="https://www.instagram.com/magdahthequeen/" class="instagram" target="_blank" rel="noopener noreferrer" title="Instagram">
+                                    <i class="fab fa-instagram"></i>
+                                </a>
+                                <a href="https://www.facebook.com/magdaline.muthui.92" class="facebook" target="_blank" rel="noopener noreferrer" title="Facebook">
+                                    <i class="fab fa-facebook-f"></i>
+                                </a>
+                            </div>
+                            <div class="team-email-block">
+                                <div class="team-email-label">Email Direct</div>
+                                <a href="mailto:communication@nurufoundations.com" class="team-email-link">communication@nurufoundations.com</a>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="team-member-card">
-                <div class="card-inner">
-                    <div class="card-front">
-                        <img src="https://cdn.gamma.app/ukmb7lc2a5ol1cl/a57bbfa124714c9ab1ced9404213e53c/original/image.png" alt="Isabellah Buyaki">
-                        <h3>Isabellah Buyaki</h3>
-                        <p class="role">Marketing Director</p>
-                    </div>
-                    <div class="card-back">
-                        <h3>Connect</h3>
-                        <div class="social-links">
-                            <a href="tel:+254799058595" class="phone">
-    <i class="fas fa-phone"></i>
-</a>
-
-<a href="https://wa.me/254799058595" class="whatsapp" target="_blank">
-    <i class="fab fa-whatsapp"></i>
-</a>
-
-<a href="https://www.instagram.com/just_buyaki" class="instagram" target="_blank">
-    <i class="fab fa-instagram"></i>
-</a>
+                <!-- 9. Isabellah Buyaki -->
+                <div class="team-member-card">
+                    <div class="card-inner">
+                        <div class="card-front">
+                            <div class="avatar-wrapper">
+                                <img src="https://cdn.gamma.app/ukmb7lc2a5ol1cl/a57bbfa124714c9ab1ced9404213e53c/original/image.png" alt="Isabellah Buyaki" loading="lazy">
+                            </div>
+                            <h3>Isabellah Buyaki</h3>
+                            <p class="role">Marketing Director</p>
+                            <span class="flip-hint"><i class="fas fa-sync-alt"></i> Flip for contacts</span>
                         </div>
-                           <br>
-                         <h3>Email:</h3>
-                        
-                        <p style="color:purple; font-size:14px"><b>marketing@nurufoundations.com</b></p>
+                        <div class="card-back">
+                            <h3>Connect with Isabellah</h3>
+                            <div class="social-links">
+                                <a href="tel:+254799058595" class="phone" title="Phone">
+                                    <i class="fas fa-phone-alt"></i>
+                                </a>
+                                <a href="https://wa.me/254799058595" class="whatsapp" target="_blank" title="WhatsApp">
+                                    <i class="fab fa-whatsapp"></i>
+                                </a>
+                                <a href="https://www.instagram.com/just_buyaki" class="instagram" target="_blank" title="Instagram">
+                                    <i class="fab fa-instagram"></i>
+                                </a>
+                            </div>
+                            <div class="team-email-block">
+                                <div class="team-email-label">Email Direct</div>
+                                <a href="mailto:marketing@nurufoundations.com" class="team-email-link">marketing@nurufoundations.com</a>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="team-member-card">
-                <div class="card-inner">
-                    <div class="card-front">
-                        <img src="https://cdn.gamma.app/ukmb7lc2a5ol1cl/0d59efc9690a49659b3a1031295959e0/original/image.png" alt="Dr. Mary Ndolo">
-                        <h3>Dr. Mary Ndolo</h3>
-                        <p class="role">Partnerships & Community Director</p>
-                    </div>
-                    <div class="card-back">
-                        <h3>Partnerships</h3>
-                        <div class="social-links">
-                            <a href="#" class="phone"><i class="fas fa-phone-alt"></i></a>
-                            <a href="#" class="whatsapp"><i class="fab fa-whatsapp"></i></a>
-                            <a href="#" class="linkedin"><i class="fab fa-linkedin"></i></a>
+                <!-- 10. Dr. Mary Ndolo -->
+                <div class="team-member-card">
+                    <div class="card-inner">
+                        <div class="card-front">
+                            <div class="avatar-wrapper">
+                                <img src="Mary.jpeg" alt="Dr. Mary Ndolo">
+                            </div>
+                            <h3>Dr. Mary Ndolo</h3>
+                            <p class="role">Partnerships &amp; Community Director</p>
+                            <span class="flip-hint"><i class="fas fa-sync-alt"></i> Flip for contacts</span>
                         </div>
-                        
-                           <br>
-                         <h3>Email:</h3>
-                        
-                        <p style="color:purple; font-size:14px"><b>partnerships@nurufoundations.com</b></p>
+                        <div class="card-back">
+                            <h3>Connect with Dr. Mary</h3>
+                            <div class="social-links">
+                                <a href="#" class="phone" title="Phone"><i class="fas fa-phone-alt"></i></a>
+                                <a href="#" class="whatsapp" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                                <a href="#" class="linkedin" title="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                            </div>
+                            <div class="team-email-block">
+                                <div class="team-email-label">Email Direct</div>
+                                <a href="mailto:partnerships@nurufoundations.com" class="team-email-link">partnerships@nurufoundations.com</a>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-        </div>
-    </div>
-</section>
-
-
-<!-- Community & Global Reach Section -->
-<section class="community-section">
-    <div class="container">
-        <h2>Our Impact & Global Family</h2>
-        <p style="max-width: 800px; margin: 0 auto 3.5rem auto;">NURU FOUNDATION is not just about learning; it's about belonging. We're proud of the community we're building a family that's driving positive change, empowering learners, and lighting the path for others around the world.</p>
-        <div class="community-grid">
-            <div class="community-card">
-                <i class="fas fa-child"></i>
-                <h3>Empowering Youth</h3>
-                <p>Across our programs, young learners are growing in confidence, curiosity, and capability - prepared to lead and make an impact.</p>
-            </div>
-            <div class="community-card">
-                <i class="fas fa-handshake"></i>
-                <h3>Strong Partnerships</h3>
-                <p>Through collaboration with schools, churches, and community groups, we're building networks that change lives.</p>
-            </div>
-            <div class="community-card">
-                <i class="fas fa-globe-asia"></i>
-                <h3>Expanding Horizons</h3>
-                <p>Though locally rooted, our virtual platform connects learners from diverse regions  breaking barriers and bringing quality education beyond borders.</p>
-            </div>
-            <div class="community-card">
-                <i class="fas fa-comments"></i>
-                <h3>Active Engagement</h3>
-                <p>We cultivate a vibrant community where students, parents, and educators connect, collaborate, and grow together through shared learning experiences.</p>
             </div>
         </div>
-    </div>
-</section>
+    </section>
 
-<!-- Call to Action Section -->
-<section class="about-cta-section">
-    <div class="container">
-        <h2>Ready to Join Our NURU Family?</h2>
-        <p>Whether you're a student eager to learn, a parent looking for quality education, or a partner seeking collaboration, we welcome you!</p>
-        <a href="contact.html" class="btn btn-primary">Get Started Today!</a>
-    </div>
-</section>    
+    <!-- ============================================================
+         COMMUNITY & GLOBAL REACH SECTION
+         ============================================================ -->
+    <section class="community-section">
+        <div class="container">
+            <div class="section-header-block">
+                <span class="section-pill gold">
+                    <i class="fas fa-globe"></i> Global Reach
+                </span>
+                <h2 class="section-title">Our Impact &amp; Global Family</h2>
+                <p class="section-subtitle">
+                    NURU FOUNDATION is not just about learning; it's about belonging. We're proud of the community we're building - a family that's driving positive change, empowering learners, and lighting the path for others around the world.
+                </p>
+            </div>
 
-<script src="scripts/footer.js"></script>
-<div id="footerContainer"></div>
+            <div class="community-grid">
+                <div class="community-card">
+                    <i class="fas fa-child"></i>
+                    <h3>Empowering Youth</h3>
+                    <p>Across our programs, young learners are growing in confidence, curiosity, and capability - prepared to lead and make an impact.</p>
+                </div>
 
-<script>
-    // Load Footer Content and initialize it
-    document.addEventListener('DOMContentLoaded', function() {
-        fetch('footer.html')
-            .then(response => response.text())
-            .then(data => {
-                document.getElementById('footerContainer').innerHTML = data;
+                <div class="community-card">
+                    <i class="fas fa-handshake"></i>
+                    <h3>Strong Partnerships</h3>
+                    <p>Through collaboration with schools, churches, and community groups, we're building networks that change lives.</p>
+                </div>
 
-                // Set current year in footer
-                const yearElement = document.getElementById('current-year');
-                if (yearElement) {
-                    yearElement.textContent = new Date().getFullYear();
-                }
+                <div class="community-card">
+                    <i class="fas fa-globe-africa"></i>
+                    <h3>Expanding Horizons</h3>
+                    <p>Though locally rooted, our virtual platform connects learners from diverse regions - breaking barriers and bringing quality education beyond borders.</p>
+                </div>
 
-                // ðŸ”¥ CRITICAL FIX: Manually call the init function AFTER the HTML is loaded.
-                if (typeof startCourseRotation === 'function') {
-                    startCourseRotation();
-                }
-            })
-            .catch(error => console.error('Error loading footer:', error));
-    });
-</script>
+                <div class="community-card">
+                    <i class="fas fa-comments"></i>
+                    <h3>Active Engagement</h3>
+                    <p>We cultivate a vibrant community where students, parents, and educators connect, collaborate, and grow together through shared learning experiences.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================
+         CALL TO ACTION SECTION
+         ============================================================ -->
+    <section class="about-cta-section">
+        <div class="container">
+            <h2>Ready to Join Our NURU Family?</h2>
+            <p>Whether you're a student eager to learn, a parent looking for quality education, or a partner seeking collaboration, we welcome you!</p>
+            <a href="contact.html" class="btn">
+                <i class="fas fa-paper-plane"></i> Get Started Today!
+            </a>
+        </div>
+    </section>    
+
+    <!-- Dynamic Footer -->
+    <script src="scripts/footer.js"></script>
+    <div id="footerContainer"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load Footer Content
+            fetch('footer.html')
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('footerContainer').innerHTML = data;
+
+                    const yearElement = document.getElementById('current-year');
+                    if (yearElement) {
+                        yearElement.textContent = new Date().getFullYear();
+                    }
+
+                    if (typeof startCourseRotation === 'function') {
+                        startCourseRotation();
+                    }
+                })
+                .catch(error => console.error('Error loading footer:', error));
+
+            // Mobile/Touch Card Flip Handler
+            document.querySelectorAll('.team-member-card').forEach(card => {
+                card.addEventListener('click', function(e) {
+                    // Do not prevent default if clicked on an actual link
+                    if (e.target.closest('a')) return;
+                    this.classList.toggle('is-flipped');
+                });
+            });
+
+            // Smooth Scroll for in-page anchors taking fixed header into account
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    const targetId = this.getAttribute('href');
+                    if (targetId === '#' || !targetId) return;
+                    const targetElement = document.querySelector(targetId);
+                    if (targetElement) {
+                        e.preventDefault();
+                        const headerOffset = 90;
+                        const elementPosition = targetElement.getBoundingClientRect().top;
+                        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+                        window.scrollTo({
+                            top: offsetPosition,
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+        });
+    </script>
 
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

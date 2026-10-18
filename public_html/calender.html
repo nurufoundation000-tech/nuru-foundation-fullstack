@@ -3,253 +3,1414 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Program Calendar - NURU Foundation</title>
-    <link rel="icon" href="logo.jpg" type="image/jpeg">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Fredoka+One&display=swap" rel="stylesheet">
+    <title>Academic Program Calendar - NURU Foundation</title>
+    <meta name="description" content="Official academic calendar and cohort schedules for NURU Foundation coding and STEM programs. View key application deadlines, orientation, and class commencement dates.">
+    <link rel="icon" href="NewLogo.png" type="image/png">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Fredoka+One&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="styles/root.css">
     <link rel="stylesheet" href="styles/header.css">
     <link rel="stylesheet" href="styles/footer.css">
     <link rel="stylesheet" href="styles/calender.css">
+    <style>
+        /* Embedded styling for instant cPanel live rendering */
+        .calendar-hero {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #4a0450 50%, #2c0b30 100%);
+            color: var(--text-light);
+            padding: 7rem 1.5rem 4rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            min-height: 52vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .calendar-hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 20% 30%, rgba(247, 183, 49, 0.15) 0%, transparent 40%),
+                        radial-gradient(circle at 80% 70%, rgba(56, 178, 172, 0.15) 0%, transparent 40%);
+            pointer-events: none;
+        }
+
+        .hero-content {
+            z-index: 2;
+            position: relative;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .hero-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            color: var(--secondary-color);
+            padding: 0.45rem 1.25rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            margin-bottom: 1.5rem;
+        }
+
+        .hero-content h1 {
+            font-family: var(--font-family-heading);
+            font-size: 3.2rem;
+            line-height: 1.2;
+            margin-bottom: 1.25rem;
+            color: var(--text-light);
+            text-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+        }
+
+        .hero-content p {
+            font-size: 1.2rem;
+            line-height: 1.7;
+            max-width: 720px;
+            margin: 0 auto 2.2rem;
+            color: rgba(255, 255, 255, 0.92);
+        }
+
+        .hero-cta-group {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        #current-cohort {
+            padding: 2rem 1.5rem 1rem;
+            background: #f8fafc;
+        }
+
+        .current-cohort-banner {
+            background: linear-gradient(135deg, #ffffff 0%, #fffdf5 100%);
+            border: 2px solid var(--secondary-color);
+            border-radius: var(--border-radius-lg);
+            box-shadow: 0 12px 35px rgba(106, 5, 114, 0.08), 0 4px 12px rgba(247, 183, 49, 0.15);
+            max-width: 1140px;
+            margin: -3.5rem auto 2rem;
+            padding: 2.25rem 2.5rem;
+            position: relative;
+            z-index: 10;
+        }
+
+        .banner-top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.25rem;
+            border-bottom: 1px solid rgba(247, 183, 49, 0.25);
+        }
+
+        .banner-badge-live {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            background: linear-gradient(135deg, #f7b731 0%, #ffd166 100%);
+            color: #1a202c;
+            padding: 0.45rem 1.1rem;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 0.4px;
+            text-transform: uppercase;
+        }
+
+        .banner-pulse-dot {
+            width: 9px;
+            height: 9px;
+            background: #e53e3e;
+            border-radius: 50%;
+            display: inline-block;
+            animation: livePulse 1.6s infinite ease-in-out;
+        }
+
+        @keyframes livePulse {
+            0% { transform: scale(0.9); opacity: 1; }
+            50% { transform: scale(1.4); opacity: 0.5; }
+            100% { transform: scale(0.9); opacity: 1; }
+        }
+
+        .banner-seats-left {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            color: var(--primary-color);
+            font-size: 0.9rem;
+            font-weight: 600;
+            background: rgba(106, 5, 114, 0.06);
+            padding: 0.35rem 0.9rem;
+            border-radius: 20px;
+        }
+
+        .banner-main-title {
+            font-family: var(--font-family-heading);
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .banner-main-desc {
+            font-size: 1.05rem;
+            color: #4a5568;
+            margin-bottom: 1.75rem;
+            line-height: 1.6;
+        }
+
+        .banner-milestones-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.25rem;
+            margin-bottom: 2rem;
+        }
+
+        .milestone-date-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: var(--border-radius-md);
+            padding: 1.25rem 1.5rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+
+        .milestone-date-card.highlight {
+            border-color: var(--secondary-color);
+            background: linear-gradient(180deg, #ffffff 0%, #fffbf0 100%);
+            box-shadow: 0 4px 14px rgba(247, 183, 49, 0.16);
+        }
+
+        .milestone-date-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+        }
+
+        .milestone-icon-wrap {
+            width: 46px;
+            height: 46px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+
+        .milestone-icon-wrap.primary {
+            background: rgba(106, 5, 114, 0.1);
+            color: var(--primary-color);
+        }
+
+        .milestone-icon-wrap.secondary {
+            background: rgba(247, 183, 49, 0.2);
+            color: #b7791f;
+        }
+
+        .milestone-icon-wrap.teal {
+            background: rgba(56, 178, 172, 0.15);
+            color: var(--accent-color-1);
+        }
+
+        .milestone-details {
+            flex: 1;
+        }
+
+        .milestone-label {
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #718096;
+            margin-bottom: 0.2rem;
+        }
+
+        .milestone-date {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            line-height: 1.3;
+            margin-bottom: 0.25rem;
+        }
+
+        .milestone-note {
+            font-size: 0.85rem;
+            color: #4a5568;
+            line-height: 1.4;
+        }
+
+        .banner-footer-cta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            background: rgba(106, 5, 114, 0.04);
+            padding: 1rem 1.5rem;
+            border-radius: var(--border-radius-md);
+        }
+
+        .banner-footer-text {
+            font-size: 0.95rem;
+            color: #2d3748;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .calendar-section {
+            padding: 4rem 1.5rem 5rem;
+            background: #f8fafc;
+        }
+
+        .calendar-container {
+            max-width: 1140px;
+            margin: 0 auto;
+        }
+
+        .year-navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2.5rem;
+            padding: 1.25rem 2rem;
+            background: #ffffff;
+            border-radius: var(--border-radius-lg);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+        }
+
+        .year-title {
+            font-size: 1.9rem;
+            color: var(--primary-color);
+            font-family: var(--font-family-heading);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .year-title i {
+            color: var(--secondary-color);
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .nav-btn {
+            background: #ffffff;
+            color: var(--primary-color);
+            border: 1.5px solid #e2e8f0;
+            padding: 0.65rem 1.25rem;
+            border-radius: var(--border-radius-md);
+            cursor: pointer;
+            transition: all 0.25s ease;
+            font-family: var(--font-family-body);
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-btn:hover:not(:disabled) {
+            background: var(--primary-color);
+            color: #ffffff;
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(106, 5, 114, 0.15);
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+            border-color: #e2e8f0;
+        }
+
+        .quarters-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .bottom-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
+        }
+
+        .quarter-card {
+            background: #ffffff;
+            border-radius: var(--border-radius-lg);
+            padding: 2.25rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+            border-top: 5px solid var(--primary-color);
+            transition: all 0.35s ease;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .quarter-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 16px 36px rgba(0, 0, 0, 0.08);
+        }
+
+        .quarter-card.active {
+            border-top-color: var(--secondary-color);
+            box-shadow: 0 8px 30px rgba(247, 183, 49, 0.14), 0 2px 10px rgba(0, 0, 0, 0.04);
+        }
+
+        .quarter-card.upcoming {
+            border-top-color: var(--accent-color-1);
+        }
+
+        .quarter-card.completed {
+            border-top-color: #a0aec0;
+            opacity: 0.9;
+        }
+
+        .quarter-card.premium {
+            border-top-color: #f7b731;
+            background: linear-gradient(180deg, #fffdf8 0%, #ffffff 100%);
+        }
+
+        .quarter-card.corporate {
+            border-top-color: var(--accent-color-1);
+            background: linear-gradient(180deg, #f8fdfd 0%, #ffffff 100%);
+        }
+
+        .quarter-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.25rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .quarter-badge {
+            background: rgba(106, 5, 114, 0.08);
+            color: var(--primary-color);
+            padding: 0.45rem 1rem;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            letter-spacing: 0.3px;
+        }
+
+        .quarter-badge.custom {
+            background: rgba(247, 183, 49, 0.15);
+            color: #975a16;
+        }
+
+        .quarter-badge.team {
+            background: rgba(56, 178, 172, 0.12);
+            color: #234e52;
+        }
+
+        .quarter-status {
+            padding: 0.35rem 0.9rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .status-active {
+            background: #f7b731;
+            color: #1a202c;
+        }
+
+        .status-upcoming {
+            background: rgba(56, 178, 172, 0.15);
+            color: #285e61;
+        }
+
+        .status-completed {
+            background: #edf2f7;
+            color: #718096;
+        }
+
+        .status-premium {
+            background: #feebc8;
+            color: #744210;
+        }
+
+        .status-corporate {
+            background: #e6fffa;
+            color: #234e52;
+        }
+
+        .quarter-card-title {
+            font-family: var(--font-family-heading);
+            font-size: 1.55rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            line-height: 1.3;
+        }
+
+        .quarter-timeline {
+            margin-bottom: 1.5rem;
+        }
+
+        .timeline-bar {
+            height: 9px;
+            background: #edf2f7;
+            border-radius: 6px;
+            overflow: hidden;
+            margin-bottom: 0.6rem;
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.06);
+        }
+
+        .timeline-progress {
+            height: 100%;
+            background: linear-gradient(90deg, var(--secondary-color) 0%, #ffd166 100%);
+            border-radius: 6px;
+            transition: width 0.6s ease;
+        }
+
+        .timeline-dates {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: #4a5568;
+            font-weight: 600;
+        }
+
+        .card-milestones-box {
+            background: #f8fafc;
+            border: 1px solid #edf2f7;
+            border-radius: var(--border-radius-md);
+            padding: 1rem 1.25rem;
+            margin-bottom: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+        }
+
+        .card-milestone-row {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            font-size: 0.88rem;
+            color: #2d3748;
+        }
+
+        .card-milestone-row i {
+            color: var(--accent-color-1);
+            font-size: 0.85rem;
+            width: 16px;
+            text-align: center;
+        }
+
+        .card-milestone-row.highlight-row i {
+            color: #d69e2e;
+        }
+
+        .cohort-desc {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #4a5568;
+            margin-bottom: 1.25rem;
+        }
+
+        .cohort-courses {
+            margin-top: auto;
+            margin-bottom: 1.5rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+        }
+
+        .course-pill {
+            display: inline-block;
+            background: rgba(56, 178, 172, 0.08);
+            color: #285e61;
+            padding: 0.35rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.78rem;
+            border: 1px solid rgba(56, 178, 172, 0.25);
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .course-pill:hover {
+            background: rgba(56, 178, 172, 0.16);
+            transform: translateY(-1px);
+        }
+
+        .card-action {
+            margin-top: auto;
+        }
+
+        .btn-card-action {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            width: 100%;
+            padding: 0.85rem 1.25rem;
+            border-radius: var(--border-radius-md);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-family: var(--font-family-body);
+        }
+
+        .btn-card-action.primary {
+            background: var(--primary-color);
+            color: #ffffff;
+        }
+
+        .btn-card-action.primary:hover {
+            background: #500456;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 14px rgba(106, 5, 114, 0.25);
+        }
+
+        .btn-card-action.secondary {
+            background: #ffffff;
+            color: var(--primary-color);
+            border: 1.5px solid var(--primary-color);
+        }
+
+        .btn-card-action.secondary:hover {
+            background: var(--primary-color);
+            color: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 14px rgba(106, 5, 114, 0.15);
+        }
+
+        .btn-card-action.outline-teal {
+            background: #ffffff;
+            color: #285e61;
+            border: 1.5px solid var(--accent-color-1);
+        }
+
+        .btn-card-action.outline-teal:hover {
+            background: var(--accent-color-1);
+            color: #ffffff;
+            transform: translateY(-2px);
+        }
+
+        .enrollment-timeline {
+            padding: 5rem 1.5rem;
+            background: #ffffff;
+        }
+
+        .timeline-header {
+            text-align: center;
+            max-width: 760px;
+            margin: 0 auto 3.5rem;
+        }
+
+        .timeline-header .section-tag {
+            display: inline-block;
+            color: var(--secondary-color);
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+        }
+
+        .timeline-header h2 {
+            font-family: var(--font-family-heading);
+            font-size: 2.4rem;
+            color: var(--primary-color);
+            margin-bottom: 0.75rem;
+        }
+
+        .timeline-header p {
+            font-size: 1.1rem;
+            color: #4a5568;
+            line-height: 1.6;
+        }
+
+        .timeline-container {
+            max-width: 960px;
+            margin: 0 auto;
+            position: relative;
+            padding: 1rem 0;
+        }
+
+        .timeline-container::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(180deg, var(--secondary-color) 0%, var(--primary-color) 60%, var(--accent-color-1) 100%);
+            transform: translateX(-50%);
+            border-radius: 4px;
+        }
+
+        .timeline-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 3.5rem;
+            position: relative;
+        }
+
+        .timeline-item:last-child {
+            margin-bottom: 1rem;
+        }
+
+        .timeline-item:nth-child(odd) {
+            flex-direction: row-reverse;
+        }
+
+        .timeline-content {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            padding: 2rem;
+            border-radius: var(--border-radius-lg);
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.05);
+            width: 45%;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .timeline-content:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+        }
+
+        .timeline-content::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 20px;
+            height: 20px;
+            background: var(--secondary-color);
+            border: 4px solid #ffffff;
+            box-shadow: 0 0 0 3px var(--primary-color);
+            border-radius: 50%;
+            transform: translateY(-50%);
+            z-index: 2;
+        }
+
+        .timeline-item:nth-child(odd) .timeline-content::after {
+            right: -61px;
+        }
+
+        .timeline-item:nth-child(even) .timeline-content::after {
+            left: -61px;
+        }
+
+        .timeline-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: rgba(106, 5, 114, 0.08);
+            color: var(--primary-color);
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.75rem;
+        }
+
+        .timeline-date {
+            font-weight: 700;
+            color: var(--primary-color);
+            font-size: 1.15rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .timeline-content h3 {
+            font-size: 1.25rem;
+            color: #1a202c;
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+        }
+
+        .timeline-content p {
+            font-size: 0.92rem;
+            color: #4a5568;
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        .quick-start {
+            padding: 5rem 1.5rem;
+            background: #f8fafc;
+        }
+
+        .quick-start-header {
+            text-align: center;
+            max-width: 720px;
+            margin: 0 auto 3.5rem;
+        }
+
+        .quick-start-header h2 {
+            font-family: var(--font-family-heading);
+            font-size: 2.3rem;
+            color: var(--primary-color);
+            margin-bottom: 0.75rem;
+        }
+
+        .quick-start-header p {
+            font-size: 1.05rem;
+            color: #4a5568;
+        }
+
+        .start-steps {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            max-width: 1080px;
+            margin: 0 auto;
+        }
+
+        .step-card {
+            text-align: center;
+            padding: 2.5rem 2rem;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: var(--border-radius-lg);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .step-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
+        }
+
+        .step-number {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary-color) 0%, #8a2be2 100%);
+            color: #ffffff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            font-family: var(--font-family-heading);
+            font-size: 1.5rem;
+            box-shadow: 0 4px 12px rgba(106, 5, 114, 0.25);
+        }
+
+        .step-card h3 {
+            font-size: 1.25rem;
+            color: #1a202c;
+            margin-bottom: 0.75rem;
+        }
+
+        .step-card p {
+            font-size: 0.95rem;
+            color: #4a5568;
+            line-height: 1.6;
+        }
+
+        .calendar-cta {
+            padding: 5rem 1.5rem;
+            background: linear-gradient(135deg, var(--primary-color) 0%, #4a0450 100%);
+            color: var(--text-light);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .calendar-cta::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at center, rgba(247, 183, 49, 0.12) 0%, transparent 70%);
+        }
+
+        .cta-content {
+            max-width: 740px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+
+        .cta-content h2 {
+            font-family: var(--font-family-heading);
+            font-size: 2.6rem;
+            line-height: 1.25;
+            margin-bottom: 1.25rem;
+        }
+
+        .cta-content p {
+            font-size: 1.15rem;
+            line-height: 1.7;
+            color: rgba(255, 255, 255, 0.92);
+            margin-bottom: 2rem;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 1.25rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.6rem;
+            padding: 0.9rem 1.8rem;
+            border-radius: var(--border-radius-md);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-family: var(--font-family-body);
+        }
+
+        .btn-primary {
+            background: var(--secondary-color);
+            color: #1a202c;
+            box-shadow: 0 4px 12px rgba(247, 183, 49, 0.25);
+        }
+
+        .btn-primary:hover {
+            background: #e6a724;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(247, 183, 49, 0.35);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-light);
+            border: 2px solid var(--text-light);
+        }
+
+        .btn-secondary:hover {
+            background: var(--text-light);
+            color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+
+        .btn-outline-light {
+            background: rgba(255, 255, 255, 0.12);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            backdrop-filter: blur(6px);
+        }
+
+        .btn-outline-light:hover {
+            background: #ffffff;
+            color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+
+        .year-cohort.fade-out {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        .year-cohort.fade-in {
+            animation: fadeInUp 0.4s ease forwards;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 992px) {
+            .banner-milestones-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .quarters-grid,
+            .bottom-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .start-steps {
+                grid-template-columns: 1fr;
+            }
+
+            .timeline-container::before {
+                left: 28px;
+            }
+
+            .timeline-item {
+                flex-direction: row !important;
+                margin-bottom: 2.5rem;
+            }
+
+            .timeline-content {
+                width: calc(100% - 70px);
+                margin-left: 70px;
+            }
+
+            .timeline-item:nth-child(odd) .timeline-content::after,
+            .timeline-item:nth-child(even) .timeline-content::after {
+                left: -53px !important;
+                right: auto !important;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .calendar-hero {
+                padding: 5.5rem 1.25rem 3.5rem;
+                min-height: auto;
+            }
+
+            .hero-content h1 {
+                font-size: 2.2rem;
+            }
+
+            .hero-content p {
+                font-size: 1.05rem;
+            }
+
+            .current-cohort-banner {
+                margin-top: -2rem;
+                padding: 1.75rem 1.25rem;
+            }
+
+            .banner-main-title {
+                font-size: 1.6rem;
+            }
+
+            .year-navigation {
+                flex-direction: column;
+                gap: 1.25rem;
+                text-align: center;
+                padding: 1.25rem;
+            }
+
+            .timeline-header h2,
+            .quick-start-header h2,
+            .cta-content h2 {
+                font-size: 1.9rem;
+            }
+
+            .timeline-content {
+                padding: 1.5rem;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-content h1 {
+                font-size: 1.85rem;
+            }
+
+            .milestone-date-card {
+                padding: 1rem;
+            }
+
+            .milestone-date {
+                font-size: 1.1rem;
+            }
+
+            .timeline-content {
+                width: calc(100% - 55px);
+                margin-left: 55px;
+                padding: 1.25rem;
+            }
+
+            .timeline-container::before {
+                left: 20px;
+            }
+
+            .timeline-item:nth-child(odd) .timeline-content::after,
+            .timeline-item:nth-child(even) .timeline-content::after {
+                left: -44px !important;
+                width: 16px;
+                height: 16px;
+            }
+        }
+    </style>
 </head>
 <body>
 
-    
+    <!-- Dynamic Header -->
+    <script src="scripts/header.js"></script>
+    <div id="headerContainer"></div>
 
-<script src="scripts/header.js"></script>
-<div id="headerContainer"></div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            fetch('header.html')
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('headerContainer').innerHTML = data;
+                    if (typeof initHeader === 'function') {
+                        initHeader();
+                    }
+                })
+                .catch(error => console.error('Error loading header:', error));
+        });
+    </script>
 
-<script>
-    
-    document.addEventListener('DOMContentLoaded', function() {
-        fetch('header.html')
-            .then(response => response.text())
-            .then(data => {
-                document.getElementById('headerContainer').innerHTML = data;
-                
-                
-                if (typeof initHeader === 'function') {
-                    initHeader();
-                }
-            })
-            .catch(error => console.error('Error loading header:', error));
-    });
-</script>
     <!-- Calendar Hero Section -->
     <section class="calendar-hero">
         <div class="hero-content">
-            <h1>Program Calendar & Cohorts</h1>
-            <p>Plan your learning journey with our structured cohort system. Four intake periods per year to fit your schedule.</p>
-            <div class="cta-buttons">
-                <a href="#current-cohort" class="btn btn-primary">View Current Cohort</a>
-                <a href="#enrollment" class="btn btn-secondary">Enrollment Process</a>
+            <div class="hero-pill">
+                <i class="fas fa-calendar-alt"></i> Academic Intake Calendar 2026 - 2027
+            </div>
+            <h1>Program Calendar &amp; Cohorts</h1>
+            <p>Accelerate your tech mastery with our structured online cohorts. Live interactive classes, personalized mentorship, and hands-on portfolio projects built for real-world impact.</p>
+            <div class="hero-cta-group">
+                <a href="#current-cohort" class="btn btn-primary"><i class="fas fa-fire"></i> View October Cohort 1</a>
+                <a href="#enrollment" class="btn btn-secondary"><i class="fas fa-route"></i> Enrollment Timeline</a>
+                <a href="apply-now-bt.html" class="btn btn-outline-light"><i class="fas fa-paper-plane"></i> Apply for Cohort 1</a>
             </div>
         </div>
     </section>
 
-    <!-- Current Cohort Banner -->
+    <!-- Current Cohort Banner (Live Milestones) -->
     <section id="current-cohort">
         <div class="current-cohort-banner">
-            <h2 style="margin-bottom: 0.5rem; font-size: 1.8rem;">🎯 Currently Enrolling: Cohort 1 (Jan - April 2026)</h2>
-            <p style="font-size: 1.1rem; margin: 0;">Limited spots available! Registration closes January 25th, 2026</p>
+            <div class="banner-top-bar">
+                <div class="banner-badge-live">
+                    <span class="banner-pulse-dot"></span>
+                    <span>Enrolling Now: Cohort 1</span>
+                </div>
+                <div class="banner-seats-left">
+                    <i class="fas fa-shield-alt"></i> Limited Virtual Seats Per Track
+                </div>
+            </div>
+
+            <h2 id="banner-title" class="banner-main-title">OCTOBER INTAKE</h2>
+            <p id="banner-subtitle" class="banner-main-desc">Registration is currently open for our premier fall cohort. Ensure your application is submitted before the deadline to secure mentor onboarding and classroom access.</p>
+
+            <!-- 3 Official Milestone Cards -->
+            <div class="banner-milestones-grid">
+                <div class="milestone-date-card highlight">
+                    <div class="milestone-icon-wrap secondary">
+                        <i class="fas fa-calendar-times"></i>
+                    </div>
+                    <div class="milestone-details">
+                        <div class="milestone-label">Milestone 1 - Final Deadline</div>
+                        <div class="milestone-date">October 21st, 2026</div>
+                        <div class="milestone-note">Application &amp; registration portal closes at 11:59 PM EAT.</div>
+                    </div>
+                </div>
+
+                <div class="milestone-date-card">
+                    <div class="milestone-icon-wrap teal">
+                        <i class="fas fa-laptop-code"></i>
+                    </div>
+                    <div class="milestone-details">
+                        <div class="milestone-label">Milestone 2 - Tech Onboarding</div>
+                        <div class="milestone-date">October 24th, 2026</div>
+                        <div class="milestone-note">Live online orientation, developer tool setup &amp; mentor meet.</div>
+                    </div>
+                </div>
+
+                <div class="milestone-date-card">
+                    <div class="milestone-icon-wrap primary">
+                        <i class="fas fa-rocket"></i>
+                    </div>
+                    <div class="milestone-details">
+                        <div class="milestone-label">Milestone 3 - Class Kickoff</div>
+                        <div class="milestone-date">October 26th, 2026</div>
+                        <div class="milestone-note">First live session commences across all tech pathways.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="banner-footer-cta">
+                <div class="banner-footer-text">
+                    <i class="fas fa-check-circle" style="color: var(--accent-color-1);"></i>
+                    <span>All learning tracks (Web Dev, Python, Cyber Security, AI, Kids Coding) follow this October timeline.</span>
+                </div>
+                <a href="apply-now-bt.html" class="btn btn-primary">
+                    <i class="fas fa-user-plus"></i> Register for Cohort 1 Now
+                </a>
+            </div>
         </div>
     </section>
 
-    <!-- Interactive Calendar -->
+    <!-- Interactive Program Calendar -->
     <section class="calendar-section">
         <div class="calendar-container">
             <div class="year-navigation">
-                <h2 class="year-title">2026 Program Calendar</h2>
+                <h2 class="year-title" id="calendarYearTitle">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span class="year-title-text">2026 Program Calendar</span>
+                </h2>
                 <div class="nav-buttons">
-                    <button class="nav-btn">← Previous Year</button>
-                    <button class="nav-btn">Next Year →</button>
+                    <button class="nav-btn prev-year" type="button"><i class="fas fa-arrow-left"></i> Previous Year</button>
+                    <button class="nav-btn next-year" type="button">Next Year <i class="fas fa-arrow-right"></i></button>
                 </div>
             </div>
 
+            <!-- Top Grid: Standard Annual Cohorts -->
             <div class="quarters-grid">
-                <!-- Cohort 1 -->
-                <div class="quarter-card completed">
+                <!-- Cohort 1 Card -->
+                <div class="quarter-card year-cohort active" id="cohortCard1">
                     <div class="quarter-header">
-                        <div class="quarter-badge">Cohort 1</div>
-                        <div class="quarter-status status-completed">Completed</div>
+                        <div class="quarter-badge"><i class="fas fa-users"></i> Cohort 1</div>
+                        <div class="quarter-status status-active"><i class="fas fa-check-circle"></i> Enrolling Now</div>
                     </div>
-                    <h3 style="color: var(--primary-color); margin-bottom: 1rem;">February - April 2026</h3>
+                    <h3 class="quarter-card-title"><span class="cohort-title">OCTOBER INTAKE</span></h3>
+                    
                     <div class="quarter-timeline">
                         <div class="timeline-bar">
-                            <div class="timeline-progress" style="width: 100%"></div>
+                            <div class="timeline-progress" style="width: 15%"></div>
                         </div>
                         <div class="timeline-dates">
-                            <span>Feb 1</span>
-                            <span>Apr 30</span>
+                            <span>Classes Begin: <strong class="start-date">Oct 26, 2026</strong></span>
+                            <span>Term Ends: <strong class="end-date">Dec 20, 2026</strong></span>
                         </div>
                     </div>
-                    <p>Winter/Spring session completed. Students are now working on final projects.</p>
+
+                    <div class="card-milestones-box">
+                        <div class="card-milestone-row highlight-row">
+                            <i class="fas fa-calendar-check"></i>
+                            <span><strong>Registration Deadline:</strong> October 21st, 2026</span>
+                        </div>
+                        <div class="card-milestone-row">
+                            <i class="fas fa-laptop-code"></i>
+                            <span><strong>Online Orientation:</strong> October 24th, 2026</span>
+                        </div>
+                        <div class="card-milestone-row">
+                            <i class="fas fa-graduation-cap"></i>
+                            <span><strong>First Live Class:</strong> October 26th, 2026</span>
+                        </div>
+                    </div>
+
+                    <p class="cohort-desc">October intake open for all enrolled streams. Join our expert-led sessions to kickstart your tech journey.</p>
+                    
                     <div class="cohort-courses">
-                        <span class="course-pill">All Courses</span>
+                        <span class="course-pill">Full-Stack Web</span>
+                        <span class="course-pill">Python &amp; AI</span>
+                        <span class="course-pill">Cybersecurity</span>
+                        <span class="course-pill">Data Science</span>
+                        <span class="course-pill">Kids &amp; Teens</span>
+                    </div>
+
+                    <div class="card-action">
+                        <a href="apply-now-bt.html" class="btn-card-action primary">
+                            <i class="fas fa-file-signature"></i> Apply for Cohort 1
+                        </a>
                     </div>
                 </div>
 
-                <!-- Cohort 2 -->
-                <div class="quarter-card active">
+                <!-- Cohort 2 Card (Upcoming / Flexible Duration) -->
+                <div class="quarter-card year-cohort upcoming" id="cohortCard2">
                     <div class="quarter-header">
-                        <div class="quarter-badge">Cohort 2</div>
-                        <div class="quarter-status status-active">Enrolling Now</div>
+                        <div class="quarter-badge"><i class="fas fa-calendar-alt"></i> Next Intake</div>
+                        <div class="quarter-status status-upcoming"><i class="fas fa-clock"></i> Dates TBA</div>
                     </div>
-                    <h3 style="color: var(--primary-color); margin-bottom: 1rem;">May - July 2024</h3>
-                    <div class="quarter-timeline">
-                        <div class="timeline-bar">
-                            <div class="timeline-progress" style="width: 0%"></div>
-                        </div>
-                        <div class="timeline-dates">
-                            <span>May 1</span>
-                            <span>Jul 31</span>
-                        </div>
-                    </div>
-                    <p>Summer session starting soon! Perfect time to begin your tech journey.</p>
-                    <div class="cohort-courses">
-                        <span class="course-pill">All Courses</span>
-                        <span class="course-pill">New: AI Essentials</span>
-                    </div>
-                </div>
-
-                <!-- Cohort 3 -->
-                <div class="quarter-card upcoming">
-                    <div class="quarter-header">
-                        <div class="quarter-badge">Cohort 3</div>
-                        <div class="quarter-status status-upcoming">Upcoming</div>
-                    </div>
-                    <h3 style="color: var(--primary-color); margin-bottom: 1rem;">August - October 2024</h3>
-                    <div class="quarter-timeline">
-                        <div class="timeline-bar">
-                            <div class="timeline-progress" style="width: 0%"></div>
-                        </div>
-                        <div class="timeline-dates">
-                            <span>Aug 1</span>
-                            <span>Oct 31</span>
-                        </div>
-                    </div>
-                    <p>Fall session - registration opens June 15th. Plan ahead for your studies!</p>
-                    <div class="cohort-courses">
-                        <span class="course-pill">All Courses</span>
-                    </div>
-                </div>
-
-                <!-- Cohort 4 -->
-                <div class="quarter-card">
-                    <div class="quarter-header">
-                        <div class="quarter-badge">Cohort 4</div>
-                        <div class="quarter-status">Planning</div>
-                    </div>
-                    <h3 style="color: var(--primary-color); margin-bottom: 1rem;">November 2024 - January 2025</h3>
+                    <h3 class="quarter-card-title"><span class="cohort-title">UPCOMING INTAKE</span></h3>
+                    
                     <div class="quarter-timeline">
                         <div class="timeline-bar">
                             <div class="timeline-progress" style="width: 0%"></div>
                         </div>
                         <div class="timeline-dates">
-                            <span>Nov 1</span>
-                            <span>Jan 31</span>
+                            <span>Start Schedule: <strong class="start-date">To Be Announced</strong></span>
+                            <span>Course Length: <strong class="end-date">8 Wks to 1 Year</strong></span>
                         </div>
                     </div>
-                    <p>Winter session - perfect for year-end skill development and New Year goals.</p>
+
+                    <div class="card-milestones-box">
+                        <div class="card-milestone-row">
+                            <i class="fas fa-calendar-alt"></i>
+                            <span><strong>Intake Timing:</strong> Schedule currently under review (TBA)</span>
+                        </div>
+                        <div class="card-milestone-row">
+                            <i class="fas fa-hourglass-half"></i>
+                            <span><strong>Course Duration:</strong> Flexible tracks (8 weeks up to 1 full year)</span>
+                        </div>
+                        <div class="card-milestone-row">
+                            <i class="fas fa-bell"></i>
+                            <span><strong>Priority Waitlist:</strong> Open for syllabus &amp; launch alerts</span>
+                        </div>
+                    </div>
+
+                    <p class="cohort-desc">Our next intake schedule is currently in planning. Depending on your chosen pathway, course lengths range from intensive 8-week bootcamps to comprehensive 1-year diploma programs. Join the waitlist for updates.</p>
+                    
                     <div class="cohort-courses">
-                        <span class="course-pill">All Courses</span>
+                        <span class="course-pill">8-Week Intensives</span>
+                        <span class="course-pill">6-Month Diplomas</span>
+                        <span class="course-pill">1-Year Comprehensive Tracks</span>
+                        <span class="course-pill">Weekend &amp; Evening</span>
+                    </div>
+
+                    <div class="card-action">
+                        <a href="contact.html?inquiry=upcoming-intake-waitlist" class="btn-card-action secondary">
+                            <i class="fas fa-bell"></i> Join Waitlist for Dates
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Grid: Custom & Group Options -->
+            <div class="bottom-grid">
+                <!-- Flexible Schedule (Inc Tuitions) -->
+                <div class="quarter-card premium">
+                    <div class="quarter-header">
+                        <div class="quarter-badge custom"><i class="fas fa-sliders-h"></i> 1-on-1 &amp; Flexible</div>
+                        <div class="quarter-status status-premium"><i class="fas fa-star"></i> Custom Dates</div>
+                    </div>
+                    <h3 class="quarter-card-title">Flexible Schedule &amp; School Tuitions</h3>
+                    <div class="quarter-timeline">
+                        <div class="timeline-bar">
+                            <div class="timeline-progress" style="width: 100%; background: #ffd166;"></div>
+                        </div>
+                        <div class="timeline-dates">
+                            <span>Start: <strong>Anytime (Open)</strong></span>
+                            <span>Pace: <strong>Self-Paced / 1-on-1</strong></span>
+                        </div>
+                    </div>
+                    <p class="cohort-desc">Personalized learning calendar tailored to your weekly availability. Ideal for busy working professionals, self-paced students, as well as primary and high school students who need targeted tuitions across academic subjects and coding.</p>
+                    <div class="cohort-courses">
+                        <span class="course-pill">1-on-1 Tutoring</span>
+                        <span class="course-pill">School Subject Tuitions</span>
+                        <span class="course-pill">Math &amp; Science</span>
+                        <span class="course-pill">Custom Curricula</span>
+                    </div>
+                    <div class="card-action">
+                        <a href="contact.html?inquiry=flexible-tuition" class="btn-card-action primary">
+                            <i class="fas fa-comments"></i> Inquire for Custom Schedule
+                        </a>
                     </div>
                 </div>
 
-
-                <!-- Cohort 5 -->
-<div class="quarter-card premium">
-    <div class="quarter-header">
-        <div class="quarter-badge">Customizable </div>
-        <div class="quarter-status status-premium">Custom Dates</div>
-    </div>
-    <h3 style="color: var(--primary-color); margin-bottom: 1rem;">Flexible Schedule (Inc Tuitions)</h3>
-    <div class="quarter-timeline">
-        <div class="timeline-bar">
-            <div class="timeline-progress" style="width: 100%"></div>
-        </div>
-        <div class="timeline-dates">
-            <span>Open</span>
-            <span>Anytime</span>
-        </div>
-    </div>
-    <p>Personalized learning calendar — start when it suits you! Ideal for busy professionals and self-paced learners,High school and primary school students who need Tuitions in different scool subjects. Premium pricing applies.</p>
-    <div class="cohort-courses">
-        <span class="course-pill">All Courses + School Work</span>
-        <span class="course-pill">Tailored Programs(Like Math)</span>
-    </div>
-</div>
-
-
-
-<!-- Corporate & Group Training -->
-<div class="quarter-card corporate">
-    <div class="quarter-header">
-        <div class="quarter-badge">Group Program</div>
-        <div class="quarter-status status-corporate">Custom Dates</div>
-    </div>
-    <h3 style="color: var(--primary-color); margin-bottom: 1rem;">Corporate & School Groups</h3>
-    <div class="quarter-timeline">
-        <div class="timeline-bar">
-            <div class="timeline-progress" style="width: 100%; background: var(--accent-color-1);"></div>
-        </div>
-        <div class="timeline-dates">
-            <span>Custom Start</span>
-            <span>Custom End</span>
-        </div>
-    </div>
-    <p>Specialized training for organizations, schools, and groups of 5+ students. Custom curriculum available.Premium pricing applies.</p>
-    <div class="cohort-courses">
-        <span class="course-pill">Bulk Discounts</span>
-        <span class="course-pill">Custom Content</span>
-        <span class="course-pill">Dedicated Coach</span>
-    </div>
-    <!-- <div class="cohort-features" style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #eee;">
-        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
-            <i class="fas fa-users" style="color: var(--accent-color-1);"></i>
-            <span style="font-size: 0.9rem;">Minimum 5 participants</span>
-        </div>
-        <div style="display: flex; align-items: center; gap: 0.5rem;">
-            <i class="fas fa-graduation-cap" style="color: var(--accent-color-1);"></i>
-            <span style="font-size: 0.9rem;">Customized learning paths</span>
-        </div>
-    </div> -->
-</div>
+                <!-- Corporate & School Groups -->
+                <div class="quarter-card corporate">
+                    <div class="quarter-header">
+                        <div class="quarter-badge team"><i class="fas fa-building"></i> Groups &amp; Schools</div>
+                        <div class="quarter-status status-corporate"><i class="fas fa-users-cog"></i> Custom Cohorts</div>
+                    </div>
+                    <h3 class="quarter-card-title">Corporate &amp; School Group Training</h3>
+                    <div class="quarter-timeline">
+                        <div class="timeline-bar">
+                            <div class="timeline-progress" style="width: 100%; background: var(--accent-color-1);"></div>
+                        </div>
+                        <div class="timeline-dates">
+                            <span>Start: <strong>Custom Start Date</strong></span>
+                            <span>Schedule: <strong>Customized Duration</strong></span>
+                        </div>
+                    </div>
+                    <p class="cohort-desc">Engineered for organizations, educational institutions, and student groups of 5+ learners. Includes customized curricula, dedicated mentors, employee progress reports, and team-based capstone projects.</p>
+                    <div class="cohort-courses">
+                        <span class="course-pill">Group Bulk Discounts</span>
+                        <span class="course-pill">Custom Content</span>
+                        <span class="course-pill">Dedicated Coach</span>
+                        <span class="course-pill">Progress Reports</span>
+                    </div>
+                    <div class="card-action">
+                        <a href="contact.html?inquiry=corporate" class="btn-card-action outline-teal">
+                            <i class="fas fa-handshake"></i> Request Group Proposal
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
 
-    <!-- Enrollment Timeline -->
+    <!-- Official Enrollment Timeline -->
     <section class="enrollment-timeline" id="enrollment">
         <div class="container">
-            <h2 style="text-align: center; margin-bottom: 3rem; color: var(--primary-color);">Enrollment Timeline</h2>
+            <div class="timeline-header">
+                <span class="section-tag">Step-by-Step Pathway</span>
+                <h2>Official Cohort 1 Enrollment Roadmap</h2>
+                <p>Follow these essential dates to ensure a seamless onboarding experience into the October 2026 Cohort.</p>
+            </div>
+
             <div class="timeline-container">
+                <!-- Milestone 1 -->
                 <div class="timeline-item">
                     <div class="timeline-content">
-                        <div class="timeline-date">2 Months Before Cohort Start</div>
-                        <h3>Registration Opens</h3>
-                        <p>Early registration begins with priority placement and course selection</p>
+                        <div class="timeline-badge"><i class="fas fa-flag-checkered"></i> Milestone 1</div>
+                        <div class="timeline-date"><i class="fas fa-calendar-times"></i> October 21st, 2026</div>
+                        <h3>Application &amp; Registration Deadline</h3>
+                        <p>The final date to submit your online application form and complete your registration. Student records and cohort slots are locked immediately after this date to prepare class rosters.</p>
                     </div>
                 </div>
+
+                <!-- Milestone 2 -->
                 <div class="timeline-item">
                     <div class="timeline-content">
-                        <div class="timeline-date">3 Weeks Before Start</div>
-                        <h3>Orientation & Placement</h3>
-                        <p>Welcome session, technical setup, and skill assessment for personalized learning paths</p>
+                        <div class="timeline-badge"><i class="fas fa-laptop-code"></i> Milestone 2</div>
+                        <div class="timeline-date"><i class="fas fa-video"></i> October 24th, 2026</div>
+                        <h3>Online Orientation &amp; Technical Setup</h3>
+                        <p>Mandatory live virtual orientation session. Students receive learning portal login details, configure code editors and development environments, and meet their lead instructors and peer study groups.</p>
                     </div>
                 </div>
+
+                <!-- Milestone 3 -->
                 <div class="timeline-item">
                     <div class="timeline-content">
-                        <div class="timeline-date">Cohort Start Date</div>
-                        <h3>Learning Begins</h3>
-                        <p>First live session, meet your instructors and classmates, start your journey</p>
+                        <div class="timeline-badge"><i class="fas fa-rocket"></i> Milestone 3</div>
+                        <div class="timeline-date"><i class="fas fa-chalkboard-teacher"></i> October 26th, 2026</div>
+                        <h3>First Live Class &amp; Learning Commences</h3>
+                        <p>Official commencement of Cohort 1 lectures. Join your live classroom, dive straight into Module 1 fundamentals, and tackle your first guided lab challenges with mentor support.</p>
                     </div>
                 </div>
+
+                <!-- Milestone 4 -->
                 <div class="timeline-item">
                     <div class="timeline-content">
-                        <div class="timeline-date">Throughout Cohort</div>
-                        <h3>Continuous Support</h3>
-                        <p>Regular check-ins, project guidance, and community activities</p>
+                        <div class="timeline-badge"><i class="fas fa-award"></i> Milestone 4</div>
+                        <div class="timeline-date"><i class="fas fa-clock"></i> Throughout October Intake</div>
+                        <h3>Hands-on Labs, Mentorship &amp; Graduation</h3>
+                        <p>Weekly mentor office hours, real-world portfolio capstone projects, collaborative team coding sessions, and culminating in verified NURU Foundation course certification.</p>
                     </div>
                 </div>
             </div>
@@ -259,111 +1420,354 @@
     <!-- Quick Start Guide -->
     <section class="quick-start">
         <div class="container">
-            <h2 style="text-align: center; margin-bottom: 3rem; color: var(--primary-color);">Get Started in 3 Easy Steps</h2>
+            <div class="quick-start-header">
+                <h2>Get Started in 3 Easy Steps</h2>
+                <p>Joining Cohort 1 is simple, fast, and structured for your success.</p>
+            </div>
             <div class="start-steps">
                 <div class="step-card">
                     <div class="step-number">1</div>
-                    <h3>Choose Your Cohort</h3>
-                    <p>Select the intake period that works best with your schedule and goals</p>
+                    <h3>Choose Your Track</h3>
+                    <p>Explore our courses across Full-Stack Web, Cyber Security, Python &amp; AI, Data Science, or Kids Coding to match your passion.</p>
                 </div>
                 <div class="step-card">
                     <div class="step-number">2</div>
-                    <h3>Register Online</h3>
-                    <p>Complete our simple registration form and select your preferred courses</p>
+                    <h3>Register by Oct 21st</h3>
+                    <p>Fill out our simple application form, confirm your contact details, and choose your preferred learning schedule.</p>
                 </div>
                 <div class="step-card">
                     <div class="step-number">3</div>
-                    <h3>Start Learning</h3>
-                    <p>Join orientation and begin your transformative learning experience</p>
+                    <h3>Attend &amp; Launch</h3>
+                    <p>Join the live online orientation on October 24th, and start live interactive coding classes on October 26th.</p>
                 </div>
             </div>
         </div>
     </section>
 
-  
+    <!-- Calendar Call to Action -->
     <section class="calendar-cta">
         <div class="cta-content">
-            <h2>Ready to Start Your Journey?</h2>
-            <p>Join our next cohort and become part of the NURU Foundation learning community. Transform your future with skills that matter.</p>
+            <h2>Ready to Begin in Cohort 1?</h2>
+            <p>Registration closes October 21st, 2026. Join a dynamic community of passionate learners and transform your future with in-demand technical skills.</p>
             <div class="cta-buttons">
-                <a href="apply-now-bt.html" class="btn btn-primary">Register for Cohort 2</a>
-                <a href="courses.html" class="btn btn-secondary">Browse All Courses</a>
-                <a href="contact.html" class="btn btn-secondary">Ask Questions</a>
+                <a href="apply-now-bt.html" class="btn btn-primary"><i class="fas fa-paper-plane"></i> Apply for Cohort 1</a>
+                <a href="courses.html" class="btn btn-secondary"><i class="fas fa-book-open"></i> Browse All Courses</a>
+                <a href="contact.html" class="btn btn-outline-light"><i class="fas fa-question-circle"></i> Have Questions? Contact Us</a>
             </div>
         </div>
     </section>
 
-
-
+    <!-- Dynamic Footer -->
     <script src="scripts/footer.js"></script>
-<div id="footerContainer"></div>
-
-<script>
-    
-    document.addEventListener('DOMContentLoaded', function() {
-        fetch('footer.html')
-            .then(response => response.text())
-            .then(data => {
-                document.getElementById('footerContainer').innerHTML = data;
-                
-                
-                if (typeof startCourseRotation === 'function') {
-                    startCourseRotation();
-                }
-            })
-            .catch(error => console.error('Error loading footer:', error));
-    });
-</script>
+    <div id="footerContainer"></div>
 
     <script>
-      
         document.addEventListener('DOMContentLoaded', function() {
-           
+            fetch('footer.html')
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('footerContainer').innerHTML = data;
+                    if (typeof startCourseRotation === 'function') {
+                        startCourseRotation();
+                    }
+                })
+                .catch(error => console.error('Error loading footer:', error));
+        });
+    </script>
+
+    <!-- Calendar Script & Cohort Management -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const cohortData = {
+                2025: {
+                    cohort1: {
+                        title: 'OCTOBER INTAKE',
+                        start: 'Oct 27, 2025',
+                        end: 'Dec 19, 2025',
+                        regDeadline: 'Oct 22, 2025',
+                        orientation: 'Oct 25, 2025',
+                        classesStart: 'Oct 27, 2025',
+                        desc: 'October intake concluded successfully. View archived curriculum details.',
+                        status: 'completed',
+                        statusText: 'Completed'
+                    },
+                    cohort2: {
+                        title: 'PREVIOUS INTAKE',
+                        start: 'Jan 19, 2026',
+                        end: 'Mar 28, 2026',
+                        regDeadline: 'Jan 14, 2026',
+                        orientation: 'Jan 17, 2026',
+                        classesStart: 'Jan 19, 2026',
+                        desc: 'Previous intake completed. All graduates certified.',
+                        status: 'completed',
+                        statusText: 'Completed'
+                    }
+                },
+                2026: {
+                    cohort1: {
+                        title: 'OCTOBER INTAKE',
+                        start: 'Oct 26, 2026',
+                        end: 'Dec 20, 2026',
+                        regDeadline: 'October 21st, 2026',
+                        orientation: 'October 24th, 2026',
+                        classesStart: 'October 26th, 2026',
+                        desc: 'October intake open for all enrolled streams. Join our expert-led sessions to kickstart your tech journey.',
+                        status: 'active',
+                        statusText: 'Enrolling Now'
+                    },
+                    cohort2: {
+                        title: 'UPCOMING INTAKE',
+                        start: 'To Be Announced',
+                        end: '8 Wks to 1 Year',
+                        regDeadline: 'To Be Announced',
+                        orientation: 'To Be Announced',
+                        classesStart: 'To Be Announced',
+                        desc: 'Our next intake schedule is currently in planning. Depending on your chosen pathway, course lengths range from intensive 8-week bootcamps to comprehensive 1-year diploma programs. Join the waitlist for updates.',
+                        status: 'upcoming',
+                        statusText: 'Dates TBA'
+                    }
+                },
+                2027: {
+                    cohort1: {
+                        title: 'OCTOBER INTAKE',
+                        start: 'Oct 25, 2027',
+                        end: 'Dec 18, 2027',
+                        regDeadline: 'October 20th, 2027',
+                        orientation: 'October 23rd, 2027',
+                        classesStart: 'October 25th, 2027',
+                        desc: 'Future October intake. Registration details and syllabus will be published in mid-2027.',
+                        status: 'upcoming',
+                        statusText: 'Upcoming'
+                    },
+                    cohort2: {
+                        title: 'UPCOMING INTAKE',
+                        start: 'To Be Announced',
+                        end: '8 Wks to 1 Year',
+                        regDeadline: 'To Be Announced',
+                        orientation: 'To Be Announced',
+                        classesStart: 'To Be Announced',
+                        desc: 'Future intake schedule. Course durations range from 8 weeks to 1 full year.',
+                        status: 'upcoming',
+                        statusText: 'Dates TBA'
+                    }
+                },
+                2028: {
+                    cohort1: {
+                        title: 'OCTOBER INTAKE',
+                        start: 'Oct 23, 2028',
+                        end: 'Dec 16, 2028',
+                        regDeadline: 'October 18th, 2028',
+                        orientation: 'October 21st, 2028',
+                        classesStart: 'October 23rd, 2028',
+                        desc: 'Future October intake 2028. Annual tech curriculum and cohort schedules.',
+                        status: 'upcoming',
+                        statusText: 'Upcoming'
+                    },
+                    cohort2: {
+                        title: 'UPCOMING INTAKE',
+                        start: 'To Be Announced',
+                        end: '8 Wks to 1 Year',
+                        regDeadline: 'To Be Announced',
+                        orientation: 'To Be Announced',
+                        classesStart: 'To Be Announced',
+                        desc: 'Future intake schedule. Course durations range from 8 weeks to 1 full year.',
+                        status: 'upcoming',
+                        statusText: 'Dates TBA'
+                    }
+                }
+            };
+
+            let currentYear = 2026;
+            const minYear = 2025;
+            const maxYear = 2028;
+
             function updateCohortProgress() {
                 const now = new Date();
-                const cohort2Start = new Date('2024-05-01');
-                const cohort2End = new Date('2024-07-31');
-                const totalDuration = cohort2End - cohort2Start;
-                const elapsed = now - cohort2Start;
-                
-                const progress = Math.min(Math.max((elapsed / totalDuration) * 100, 0), 100);
-                document.querySelector('.quarter-card.active .timeline-progress').style.width = progress + '%';
+                const cohort1Start = new Date('2026-10-26T00:00:00');
+                const cohort1End = new Date('2026-12-20T23:59:59');
+                const regStart = new Date('2026-09-01T00:00:00');
+
+                let progress = 0;
+                if (now < regStart) {
+                    progress = 5;
+                } else if (now < cohort1Start) {
+                    // Registration phase progress (up to 40%)
+                    const regElapsed = now - regStart;
+                    const regTotal = cohort1Start - regStart;
+                    progress = Math.min(Math.max((regElapsed / regTotal) * 40, 10), 40);
+                } else if (now <= cohort1End) {
+                    // Learning phase progress (40% to 100%)
+                    const classElapsed = now - cohort1Start;
+                    const classTotal = cohort1End - cohort1Start;
+                    progress = 40 + Math.min(Math.max((classElapsed / classTotal) * 60, 0), 60);
+                } else {
+                    progress = 100;
+                }
+
+                const activeProgress = document.querySelector('.quarter-card.active .timeline-progress');
+                if (activeProgress) {
+                    activeProgress.style.width = Math.round(progress) + '%';
+                }
             }
 
-            updateCohortProgress();
-            setInterval(updateCohortProgress, 86400000);
-
-           
-            const quarterCards = document.querySelectorAll('.quarter-card');
-            quarterCards.forEach(card => {
-                card.addEventListener('mouseenter', function() {
-                    if (!this.classList.contains('active')) {
-                        this.style.transform = 'translateY(-5px)';
-                        this.style.boxShadow = 'var(--shadow-lg)';
-                    }
-                });
+            function updateBanner(year) {
+                const data = cohortData[year];
+                const bannerTitle = document.getElementById('banner-title');
+                const bannerSubtitle = document.getElementById('banner-subtitle');
                 
-                card.addEventListener('mouseleave', function() {
-                    if (!this.classList.contains('active')) {
-                        this.style.transform = 'translateY(0)';
-                        this.style.boxShadow = 'var(--shadow-md)';
-                    }
-                });
-            });
+                if (data && data.cohort1.status === 'active') {
+                    bannerTitle.textContent = data.cohort1.title;
+                    bannerSubtitle.textContent = 'Registration is currently open for our premier cohort. Ensure your application is submitted before the deadline to secure mentor onboarding and classroom access.';
+                } else if (data) {
+                    bannerTitle.textContent = `${year} ${data.cohort1.title}`;
+                    bannerSubtitle.textContent = `Explore official intake dates and cohort schedules for ${year}.`;
+                }
+            }
 
-           
+            function renderCalendar(year) {
+                const data = cohortData[year];
+                if (!data) return;
+
+                const yearCards = document.querySelectorAll('.quarter-card.year-cohort');
+                
+                yearCards.forEach(card => {
+                    card.classList.add('fade-out');
+                });
+
+                setTimeout(() => {
+                    const c1 = yearCards[0];
+                    const c2 = yearCards[1];
+
+                    if (c1 && data.cohort1) {
+                        c1.querySelector('.cohort-title').textContent = data.cohort1.title;
+                        c1.querySelector('.start-date').textContent = data.cohort1.start;
+                        c1.querySelector('.end-date').textContent = data.cohort1.end;
+                        c1.querySelector('.cohort-desc').textContent = data.cohort1.desc;
+                        
+                        c1.classList.remove('active', 'upcoming', 'completed');
+                        c1.classList.add(data.cohort1.status);
+                        
+                        const statusBadge = c1.querySelector('.quarter-status');
+                        statusBadge.className = 'quarter-status status-' + data.cohort1.status;
+                        statusBadge.innerHTML = `<i class="fas ${data.cohort1.status === 'active' ? 'fa-check-circle' : (data.cohort1.status === 'completed' ? 'fa-check' : 'fa-clock')}"></i> ${data.cohort1.statusText}`;
+
+                        // Update milestones box inside c1
+                        const mBox = c1.querySelector('.card-milestones-box');
+                        if (mBox && data.cohort1.regDeadline) {
+                            mBox.innerHTML = `
+                                <div class="card-milestone-row highlight-row">
+                                    <i class="fas fa-calendar-check"></i>
+                                    <span><strong>Registration Deadline:</strong> ${data.cohort1.regDeadline}</span>
+                                </div>
+                                <div class="card-milestone-row">
+                                    <i class="fas fa-laptop-code"></i>
+                                    <span><strong>Online Orientation:</strong> ${data.cohort1.orientation}</span>
+                                </div>
+                                <div class="card-milestone-row">
+                                    <i class="fas fa-graduation-cap"></i>
+                                    <span><strong>First Live Class:</strong> ${data.cohort1.classesStart}</span>
+                                </div>
+                            `;
+                        }
+
+                        // Update progress bar
+                        const pBar = c1.querySelector('.timeline-progress');
+                        if (pBar) {
+                            if (data.cohort1.status === 'completed') pBar.style.width = '100%';
+                            else if (data.cohort1.status === 'upcoming') pBar.style.width = '0%';
+                            else updateCohortProgress();
+                        }
+                    }
+
+                    if (c2 && data.cohort2) {
+                        c2.querySelector('.cohort-title').textContent = data.cohort2.title;
+                        c2.querySelector('.start-date').textContent = data.cohort2.start;
+                        c2.querySelector('.end-date').textContent = data.cohort2.end;
+                        c2.querySelector('.cohort-desc').textContent = data.cohort2.desc;
+                        
+                        c2.classList.remove('active', 'upcoming', 'completed');
+                        c2.classList.add(data.cohort2.status);
+                        
+                        const statusBadge = c2.querySelector('.quarter-status');
+                        statusBadge.className = 'quarter-status status-' + data.cohort2.status;
+                        statusBadge.innerHTML = `<i class="fas ${data.cohort2.status === 'active' ? 'fa-check-circle' : (data.cohort2.status === 'completed' ? 'fa-check' : 'fa-clock')}"></i> ${data.cohort2.statusText}`;
+
+                        // Update milestones box inside c2
+                        const mBox2 = c2.querySelector('.card-milestones-box');
+                        if (mBox2) {
+                            if (data.cohort2.status === 'completed') {
+                                mBox2.innerHTML = `
+                                    <div class="card-milestone-row">
+                                        <i class="fas fa-check"></i>
+                                        <span><strong>Status:</strong> Concluded & Certified</span>
+                                    </div>
+                                    <div class="card-milestone-row">
+                                        <i class="fas fa-history"></i>
+                                        <span><strong>Term:</strong> Completed</span>
+                                    </div>
+                                `;
+                            } else {
+                                mBox2.innerHTML = `
+                                    <div class="card-milestone-row">
+                                        <i class="fas fa-calendar-alt"></i>
+                                        <span><strong>Intake Timing:</strong> Schedule currently under review (TBA)</span>
+                                    </div>
+                                    <div class="card-milestone-row">
+                                        <i class="fas fa-hourglass-half"></i>
+                                        <span><strong>Course Duration:</strong> Flexible tracks (8 weeks up to 1 full year)</span>
+                                    </div>
+                                    <div class="card-milestone-row">
+                                        <i class="fas fa-bell"></i>
+                                        <span><strong>Priority Waitlist:</strong> Open for syllabus &amp; launch alerts</span>
+                                    </div>
+                                `;
+                            }
+                        }
+
+                        const pBar2 = c2.querySelector('.timeline-progress');
+                        if (pBar2) {
+                            pBar2.style.width = data.cohort2.status === 'completed' ? '100%' : '0%';
+                        }
+                    }
+
+
+                    const yearTitleEl = document.querySelector('.year-title-text');
+                    if (yearTitleEl) {
+                        yearTitleEl.textContent = year + ' Program Calendar';
+                    }
+                    updateBanner(year);
+                    updateNavButtons();
+
+                    yearCards.forEach(card => {
+                        card.classList.remove('fade-out');
+                        card.classList.add('fade-in');
+                        setTimeout(() => card.classList.remove('fade-in'), 400);
+                    });
+                }, 200);
+            }
+
+            function updateNavButtons() {
+                const prevBtn = document.querySelector('.nav-btn.prev-year');
+                const nextBtn = document.querySelector('.nav-btn.next-year');
+                
+                if (prevBtn) prevBtn.disabled = currentYear <= minYear;
+                if (nextBtn) nextBtn.disabled = currentYear >= maxYear;
+            }
+
             document.querySelectorAll('.nav-btn').forEach(btn => {
                 btn.addEventListener('click', function() {
-                  
-                    alert('Year navigation would update the calendar view in a full implementation');
+                    if (this.classList.contains('prev-year') && currentYear > minYear) {
+                        currentYear--;
+                        renderCalendar(currentYear);
+                    } else if (this.classList.contains('next-year') && currentYear < maxYear) {
+                        currentYear++;
+                        renderCalendar(currentYear);
+                    }
                 });
             });
 
-         
-            const currentCohort = document.querySelector('.quarter-card.active');
-            if (currentCohort) {
-                currentCohort.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
+            updateCohortProgress();
+            updateNavButtons();
         });
     </script>
 </body>

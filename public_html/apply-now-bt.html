@@ -1,90 +1,2277 @@
-<link rel="stylesheet" href="styles/root.css">
-<link rel="stylesheet" href="styles/header.css">
-<link rel="stylesheet" href="styles/footer.css">
-<style>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-5TRSMVV4');</script>
+    <!-- End Google Tag Manager -->
 
-.floating-apply-btn {
-    position: fixed;
-    bottom: 25px;
-    right: 25px;
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apply & Enroll - NURU Foundation</title>
+    <meta name="description" content="Apply for online coding, cybersecurity, data science, AI, web development, physics, and mathematics courses at NURU Foundation. Secure your spot in Cohort 1!">
+    <link rel="icon" href="NewLogo.png" type="image/png">
     
-    display: flex;
-    flex-direction: column; /* Stack text lines */
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    width: 140px; 
-    height: 140px;
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Fredoka+One&display=swap" rel="stylesheet">
     
-  
-    background: linear-gradient(145deg, var(--secondary-color), var(--secondary-color) 70%, var(--accent-color-2)); 
-    color: var(--text-dark);
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-   
-    border-radius: 50%; 
-    border: 5px solid var(--text-light);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4); 
-    font-weight: 800;
-    text-decoration: none;
-    line-height: 1.2;
-    z-index: 1000;
-    
-    /* Animation Control */
-    transition: all 0.3s ease-in-out;
-    animation: wobble 4s infinite ease-in-out; 
-}
+    <!-- Core Stylesheets -->
+    <link rel="stylesheet" href="styles/root.css">
+    <link rel="stylesheet" href="styles/header.css">
+    <link rel="stylesheet" href="styles/footer.css">
 
-.floating-apply-btn:hover {
-    transform: scale(1.15) rotate(0deg);
-    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.6);
-    animation: none; 
-}
+    <style>
+        /* ==========================================================================
+           ROOT VARIABLES & BASE RESETS
+           ========================================================================== */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
-.btn-main-text {
-    font-size: 1.3rem;
-    text-transform: uppercase;
-    text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.4);
-}
+        :root {
+            --primary-color: #6a0572;
+            --primary-light: #85108f;
+            --primary-dark: #4b0251;
+            --secondary-color: #f7b731;
+            --secondary-hover: #e09f19;
+            --accent-color-1: #38b2ac;
+            --accent-color-1-dark: #2c8e89;
+            --accent-color-2: #ef476f;
+            --accent-color-2-dark: #d6335a;
+            --text-dark: #2d3748;
+            --text-muted: #64748b;
+            --text-light: #ffffff;
+            --background-light: #ffffff;
+            --background-alt: #f8fafc;
+            --card-bg: #ffffff;
+            --card-border: rgba(106, 5, 114, 0.08);
+            
+            --font-family-body: 'Poppins', sans-serif;
+            --font-family-heading: 'Fredoka One', cursive;
 
-.btn-secondary-text {
-    font-size: 0.8rem;
-    font-weight: 700;
-    color: var(--primary-color); 
-    margin-top: 3px;
-    padding: 2px 5px;
-    background-color: var(--text-light);
-    border-radius: 5px;
-    white-space: nowrap;
-}
+            --border-radius-sm: 8px;
+            --border-radius-md: 14px;
+            --border-radius-lg: 20px;
+            --border-radius-xl: 28px;
+            
+            --shadow-subtle: 0 4px 15px rgba(0, 0, 0, 0.05);
+            --shadow-card: 0 10px 25px -5px rgba(106, 5, 114, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+            --shadow-hover: 0 20px 35px -8px rgba(106, 5, 114, 0.18), 0 10px 15px -3px rgba(0, 0, 0, 0.08);
+            --shadow-btn: 0 4px 14px rgba(106, 5, 114, 0.25);
+            --shadow-gold: 0 6px 18px rgba(247, 183, 49, 0.35);
+        }
 
+        body {
+            font-family: var(--font-family-body);
+            background-color: var(--background-alt);
+            color: var(--text-dark);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
 
-@keyframes wobble {
-    0%, 100% { transform: translateY(0) rotate(-1deg); }
-    15% { transform: translateY(-3px) rotate(1deg); }
-    30% { transform: translateY(0) rotate(-1deg); }
-    45% { transform: translateY(-1px) rotate(0.5deg); }
-    60% { transform: translateY(0) rotate(-0.5deg); }
-    75% { transform: translateY(-2px) rotate(1deg); }
-}
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
 
+        /* ==========================================================================
+           HERO SECTION
+           ========================================================================== */
+        .apply-hero {
+            background: linear-gradient(135deg, #44034a 0%, #6a0572 45%, #8f179b 80%, #38b2ac 130%);
+            color: var(--text-light);
+            padding: 7.5rem 0 5rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
 
-@media (max-width: 600px) {
-    .floating-apply-btn {
-        width: 120px;
-        height: 120px;
-        bottom: 20px;
-        right: 20px;
-    }
-    .btn-main-text {
-        font-size: 1.1rem;
-    }
-    .btn-secondary-text {
-        font-size: 0.7rem;
-    }
-}
-</style>
+        /* Subtle Geometric Background Pattern */
+        .apply-hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: 
+                radial-gradient(circle at 20% 30%, rgba(247, 183, 49, 0.18) 0%, transparent 40%),
+                radial-gradient(circle at 80% 70%, rgba(56, 178, 172, 0.22) 0%, transparent 45%),
+                url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.04' fill-rule='evenodd'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/svg%3E");
+            opacity: 0.9;
+            pointer-events: none;
+        }
 
-<a href="/courses.html" class="floating-apply-btn">
-    <span class="btn-main-text"><i class="fas fa-check-circle"></i> Apply Now</span>
-    <span class="btn-secondary-text">January Intakes Ongoing</span>
-</a>
+        /* Floating Accent Orbs */
+        .hero-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(50px);
+            opacity: 0.25;
+            pointer-events: none;
+            animation: floatOrb 10s ease-in-out infinite alternate;
+        }
+
+        .hero-orb-1 {
+            width: 280px;
+            height: 280px;
+            background: var(--secondary-color);
+            top: -60px;
+            left: -60px;
+        }
+
+        .hero-orb-2 {
+            width: 320px;
+            height: 320px;
+            background: var(--accent-color-1);
+            bottom: -80px;
+            right: -60px;
+            animation-duration: 13s;
+        }
+
+        @keyframes floatOrb {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(30px, 20px) scale(1.1); }
+        }
+
+        .apply-hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            background: rgba(255, 255, 255, 0.16);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: var(--secondary-color);
+            padding: 0.5rem 1.4rem;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .hero-badge i {
+            color: var(--secondary-color);
+        }
+
+        .apply-hero h1 {
+            font-size: clamp(2.3rem, 5vw, 3.8rem);
+            line-height: 1.15;
+            margin-bottom: 1.25rem;
+            font-family: var(--font-family-heading);
+            color: #ffffff;
+            text-shadow: 0 3px 12px rgba(0, 0, 0, 0.25);
+        }
+
+        .apply-hero h1 .highlight-gold {
+            color: var(--secondary-color);
+            position: relative;
+            display: inline-block;
+        }
+
+        .apply-hero p {
+            font-size: clamp(1.05rem, 2vw, 1.25rem);
+            opacity: 0.95;
+            line-height: 1.65;
+            max-width: 760px;
+            margin: 0 auto 2.2rem auto;
+            color: #f8fafc;
+        }
+
+        .hero-quick-stats {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .hero-stat-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 0.45rem 1.1rem;
+            border-radius: 30px;
+            font-size: 0.88rem;
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .hero-stat-item i {
+            color: var(--secondary-color);
+        }
+
+        /* Wave separator at bottom of Hero */
+        .hero-wave-bottom {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            overflow: hidden;
+            line-height: 0;
+            transform: rotate(180deg);
+        }
+
+        .hero-wave-bottom svg {
+            position: relative;
+            display: block;
+            width: calc(100% + 1.3px);
+            height: 40px;
+        }
+
+        .hero-wave-bottom .shape-fill {
+            fill: var(--background-alt);
+        }
+
+        /* ==========================================================================
+           MAIN CONTAINER & SECTION LAYOUT
+           ========================================================================== */
+        .apply-section {
+            padding: 3rem 0 5rem;
+            background: var(--background-alt);
+            flex: 1;
+        }
+
+        .apply-container {
+            max-width: 1240px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+
+        .section-header-box {
+            text-align: center;
+            margin-bottom: 2.75rem;
+        }
+
+        .section-tag {
+            display: inline-block;
+            color: var(--primary-color);
+            font-weight: 700;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 0.4rem;
+            background: rgba(106, 5, 114, 0.08);
+            padding: 0.3rem 0.9rem;
+            border-radius: 20px;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: clamp(2rem, 3.5vw, 2.6rem);
+            color: var(--primary-color);
+            margin-bottom: 0.75rem;
+            font-family: var(--font-family-heading);
+            letter-spacing: -0.5px;
+        }
+
+        .section-subtitle {
+            text-align: center;
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+            font-size: 1.1rem;
+            max-width: 720px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.6;
+        }
+
+        /* ==========================================================================
+           COHORT NOTIFICATION BANNER
+           ========================================================================== */
+        .cohort-banner-card {
+            background: linear-gradient(135deg, #ffffff 0%, #fffbf0 100%);
+            border-radius: var(--border-radius-lg);
+            border: 2px solid var(--secondary-color);
+            box-shadow: var(--shadow-card), 0 0 25px rgba(247, 183, 49, 0.15);
+            padding: 1.75rem 2.25rem;
+            margin-bottom: 4rem;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cohort-banner-card::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 8px;
+            background: linear-gradient(to bottom, var(--secondary-color), var(--primary-color));
+        }
+
+        .cohort-info {
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .cohort-icon-box {
+            width: 60px;
+            height: 60px;
+            background: rgba(247, 183, 49, 0.2);
+            color: #b37402;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+            flex-shrink: 0;
+            box-shadow: 0 4px 10px rgba(247, 183, 49, 0.2);
+        }
+
+        .cohort-text h2 {
+            font-size: 1.35rem;
+            color: var(--primary-color);
+            margin-bottom: 0.25rem;
+            font-family: var(--font-family-heading);
+        }
+
+        .cohort-text p {
+            font-size: 0.98rem;
+            color: #475569;
+            margin: 0;
+            line-height: 1.45;
+        }
+
+        .cohort-deadline-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: #fef2f2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+            font-weight: 700;
+            font-size: 0.85rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            margin-top: 0.35rem;
+        }
+
+        .cohort-cta-btn {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+            color: #ffffff !important;
+            font-weight: 700;
+            font-size: 0.95rem;
+            padding: 0.85rem 1.75rem;
+            border-radius: var(--border-radius-md);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: var(--shadow-btn);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .cohort-cta-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
+            background: linear-gradient(135deg, var(--secondary-color) 0%, var(--secondary-hover) 100%);
+            color: var(--text-dark) !important;
+        }
+
+        /* ==========================================================================
+           HOW TO ENROLL - 4 STEPS ROADMAP
+           ========================================================================== */
+        .steps-section {
+            margin-bottom: 5rem;
+        }
+
+        .steps-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1.75rem;
+            position: relative;
+        }
+
+        .step-card {
+            background: var(--card-bg);
+            border-radius: var(--border-radius-lg);
+            padding: 2.25rem 1.75rem;
+            box-shadow: var(--shadow-card);
+            border: 1px solid var(--card-border);
+            text-align: center;
+            position: relative;
+            transition: all 0.35s cubic-bezier(0.165, 0.84, 0.44, 1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .step-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, var(--secondary-color), var(--primary-color));
+            transition: height 0.3s ease;
+        }
+
+        .step-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-hover);
+            border-color: rgba(106, 5, 114, 0.2);
+        }
+
+        .step-card:hover::before {
+            height: 7px;
+        }
+
+        .step-number-wrap {
+            position: relative;
+            margin-bottom: 1.25rem;
+        }
+
+        .step-number {
+            width: 58px;
+            height: 58px;
+            background: linear-gradient(135deg, var(--primary-color) 0%, #8a2be2 100%);
+            color: #ffffff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1.4rem;
+            box-shadow: 0 6px 15px rgba(106, 5, 114, 0.25);
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+
+        .step-icon-badge {
+            position: absolute;
+            bottom: -4px;
+            right: -6px;
+            width: 26px;
+            height: 26px;
+            background: var(--secondary-color);
+            color: var(--text-dark);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+            border: 2px solid #ffffff;
+            z-index: 3;
+        }
+
+        .step-card h3 {
+            font-size: 1.2rem;
+            margin-bottom: 0.75rem;
+            color: var(--primary-color);
+            font-weight: 700;
+        }
+
+        .step-card p {
+            font-size: 0.95rem;
+            color: #4a5568;
+            line-height: 1.55;
+            margin-bottom: 1rem;
+            flex-grow: 1;
+        }
+
+        .step-card .step-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            color: var(--primary-color);
+            font-weight: 700;
+            font-size: 0.9rem;
+            transition: gap 0.2s ease, color 0.2s ease;
+        }
+
+        .step-card .step-link:hover {
+            color: var(--accent-color-1);
+            gap: 0.6rem;
+            text-decoration: none;
+        }
+
+        /* ==========================================================================
+           INTERACTIVE FILTER & SEARCH BAR
+           ========================================================================== */
+        .catalog-controls {
+            background: #ffffff;
+            border-radius: var(--border-radius-lg);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-card);
+            border: 1px solid var(--card-border);
+            margin-bottom: 3rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .search-and-counter-row {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .search-box-wrap {
+            position: relative;
+            flex: 1;
+            min-width: 280px;
+        }
+
+        .search-box-wrap i {
+            position: absolute;
+            left: 1.2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 1rem;
+            pointer-events: none;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.85rem 1.25rem 0.85rem 2.85rem;
+            border-radius: 50px;
+            border: 1.5px solid #e2e8f0;
+            font-size: 0.95rem;
+            font-family: var(--font-family-body);
+            background: #f8fafc;
+            color: var(--text-dark);
+            transition: all 0.25s ease;
+            outline: none;
+        }
+
+        .search-input:focus {
+            border-color: var(--primary-color);
+            background: #ffffff;
+            box-shadow: 0 0 0 3px rgba(106, 5, 114, 0.12);
+        }
+
+        .search-clear-btn {
+            position: absolute;
+            right: 1.1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #94a3b8;
+            cursor: pointer;
+            font-size: 0.95rem;
+            display: none;
+        }
+
+        .search-clear-btn:hover {
+            color: #475569;
+        }
+
+        .courses-count-pill {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            background: rgba(106, 5, 114, 0.08);
+            padding: 0.45rem 1rem;
+            border-radius: 30px;
+            white-space: nowrap;
+        }
+
+        /* Filter Tab Pills */
+        .filter-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+            border-top: 1px solid #f1f5f9;
+            padding-top: 1rem;
+        }
+
+        .filter-btn {
+            background: #f1f5f9;
+            border: 1px solid transparent;
+            color: #475569;
+            padding: 0.55rem 1.2rem;
+            border-radius: 30px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            font-family: var(--font-family-body);
+            cursor: pointer;
+            transition: all 0.25s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+        }
+
+        .filter-btn:hover {
+            background: #e2e8f0;
+            color: var(--primary-color);
+        }
+
+        .filter-btn.active {
+            background: var(--primary-color);
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(106, 5, 114, 0.25);
+            border-color: var(--primary-color);
+        }
+
+        /* ==========================================================================
+           COURSE APPLICATION CARDS GRID
+           ========================================================================== */
+        .courses-enroll-section {
+            margin-bottom: 5rem;
+        }
+
+        .course-enroll-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+            gap: 2rem;
+        }
+
+        .course-card-wrap {
+            display: flex;
+            flex-direction: column;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .enroll-card {
+            background: #ffffff;
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-card);
+            border: 1px solid var(--card-border);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            transition: all 0.35s cubic-bezier(0.165, 0.84, 0.44, 1);
+            position: relative;
+        }
+
+        .enroll-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-hover);
+            border-color: rgba(106, 5, 114, 0.22);
+        }
+
+        /* Card Image & Badges */
+        .card-img-wrapper {
+            position: relative;
+            width: 100%;
+            height: 200px;
+            overflow: hidden;
+            background: #1e293b;
+        }
+
+        .card-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+            display: block;
+        }
+
+        .enroll-card:hover .card-img {
+            transform: scale(1.08);
+        }
+
+        .card-overlay-gradient {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.6) 100%);
+            pointer-events: none;
+        }
+
+        /* Category badge (top left) */
+        .badge-category {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            color: #ffffff;
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 0.3rem 0.75rem;
+            border-radius: 20px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            z-index: 2;
+        }
+
+        /* Price badge (top right) */
+        .badge-fee {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: linear-gradient(135deg, var(--secondary-color) 0%, #e5a417 100%);
+            color: #1a1a1a;
+            font-size: 0.85rem;
+            font-weight: 800;
+            padding: 0.35rem 0.85rem;
+            border-radius: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+            z-index: 2;
+        }
+
+        .badge-fee.fee-free {
+            background: linear-gradient(135deg, var(--accent-color-1) 0%, #208781 100%);
+            color: #ffffff;
+        }
+
+        /* Level badge (bottom left of image) */
+        .badge-level {
+            position: absolute;
+            bottom: 0.85rem;
+            left: 1rem;
+            background: rgba(255, 255, 255, 0.95);
+            color: var(--primary-color);
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 0.25rem 0.65rem;
+            border-radius: 6px;
+            z-index: 2;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
+        /* Card Content Body */
+        .card-body {
+            padding: 1.5rem 1.5rem 1.6rem;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+
+        .card-body h3 {
+            font-size: 1.35rem;
+            color: var(--primary-color);
+            margin-bottom: 0.6rem;
+            font-family: var(--font-family-heading);
+            line-height: 1.25;
+            transition: color 0.2s ease;
+        }
+
+        .enroll-card:hover .card-body h3 {
+            color: var(--primary-light);
+        }
+
+        .meta-tags-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+            margin-bottom: 0.9rem;
+        }
+
+        .meta-pill {
+            font-size: 0.8rem;
+            color: #64748b;
+            background: #f1f5f9;
+            padding: 0.25rem 0.65rem;
+            border-radius: 6px;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            font-weight: 500;
+        }
+
+        .meta-pill i {
+            color: var(--accent-color-1);
+        }
+
+        .enroll-desc {
+            font-size: 0.92rem;
+            color: #475569;
+            line-height: 1.55;
+            margin-bottom: 1.5rem;
+            flex-grow: 1;
+        }
+
+        /* Dual Action Buttons Group */
+        .card-actions-group {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 0.65rem;
+            margin-top: auto;
+        }
+
+        /* Primary Apply Now Button */
+        .btn-apply-primary {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.6rem;
+            background: linear-gradient(135deg, var(--primary-color) 0%, #871490 100%);
+            color: #ffffff !important;
+            padding: 0.85rem 1.25rem;
+            border-radius: var(--border-radius-md);
+            font-weight: 700;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(106, 5, 114, 0.2);
+            border: none;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .btn-apply-primary:hover {
+            background: linear-gradient(135deg, var(--secondary-color) 0%, var(--secondary-hover) 100%);
+            color: #1a1a1a !important;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(247, 183, 49, 0.4);
+            text-decoration: none;
+        }
+
+        .btn-apply-primary i {
+            font-size: 0.95rem;
+            transition: transform 0.2s ease;
+        }
+
+        .btn-apply-primary:hover i {
+            transform: translateX(3px);
+        }
+
+        /* Secondary View Details Button */
+        .btn-details-secondary {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.45rem;
+            background: #ffffff;
+            color: var(--primary-color) !important;
+            border: 1.5px solid rgba(106, 5, 114, 0.2);
+            padding: 0.7rem 1.1rem;
+            border-radius: var(--border-radius-md);
+            font-weight: 600;
+            font-size: 0.88rem;
+            transition: all 0.25s ease;
+            text-align: center;
+        }
+
+        .btn-details-secondary:hover {
+            border-color: var(--primary-color);
+            background: rgba(106, 5, 114, 0.04);
+            color: var(--primary-color) !important;
+            text-decoration: none;
+        }
+
+        /* Free course button variation */
+        .btn-free-course {
+            background: linear-gradient(135deg, var(--accent-color-1) 0%, var(--accent-color-1-dark) 100%);
+            color: #ffffff !important;
+        }
+
+        .btn-free-course:hover {
+            background: linear-gradient(135deg, var(--secondary-color) 0%, var(--secondary-hover) 100%);
+            color: #1a1a1a !important;
+        }
+
+        /* No Results Fallback */
+        .no-results-state {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 4rem 1.5rem;
+            background: #ffffff;
+            border-radius: var(--border-radius-lg);
+            border: 1px dashed #cbd5e1;
+            display: none;
+        }
+
+        .no-results-state i {
+            font-size: 3rem;
+            color: #94a3b8;
+            margin-bottom: 1rem;
+        }
+
+        .no-results-state h3 {
+            font-size: 1.4rem;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+            font-family: var(--font-family-heading);
+        }
+
+        .no-results-state p {
+            color: #64748b;
+            margin-bottom: 1.25rem;
+        }
+
+        /* ==========================================================================
+           FREQUENTLY ASKED QUESTIONS SECTION
+           ========================================================================== */
+        .faq-section {
+            margin-bottom: 5rem;
+        }
+
+        .faq-grid {
+            max-width: 860px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .faq-item {
+            background: #ffffff;
+            border-radius: var(--border-radius-md);
+            box-shadow: var(--shadow-subtle);
+            border: 1px solid var(--card-border);
+            overflow: hidden;
+            transition: all 0.25s ease;
+        }
+
+        .faq-item:hover {
+            border-color: rgba(106, 5, 114, 0.2);
+        }
+
+        .faq-question {
+            width: 100%;
+            background: none;
+            border: none;
+            padding: 1.25rem 1.5rem;
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-align: left;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: var(--font-family-body);
+            transition: background 0.2s ease;
+        }
+
+        .faq-question:hover {
+            background: #fdf8ff;
+        }
+
+        .faq-question i {
+            font-size: 0.95rem;
+            color: var(--accent-color-1);
+            transition: transform 0.3s ease;
+        }
+
+        .faq-item.open .faq-question i {
+            transform: rotate(180deg);
+            color: var(--accent-color-2);
+        }
+
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.35s ease, padding 0.35s ease;
+            background: #ffffff;
+            color: #475569;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            padding: 0 1.5rem;
+        }
+
+        .faq-item.open .faq-answer {
+            max-height: 300px;
+            padding: 0.25rem 1.5rem 1.25rem 1.5rem;
+        }
+
+        /* ==========================================================================
+           NEED HELP / ASSISTANCE BANNER
+           ========================================================================== */
+        .help-banner-card {
+            background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
+            border-radius: var(--border-radius-xl);
+            color: #ffffff;
+            padding: 3rem 2.5rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow-hover);
+        }
+
+        .help-banner-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 10% 20%, rgba(106, 5, 114, 0.4) 0%, transparent 50%),
+                        radial-gradient(circle at 90% 80%, rgba(56, 178, 172, 0.35) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .help-content {
+            position: relative;
+            z-index: 2;
+            max-width: 750px;
+            margin: 0 auto;
+        }
+
+        .help-content h2 {
+            font-size: clamp(1.8rem, 3vw, 2.3rem);
+            color: #ffffff;
+            margin-bottom: 0.75rem;
+            font-family: var(--font-family-heading);
+        }
+
+        .help-content p {
+            font-size: 1.05rem;
+            color: #cbd5e1;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .help-btn-group {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .help-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0.85rem 1.75rem;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        .help-btn-whatsapp {
+            background: #25d366;
+            color: #ffffff !important;
+            box-shadow: 0 4px 15px rgba(37, 211, 102, 0.35);
+        }
+
+        .help-btn-whatsapp:hover {
+            background: #20bd5a;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(37, 211, 102, 0.5);
+        }
+
+        .help-btn-call {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: #ffffff !important;
+        }
+
+        .help-btn-call:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-2px);
+        }
+
+        /* Floating WhatsApp Button */
+        .floating-whatsapp {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            width: 58px;
+            height: 58px;
+            background: #25d366;
+            color: #ffffff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4);
+            z-index: 999;
+            transition: all 0.3s ease;
+        }
+
+        .floating-whatsapp:hover {
+            transform: scale(1.1);
+            color: #ffffff;
+            box-shadow: 0 8px 25px rgba(37, 211, 102, 0.6);
+        }
+
+        /* ==========================================================================
+           RESPONSIVE ADJUSTMENTS
+           ========================================================================== */
+        /* Large Tablets & Small Laptops (993px - 1100px) */
+        @media (max-width: 1100px) {
+            .course-enroll-grid {
+                grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+                gap: 1.5rem;
+            }
+
+            .steps-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1.25rem;
+            }
+        }
+
+        /* Tablets & Medium Screens (769px - 992px) */
+        @media (max-width: 992px) {
+            .apply-container {
+                padding: 0 1.25rem;
+            }
+
+            .cohort-banner-card {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 1.6rem 1.75rem;
+                gap: 1.25rem;
+            }
+
+            .cohort-cta-btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .course-enroll-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1.35rem;
+            }
+
+            .steps-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1.25rem;
+            }
+        }
+
+        /* Mobile Landscape & Tablets Portrait (577px - 768px) */
+        @media (max-width: 768px) {
+            .apply-hero {
+                padding: 6rem 1rem 3.75rem;
+            }
+
+            .apply-hero h1 {
+                font-size: clamp(2rem, 5.5vw, 2.75rem);
+            }
+
+            .hero-quick-stats {
+                gap: 0.6rem;
+            }
+
+            .hero-stat-item {
+                font-size: 0.82rem;
+                padding: 0.35rem 0.85rem;
+            }
+
+            .catalog-controls {
+                padding: 1.25rem 1rem;
+            }
+
+            .filter-tabs {
+                overflow-x: auto;
+                flex-wrap: nowrap;
+                padding-bottom: 0.5rem;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: none;
+            }
+
+            .filter-tabs::-webkit-scrollbar {
+                display: none;
+            }
+
+            .filter-btn {
+                flex-shrink: 0;
+            }
+
+            .course-enroll-grid {
+                grid-template-columns: 1fr;
+                gap: 1.35rem;
+            }
+
+            .card-img-wrapper {
+                height: 190px;
+            }
+
+            .steps-section {
+                margin-bottom: 3.75rem;
+            }
+
+            .steps-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .step-card {
+                padding: 1.75rem 1.25rem;
+            }
+
+            .help-banner-card {
+                padding: 2.25rem 1.5rem;
+            }
+
+            .help-btn-group {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .help-btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .floating-whatsapp {
+                bottom: 20px;
+                right: 20px;
+                width: 52px;
+                height: 52px;
+                font-size: 1.6rem;
+            }
+        }
+
+        /* Mobile Devices (361px - 576px) */
+        @media (max-width: 576px) {
+            .apply-container {
+                padding: 0 1rem;
+            }
+
+            .apply-hero {
+                padding: 5.5rem 0.75rem 3.25rem;
+            }
+
+            .hero-badge {
+                font-size: 0.82rem;
+                padding: 0.4rem 1.1rem;
+                margin-bottom: 1.1rem;
+            }
+
+            .apply-hero h1 {
+                font-size: clamp(1.85rem, 6.5vw, 2.3rem);
+                margin-bottom: 0.85rem;
+            }
+
+            .apply-hero p {
+                font-size: 0.96rem;
+                margin-bottom: 1.5rem;
+                line-height: 1.55;
+            }
+
+            .section-header-box {
+                margin-bottom: 2rem;
+            }
+
+            .section-title {
+                font-size: 1.85rem;
+            }
+
+            .section-subtitle {
+                font-size: 0.96rem;
+                margin-bottom: 1rem;
+            }
+
+            .cohort-banner-card {
+                padding: 1.35rem 1rem;
+                margin-bottom: 3rem;
+            }
+
+            .cohort-info {
+                min-width: 0;
+                width: 100%;
+                gap: 0.85rem;
+            }
+
+            .cohort-icon-box {
+                width: 48px;
+                height: 48px;
+                font-size: 1.3rem;
+            }
+
+            .cohort-text h2 {
+                font-size: 1.2rem;
+            }
+
+            .cohort-text p {
+                font-size: 0.9rem;
+            }
+
+            .cohort-deadline-pill {
+                font-size: 0.8rem;
+            }
+
+            .search-and-counter-row {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0.75rem;
+            }
+
+            .search-box-wrap {
+                min-width: 0;
+                width: 100%;
+            }
+
+            .search-input {
+                font-size: 1rem;
+                padding: 0.75rem 1rem 0.75rem 2.6rem;
+            }
+
+            .courses-count-pill {
+                text-align: center;
+                align-self: flex-start;
+                font-size: 0.82rem;
+                padding: 0.35rem 0.85rem;
+            }
+
+            .filter-btn {
+                padding: 0.45rem 0.95rem;
+                font-size: 0.82rem;
+            }
+
+            .card-body {
+                padding: 1.25rem 1.1rem;
+            }
+
+            .card-body h3 {
+                font-size: 1.2rem;
+            }
+
+            .enroll-desc {
+                font-size: 0.88rem;
+                margin-bottom: 1.25rem;
+            }
+
+            .faq-question {
+                padding: 1rem 1.15rem;
+                font-size: 0.96rem;
+            }
+
+            .faq-answer {
+                padding: 0 1.15rem;
+                font-size: 0.88rem;
+            }
+
+            .faq-item.open .faq-answer {
+                padding: 0.2rem 1.15rem 1.15rem;
+            }
+
+            .help-banner-card {
+                padding: 1.75rem 1.15rem;
+            }
+
+            .help-content h2 {
+                font-size: 1.5rem;
+            }
+
+            .help-content p {
+                font-size: 0.92rem;
+                margin-bottom: 1.4rem;
+            }
+
+            .help-btn {
+                font-size: 0.9rem;
+                padding: 0.75rem 1.35rem;
+            }
+        }
+
+        /* Extra Small Devices (< 360px) */
+        @media (max-width: 360px) {
+            .apply-container {
+                padding: 0 0.75rem;
+            }
+
+            .apply-hero h1 {
+                font-size: 1.65rem;
+            }
+
+            .section-title {
+                font-size: 1.6rem;
+            }
+
+            .cohort-info {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .cohort-text h2 {
+                font-size: 1.1rem;
+            }
+
+            .step-number {
+                width: 44px;
+                height: 44px;
+                font-size: 1.15rem;
+            }
+
+            .card-img-wrapper {
+                height: 170px;
+            }
+
+            .card-body h3 {
+                font-size: 1.1rem;
+            }
+
+            .floating-whatsapp {
+                width: 46px;
+                height: 46px;
+                font-size: 1.4rem;
+                bottom: 15px;
+                right: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5TRSMVV4"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+
+    <!-- Header Include -->
+    <script src="scripts/header.js"></script>
+    <div id="headerContainer"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            fetch('header.html')
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('headerContainer').innerHTML = data;
+                    if (typeof initHeader === 'function') {
+                        setTimeout(initHeader, 100);
+                    }
+                })
+                .catch(error => console.error('Error loading header:', error));
+        });
+    </script>
+
+    <!-- ==========================================================================
+         HERO SECTION
+         ========================================================================== -->
+    <header class="apply-hero">
+        <div class="hero-orb hero-orb-1"></div>
+        <div class="hero-orb hero-orb-2"></div>
+
+        <div class="apply-hero-content">
+            <div class="hero-badge">
+                <i class="fas fa-fire"></i> Cohort 1 Enrollment Now Open
+            </div>
+            <h1>Apply &amp; Enroll at <span class="highlight-gold">NURU Foundation</span></h1>
+            <p>
+                Take the next big step in your educational journey. Choose from our specialized tech, academic, and practical skill tracks, and submit your registration directly via official Google Forms.
+            </p>
+            <div class="hero-quick-stats">
+                <div class="hero-stat-item">
+                    <i class="fas fa-check-circle"></i> 14+ In-Demand Courses
+                </div>
+                <div class="hero-stat-item">
+                    <i class="fas fa-laptop-code"></i> 100% Practical &amp; Online
+                </div>
+                <div class="hero-stat-item">
+                    <i class="fas fa-award"></i> Certificate of Completion
+                </div>
+                <div class="hero-stat-item">
+                    <i class="fas fa-user-friends"></i> Dedicated Mentor Support
+                </div>
+            </div>
+        </div>
+
+        <div class="hero-wave-bottom">
+            <svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
+                <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" class="shape-fill"></path>
+            </svg>
+        </div>
+    </header>
+
+    <!-- ==========================================================================
+         MAIN CONTENT SECTION
+         ========================================================================== -->
+    <main class="apply-section">
+        <div class="apply-container">
+
+            <!-- COHORT DEADLINE CALLOUT BANNER -->
+            <div class="cohort-banner-card">
+                <div class="cohort-info">
+                    <div class="cohort-icon-box">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <div class="cohort-text">
+                        <h2>Currently Enrolling: Cohort 1 (August - October 2026)</h2>
+                        <p>Limited virtual seats available to ensure personalized mentor attention.</p>
+                        <div class="cohort-deadline-pill">
+                            <i class="fas fa-clock"></i> Registration closes October 21st, 2026
+                        </div>
+                    </div>
+                </div>
+                <a href="#courses-catalog" class="cohort-cta-btn">
+                    <span>Browse Courses to Apply</span>
+                    <i class="fas fa-arrow-down"></i>
+                </a>
+            </div>
+
+            <!-- HOW TO ENROLL 4 STEPS -->
+            <section class="steps-section">
+                <div class="section-header-box">
+                    <span class="section-tag">Step-by-Step Guide</span>
+                    <h2 class="section-title">How to Enroll in 4 Easy Steps</h2>
+                    <p class="section-subtitle">
+                        Our application process is fast, straightforward, and handled directly through secure Google Forms.
+                    </p>
+                </div>
+
+                <div class="steps-grid">
+                    <div class="step-card">
+                        <div class="step-number-wrap">
+                            <div class="step-number">1</div>
+                            <div class="step-icon-badge"><i class="fas fa-search"></i></div>
+                        </div>
+                        <h3>Browse &amp; Choose</h3>
+                        <p>Explore our courses below. Filter by topic or search for your desired skill.</p>
+                        <a href="courses.html" class="step-link">View Full Catalog <i class="fas fa-arrow-right"></i></a>
+                    </div>
+
+                    <div class="step-card">
+                        <div class="step-number-wrap">
+                            <div class="step-number">2</div>
+                            <div class="step-icon-badge"><i class="fas fa-book-reader"></i></div>
+                        </div>
+                        <h3>Review Syllabus</h3>
+                        <p>Click <b>View Details</b> on any card to review prerequisites, durations, and weekly topics.</p>
+                        <span class="step-link" style="color:#718096; cursor:default;">Compare syllabus</span>
+                    </div>
+
+                    <div class="step-card">
+                        <div class="step-number-wrap">
+                            <div class="step-number">3</div>
+                            <div class="step-icon-badge"><i class="fas fa-edit"></i></div>
+                        </div>
+                        <h3>Fill Google Form</h3>
+                        <p>Click <b>Apply Now</b> to open the official Google Form for your selected course.</p>
+                        <span class="step-link" style="color:#718096; cursor:default;">2-minute form</span>
+                    </div>
+
+                    <div class="step-card">
+                        <div class="step-number-wrap">
+                            <div class="step-number">4</div>
+                            <div class="step-icon-badge"><i class="fas fa-user-check"></i></div>
+                        </div>
+                        <h3>Get Onboarded</h3>
+                        <p>Our team verifies your submission and sends your class timetable, links &amp; orientation kit.</p>
+                        <span class="step-link" style="color:#718096; cursor:default;">Direct WhatsApp / Email</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- COURSES CATALOG WITH SEARCH & FILTER -->
+            <section class="courses-enroll-section" id="courses-catalog">
+                <div class="section-header-box">
+                    <span class="section-tag">Direct Application</span>
+                    <h2 class="section-title">Select Your Course &amp; Apply</h2>
+                    <p class="section-subtitle">
+                        Each card links directly to its official Google Form application and course curriculum. Forms open in a new tab.
+                    </p>
+                </div>
+
+                <!-- FILTER CONTROLS -->
+                <div class="catalog-controls">
+                    <div class="search-and-counter-row">
+                        <div class="search-box-wrap">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="courseSearchInput" class="search-input" placeholder="Search courses (e.g. Python, Cyber, React, Data, Math)..." autocomplete="off">
+                            <button id="searchClearBtn" class="search-clear-btn" title="Clear search"><i class="fas fa-times"></i></button>
+                        </div>
+                        <div class="courses-count-pill" id="coursesCountPill">
+                            Showing 14 Courses
+                        </div>
+                    </div>
+
+                    <div class="filter-tabs">
+                        <button class="filter-btn active" data-filter="all">
+                            <i class="fas fa-th-large"></i> All Courses (14)
+                        </button>
+                        <button class="filter-btn" data-filter="coding">
+                            <i class="fas fa-code"></i> Coding &amp; Web Dev
+                        </button>
+                        <button class="filter-btn" data-filter="cybersecurity">
+                            <i class="fas fa-shield-alt"></i> Cybersecurity
+                        </button>
+                        <button class="filter-btn" data-filter="data-ai">
+                            <i class="fas fa-brain"></i> Data &amp; AI
+                        </button>
+                        <button class="filter-btn" data-filter="foundations">
+                            <i class="fas fa-atom"></i> STEM &amp; Digital Literacy
+                        </button>
+                        <button class="filter-btn" data-filter="free">
+                            <i class="fas fa-gift"></i> Free Courses
+                        </button>
+                    </div>
+                </div>
+
+                <!-- CARDS GRID -->
+                <div class="course-enroll-grid" id="courseCardsGrid">
+
+                    <!-- 1. Computer Packages -->
+                    <div class="course-card-wrap" data-category="foundations" data-name="computer packages microsoft office digital literacy google tools internet safety">
+                        <div class="enroll-card">
+                            <div class="card-img-wrapper">
+                                <img src="https://images.unsplash.com/photo-1547658719-da2b51169166?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80" alt="Computer Packages" class="card-img" onerror="this.src='https://images.unsplash.com/photo-1517694712202-14dd9538aa97?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80';">
+                                <div class="card-overlay-gradient"></div>
+                                <span class="badge-category">Digital Literacy</span>
+                                <span class="badge-fee">Ksh 3,000</span>
+                                <span class="badge-level"><i class="fas fa-layer-group"></i> Foundational</span>
+                            </div>
+                            <div class="card-body">
+                                <h3>Computer Packages</h3>
+                                <div class="meta-tags-row">
+                                    <span class="meta-pill"><i class="far fa-clock"></i> 2.5 Months</span>
+                                    <span class="meta-pill"><i class="fas fa-desktop"></i> Hands-on Office</span>
+                                </div>
+                                <p class="enroll-desc">
+                                    Master essential digital literacy skills in Microsoft Office Suite (Word, Excel, PowerPoint), Google Workspace, cloud file management, and internet safety.
+                                </p>
+                                <div class="card-actions-group">
+                                    <a href="https://forms.gle/vZARqqHwPXK1SnuR8" target="_blank" rel="noopener noreferrer" class="btn-apply-primary">
+                                        <i class="fas fa-paper-plane"></i> Apply via Google Form
+                                    </a>
+                                    <a href="computer-packages.html" class="btn-details-secondary">
+                                        <i class="fas fa-info-circle"></i> View Full Details &amp; Syllabus
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2. Programming with Python -->
+                    <div class="course-card-wrap" data-category="coding" data-name="programming with python python coding automation algorithms oop software">
+                        <div class="enroll-card">
+                            <div class="card-img-wrapper">
+                                <img src="https://cdn.hashnode.com/res/hashnode/image/upload/v1637422966499/jx6h36yHp.jpeg" alt="Programming with Python" class="card-img" onerror="this.src='https://images.unsplash.com/photo-1526379095098-d400fd0bf935?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80';">
+                                <div class="card-overlay-gradient"></div>
+                                <span class="badge-category">Coding &amp; Software</span>
+                                <span class="badge-fee">Ksh 8,000</span>
+                                <span class="badge-level"><i class="fas fa-layer-group"></i> Beg - Intermediate</span>
+                            </div>
+                            <div class="card-body">
+                                <h3>Programming with Python</h3>
+                                <div class="meta-tags-row">
+                                    <span class="meta-pill"><i class="far fa-clock"></i> 6 Months</span>
+                                    <span class="meta-pill"><i class="fab fa-python"></i> Python 3 &amp; OOP</span>
+                                </div>
+                                <p class="enroll-desc">
+                                    Learn programming fundamentals, computational logic building, Python (Structured &amp; Object-Oriented), data structures, algorithms, and real automation projects.
+                                </p>
+                                <div class="card-actions-group">
+                                    <a href="https://forms.gle/QHFcs5gayB2Qj4Yy5" target="_blank" rel="noopener noreferrer" class="btn-apply-primary">
+                                        <i class="fas fa-paper-plane"></i> Apply via Google Form
+                                    </a>
+                                    <a href="programming-with-python.html" class="btn-details-secondary">
+                                        <i class="fas fa-info-circle"></i> View Full Details &amp; Syllabus
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 3. Cybersecurity Level 1 -->
+                    <div class="course-card-wrap" data-category="cybersecurity" data-name="cybersecurity level 1 essentials security networking ethical protection malware">
+                        <div class="enroll-card">
+                            <div class="card-img-wrapper">
+                                <img src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80" alt="Cybersecurity Level 1" class="card-img" onerror="this.src='https://images.unsplash.com/photo-1563986768609-322da13575f3?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80';">
+                                <div class="card-overlay-gradient"></div>
+                                <span class="badge-category">Cybersecurity</span>
+                                <span class="badge-fee">Ksh 12,000</span>
+                                <span class="badge-level"><i class="fas fa-layer-group"></i> Beginner</span>
+                            </div>
+                            <div class="card-body">
+                                <h3>Cybersecurity - Level 1 (Essentials)</h3>
+                                <div class="meta-tags-row">
+                                    <span class="meta-pill"><i class="far fa-clock"></i> 3 Months</span>
+                                    <span class="meta-pill"><i class="fas fa-network-wired"></i> Networks &amp; OS</span>
+                                </div>
+                                <p class="enroll-desc">
+                                    Get started with cybersecurity fundamentals, networking architecture, operating system security, malware identification, and ethical defense principles.
+                                </p>
+                                <div class="card-actions-group">
+                                    <a href="https://docs.google.com/forms/d/e/1FAIpQLSdEpSWV8VNJZGIJi9WaWYaO7BHPffmPyhkZoDBNuvcF9QHTEg/viewform" target="_blank" rel="noopener noreferrer" class="btn-apply-primary">
+                                        <i class="fas fa-paper-plane"></i> Apply via Google Form
+                                    </a>
+                                    <a href="cybersecurity-l1.html" class="btn-details-secondary">
+                                        <i class="fas fa-info-circle"></i> View Full Details &amp; Syllabus
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 4. Cybersecurity Level 2 -->
+                    <div class="course-card-wrap" data-category="cybersecurity" data-name="cybersecurity level 2 advanced ethical hacking penetration testing network scanning cloud defense">
+                        <div class="enroll-card">
+                            <div class="card-img-wrapper">
+                                <img src="https://images.unsplash.com/photo-1563089145-599997674d42?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80" alt="Cybersecurity Level 2" class="card-img" onerror="this.src='https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80';">
+                                <div class="card-overlay-gradient"></div>
+                                <span class="badge-category">Cybersecurity</span>
+                                <span class="badge-fee">Ksh 18,000</span>
+                                <span class="badge-level"><i class="fas fa-layer-group"></i> Advanced</span>
+                            </div>
+                            <div class="card-body">
+                                <h3>Cybersecurity - Level 2 (Advanced)</h3>
+                                <div class="meta-tags-row">
+                                    <span class="meta-pill"><i class="far fa-clock"></i> 6 Months</span>
+                                    <span class="meta-pill"><i class="fas fa-user-secret"></i> Ethical Hacking &amp; Pentest</span>
+                                </div>
+                                <p class="enroll-desc">
+                                    Master ethical hacking, penetration testing, network scanning, system exploitation, web application security vulnerabilities, and cloud defense architecture.
+                                </p>
+                                <div class="card-actions-group">
+                                    <a href="https://docs.google.com/forms/d/e/1FAIpQLSdEpSWV8VNJZGIJi9WaWYaO7BHPffmPyhkZoDBNuvcF9QHTEg/viewform?usp=sharing&ouid=108996617650224244530" target="_blank" rel="noopener noreferrer" class="btn-apply-primary">
+                                        <i class="fas fa-paper-plane"></i> Apply via Google Form
+                                    </a>
+                                    <a href="cybersecurity-l2.html" class="btn-details-secondary">
+                                        <i class="fas fa-info-circle"></i> View Full Details &amp; Syllabus
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 5. Web Development Level 1 -->
+                    <div class="course-card-wrap" data-category="coding" data-name="web development level 1 html css javascript frontend websites responsive design">
+                        <div class="enroll-card">
+                            <div class="card-img-wrapper">
+                                <img src="https://images.unsplash.com/photo-1627398242454-45a1465c2479?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80" alt="Web Development Level 1" class="card-img" onerror="this.src='https://images.unsplash.com/photo-1461749280684-dccba630e2f6?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80';">
+                                <div class="card-overlay-gradient"></div>
+                                <span class="badge-category">Web Development</span>
+                                <span class="badge-fee">Ksh 5,000</span>
+                                <span class="badge-level"><i class="fas fa-layer-group"></i> Beginner</span>
+                            </div>
+                            <div class="card-body">
+                                <h3>Web Development - Level 1</h3>
+                                <div class="meta-tags-row">
+                                    <span class="meta-pill"><i class="far fa-clock"></i> 2 Months</span>
+                                    <span class="meta-pill"><i class="fab fa-html5"></i> HTML, CSS &amp; JS Basics</span>
+                                </div>
+                                <p class="enroll-desc">
+                                    Start your web development journey with HTML5, CSS3, and core JavaScript. Master responsive web layouts, flexbox, grid, and publish your first live portfolio.
+                                </p>
+                                <div class="card-actions-group">
+                                    <a href="https://forms.gle/GxjbszUck5RZiKXL8" target="_blank" rel="noopener noreferrer" class="btn-apply-primary">
+                                        <i class="fas fa-paper-plane"></i> Apply via Google Form
+                                    </a>
+                                    <a href="web-development-l1.html" class="btn-details-secondary">
+                                        <i class="fas fa-info-circle"></i> View Full Details &amp; Syllabus
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 6. Web Development Level 2 -->
+                    <div class="course-card-wrap" data-category="coding" data-name="web development level 2 javascript dom apis backend databases node sql">
+                        <div class="enroll-card">
+                            <div class="card-img-wrapper">
+                                <img src="https://images.unsplash.com/photo-1593720213428-28a5b9e94613?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80" alt="Web Development Level 2" class="card-img" onerror="this.src='https://images.unsplash.com/photo-1498050108023-c5249f4df085?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80';">
+                                <div class="card-overlay-gradient"></div>
+                                <span class="badge-category">Web Development</span>
+                                <span class="badge-fee">Ksh 8,000</span>
+                                <span class="badge-level"><i class="fas fa-layer-group"></i> Intermediate</span>
+                            </div>
+                            <div class="card-body">
+                                <h3>Web Development - Level 2</h3>
+                                <div class="meta-tags-row">
+                                    <span class="meta-pill"><i class="far fa-clock"></i> 4 Months</span>
+                                    <span class="meta-pill"><i class="fab fa-js-square"></i> DOM, APIs &amp; Databases</span>
+                                </div>
+                                <p class="enroll-desc">
+                                    Advance your skills with JavaScript DOM manipulation, front-end frameworks, back-end fundamentals, relational databases, RESTful APIs, and full cloud hosting.
+                                </p>
+                                <div class="card-actions-group">
+                                    <a href="https://docs.google.com/forms/d/e/1FAIpQLSef7HTjL0lSrAxNUeyxpUzYKQ3-c4sCQA4v6AHcWPmoNJ1aNw/viewform?usp=publish-editor" target="_blank" rel="noopener noreferrer" class="btn-apply-primary">
+                                        <i class="fas fa-paper-plane"></i> Apply via Google Form
+                                    </a>
+                                    <a href="web-development-l2.html" class="btn-details-secondary">
+                                        <i class="fas fa-info-circle"></i> View Full Details &amp; Syllabus
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 7. Web Development Level 3 -->
+                    <div class="course-card-wrap" data-category="coding" data-name="web development level 3 full stack react node js authentication security databases deployment">
+                        <div class="enroll-card">
+                            <div class="card-img-wrapper">
+                                <img src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80" alt="Web Development Level 3" class="card-img" onerror="this.src='https://images.unsplash.com/photo-1517694712202-14dd9538aa97?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80';">
+                                <div class="card-overlay-gradient"></div>
+                                <span class="badge-category">Web Development</span>
+                                <span class="badge-fee">Ksh 12,000</span>
+                                <span class="badge-level"><i class="fas fa-layer-group"></i> Advanced Full-Stack</span>
+                            </div>
+                            <div class="card-body">
+                                <h3>Web Development - Level 3</h3>
+                                <div class="meta-tags-row">
+                                    <span class="meta-pill"><i class="far fa-clock"></i> 4 Months</span>
+                                    <span class="meta-pill"><i class="fab fa-react"></i> React &amp; Node.js Full-Stack</span>
+                                </div>
+                                <p class="enroll-desc">
+                                    Master full-stack software development with React, Node.js, Express, JWT security, cloud MongoDB/PostgreSQL, automated pipelines, and production architecture.
+                                </p>
+                                <div class="card-actions-group">
+                                    <a href="https://forms.gle/kU1o5st8oitbbERc6" target="_blank" rel="noopener noreferrer" class="btn-apply-primary">
+                                        <i class="fas fa-paper-plane"></i> Apply via Google Form
+                                    </a>
+                                    <a href="web-development-l3.html" class="btn-details-secondary">
+                                        <i class="fas fa-info-circle"></i> View Full Details &amp; Syllabus
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 8. AI Essentials -->
+                    <div class="course-card-wrap" data-category="data-ai free" data-name="ai essentials artificial intelligence prompt engineering chatgpt generative free machine learning">
+                        <div class="enroll-card">
+                            <div class="card-img-wrapper">
+                                <img src="https://images.unsplash.com/photo-1677442136019-21780ecad995?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80" alt="AI Essentials" class="card-img" onerror="this.src='https://images.unsplash.com/photo-1620712943543-bcc4688e7485?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80';">
+                                <div class="card-overlay-gradient"></div>
+                                <span class="badge-category">Artificial Intelligence</span>
+                                <span class="badge-fee fee-free"><i class="fas fa-gift"></i> FREE COURSE</span>
+                                <span class="badge-level"><i class="fas fa-layer-group"></i> Foundational</span>
+                            </div>
+                            <div class="card-body">
+                                <h3>AI Essentials</h3>
+                                <div class="meta-tags-row">
+                                    <span class="meta-pill"><i class="far fa-clock"></i> Introductory</span>
+                                    <span class="meta-pill"><i class="fas fa-magic"></i> Prompt Engineering</span>
+                                </div>
+                                <p class="enroll-desc">
+                                    Explore core Artificial Intelligence principles, prompt engineering techniques, and hands-on generative AI tools for productivity, content generation, coding, and analytics.
+                                </p>
+                                <div class="card-actions-group">
+                                    <a href="https://forms.gle/xDrNeAPAi71HrxKSA" target="_blank" rel="noopener noreferrer" class="btn-apply-primary btn-free-course">
+                                        <i class="fas fa-paper-plane"></i> Apply for Free Enrollment
+                                    </a>
+                                    <a href="ai-essentials.html" class="btn-details-secondary">
+                                        <i class="fas fa-info-circle"></i> View Full Details &amp; Syllabus
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 9. Data Science -->
+                    <div class="course-card-wrap" data-category="data-ai" data-name="data science machine learning python big data cloud analytics artificial intelligence stats">
+                        <div class="enroll-card">
+                            <div class="card-img-wrapper">
+                                <img src="https://analyzing-testing.netzsch.com/_Resources/Persistent/4/d/4/e/4d4ea9e36c3524300b40aa2ee2c37cf85ca4876d/NETZSCH_Data-Science_Big-Data-scaled-1847x1038-1600x899.webp" alt="Data Science" class="card-img" onerror="this.src='https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80';">
+                                <div class="card-overlay-gradient"></div>
+                                <span class="badge-category">Data &amp; AI</span>
+                                <span class="badge-fee">Ksh 15,000</span>
+                                <span class="badge-level"><i class="fas fa-layer-group"></i> Advanced</span>
+                            </div>
+                            <div class="card-body">
+                                <h3>Data Science</h3>
+                                <div class="meta-tags-row">
+                                    <span class="meta-pill"><i class="far fa-clock"></i> 12 Months</span>
+                                    <span class="meta-pill"><i class="fas fa-brain"></i> Machine Learning &amp; AI</span>
+                                </div>
+                                <p class="enroll-desc">
+                                    Master modern data analysis, visualization, statistical modeling, machine learning algorithms, Big Data engineering, Cloud Computing, and real capstone portfolio projects.
+                                </p>
+                                <div class="card-actions-group">
+                                    <a href="https://docs.google.com/forms/d/e/1FAIpQLSc7p2OT5z8qqTPD7IGqTU2PbdZJwJWtOUceL-ds26hPRPiInA/viewform?usp=sharing&ouid=108996617650224244530" target="_blank" rel="noopener noreferrer" class="btn-apply-primary">
+                                        <i class="fas fa-paper-plane"></i> Apply via Google Form
+                                    </a>
+                                    <a href="data-science.html" class="btn-details-secondary">
+                                        <i class="fas fa-info-circle"></i> View Full Details &amp; Syllabus
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 10. Data Engineering -->
+                    <div class="course-card-wrap" data-category="data-ai" data-name="data engineering pipelines etl databases sql python data warehousing cloud infrastructure">
+                        <div class="enroll-card">
+                            <div class="card-img-wrapper">
+                                <img src="https://cdn.prod.website-files.com/64fef88ee8b22d3d21b715a2/657c2bfd9d07f76a47c70ce8_64c0dfda42c1ee625bb4640c_Blog%2520image%2520(1).webp" alt="Data Engineering" class="card-img" onerror="this.src='https://images.unsplash.com/photo-1544383835-bda2bc66a55d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80';">
+                                <div class="card-overlay-gradient"></div>
+                                <span class="badge-category">Data &amp; AI</span>
+                                <span class="badge-fee">Ksh 12,000</span>
+                                <span class="badge-level"><i class="fas fa-layer-group"></i> Advanced</span>
+                            </div>
+                            <div class="card-body">
+                                <h3>Data Engineering</h3>
+                                <div class="meta-tags-row">
+                                    <span class="meta-pill"><i class="far fa-clock"></i> 12 Months</span>
+                                    <span class="meta-pill"><i class="fas fa-database"></i> ETL &amp; Data Warehouses</span>
+                                </div>
+                                <p class="enroll-desc">
+                                    Learn to design and maintain scalable data pipelines and enterprise storage. Covers SQL, Python for engineering, relational/NoSQL databases, and cloud infrastructure.
+                                </p>
+                                <div class="card-actions-group">
+                                    <a href="https://docs.google.com/forms/d/e/1FAIpQLSc7p2OT5z8qqTPD7IGqTU2PbdZJwJWtOUceL-ds26hPRPiInA/viewform?usp=sharing&ouid=108996617650224244530" target="_blank" rel="noopener noreferrer" class="btn-apply-primary">
+                                        <i class="fas fa-paper-plane"></i> Apply via Google Form
+                                    </a>
+                                    <a href="data-engineering.html" class="btn-details-secondary">
+                                        <i class="fas fa-info-circle"></i> View Full Details &amp; Syllabus
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 11. Data Analysis (Analytics) -->
+                    <div class="course-card-wrap" data-category="data-ai" data-name="data analysis analytics business intelligence excel power bi sql visualization dashboards">
+                        <div class="enroll-card">
+                            <div class="card-img-wrapper">
+                                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQt8hktHHl2jPlOX-938tKjifIuLuxYDwUSnA&s" alt="Data Analysis" class="card-img" onerror="this.src='https://images.unsplash.com/photo-1460925895917-afdab827c52f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80';">
+                                <div class="card-overlay-gradient"></div>
+                                <span class="badge-category">Data &amp; AI</span>
+                                <span class="badge-fee">Ksh 10,000</span>
+                                <span class="badge-level"><i class="fas fa-layer-group"></i> Intermediate</span>
+                            </div>
+                            <div class="card-body">
+                                <h3>Data Analysis (Analytics)</h3>
+                                <div class="meta-tags-row">
+                                    <span class="meta-pill"><i class="far fa-clock"></i> 6 Months</span>
+                                    <span class="meta-pill"><i class="fas fa-chart-line"></i> BI &amp; SQL Dashboards</span>
+                                </div>
+                                <p class="enroll-desc">
+                                    Build competency in interpreting and presenting actionable data. Master data cleaning, statistical tests, Python data science libraries, and Business Intelligence reporting.
+                                </p>
+                                <div class="card-actions-group">
+                                    <a href="https://docs.google.com/forms/d/e/1FAIpQLSc7p2OT5z8qqTPD7IGqTU2PbdZJwJWtOUceL-ds26hPRPiInA/viewform?usp=sharing&ouid=108996617650224244530" target="_blank" rel="noopener noreferrer" class="btn-apply-primary">
+                                        <i class="fas fa-paper-plane"></i> Apply via Google Form
+                                    </a>
+                                    <a href="data-analysis.html" class="btn-details-secondary">
+                                        <i class="fas fa-info-circle"></i> View Full Details &amp; Syllabus
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 12. Physics -->
+                    <div class="course-card-wrap" data-category="foundations" data-name="physics stem science mechanics forces energy astrophysics universe experiments">
+                        <div class="enroll-card">
+                            <div class="card-img-wrapper">
+                                <img src="https://plus.unsplash.com/premium_photo-1673425015790-4b5581200415?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1yZWxhdGVkfDh8fHxlbnwwfHx8fHw%3D&auto=format&fit=crop&q=60&w=500" alt="Physics" class="card-img" onerror="this.src='https://images.unsplash.com/photo-1636466497217-26a8cbeaf0aa?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80';">
+                                <div class="card-overlay-gradient"></div>
+                                <span class="badge-category">STEM &amp; Science</span>
+                                <span class="badge-fee">Ksh 20,000</span>
+                                <span class="badge-level"><i class="fas fa-layer-group"></i> Applied Science</span>
+                            </div>
+                            <div class="card-body">
+                                <h3>Physics</h3>
+                                <div class="meta-tags-row">
+                                    <span class="meta-pill"><i class="far fa-clock"></i> 12 Months</span>
+                                    <span class="meta-pill"><i class="fas fa-atom"></i> Theory &amp; Experiments</span>
+                                </div>
+                                <p class="enroll-desc">
+                                    Discover motion, forces, energy, light, electricity, and the cosmos. Bridges theoretical physics with engaging experiments to build scientific curiosity and critical thinking.
+                                </p>
+                                <div class="card-actions-group">
+                                    <a href="https://forms.gle/rrNc1Yaiku3UhAeT7" target="_blank" rel="noopener noreferrer" class="btn-apply-primary">
+                                        <i class="fas fa-paper-plane"></i> Apply via Google Form
+                                    </a>
+                                    <a href="physics.html" class="btn-details-secondary">
+                                        <i class="fas fa-info-circle"></i> View Full Details &amp; Syllabus
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 13. Mathematics -->
+                    <div class="course-card-wrap" data-category="foundations" data-name="mathematics algebra geometry calculus stem logic problem solving reasoning">
+                        <div class="enroll-card">
+                            <div class="card-img-wrapper">
+                                <img src="https://media.istockphoto.com/id/468250833/photo/math-geometry-background.jpg?s=1024x1024&w=is&k=20&c=XRw2VwdE-d8FfhoUtKAr4lGdS67Ct4Z664pCd6gE0TU=" alt="Mathematics" class="card-img" onerror="this.src='https://images.unsplash.com/photo-1509228468518-180dd4864904?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80';">
+                                <div class="card-overlay-gradient"></div>
+                                <span class="badge-category">STEM &amp; Math</span>
+                                <span class="badge-fee">Ksh 20,000</span>
+                                <span class="badge-level"><i class="fas fa-layer-group"></i> Foundational - Adv</span>
+                            </div>
+                            <div class="card-body">
+                                <h3>Mathematics</h3>
+                                <div class="meta-tags-row">
+                                    <span class="meta-pill"><i class="far fa-clock"></i> 12 Months</span>
+                                    <span class="meta-pill"><i class="fas fa-calculator"></i> Algebra &amp; Calculus</span>
+                                </div>
+                                <p class="enroll-desc">
+                                    Build a rock-solid foundation in Mathematics - from algebra, geometry, and trigonometry to calculus, applied statistics, and real-world analytical reasoning.
+                                </p>
+                                <div class="card-actions-group">
+                                    <a href="https://forms.gle/cmtKvnSWiTuoEWqP9" target="_blank" rel="noopener noreferrer" class="btn-apply-primary">
+                                        <i class="fas fa-paper-plane"></i> Apply via Google Form
+                                    </a>
+                                    <a href="mathematics.html" class="btn-details-secondary">
+                                        <i class="fas fa-info-circle"></i> View Full Details &amp; Syllabus
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 14. Soft Skills -->
+                    <div class="course-card-wrap" data-category="foundations free" data-name="soft skills orientation communication teamwork problem solving work ethic free">
+                        <div class="enroll-card">
+                            <div class="card-img-wrapper">
+                                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRQL_poqTGYY2DTlgwxLXLQLKxkDo3l2QXUmw&s" alt="Soft Skills" class="card-img" onerror="this.src='https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80';">
+                                <div class="card-overlay-gradient"></div>
+                                <span class="badge-category">Orientation Track</span>
+                                <span class="badge-fee fee-free"><i class="fas fa-gift"></i> FREE COURSE</span>
+                                <span class="badge-level"><i class="fas fa-layer-group"></i> Life Skills</span>
+                            </div>
+                            <div class="card-body">
+                                <h3>Soft Skills (Orientation)</h3>
+                                <div class="meta-tags-row">
+                                    <span class="meta-pill"><i class="far fa-clock"></i> Part of Orientation</span>
+                                    <span class="meta-pill"><i class="fas fa-handshake"></i> Communication &amp; Ethics</span>
+                                </div>
+                                <p class="enroll-desc">
+                                    Vital interpersonal and career development covering verbal and non-verbal communication, collaborative teamwork, creative problem-solving, and professional integrity.
+                                </p>
+                                <div class="card-actions-group">
+                                    <a href="softskills.html" class="btn-apply-primary btn-free-course">
+                                        <i class="fas fa-book-open"></i> Explore Free Course Details
+                                    </a>
+                                    <a href="courses.html" class="btn-details-secondary">
+                                        <i class="fas fa-info-circle"></i> Included With All Enrollments
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- NO RESULTS FALLBACK -->
+                    <div class="no-results-state" id="noResultsState">
+                        <i class="fas fa-search-minus"></i>
+                        <h3>No Courses Found</h3>
+                        <p>We couldn't find any courses matching your search. Try different keywords like "Python", "Web", or "Cyber".</p>
+                        <button class="filter-btn active" onclick="resetFilters()">
+                            <i class="fas fa-undo"></i> Show All Courses
+                        </button>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- FREQUENTLY ASKED QUESTIONS -->
+            <section class="faq-section">
+                <div class="section-header-box">
+                    <span class="section-tag">Help &amp; Clarity</span>
+                    <h2 class="section-title">Frequently Asked Questions</h2>
+                    <p class="section-subtitle">
+                        Find answers to common questions about enrollment, class schedules, and tuition payments.
+                    </p>
+                </div>
+
+                <div class="faq-grid">
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            <span>How do I know my application has been received?</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="faq-answer">
+                            <p>Once you click submit on the official Google Form, you will see a confirmation screen. Additionally, our admissions team reviews submissions and contacts you via email or WhatsApp within 24-48 hours with your confirmation packet.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            <span>How are classes delivered and what are the timings?</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="faq-answer">
+                            <p>All classes are conducted 100% online in interactive virtual classrooms with live mentor guidance, screen sharing, and code reviews. We offer flexible evening and weekend batches suited for students and working learners.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            <span>What are the payment options for tuition fees?</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="faq-answer">
+                            <p>We accept M-Pesa Paybill, direct bank transfers, and flexible installment plans. Once your Google Form application is accepted, payment details and invoice instructions will be sent to your email.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            <span>Will I receive a certificate upon completion?</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="faq-answer">
+                            <p>Yes! Every learner who attends sessions and submits the required capstone projects receives a verified, verifiable NURU Foundation Certificate of Completion to showcase to employers or schools.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- NEED DIRECT HELP CALLOUT -->
+            <div class="help-banner-card">
+                <div class="help-content">
+                    <h2>Need Guidance Choosing the Right Track?</h2>
+                    <p>
+                        Our education advisors are ready to help you or your child select the ideal learning path based on age, interests, and career ambitions.
+                    </p>
+                    <div class="help-btn-group">
+                        <a href="https://wa.me/254111480338?text=Hello%20Nuru%20Foundation,%20I%20would%20like%20guidance%20on%20course%20enrollment." target="_blank" rel="noopener noreferrer" class="help-btn help-btn-whatsapp">
+                            <i class="fab fa-whatsapp"></i> Chat on WhatsApp (+254 111 480 338)
+                        </a>
+                        <a href="tel:+254111480338" class="help-btn help-btn-call">
+                            <i class="fas fa-phone-alt"></i> Call Us Directly
+                        </a>
+                        <a href="contact.html" class="help-btn help-btn-call">
+                            <i class="fas fa-envelope"></i> Contact Us Page
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- FLOATING WHATSAPP BUTTON -->
+    <a href="https://wa.me/254111480338?text=Hello%20Nuru%20Foundation,%20I%20have%20an%20inquiry%20about%20applying%20for%20a%20course." target="_blank" rel="noopener noreferrer" class="floating-whatsapp" title="Chat with us on WhatsApp" aria-label="Chat with NURU Foundation on WhatsApp">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+
+    <!-- Footer Include -->
+    <script src="scripts/footer.js"></script>
+    <div id="footerContainer"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            fetch('footer.html')
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('footerContainer').innerHTML = data;
+                    const yearElement = document.getElementById('current-year');
+                    if (yearElement) {
+                        yearElement.textContent = new Date().getFullYear();
+                    }
+                    if (typeof startCourseRotation === 'function') {
+                        startCourseRotation();
+                    }
+                })
+                .catch(error => console.error('Error loading footer:', error));
+        });
+    </script>
+
+    <!-- ==========================================================================
+         PAGE INTERACTION JAVASCRIPT (FILTERING, SEARCH & ACCORDIONS)
+         ========================================================================== -->
+    <script>
+        // DOM Elements
+        const courseSearchInput = document.getElementById('courseSearchInput');
+        const searchClearBtn = document.getElementById('searchClearBtn');
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        const courseCardWraps = document.querySelectorAll('.course-card-wrap');
+        const coursesCountPill = document.getElementById('coursesCountPill');
+        const noResultsState = document.getElementById('noResultsState');
+
+        let currentFilter = 'all';
+
+        // Filter and Search logic
+        function updateCourseVisibility() {
+            const searchQuery = courseSearchInput.value.trim().toLowerCase();
+            let visibleCount = 0;
+
+            // Toggle clear button
+            if (searchQuery.length > 0) {
+                searchClearBtn.style.display = 'block';
+            } else {
+                searchClearBtn.style.display = 'none';
+            }
+
+            courseCardWraps.forEach(card => {
+                const cardCategory = card.getAttribute('data-category') || '';
+                const cardSearchText = card.getAttribute('data-name') || '';
+
+                // Category match check
+                const matchesCategory = (currentFilter === 'all') || cardCategory.includes(currentFilter);
+
+                // Search query match check
+                const matchesSearch = searchQuery === '' || cardSearchText.toLowerCase().includes(searchQuery);
+
+                if (matchesCategory && matchesSearch) {
+                    card.style.display = 'flex';
+                    visibleCount++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            // Update counter pill
+            coursesCountPill.textContent = `Showing ${visibleCount} Course${visibleCount === 1 ? '' : 's'}`;
+
+            // Handle empty state
+            if (visibleCount === 0) {
+                noResultsState.style.display = 'block';
+            } else {
+                noResultsState.style.display = 'none';
+            }
+        }
+
+        // Filter buttons click
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                filterBtns.forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                currentFilter = this.getAttribute('data-filter');
+                updateCourseVisibility();
+            });
+        });
+
+        // Search input event
+        courseSearchInput.addEventListener('input', updateCourseVisibility);
+
+        // Clear search event
+        searchClearBtn.addEventListener('click', function() {
+            courseSearchInput.value = '';
+            updateCourseVisibility();
+            courseSearchInput.focus();
+        });
+
+        // Reset filter helper function
+        function resetFilters() {
+            courseSearchInput.value = '';
+            currentFilter = 'all';
+            filterBtns.forEach(b => b.classList.remove('active'));
+            const allBtn = document.querySelector('.filter-btn[data-filter="all"]');
+            if (allBtn) allBtn.classList.add('active');
+            updateCourseVisibility();
+        }
+
+        // FAQ Accordion interaction
+        document.querySelectorAll('.faq-question').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const parentItem = this.closest('.faq-item');
+                const isOpen = parentItem.classList.contains('open');
+
+                // Close all other accordion items
+                document.querySelectorAll('.faq-item').forEach(item => {
+                    item.classList.remove('open');
+                });
+
+                // Toggle current
+                if (!isOpen) {
+                    parentItem.classList.add('open');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

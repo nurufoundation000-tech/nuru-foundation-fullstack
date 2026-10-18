@@ -4,93 +4,213 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Contact Us - NURU FOUNDATION</title>
+    <link rel="icon" type="image/png" href="NewLogo.png">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Fredoka+One&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    
+    <!-- External Site Stylesheets -->
     <link rel="stylesheet" href="styles/root.css">
     <link rel="stylesheet" href="styles/header.css">
     <link rel="stylesheet" href="styles/footer.css">
-    <link rel="icon" href="logo.jpg" type="image/jpeg">
+
+    <!-- Self-Contained Styles: Guarantees 100% instant styling and full responsiveness in cPanel -->
     <style>
-        * {
+        *, *::before, *::after {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
         }
 
+        :root {
+            --primary-color: #6a0572;
+            --primary-light: #85108f;
+            --primary-dark: #4b0251;
+            --secondary-color: #f7b731;
+            --secondary-hover: #e09f19;
+            --accent-color-1: #38b2ac;
+            --accent-color-1-dark: #2c8e89;
+            --accent-color-2: #ef476f;
+            --text-dark: #1a202c;
+            --text-body: #4a5568;
+            --text-muted: #718096;
+            --text-light: #ffffff;
+            --bg-page: #f8fafc;
+            --bg-card: #ffffff;
+            --border-light: #e2e8f0;
+            --font-family-body: 'Poppins', sans-serif;
+            --font-family-heading: 'Fredoka One', cursive;
+            --shadow-subtle: 0 4px 15px rgba(0, 0, 0, 0.05);
+            --shadow-card: 0 10px 25px -5px rgba(106, 5, 114, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+            --shadow-hover: 0 20px 35px -8px rgba(106, 5, 114, 0.18), 0 10px 15px -3px rgba(0, 0, 0, 0.08);
+            --shadow-btn: 0 6px 18px rgba(106, 5, 114, 0.28);
+            --radius-sm: 8px;
+            --radius-md: 14px;
+            --radius-lg: 20px;
+            --radius-full: 9999px;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            -webkit-text-size-adjust: 100%;
+        }
+
         body {
-            font-family: 'Poppins', sans-serif;
-            background-color: #ffffff;
-            color: #2d3748;
+            font-family: var(--font-family-body);
+            background-color: var(--bg-page);
+            color: var(--text-dark);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            overflow-x: hidden;
+            width: 100%;
+            line-height: 1.6;
         }
 
-  
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        /* Viewport Carrier clears fixed header */
         .page-viewport-carrier {
-            padding-top: 100px; 
+            padding-top: clamp(75px, 8vw, 90px);
             display: flex;
             flex-grow: 1;
             width: 100%;
-            background: #f7fafc;
+            background: var(--bg-page);
         }
 
-        /* Edge-to-Edge Fluid Workspace Grid */
+        /* Edge-to-Edge Split Workspace Grid */
         .fluid-workspace {
             display: flex;
             width: 100%;
-            min-height: calc(100vh - 100px);
+            min-height: calc(100vh - 90px);
+            position: relative;
         }
 
-        /* Left Split: Premium Dynamic Information Column */
+        /* ==========================================================================
+           LEFT COLUMN: BRAND & DIRECT COMMUNICATION HUB
+           ========================================================================== */
         .brand-universe-column {
-            flex: 1;
-            background: linear-gradient(135deg, var(--primary-color, #1e3c72) 0%, var(--accent-color-1, #2a5298) 100%);
-            color: white;
-            padding: 8% 6% 6% 8%;
+            flex: 1.1;
+            background: linear-gradient(145deg, #38023c 0%, var(--primary-dark) 35%, var(--primary-color) 75%, #1d464a 120%);
+            color: var(--text-light);
+            padding: clamp(3rem, 6vw, 5.5rem) clamp(2rem, 5vw, 4.5rem);
             display: flex;
             flex-direction: column;
             justify-content: space-between;
             position: relative;
+            overflow: hidden;
         }
 
+        /* Background Pattern & Atmospheric Glows */
         .brand-universe-column::before {
             content: '';
             position: absolute;
             inset: 0;
-            background: url('https://images.unsplash.com/photo-1557804506-669a67965ba0?auto=format&fit=crop&w=1200&q=80') center center no-repeat;
-            background-size: cover;
-            opacity: 0.07;
-            mix-blend-mode: overlay;
+            background-image: 
+                radial-gradient(circle at 15% 20%, rgba(247, 183, 49, 0.2) 0%, transparent 45%),
+                radial-gradient(circle at 85% 75%, rgba(56, 178, 172, 0.22) 0%, transparent 50%),
+                url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.04' fill-rule='evenodd'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/svg%3E");
+            opacity: 0.9;
+            pointer-events: none;
+            z-index: 1;
         }
 
+        /* Floating Ambient Light Orbs */
+        .ambient-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(65px);
+            opacity: 0.25;
+            pointer-events: none;
+            z-index: 1;
+            animation: floatGlow 14s ease-in-out infinite alternate;
+        }
+
+        .ambient-orb-1 {
+            width: 340px;
+            height: 340px;
+            background: var(--secondary-color);
+            top: -70px;
+            left: -70px;
+        }
+
+        .ambient-orb-2 {
+            width: 380px;
+            height: 380px;
+            background: var(--accent-color-1);
+            bottom: -90px;
+            right: -80px;
+            animation-duration: 16s;
+        }
+
+        @keyframes floatGlow {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(35px, 25px) scale(1.12); }
+        }
+
+        /* Left Column Intro Text */
         .universe-intro {
             position: relative;
             z-index: 2;
-            max-width: 600px;
+            max-width: 580px;
+        }
+
+        .contact-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(255, 255, 255, 0.16);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: var(--secondary-color);
+            padding: 0.35rem 1.1rem;
+            border-radius: var(--radius-full);
+            font-size: 0.82rem;
+            font-weight: 700;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            margin-bottom: 1.25rem;
         }
 
         .universe-intro h1 {
-            font-size: 3.5rem;
+            font-size: clamp(2.3rem, 5vw, 3.6rem);
             font-weight: 700;
             line-height: 1.15;
-            margin-bottom: 20px;
-            letter-spacing: -1px;
+            margin-bottom: 1.1rem;
+            font-family: var(--font-family-heading);
+            color: #ffffff;
+            letter-spacing: -0.5px;
+            text-shadow: 0 3px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .universe-intro h1 .highlight-gold {
+            color: var(--secondary-color);
+            display: inline-block;
         }
 
         .universe-intro p {
-            font-size: 1.15rem;
-            color: rgba(255, 255, 255, 0.85);
-            line-height: 1.7;
+            font-size: clamp(1rem, 2vw, 1.15rem);
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.65;
+            max-width: 520px;
         }
 
-        /* Access Communication Blocks Layout */
+        /* Communication Pipeline Cards */
         .communication-pipeline {
-            margin: 50px 0;
+            margin: clamp(2rem, 4vw, 3rem) 0;
             display: flex;
             flex-direction: column;
-            gap: 20px;
-            max-width: 500px;
+            gap: 1.1rem;
+            max-width: 520px;
             position: relative;
             z-index: 2;
         }
@@ -98,108 +218,218 @@
         .pipeline-card {
             display: flex;
             align-items: center;
-            gap: 20px;
-            background: rgba(255, 255, 255, 0.07);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            padding: 18px 24px;
-            border-radius: 16px;
-            text-decoration: none;
-            color: white;
-            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            gap: 1.2rem;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 1rem 1.4rem;
+            border-radius: var(--radius-md);
+            color: #ffffff;
+            transition: all 0.28s cubic-bezier(0.25, 0.8, 0.25, 1);
+            position: relative;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
         }
 
         .pipeline-card:hover {
             background: #ffffff;
-            color: var(--primary-color, #1e3c72);
-            transform: translateY(-2px);
-            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+            color: var(--primary-color);
+            transform: translateX(6px) translateY(-2px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+            border-color: #ffffff;
         }
 
         .pipeline-card.whatsapp-accent:hover {
-            color: #25D366;
+            color: #128c7e;
         }
 
         .pipeline-icon-box {
-            font-size: 1.4rem;
-            width: 46px;
-            height: 46px;
+            font-size: 1.35rem;
+            width: 48px;
+            height: 48px;
             background: rgba(255, 255, 255, 0.12);
             border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.3s;
+            transition: all 0.28s ease;
+            flex-shrink: 0;
+            color: var(--secondary-color);
         }
 
         .pipeline-card:hover .pipeline-icon-box {
-            background: rgba(30, 60, 114, 0.08);
+            background: rgba(106, 5, 114, 0.1);
+            color: var(--primary-color);
+            transform: scale(1.05);
         }
+
+        .pipeline-card.whatsapp-accent .pipeline-icon-box {
+            color: #25d366;
+        }
+
         .pipeline-card.whatsapp-accent:hover .pipeline-icon-box {
-            background: rgba(37, 211, 102, 0.08);
+            background: rgba(37, 211, 102, 0.12);
+            color: #25d366;
+        }
+
+        .pipeline-info {
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
         }
 
         .pipeline-info h4 {
-            font-size: 0.85rem;
+            font-size: 0.82rem;
             text-transform: uppercase;
             letter-spacing: 1px;
-            opacity: 0.7;
-            font-weight: 500;
-            margin-bottom: 3px;
+            opacity: 0.8;
+            font-weight: 600;
+            margin-bottom: 2px;
         }
 
         .pipeline-info p {
-            font-size: 1.1rem;
+            font-size: 1.05rem;
             font-weight: 600;
+            margin: 0;
+            line-height: 1.3;
         }
 
+        .pipeline-action-icon {
+            margin-left: auto;
+            font-size: 0.95rem;
+            opacity: 0.5;
+            transition: all 0.2s ease;
+        }
+
+        .pipeline-card:hover .pipeline-action-icon {
+            opacity: 1;
+            transform: translateX(4px);
+        }
+
+        /* Office Operating Time Module */
         .time-badge {
             position: relative;
             z-index: 2;
-            display: inline-flex;
+            display: flex;
             align-items: center;
-            gap: 12px;
-            font-size: 0.95rem;
-            background: rgba(0, 0, 0, 0.15);
-            padding: 14px 22px;
-            border-radius: 14px;
-            border-left: 4px solid #ffffff;
-            max-width: fit-content;
+            gap: 1rem;
+            font-size: 0.92rem;
+            background: rgba(0, 0, 0, 0.22);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            padding: 1rem 1.4rem;
+            border-radius: var(--radius-md);
+            border-left: 4px solid var(--secondary-color);
+            max-width: 520px;
+            color: #ffffff;
         }
 
-        /* Right Split: Spaced Full-Width Interactive Input Column */
+        .time-badge-icon {
+            font-size: 1.4rem;
+            color: var(--secondary-color);
+            flex-shrink: 0;
+        }
+
+        .time-badge-text p.time-main {
+            font-weight: 600;
+            margin: 0 0 2px 0;
+            color: #ffffff;
+        }
+
+        .time-badge-text p.time-sub {
+            opacity: 0.85;
+            font-size: 0.84rem;
+            margin: 0;
+            color: #e2e8f0;
+        }
+
+        /* ==========================================================================
+           RIGHT COLUMN: INTERACTIVE SUBMISSION WORKSPACE
+           ========================================================================== */
         .form-universe-column {
-            flex: 1.2;
+            flex: 1.25;
             background: #ffffff;
-            padding: 8% 8% 6% 6%;
+            padding: clamp(3rem, 6vw, 5.5rem) clamp(2rem, 6vw, 5rem);
             display: flex;
             flex-direction: column;
             justify-content: center;
+            position: relative;
         }
 
         .form-universe-header {
-            margin-bottom: 45px;
+            margin-bottom: 2.25rem;
             max-width: 650px;
         }
 
-        .form-universe-header h2 {
-            font-size: 2.5rem;
-            color: #1a202c;
+        .form-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            color: var(--primary-color);
+            background: rgba(106, 5, 114, 0.08);
+            padding: 0.3rem 0.85rem;
+            border-radius: var(--radius-full);
+            font-size: 0.78rem;
             font-weight: 700;
-            margin-bottom: 12px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            margin-bottom: 0.85rem;
+        }
+
+        .form-universe-header h2 {
+            font-size: clamp(2rem, 3.5vw, 2.7rem);
+            color: var(--text-dark);
+            font-weight: 700;
+            margin-bottom: 0.6rem;
+            font-family: var(--font-family-heading);
             letter-spacing: -0.5px;
+            line-height: 1.2;
         }
 
         .form-universe-header p {
-            color: #718096;
-            font-size: 1.05rem;
+            color: var(--text-muted);
+            font-size: 1.02rem;
             line-height: 1.6;
         }
 
+        /* Alert Toast Box */
+        .alert-toast-box {
+            padding: 1rem 1.25rem;
+            border-radius: var(--radius-md);
+            font-size: 0.96rem;
+            margin-bottom: 2rem;
+            display: none;
+            max-width: 720px;
+            line-height: 1.5;
+        }
+
+        .alert-toast-box.success {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            background-color: #f0fdf4;
+            color: #15803d;
+            border: 1px solid #bbf7d0;
+            border-left: 5px solid #22c55e;
+        }
+
+        .alert-toast-box.error {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            background-color: #fef2f2;
+            color: #b91c1c;
+            border: 1px solid #fecaca;
+            border-left: 5px solid #ef4444;
+        }
+
+        /* Form Grid Layout */
         .creative-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 28px;
-            max-width: 750px;
+            gap: 1.5rem;
+            max-width: 720px;
         }
 
         .input-row-box {
@@ -212,128 +442,300 @@
 
         .input-row-box label {
             display: block;
-            margin-bottom: 10px;
+            margin-bottom: 0.5rem;
             font-weight: 600;
-            font-size: 0.85rem;
-            color: #4a5568;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            font-size: 0.88rem;
+            color: var(--text-dark);
+        }
+
+        .input-field-wrap {
+            position: relative;
+            display: flex;
+            align-items: center;
+            width: 100%;
+        }
+
+        .input-field-wrap i.input-icon {
+            position: absolute;
+            left: 1rem;
+            color: #94a3b8;
+            font-size: 1rem;
+            pointer-events: none;
+            transition: color 0.2s ease;
+            z-index: 2;
+        }
+
+        .input-field-wrap.textarea-wrap i.input-icon {
+            top: 1.1rem;
         }
 
         .form-input-element {
             width: 100%;
-            padding: 16px 20px;
-            border: 2px solid #e2e8f0;
-            border-radius: 14px;
-            font-size: 16px;
+            min-height: 52px;
+            padding: 0.85rem 1rem 0.85rem 2.85rem;
+            border: 1.8px solid var(--border-light);
+            border-radius: var(--radius-md);
+            font-size: 1rem; /* 16px base font prevents iOS Safari auto-zoom */
             background: #f8fafc;
-            color: #2d3748;
-            transition: all 0.3s ease;
+            color: var(--text-dark);
+            transition: all 0.25s ease;
             box-sizing: border-box;
-            font-family: inherit;
+            font-family: var(--font-family-body);
+            outline: none;
         }
 
         .form-input-element:focus {
-            outline: none;
-            border-color: var(--primary-color, #1e3c72);
+            border-color: var(--primary-color);
             background: #ffffff;
-            box-shadow: 0 10px 25px rgba(30, 60, 114, 0.05);
+            box-shadow: 0 0 0 4px rgba(106, 5, 114, 0.12);
+        }
+
+        .form-input-element:focus + i.input-icon,
+        .input-field-wrap:focus-within i.input-icon {
+            color: var(--primary-color);
         }
 
         textarea.form-input-element {
-            min-height: 160px;
+            min-height: 150px;
+            padding-top: 1rem;
             resize: vertical;
+            line-height: 1.6;
         }
 
+        /* Dispatch Action Button */
         .dispatch-action-btn {
             width: 100%;
-            padding: 18px;
-            background: linear-gradient(135deg, var(--primary-color, #1e3c72) 0%, var(--accent-color-1, #2a5298) 100%);
-            color: white;
+            min-height: 54px;
+            padding: 1rem 1.75rem;
+            background: linear-gradient(135deg, var(--primary-color) 0%, #871490 100%);
+            color: #ffffff;
             border: none;
-            border-radius: 14px;
-            font-size: 16px;
-            font-weight: 600;
+            border-radius: var(--radius-md);
+            font-size: 1.05rem;
+            font-weight: 700;
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-            box-shadow: 0 10px 25px rgba(30, 60, 114, 0.2);
-            display: flex;
+            transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: var(--shadow-btn);
+            display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 12px;
+            gap: 0.65rem;
+            font-family: var(--font-family-body);
+            letter-spacing: 0.3px;
+            box-sizing: border-box;
         }
 
         .dispatch-action-btn:hover {
+            background: linear-gradient(135deg, var(--secondary-color) 0%, var(--secondary-hover) 100%);
+            color: #1a1a1a;
             transform: translateY(-2px);
-            box-shadow: 0 15px 35px rgba(30, 60, 114, 0.35);
+            box-shadow: 0 8px 25px rgba(247, 183, 49, 0.4);
+        }
+
+        .dispatch-action-btn:active {
+            transform: translateY(0);
+        }
+
+        .dispatch-action-btn:disabled {
+            background: #cbd5e1;
+            color: #94a3b8;
+            box-shadow: none;
+            transform: none;
+            cursor: not-allowed;
         }
 
         .dispatch-action-btn i {
-            transition: transform 0.3s;
+            font-size: 1rem;
+            transition: transform 0.25s ease;
         }
 
         .dispatch-action-btn:hover i {
-            transform: translate(4px, -4px);
+            transform: translateX(4px);
         }
 
-        .alert-toast-box {
-            padding: 16px;
-            border-radius: 12px;
-            font-size: 1rem;
-            margin-bottom: 30px;
-            display: none;
-            max-width: 750px;
+        /* Alternative Application Prompt Strip */
+        .application-prompt-strip {
+            margin-top: 2rem;
+            padding: 1.25rem;
+            background: #f8fafc;
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-md);
+            max-width: 720px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            flex-wrap: wrap;
         }
 
-        .alert-toast-box.success {
-            display: block;
-            background-color: #f0fff4;
-            color: #2f855a;
-            border: 1px solid #c6f6d5;
-            border-left: 5px solid #38a169;
+        .prompt-text {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.92rem;
+            color: var(--text-body);
         }
 
-        /* Dynamic Media Layout Breakpoints */
+        .prompt-text i {
+            color: var(--secondary-color);
+            font-size: 1.2rem;
+        }
+
+        .prompt-link-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            color: var(--primary-color);
+            font-weight: 700;
+            font-size: 0.9rem;
+            background: rgba(106, 5, 114, 0.08);
+            padding: 0.45rem 1rem;
+            border-radius: var(--radius-full);
+            transition: all 0.2s ease;
+        }
+
+        .prompt-link-btn:hover {
+            background: var(--primary-color);
+            color: #ffffff;
+            transform: translateY(-1px);
+        }
+
+        /* ==========================================================================
+           RESPONSIVE BREAKPOINTS (ALL DEVICES)
+           ========================================================================== */
+
+        /* Tablets & Medium Screens (769px to 1024px) */
         @media (max-width: 1024px) {
             .fluid-workspace {
                 flex-direction: column;
             }
+
             .brand-universe-column {
-                padding: 60px 40px;
+                padding: 3.5rem 2.5rem;
             }
+
+            .communication-pipeline {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                max-width: 100%;
+                gap: 1rem;
+            }
+
+            .time-badge {
+                max-width: 100%;
+            }
+
             .form-universe-column {
-                padding: 60px 40px;
-            }
-            .universe-intro h1 {
-                font-size: 2.8rem;
+                padding: 3.5rem 2.5rem;
             }
         }
 
-        @media (max-width: 640px) {
+        /* Mobile Screens (<= 768px) */
+        @media (max-width: 768px) {
             .page-viewport-carrier {
-                padding-top: 80px; /* Adapted for slightly shorter headers on small viewports */
+                padding-top: 75px;
             }
+
             .brand-universe-column {
-                padding: 40px 24px;
+                padding: 2.75rem 1.5rem;
             }
+
             .universe-intro h1 {
                 font-size: 2.2rem;
             }
-            .form-universe-column {
-                padding: 40px 24px;
+
+            .communication-pipeline {
+                grid-template-columns: 1fr;
+                gap: 0.85rem;
+                margin: 1.75rem 0;
             }
+
+            .pipeline-card {
+                padding: 0.9rem 1.15rem;
+            }
+
+            .time-badge {
+                padding: 0.9rem 1.15rem;
+            }
+
+            .form-universe-column {
+                padding: 2.75rem 1.5rem;
+            }
+
+            .form-universe-header {
+                margin-bottom: 1.75rem;
+            }
+
+            .form-universe-header h2 {
+                font-size: 2rem;
+            }
+
             .creative-grid {
                 grid-template-columns: 1fr;
+                gap: 1.25rem;
             }
+
             .input-row-box.full-span {
                 grid-column: auto;
+            }
+
+            .application-prompt-strip {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.75rem;
+            }
+
+            .prompt-link-btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        /* Small Phones (<= 480px) */
+        @media (max-width: 480px) {
+            .brand-universe-column {
+                padding: 2.25rem 1rem;
+            }
+
+            .contact-badge {
+                font-size: 0.75rem;
+                padding: 0.3rem 0.85rem;
+            }
+
+            .universe-intro h1 {
+                font-size: 1.85rem;
+            }
+
+            .universe-intro p {
+                font-size: 0.95rem;
+            }
+
+            .pipeline-info p {
+                font-size: 0.95rem;
+            }
+
+            .form-universe-column {
+                padding: 2.25rem 1rem;
+            }
+
+            .form-universe-header h2 {
+                font-size: 1.75rem;
+            }
+
+            .form-input-element {
+                min-height: 48px;
+            }
+
+            .dispatch-action-btn {
+                min-height: 50px;
+                font-size: 1rem;
             }
         }
     </style>
 </head>
 <body>
 
-  
+    <!-- Dynamic Header Include -->
     <script src="scripts/header.js"></script>
     <div id="headerContainer"></div>
     <script>
@@ -349,26 +751,28 @@
                 .catch(error => console.error('Error loading header:', error));
         });
     </script>
-   
 
-    <!-- Outermost Guard Viewport Container (Corrects Fixed Navbar Incursions) -->
+    <!-- Outermost Viewport Carrier (clears fixed navbar smoothly) -->
     <div class="page-viewport-carrier">
         
-        <!-- Continuous Width Multi-Split Frame -->
         <main class="fluid-workspace">
             
-            <!-- Structural Section: Brand Presentation Column -->
+            <!-- Left Column: Brand Presentation & Direct Communication Hub -->
             <div class="brand-universe-column">
+                <div class="ambient-orb ambient-orb-1"></div>
+                <div class="ambient-orb ambient-orb-2"></div>
+
                 <div class="universe-intro">
-                    <h1>Connect<br>With Us</h1>
-                    <p>Have structural inquiries or application updates? Reach out and communicate directly through our institutional response loops.</p>
+                    <span class="contact-badge"><i class="fas fa-headset"></i> Get In Touch</span>
+                    <h1>Connect <span class="highlight-gold">With Us</span></h1>
+                    <p>Have questions regarding our courses, admissions, or institutional partnerships? Reach out directly through any of our channels.</p>
                 </div>
 
                 <!-- Live Communication Anchors -->
                 <div class="communication-pipeline">
                     
-                    <!-- WhatsApp Access Link -->
-                    <a href="https://wa.me/254111480338" target="_blank" class="pipeline-card whatsapp-accent">
+                    <!-- WhatsApp Live -->
+                    <a href="https://wa.me/254111480338" target="_blank" rel="noopener noreferrer" class="pipeline-card whatsapp-accent">
                         <div class="pipeline-icon-box">
                             <i class="fab fa-whatsapp"></i>
                         </div>
@@ -376,9 +780,10 @@
                             <h4>WhatsApp Live</h4>
                             <p>Chat Instantly</p>
                         </div>
+                        <i class="fas fa-arrow-right pipeline-action-icon"></i>
                     </a>
 
-                    <!-- Cellular Connection Link -->
+                    <!-- Telephone Connection -->
                     <a href="tel:+254111480338" class="pipeline-card">
                         <div class="pipeline-icon-box">
                             <i class="fas fa-phone-alt"></i>
@@ -387,9 +792,10 @@
                             <h4>Call Operations</h4>
                             <p>+(254) 111 480 338</p>
                         </div>
+                        <i class="fas fa-arrow-right pipeline-action-icon"></i>
                     </a>
 
-                    <!-- Institutional Support Mail Box -->
+                    <!-- Support Mail Box -->
                     <a href="mailto:info@nurufoundations.com" class="pipeline-card">
                         <div class="pipeline-icon-box">
                             <i class="fas fa-envelope"></i>
@@ -398,58 +804,86 @@
                             <h4>Support Mail</h4>
                             <p>info@nurufoundations.com</p>
                         </div>
+                        <i class="fas fa-arrow-right pipeline-action-icon"></i>
                     </a>
+
+                    <!-- Location Anchor -->
+                    <div class="pipeline-card" style="cursor: default;">
+                        <div class="pipeline-icon-box">
+                            <i class="fas fa-location-dot"></i>
+                        </div>
+                        <div class="pipeline-info">
+                            <h4>Headquarters</h4>
+                            <p>Nairobi, Kenya</p>
+                        </div>
+                    </div>
 
                 </div>
 
                 <!-- Office Operating Time Module -->
                 <div class="time-badge">
-                    <i class="far fa-clock"></i>
-                    <div>
-                        <p style="font-weight: 600; margin: 0;">Mon - Fri: 8AM - 5PM</p>
-                        <p style="opacity: 0.8; font-size: 0.85rem; margin: 0;">Saturday: 9AM - 1PM | Sunday: Closed</p>
+                    <div class="time-badge-icon">
+                        <i class="far fa-clock"></i>
+                    </div>
+                    <div class="time-badge-text">
+                        <p class="time-main">Mon - Fri: 8:00 AM - 5:00 PM EAT</p>
+                        <p class="time-sub">Saturday: 9:00 AM - 1:00 PM | Sunday: Closed</p>
                     </div>
                 </div>
             </div>
 
-            <!-- Structural Section: Interactive Submission Workspace Column -->
+            <!-- Right Column: Interactive Submission Form -->
             <div class="form-universe-column">
                 <div class="form-universe-header">
+                    <span class="form-badge"><i class="fas fa-paper-plane"></i> Quick Inquiry Desk</span>
                     <h2>Drop Us A Line</h2>
-                    <p>Provide your verification credentials below and our registration desk will coordinate a response within 24 hours.</p>
+                    <p>Provide your details below and our registration team will coordinate a personalized response within 24 hours.</p>
                 </div>
 
+                <!-- Status Toast Notification Box -->
                 <div id="statusToast" class="alert-toast-box"></div>
 
                 <form id="fluidContactForm">
                     <div class="creative-grid">
                         
-                        <!-- Input Element Box: Name -->
+                        <!-- Name Input -->
                         <div class="input-row-box">
                             <label for="clientName">Your Name</label>
-                            <input type="text" id="clientName" class="form-input-element" placeholder="First last-Name" required>
+                            <div class="input-field-wrap">
+                                <input type="text" id="clientName" class="form-input-element" placeholder="John Doe" required>
+                                <i class="fas fa-user input-icon"></i>
+                            </div>
                         </div>
 
-                        <!-- Input Element Box: Email -->
+                        <!-- Email Input -->
                         <div class="input-row-box">
                             <label for="clientEmail">Email Address</label>
-                            <input type="email" id="clientEmail" class="form-input-element" placeholder="name@gmail.com" required>
+                            <div class="input-field-wrap">
+                                <input type="email" id="clientEmail" class="form-input-element" placeholder="name@example.com" required>
+                                <i class="fas fa-envelope input-icon"></i>
+                            </div>
                         </div>
 
-                        <!-- Input Element Box: Telephone -->
+                        <!-- Phone Input -->
                         <div class="input-row-box full-span">
                             <label for="clientPhone">Phone Number</label>
-                            <input type="tel" id="clientPhone" class="form-input-element" placeholder="+(254) 111 480 338" required>
+                            <div class="input-field-wrap">
+                                <input type="tel" id="clientPhone" class="form-input-element" placeholder="+(254) 111 480 338" required>
+                                <i class="fas fa-phone input-icon"></i>
+                            </div>
                         </div>
 
-                        <!-- Input Element Box: Core Text Stream -->
+                        <!-- Message Input -->
                         <div class="input-row-box full-span">
                             <label for="clientMessage">Message Details</label>
-                            <textarea id="clientMessage" class="form-input-element" placeholder="Type your specific request details here..." required></textarea>
+                            <div class="input-field-wrap textarea-wrap">
+                                <textarea id="clientMessage" class="form-input-element" placeholder="Describe your question, course interest, or partnership proposal here..." required></textarea>
+                                <i class="fas fa-comment-dots input-icon"></i>
+                            </div>
                         </div>
 
-                        <!-- Action Submit Box -->
-                        <div class="input-row-box full-span" style="margin-top: 10px;">
+                        <!-- Action Submit Button -->
+                        <div class="input-row-box full-span" style="margin-top: 5px;">
                             <button type="submit" class="dispatch-action-btn" id="sendBtn">
                                 <span>Send Message</span>
                                 <i class="fas fa-paper-plane"></i>
@@ -458,12 +892,25 @@
 
                     </div>
                 </form>
+
+                <!-- Prompt Strip for Prospective Students -->
+                <div class="application-prompt-strip">
+                    <div class="prompt-text">
+                        <i class="fas fa-graduation-cap"></i>
+                        <span>Looking to apply for upcoming cohorts?</span>
+                    </div>
+                    <a href="apply-now-bt.html" class="prompt-link-btn">
+                        <span>Apply Online Now</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+
             </div>
 
         </main>
     </div>
 
-   
+    <!-- Dynamic Footer Include -->
     <script src="scripts/footer.js"></script>
     <div id="footerContainer"></div>
     <script>
@@ -485,8 +932,8 @@
                 .catch(error => console.error('Error loading footer:', error));
         });
     </script>
-  
 
+    <!-- Contact Form Dispatch Controller (Preserved 100%) -->
     <script>
         const API_BASE = window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : '/api';
 
