@@ -105,7 +105,6 @@ class AuthService {
         const user = this.getUser();
         return !!(token && user);
     }
-}
 
     async forgotPassword(email) {
         try {

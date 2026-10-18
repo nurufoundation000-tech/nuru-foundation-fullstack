@@ -397,7 +397,7 @@
 
         let allCourses = [];
         let coursePricing = {};
-        let globalSettings = { billingDay: 1, gracePeriodDays: 2 };
+        let globalSettings = { billingDay: 1, gracePeriodDays: 7, depositGraceDays: 1 };
 
         async function loadCoursesAndPricing() {
             try {
@@ -446,7 +446,8 @@
                     },
                     body: JSON.stringify({ 
                         billingDay, 
-                        gracePeriodDays: 2,
+                        gracePeriodDays: globalSettings.gracePeriodDays || 7,
+                        depositGraceDays: globalSettings.depositGraceDays || 1,
                         mpesa_paybill: document.getElementById('mpesaPaybill').value,
                         mpesa_till_number: document.getElementById('mpesaTillNumber').value
                     })

@@ -312,7 +312,9 @@
             
             try {
                 // First get course by slug
-                const courseResponse = await fetch(`${API_BASE_URL}/courses/slug/${COURSE_SLUG}`);
+                const courseResponse = await fetch(`${API_BASE_URL}/courses/slug/${COURSE_SLUG}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
                 
                 if (!courseResponse.ok) {
                     showAccessDenied('Course not found.', '/courses.html');

@@ -1,11 +1,36 @@
 // controllers/studentController.js - Student Dashboard Controller (CommonJS)
 const db = require('../config/database.js');
-const { isStudentLocked } = require('../lib/invoices.js');
+const { getStudentLockState, isStudentLocked } = require('../lib/invoices.js');
+const NotificationController = require('./notificationController.js');
+
+function getDateParts(value) {
+  if (value instanceof Date) {
+    return {
+      year: value.getFullYear(),
+      month: String(value.getMonth() + 1).padStart(2, '0'),
+      day: String(value.getDate()).padStart(2, '0')
+    };
+  }
+  const s = String(value).split('T')[0].split(' ')[0];
+  return {
+    year: s.slice(0, 4),
+    month: s.slice(5, 7),
+    day: s.slice(8, 10)
+  };
+}
+
+function isLessonPast(sessionDate, sessionTime) {
+  if (!sessionDate) return false;
+  const parts = getDateParts(sessionDate);
+  const time = sessionTime ? String(sessionTime).split(' ')[0].slice(0, 5) : '00:00';
+  const session = new Date(`${parts.year}-${parts.month}-${parts.day}T${time}:00`);
+  return !isNaN(session.getTime()) && session.getTime() < Date.now();
+}
 
 async function getStudentCourses(req, res) {
   try {
     const enrollments = await db.query(`
-      SELECT e.*, c.title, c.description, c.category,
+      SELECT e.*, c.title, c.description, c.category, c.is_free,
              (SELECT GROUP_CONCAT(tu.full_name SEPARATOR ', ') FROM course_tutors ct JOIN users tu ON ct.tutor_id = tu.id WHERE ct.course_id = c.id) as tutor_name,
              (SELECT GROUP_CONCAT(tu.username SEPARATOR ', ') FROM course_tutors ct JOIN users tu ON ct.tutor_id = tu.id WHERE ct.course_id = c.id) as tutor_username,
              (SELECT COUNT(*) FROM lessons WHERE course_id = c.id) as total_lessons,
@@ -39,6 +64,8 @@ async function getStudentCourses(req, res) {
       const totalItems = totalLessons + totalNotes + totalAssignments;
       const completedItems = completedLessons + readNotes + submittedAssignments;
       const progress = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0;
+
+      const isFree = !!enrollment.is_free;
 
       return {
         id: enrollment.id,
@@ -55,12 +82,14 @@ async function getStudentCourses(req, res) {
           title: enrollment.title,
           description: enrollment.description,
           category: enrollment.category,
+          isFree,
+          locked: req.user.lockLevel === 'monthly' && !isFree,
           tutor: { fullName: enrollment.tutor_name, username: enrollment.tutor_username }
         }
       };
     });
 
-    res.json({ success: true, data: progressData });
+    res.json({ success: true, lockLevel: req.user.lockLevel, data: progressData });
 
   } catch (error) {
     console.error('Get student courses error:', error);
@@ -71,7 +100,7 @@ async function getStudentCourses(req, res) {
 async function getProgress(req, res) {
   try {
     const enrollments = await db.query(`
-      SELECT e.*, c.title, c.description, c.category,
+      SELECT e.*, c.title, c.description, c.category, c.is_free,
              (SELECT GROUP_CONCAT(tu.full_name SEPARATOR ', ') FROM course_tutors ct JOIN users tu ON ct.tutor_id = tu.id WHERE ct.course_id = c.id) as tutor_name,
              (SELECT GROUP_CONCAT(tu.username SEPARATOR ', ') FROM course_tutors ct JOIN users tu ON ct.tutor_id = tu.id WHERE ct.course_id = c.id) as tutor_username,
              (SELECT COUNT(*) FROM lessons WHERE course_id = c.id) as total_lessons,
@@ -106,6 +135,8 @@ async function getProgress(req, res) {
       const completedItems = completedLessons + readNotes + submittedAssignments;
       const progress = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0;
 
+      const isFree = !!enrollment.is_free;
+
       return {
         id: enrollment.id,
         enrolledAt: enrollment.enrolled_at,
@@ -121,12 +152,14 @@ async function getProgress(req, res) {
           id: enrollment.course_id,
           title: enrollment.title,
           category: enrollment.category,
+          isFree,
+          locked: req.user.lockLevel === 'monthly' && !isFree,
           tutor: { fullName: enrollment.tutor_name, username: enrollment.tutor_username }
         }
       };
     });
 
-    res.json({ success: true, data: progressData });
+    res.json({ success: true, lockLevel: req.user.lockLevel, data: progressData });
 
   } catch (error) {
     console.error('Get progress error:', error);
@@ -178,6 +211,14 @@ async function completeLesson(req, res) {
       completed_at: new Date()
     });
 
+    NotificationController.createNotification(
+      req.user.userId,
+      'Lesson Completed',
+      `You completed: ${lesson.title}`,
+      'success',
+      '/student-dashboard/my-courses.html'
+    );
+
     const counts = await db.getOne(`
       SELECT
         (SELECT COUNT(*) FROM lessons WHERE course_id = ?) as total_lessons,
@@ -207,6 +248,22 @@ async function completeLesson(req, res) {
     const completedItems = completedLessons + readNotes + submittedAssignments;
     const courseProgress = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) / 100 : 0;
 
+    // Check if all lessons completed (course completion)
+    if (totalLessons > 0 && completedLessons >= totalLessons) {
+      const completionSetting = await db.getOne("SELECT setting_value FROM settings WHERE setting_key = 'completionEmail'");
+      const completionEnabled = completionSetting ? completionSetting.setting_value !== 'false' : true;
+      if (completionEnabled) {
+        const courseInfo = await db.getOne('SELECT title FROM courses WHERE id = ?', [lesson.course_id]);
+        NotificationController.createNotification(
+          req.user.userId,
+          'Course Completed',
+          `Congratulations! You have completed all lessons in ${courseInfo ? courseInfo.title : 'your course'}.`,
+          'success',
+          '/student-dashboard/certificates.html'
+        );
+      }
+    }
+
     res.json({ success: true, message: 'Lesson marked as completed', courseProgress });
 
   } catch (error) {
@@ -224,19 +281,49 @@ async function getLessons(req, res) {
       return res.status(400).json({ error: 'courseId is required' });
     }
 
+    const enrollment = await db.getOne(`
+      SELECT id FROM enrollments WHERE student_id = ? AND course_id = ?
+    `, [req.user.userId, courseId]);
+    const enrollmentId = enrollment ? enrollment.id : null;
+
     const lessons = await db.query(`
-      SELECT * FROM lessons 
-      WHERE course_id = ? 
-      ORDER BY order_index ASC
-    `, [courseId]);
+      SELECT l.*, 
+        (SELECT lp.id FROM lesson_progress lp WHERE lp.lesson_id = l.id AND lp.enrollment_id = ? AND lp.is_completed = 1) as lp_id
+      FROM lessons l
+      WHERE l.course_id = ? 
+      ORDER BY l.order_index ASC
+    `, [enrollmentId, courseId]);
 
-    const transformed = lessons.map(lesson => {
-      const isPast = lesson.session_date
-        ? new Date(`${String(lesson.session_date).split('T')[0]}T${lesson.session_time || '00:00'}`) < new Date()
-        : false;
+    const transformed = [];
+    for (const lesson of lessons) {
+      const linkedNotes = await db.query(`
+        SELECT cn.id, cn.title, cn.order_index
+        FROM lesson_notes ln
+        JOIN course_notes cn ON ln.note_id = cn.id
+        WHERE ln.lesson_id = ?
+        ORDER BY cn.order_index ASC
+      `, [lesson.id]);
 
-      return { ...lesson, isPast };
-    });
+      transformed.push({
+        id: lesson.id,
+        course_id: lesson.course_id,
+        title: lesson.title,
+        content: lesson.content,
+        videoUrl: lesson.video_url,
+        orderIndex: lesson.order_index,
+        liveLink: lesson.live_link,
+        sessionDate: lesson.session_date,
+        sessionTime: lesson.session_time,
+        durationMinutes: lesson.duration_minutes,
+        isCompleted: !!lesson.lp_id,
+        isPast: isLessonPast(lesson.session_date, lesson.session_time),
+        linkedNotes: linkedNotes.map(n => ({
+          id: n.id,
+          title: n.title,
+          orderIndex: n.order_index || 0
+        }))
+      });
+    }
 
     res.json({ success: true, data: transformed });
   } catch (error) {
@@ -254,17 +341,51 @@ async function getLesson(req, res) {
       return res.status(400).json({ error: 'Invalid lesson ID' });
     }
 
-    const lesson = await db.getOne('SELECT * FROM lessons WHERE id = ?', [lessonId]);
+    const lesson = await db.getOne(`
+      SELECT l.*,
+        (SELECT lp.id FROM lesson_progress lp
+         JOIN enrollments e ON lp.enrollment_id = e.id
+         WHERE lp.lesson_id = l.id AND e.student_id = ? AND lp.is_completed = 1) as lp_id
+      FROM lessons l
+      WHERE l.id = ?
+    `, [req.user.userId, lessonId]);
     
     if (!lesson) {
       return res.status(404).json({ error: 'Lesson not found' });
     }
 
-    const isPast = lesson.session_date
-      ? new Date(`${String(lesson.session_date).split('T')[0]}T${lesson.session_time || '00:00'}`) < new Date()
-      : false;
+    const linkedNotes = await db.query(`
+      SELECT cn.id, cn.title, cn.order_index
+      FROM lesson_notes ln
+      JOIN course_notes cn ON ln.note_id = cn.id
+      WHERE ln.lesson_id = ?
+      ORDER BY cn.order_index ASC
+    `, [lessonId]);
 
-    res.json({ success: true, data: { ...lesson, isPast } });
+    const isPast = isLessonPast(lesson.session_date, lesson.session_time);
+
+    res.json({
+      success: true,
+      data: {
+        id: lesson.id,
+        course_id: lesson.course_id,
+        title: lesson.title,
+        content: lesson.content,
+        videoUrl: lesson.video_url,
+        orderIndex: lesson.order_index,
+        liveLink: lesson.live_link,
+        sessionDate: lesson.session_date,
+        sessionTime: lesson.session_time,
+        durationMinutes: lesson.duration_minutes,
+        isCompleted: !!lesson.lp_id,
+        isPast,
+        linkedNotes: linkedNotes.map(n => ({
+          id: n.id,
+          title: n.title,
+          orderIndex: n.order_index || 0
+        }))
+      }
+    });
   } catch (error) {
     console.error('Get lesson error:', error);
     res.status(500).json({ error: 'Failed to load lesson' });
@@ -357,7 +478,78 @@ async function updateProgress(req, res) {
 // Get credit balance
 async function getCreditBalance(req, res) {
   try {
-    res.json({ success: true, balance: 0 });
+    const enrollments = await db.query(`
+      SELECT e.id, e.course_id, e.enrolled_at, c.title as course_title, c.is_free,
+             cp.monthly_amount, cp.billing_duration
+      FROM enrollments e
+      JOIN courses c ON e.course_id = c.id
+      LEFT JOIN course_pricing cp ON c.id = cp.course_id
+      WHERE e.student_id = ? AND (c.is_free = 0 OR c.is_free IS NULL)
+    `, [req.user.userId]);
+
+    const data = [];
+
+    for (const enrollment of enrollments) {
+      const monthlyInvoices = await db.query(`
+        SELECT id, amount, status, due_date, grace_period_end, month_number, paid_at
+        FROM invoices
+        WHERE student_id = ? AND course_id = ? AND type = 'monthly'
+        ORDER BY month_number ASC, created_at ASC
+      `, [req.user.userId, enrollment.course_id]);
+
+      const paidMonths = monthlyInvoices.filter(inv => inv.status === 'paid');
+      const monthsPaid = paidMonths.length;
+      const billingDuration = enrollment.billing_duration || paidMonths.length || 0;
+      const now = new Date();
+
+      function parseDbDate(value) {
+        if (!value) return null;
+        const d = new Date(String(value).split('T')[0].split(' ')[0] + 'T00:00');
+        return !isNaN(d.getTime()) ? d : null;
+      }
+
+      let expiresAt = new Date(enrollment.enrolled_at);
+      expiresAt.setMonth(expiresAt.getMonth() + 1);
+
+      // Access runs until the next unpaid installment's grace period ends,
+      // otherwise until one month after the last paid monthly installment
+      const nextUnpaid = monthlyInvoices.find(inv => inv.status === 'pending' || inv.status === 'locked');
+      if (nextUnpaid) {
+        const graceEnd = parseDbDate(nextUnpaid.grace_period_end) || parseDbDate(nextUnpaid.due_date);
+        if (graceEnd) expiresAt = graceEnd;
+      } else {
+        const lastPaid = paidMonths[paidMonths.length - 1];
+        if (lastPaid) {
+          const base = parseDbDate(lastPaid.due_date);
+          if (base) {
+            const end = new Date(base);
+            end.setMonth(end.getMonth() + 1);
+            expiresAt = end;
+          }
+        }
+      }
+
+      const paidFuture = paidMonths.filter(inv => {
+        const d = parseDbDate(inv.due_date);
+        return d && d.getTime() > now.getTime();
+      });
+
+      const advanceCredit = paidFuture.length;
+      const isExpired = expiresAt.getTime() < now.getTime();
+
+      data.push({
+        courseId: enrollment.course_id,
+        courseTitle: enrollment.course_title,
+        monthlyAmount: enrollment.monthly_amount || 0,
+        billingDuration,
+        totalMonthsPaid: monthsPaid,
+        advanceCredit,
+        expiresAt,
+        isExpired
+      });
+    }
+
+    res.json({ success: true, data });
   } catch (error) {
     console.error('Get credit balance error:', error);
     res.status(500).json({ error: 'Failed to get balance' });
@@ -367,8 +559,14 @@ async function getCreditBalance(req, res) {
 // Check if student is locked
 async function isLocked(req, res) {
   try {
-    const locked = await isStudentLocked(req.user.userId);
-    res.json({ success: true, isLocked: locked });
+    const state = await getStudentLockState(req.user.userId);
+    res.json({
+      success: true,
+      isLocked: state.level !== 'none',
+      level: state.level,
+      depositUnpaid: state.level === 'deposit',
+      monthlyLocked: state.level === 'monthly'
+    });
   } catch (error) {
     console.error('Is locked check error:', error);
     res.status(500).json({ error: 'Failed to check lock status' });
@@ -407,7 +605,13 @@ async function getInvoices(req, res) {
       }
     }));
 
-    res.json({ success: true, data });
+    const isDeposit = inv => inv.type === 'initial' || inv.type === 'deposit';
+    const isUnsettled = inv => inv.status === 'pending' || inv.status === 'locked';
+    const hasPendingDeposit = data.some(inv => isDeposit(inv) && isUnsettled(inv));
+    const monthlyLocked = data.some(inv => inv.type === 'monthly' && inv.status === 'locked');
+    const hasOverdue = hasPendingDeposit || monthlyLocked;
+
+    res.json({ success: true, data, hasPendingDeposit, monthlyLocked, hasOverdue });
   } catch (error) {
     console.error('Get invoices error:', error);
     res.status(500).json({ error: 'Failed to load invoices' });
@@ -660,9 +864,9 @@ async function markNoteRead(req, res) {
 async function getStudentAssignments(req, res) {
   try {
     const studentId = req.user.userId;
-    const assignments = await db.query(`
+    let assignments = await db.query(`
       SELECT a.*, l.title as lesson_title, l.course_id,
-             c.title as course_title,
+             c.title as course_title, c.is_free,
              s.id as submission_id, s.grade, s.feedback, s.submitted_at
       FROM assignments a
       JOIN lessons l ON a.lesson_id = l.id
@@ -671,6 +875,11 @@ async function getStudentAssignments(req, res) {
       LEFT JOIN submissions s ON s.assignment_id = a.id AND s.student_id = ?
       ORDER BY a.created_at DESC
     `, [studentId, studentId]);
+
+    // Monthly-locked students may only see assignments from free courses
+    if (req.user.lockLevel === 'monthly') {
+      assignments = assignments.filter(a => a.is_free);
+    }
 
     const transformed = assignments.map(a => ({
       id: a.id,
@@ -747,8 +956,11 @@ async function submitAssignment(req, res) {
     }
 
     const { codeSubmission } = req.body;
-    if (!codeSubmission) {
+    if (typeof codeSubmission !== 'string' || !codeSubmission.trim()) {
       return res.status(400).json({ error: 'Code submission is required' });
+    }
+    if (codeSubmission.length > 200000) {
+      return res.status(400).json({ error: 'Submission is too large. Please keep it under 200,000 characters.' });
     }
 
     const existing = await db.getOne(`
@@ -761,7 +973,7 @@ async function submitAssignment(req, res) {
 
     const result = await db.query(`
       INSERT INTO submissions (assignment_id, student_id, code_submission) VALUES (?, ?, ?)
-    `, [assignmentId, req.user.userId, codeSubmission]);
+    `, [assignmentId, req.user.userId, codeSubmission.trim()]);
 
     res.status(201).json({ success: true, id: result.insertId, message: 'Assignment submitted successfully' });
   } catch (error) {

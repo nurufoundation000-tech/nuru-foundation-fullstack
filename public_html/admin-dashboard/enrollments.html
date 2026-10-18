@@ -691,28 +691,15 @@
                     const data = await response.json();
                     allCourses = data.data || data || [];
                 } else {
-                    // Use demo courses if API fails
-                    allCourses = [
-                        { id: 1, title: "Computer Packages" },
-                        { id: 2, title: "Introduction to Programming" },
-                        { id: 3, title: "Web Development Basics" },
-                        { id: 4, title: "Advanced Data Science" },
-                        { id: 5, title: "Digital Marketing Fundamentals" }
-                    ];
+                    allCourses = [];
+                    console.error('Failed to load courses for filter');
                 }
 
                 populateCourseFilter();
 
             } catch (error) {
                 console.error('Error loading courses:', error);
-                // Use demo courses as fallback
-                allCourses = [
-                    { id: 1, title: "Computer Packages" },
-                    { id: 2, title: "Introduction to Programming" },
-                    { id: 3, title: "Web Development Basics" },
-                    { id: 4, title: "Advanced Data Science" },
-                    { id: 5, title: "Digital Marketing Fundamentals" }
-                ];
+                allCourses = [];
                 populateCourseFilter();
             }
         }
@@ -929,7 +916,19 @@
         }
 
         function viewEnrollment(enrollmentId) {
-            alert(`View enrollment ${enrollmentId} - functionality to be implemented`);
+            const enrollment = allEnrollments.find(e => e.id === enrollmentId);
+            if (!enrollment) { alert('Enrollment not found'); return; }
+            const student = enrollment.student || {};
+            const course = enrollment.course || {};
+            alert(
+                `Enrollment #${enrollment.id}\n\n` +
+                `Student: ${student.fullName || student.username || student.email || 'Unknown'}\n` +
+                `Email: ${student.email || 'N/A'}\n` +
+                `Course: ${course.title || 'Unknown'}\n` +
+                `Status: ${enrollment.status || 'active'}\n` +
+                `Progress: ${enrollment.progress || 0}%\n` +
+                `Enrolled: ${enrollment.enrolledAt ? new Date(enrollment.enrolledAt).toLocaleDateString() : 'N/A'}`
+            );
         }
 
         function editEnrollment(enrollmentId) {
@@ -1061,7 +1060,20 @@
         }
 
         function exportEnrollments() {
-            alert('Export enrollments functionality to be implemented');
+            if (!allEnrollments.length) { alert('No enrollments to export'); return; }
+            let csv = 'ID,Student,Email,Course,Category,Status,Progress,Enrolled At\n';
+            allEnrollments.forEach(e => {
+                const student = e.student || {};
+                const course = e.course || {};
+                csv += `${e.id},"${student.fullName || student.username || ''}","${student.email || ''}","${course.title || ''}","${course.category || ''}",${e.status || 'active'},${e.progress || 0},${e.enrolledAt || ''}\n`;
+            });
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `enrollments_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
         }
         
         // Enroll Student Modal Functions

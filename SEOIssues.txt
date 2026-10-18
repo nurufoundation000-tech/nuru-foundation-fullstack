@@ -1,0 +1,41 @@
+seo issues discovered
+
+difficulty
+
+SEO impact
+
+1 issues with no sitemap.xml to optimize interaction with bots
+
+
+What is this and how do I fix it?
+View Details
+Moderate
+
+High
+
+3 pages with a poorly formatted URL for SEO
+
+
+What is this and how do I fix it?
+View Details
+Easy
+
+Medium
+
+1 pages with a <title> tag that is too short
+
+
+What is this and how do I fix it?
+View Details
+Easy
+
+Medium
+
+14 pages with no meta description
+
+
+What is this and how do I fix it?
+View Details
+Moderate
+
+Medium

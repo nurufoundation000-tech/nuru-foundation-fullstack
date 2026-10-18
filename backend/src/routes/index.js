@@ -17,7 +17,7 @@ const ForumController = require('../controllers/forumController.js');
 const NotificationController = require('../controllers/notificationController.js');
 const ContactController = require('../controllers/contactController.js');
 const { sendWelcomeEmail, getEmailStatus } = require('../lib/email.js');
-const { authenticateToken, requireRole } = require('../middleware/auth.js');
+const { authenticateToken, requireRole, blockDepositOnly, blockLockedCourse } = require('../middleware/auth.js');
 const { generateInitialInvoices, checkAndUpdateInvoiceStatuses, isStudentLocked } = require('../lib/invoices.js');
 
 const requireTutor = [authenticateToken, requireRole(['tutor'])];
@@ -38,28 +38,28 @@ router.put('/users/set-password', authenticateToken, UserController.setPassword)
 router.put('/users/skip-password-change', authenticateToken, UserController.skipPasswordChange);
 
 // ==================== COURSE ROUTES ====================
-router.get('/courses', CourseController.getAllCourses);
-router.get('/courses/:id', CourseController.getCourseById);
-router.get('/courses/slug/:slug', CourseController.getCourseBySlug);
+router.get('/courses', authenticateToken, requireRole(['student', 'tutor', 'admin']), CourseController.getAllCourses);
+router.get('/courses/:id', authenticateToken, requireRole(['student', 'tutor', 'admin']), CourseController.getCourseById);
+router.get('/courses/slug/:slug', authenticateToken, CourseController.getCourseBySlug);
 router.post('/courses/:id/enroll', authenticateToken, CourseController.enrollInCourse);
 
 // ==================== STUDENT DASHBOARD ROUTES ====================
-router.get('/student/courses', authenticateToken, requireRole(['student', 'tutor', 'admin']), StudentController.getStudentCourses);
-router.get('/student/courses/progress', authenticateToken, requireRole(['student', 'admin']), StudentController.getProgress);
-router.put('/student/courses/:enrollmentId/progress', authenticateToken, requireRole(['student']), StudentController.updateProgress);
-router.post('/student/lessons/:lessonId/complete', authenticateToken, requireRole(['student']), StudentController.completeLesson);
-router.delete('/student/courses/:enrollmentId/unenroll', authenticateToken, requireRole(['student']), StudentController.unenrollFromCourse);
+router.get('/student/courses', authenticateToken, requireRole(['student', 'tutor', 'admin']), blockDepositOnly, StudentController.getStudentCourses);
+router.get('/student/courses/progress', authenticateToken, requireRole(['student', 'admin']), blockDepositOnly, StudentController.getProgress);
+router.put('/student/courses/:enrollmentId/progress', authenticateToken, requireRole(['student']), blockLockedCourse, StudentController.updateProgress);
+router.post('/student/lessons/:lessonId/complete', authenticateToken, requireRole(['student']), blockLockedCourse, StudentController.completeLesson);
+router.delete('/student/courses/:enrollmentId/unenroll', authenticateToken, requireRole(['student']), blockLockedCourse, StudentController.unenrollFromCourse);
 
 // ==================== STUDENT LESSON ROUTES ====================
-router.get('/student/lessons', authenticateToken, requireRole(['student', 'tutor', 'admin']), StudentController.getLessons);
+router.get('/student/lessons', authenticateToken, requireRole(['student', 'tutor', 'admin']), blockLockedCourse, StudentController.getLessons);
 router.post('/student/lessons', authenticateToken, requireRole(['tutor', 'admin']), StudentController.createLesson);
-router.get('/student/lessons/:id', authenticateToken, requireRole(['student', 'tutor', 'admin']), StudentController.getLesson);
+router.get('/student/lessons/:id', authenticateToken, requireRole(['student', 'tutor', 'admin']), blockLockedCourse, StudentController.getLesson);
 router.put('/student/lessons/:id', authenticateToken, requireRole(['tutor', 'admin']), StudentController.updateLesson);
 router.delete('/student/lessons/:id', authenticateToken, requireRole(['tutor', 'admin']), StudentController.deleteLesson);
 
 // ==================== STUDENT NOTES ROUTES ====================
-router.get('/student/notes/:courseId', authenticateToken, requireRole(['student', 'tutor', 'admin']), StudentController.getCourseNotes);
-router.post('/student/notes/:noteId/mark-read', authenticateToken, requireRole(['student']), StudentController.markNoteRead);
+router.get('/student/notes/:courseId', authenticateToken, requireRole(['student', 'tutor', 'admin']), blockLockedCourse, StudentController.getCourseNotes);
+router.post('/student/notes/:noteId/mark-read', authenticateToken, requireRole(['student']), blockLockedCourse, StudentController.markNoteRead);
 
 // ==================== STUDENT PAYMENT ROUTES ====================
 router.get('/student/credit-balance', authenticateToken, requireRole(['student']), StudentController.getCreditBalance);
@@ -146,6 +146,7 @@ router.get('/admin/transactions', authenticateToken, requireAdmin, AdminControll
 // Admin Invoices
 router.get('/admin/invoices', authenticateToken, requireAdmin, AdminController.getAdminInvoices);
 router.post('/admin/invoices/:id/unlock', authenticateToken, requireAdmin, AdminController.unlockInvoice);
+router.post('/admin/invoices/:id/lock', authenticateToken, requireAdmin, AdminController.lockInvoice);
 
 // Admin Student Payment Summary
 router.get('/admin/students/:id/payment-summary', authenticateToken, requireAdmin, AdminController.getStudentPaymentSummary);
@@ -210,7 +211,7 @@ router.get('/cron/check-overdue', async (req, res) => {
 });
 
 // ==================== RECEIPT ROUTES ====================
-router.get('/receipt/:invoiceId', async (req, res) => {
+router.get('/receipt/:invoiceId', authenticateToken, requireRole(['student', 'admin']), async (req, res) => {
   try {
     const invoiceId = parseInt(req.params.invoiceId);
     if (isNaN(invoiceId)) {
@@ -227,6 +228,11 @@ router.get('/receipt/:invoiceId', async (req, res) => {
 
     if (!invoice) {
       return res.status(404).send('Invoice not found');
+    }
+
+    // Students may only view their own receipts; admins may view any
+    if (req.user.role !== 'admin' && invoice.student_id !== req.user.id) {
+      return res.status(403).send('Access denied');
     }
 
     const html = `<!DOCTYPE html>
@@ -284,33 +290,35 @@ ${invoice.transaction_id ? '<tr><td>Trans. ID</td><td>' + invoice.transaction_id
 });
 
 // ==================== STUDENT ASSIGNMENT ROUTES ====================
-router.get('/student/assignments', authenticateToken, requireRole(['student']), StudentController.getStudentAssignments);
-router.get('/assignments/:id', authenticateToken, requireRole(['student']), StudentController.getAssignment);
-router.post('/assignments/:id/submit', authenticateToken, requireRole(['student']), StudentController.submitAssignment);
+router.get('/student/assignments', authenticateToken, requireRole(['student']), blockDepositOnly, StudentController.getStudentAssignments);
+router.get('/assignments/:id', authenticateToken, requireRole(['student']), blockLockedCourse, StudentController.getAssignment);
+router.post('/assignments/:id/submit', authenticateToken, requireRole(['student']), blockLockedCourse, StudentController.submitAssignment);
 
 // ==================== FILE UPLOAD ROUTES ====================
 router.post('/upload/image', authenticateToken, requireRole(['tutor', 'admin']), UploadController.upload.single('file'), UploadController.uploadImage);
 router.post('/upload/file', authenticateToken, requireRole(['tutor', 'admin']), UploadController.upload.single('file'), UploadController.uploadFile);
 
 // ==================== LIVE SESSION ROUTES ====================
-router.get('/sessions/upcoming', authenticateToken, SessionController.getUpcomingSessions);
-router.get('/sessions/course/:courseId', authenticateToken, SessionController.getCourseSessions);
+router.get('/sessions/upcoming', authenticateToken, blockLockedCourse, SessionController.getUpcomingSessions);
+router.get('/sessions/course/:courseId', authenticateToken, blockLockedCourse, SessionController.getCourseSessions);
 router.post('/sessions', authenticateToken, requireRole(['tutor', 'admin']), SessionController.createSession);
 router.put('/sessions/:id', authenticateToken, requireRole(['tutor', 'admin']), SessionController.updateSession);
 router.delete('/sessions/:id', authenticateToken, requireRole(['tutor', 'admin']), SessionController.deleteSession);
 router.get('/tutor/sessions', authenticateToken, requireRole(['tutor', 'admin']), SessionController.getTutorSessions);
 
 // ==================== FORUM ROUTES ====================
-router.get('/forum/course/:courseId', authenticateToken, ForumController.getCoursePosts);
-router.get('/forum/posts/:id', authenticateToken, ForumController.getPost);
-router.post('/forum/posts', authenticateToken, ForumController.createPost);
-router.post('/forum/posts/:postId/comments', authenticateToken, ForumController.createComment);
-router.delete('/forum/posts/:id', authenticateToken, ForumController.deletePost);
+router.get('/forum/course/:courseId', authenticateToken, blockLockedCourse, ForumController.getCoursePosts);
+router.get('/forum/posts/:id', authenticateToken, blockLockedCourse, ForumController.getPost);
+router.post('/forum/posts', authenticateToken, blockLockedCourse, ForumController.createPost);
+router.post('/forum/posts/:postId/comments', authenticateToken, blockLockedCourse, ForumController.createComment);
+router.delete('/forum/posts/:id', authenticateToken, blockLockedCourse, ForumController.deletePost);
 
 // ==================== NOTIFICATION ROUTES ====================
 router.get('/notifications', authenticateToken, NotificationController.getNotifications);
+router.get('/notifications/unread-count', authenticateToken, NotificationController.getUnreadCount);
 router.put('/notifications/:id/read', authenticateToken, NotificationController.markAsRead);
 router.put('/notifications/read-all', authenticateToken, NotificationController.markAllAsRead);
+router.post('/admin/notifications/bulk', authenticateToken, requireAdmin, NotificationController.bulkCreateNotifications);
 
 // ==================== CONTACT & NEWSLETTER ROUTES ====================
 router.post('/contact', ContactController.submitContact);
@@ -329,7 +337,8 @@ router.post('/admin/test-email', authenticateToken, requireAdmin, async (req, re
   }
   
   try {
-    const result = await sendWelcomeEmail(email, 'testuser', 'TestPassword123');
+    const testLink = `${process.env.FRONTEND_URL || 'https://nurufoundations.com'}/reset-password.html?token=test-token&email=${encodeURIComponent(email)}`;
+    const result = await sendWelcomeEmail(email, 'testuser', testLink);
     res.json(result);
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });

@@ -1324,21 +1324,12 @@
                     window.location.href = '/admin-dashboard/index.html';
                 }
             } else if (userRole === 'student') {
-                try {
-                    const token = result.token;
-                    const invoicesRes = await fetch('/api/student/invoices', {
-                        headers: { 'Authorization': `Bearer ${token}` }
-                    });
-                    const invoicesData = await invoicesRes.json();
-                    
-                    if (invoicesData.success && (invoicesData.hasOverdue || invoicesData.pendingInitialPayment)) {
-                        window.location.href = '/student-dashboard/payment.html';
-                        return;
-                    }
-                } catch (err) {
-                    console.error('Error checking invoices:', err);
+                // Unpaid deposit = total block: send straight to the payment page.
+                // Monthly-locked students still get free courses, so they go to the dashboard.
+                if (result.user?.lockLevel === 'deposit') {
+                    window.location.href = '/student-dashboard/payment.html';
+                    return;
                 }
-                
                 redirectToDashboard(userRole);
             } else {
                 redirectToDashboard(userRole);

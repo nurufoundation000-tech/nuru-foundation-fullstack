@@ -606,9 +606,25 @@
                     <td><span class="status-badge ${inv.status === 'paid' ? 'paid' : inv.status === 'locked' ? 'locked' : 'pending'}">${inv.status.toUpperCase()}</span></td>
                     <td>${inv.due_date ? new Date(inv.due_date).toLocaleDateString() : '-'}</td>
                     <td>${inv.paid_at ? new Date(inv.paid_at).toLocaleDateString() : '-'}</td>
-                    <td>${inv.mpesa_receipt ? `<a href="/receipt/${inv.id}" target="_blank" class="receipt-link">${inv.mpesa_receipt}</a>` : '-'}</td>
+                    <td>${inv.mpesa_receipt ? `<a href="#" onclick="openReceipt(${inv.id});return false;" class="receipt-link">${inv.mpesa_receipt}</a>` : '-'}</td>
                 </tr>
             `).join('');
+        }
+
+        function openReceipt(invoiceId) {
+            const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+            if (!token) return;
+            fetch(`${API_URL}/receipt/${invoiceId}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            })
+                .then(res => res.ok ? res.text() : Promise.reject(new Error(res.status)))
+                .then(html => {
+                    const win = window.open('', '_blank');
+                    if (!win) { alert('Please allow pop-ups to view the receipt.'); return; }
+                    win.document.write(html);
+                    win.document.close();
+                })
+                .catch(() => alert('Unable to load receipt.'));
         }
 
         function exportData() {

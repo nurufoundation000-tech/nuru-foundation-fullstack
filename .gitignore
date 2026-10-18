@@ -8,3 +8,4 @@ nul
 *.md
 *.sql
 .opencode/
+.log

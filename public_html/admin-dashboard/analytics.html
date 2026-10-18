@@ -422,6 +422,7 @@
             }
 
             const data = await response.json();
+            window.__analyticsData = data;
             const chartType = document.getElementById('chartTypeFilter').value;
             renderCharts(data, chartType);
 
@@ -515,7 +516,7 @@ function renderCharts(data, chartType) {
         if (completionRateChart) completionRateChart.destroy();
         completionRateChart = new Chart(document.getElementById('completionRateChart'), {
             type: chartType,
-            data: { labels: ['Completed', 'In Progress', 'Not Started'], datasets: [dsExtras('Students', data.completionRates || [0, 0, 100], colors.completion)] },
+            data: { labels: ['Completed', 'In Progress', 'Not Started'], datasets: [dsExtras('Students', data.completionRates || [0, 0, 0], colors.completion)] },
             options: opts('Course Completion Rates')
         });
 
@@ -537,7 +538,21 @@ function renderCharts(data, chartType) {
     }
 
     function exportAnalytics() {
-        alert('Export analytics functionality to be implemented');
+        const data = window.__analyticsData;
+        if (!data) { alert('No analytics data loaded yet'); return; }
+        const summary = data.summary || data.stats || {};
+        const rows = [
+            ['Metric', 'Value'],
+            ...Object.entries(summary).map(([k, v]) => [k, Array.isArray(v) ? v.join(', ') : v])
+        ];
+        let csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\n');
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `analytics_${new Date().toISOString().split('T')[0]}.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
     }
 
     function logout() {

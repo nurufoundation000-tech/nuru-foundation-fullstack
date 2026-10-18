@@ -1,20 +1,23 @@
 // lib/invoices.js - Invoice and Billing System (CommonJS)
 const db = require('../config/database.js');
 const fs = require('fs');
+const NotificationController = require('../controllers/notificationController.js');
 
 const GLOBAL_SETTINGS_PATH = './global-billing.json';
+
+const DEFAULT_SETTINGS = { billingDay: 1, gracePeriodDays: 7, depositGraceDays: 1 };
 
 async function getGlobalSettings() {
   try {
     const settingsPath = GLOBAL_SETTINGS_PATH;
-    let settings = { billingDay: 1, gracePeriodDays: 2 };
+    let settings = { ...DEFAULT_SETTINGS };
     if (fs.existsSync(settingsPath)) {
-      settings = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
+      settings = { ...DEFAULT_SETTINGS, ...JSON.parse(fs.readFileSync(settingsPath, 'utf8')) };
     }
     return settings;
   } catch (error) {
     console.error('[Invoice] Error loading global settings:', error);
-    return { billingDay: 1, gracePeriodDays: 2 };
+    return { ...DEFAULT_SETTINGS };
   }
 }
 
@@ -38,9 +41,9 @@ async function generateInitialInvoices(studentId) {
 
     if (!existing) {
       const dueDate = new Date();
-      dueDate.setDate(dueDate.getDate() + 7);
+      const depositGraceDays = settings.depositGraceDays >= 0 ? settings.depositGraceDays : 1;
       const gracePeriodEnd = new Date(dueDate);
-      gracePeriodEnd.setDate(gracePeriodEnd.getDate() + settings.gracePeriodDays);
+      gracePeriodEnd.setDate(gracePeriodEnd.getDate() + depositGraceDays);
 
       await db.insert('invoices', {
         student_id: studentId,
@@ -70,6 +73,7 @@ async function checkAndUpdateInvoiceStatuses() {
       status: 'locked',
       locked_at: now
     });
+    await syncUserLockFlag(invoice.student_id);
     console.log(`[Invoice] Invoice ${invoice.id} marked as locked, student ${invoice.student_id} locked out`);
   }
 }
@@ -89,6 +93,13 @@ async function generateMonthlyInvoices() {
   for (const enrollment of enrollments) {
     if (!enrollment.monthly_amount) continue;
 
+    // Do not bill monthly installments until the deposit has been paid
+    const unpaidDeposit = await db.getOne(`
+      SELECT id FROM invoices
+      WHERE student_id = ? AND course_id = ? AND type = 'initial' AND status IN ('pending', 'locked')
+    `, [enrollment.student_id, enrollment.course_id]);
+    if (unpaidDeposit) continue;
+
     const billingDuration = enrollment.billing_duration || 1;
     const existingMonthly = await db.query(`
       SELECT id FROM invoices 
@@ -102,9 +113,17 @@ async function generateMonthlyInvoices() {
     const alreadyBilled = existingMonthly.find(inv => new Date(inv.created_at) >= startOfMonth);
     if (alreadyBilled) continue;
 
-    let dueDate = new Date(today.getFullYear(), today.getMonth(), billingDay);
-    if (today.getDate() > billingDay) {
-      dueDate = new Date(today.getFullYear(), today.getMonth() + 1, billingDay);
+    const monthNumber = existingMonthly.length + 1;
+
+    // First month is billed immediately after the deposit with the full grace period
+    let dueDate;
+    if (monthNumber === 1) {
+      dueDate = new Date();
+    } else {
+      dueDate = new Date(today.getFullYear(), today.getMonth(), billingDay);
+      if (today.getDate() > billingDay) {
+        dueDate = new Date(today.getFullYear(), today.getMonth() + 1, billingDay);
+      }
     }
 
     const gracePeriodEnd = new Date(dueDate);
@@ -114,7 +133,7 @@ async function generateMonthlyInvoices() {
       student_id: enrollment.student_id,
       course_id: enrollment.course_id,
       type: 'monthly',
-      month_number: existingMonthly.length + 1,
+      month_number: monthNumber,
       amount: enrollment.monthly_amount,
       status: 'pending',
       due_date: dueDate,
@@ -124,23 +143,59 @@ async function generateMonthlyInvoices() {
   }
 }
 
-async function isStudentLocked(studentId) {
-  // Check if student has any paid (non-free) enrollments first
+// Returns the student's lock state:
+//   'none'    - full access (no pending/locked deposit, no locked monthly invoice)
+//   'deposit' - total block: an unpaid deposit (pending or locked) blocks ALL services
+//   'monthly' - partial block: deposit paid but a monthly installment is locked;
+//               student may access free courses only
+async function getStudentLockState(studentId) {
+  // Free-course-only students are never locked
   const paidEnrollments = await db.query(`
     SELECT e.id FROM enrollments e
     JOIN courses c ON e.course_id = c.id
     WHERE e.student_id = ? AND (c.is_free = 0 OR c.is_free IS NULL)
   `, [studentId]);
 
-  // If only enrolled in free courses, never locked
-  if (paidEnrollments.length === 0) return false;
+  if (paidEnrollments.length === 0) {
+    return { level: 'none' };
+  }
 
-  // If has paid course enrollments, check for locked invoices
-  const invoice = await db.getOne(`
-    SELECT id FROM invoices 
-    WHERE student_id = ? AND status = 'locked'
+  // Unpaid deposit (pending = within short grace, locked = past grace) = total block
+  const depositInvoice = await db.getOne(`
+    SELECT id, status FROM invoices
+    WHERE student_id = ? AND type = 'initial' AND status IN ('pending', 'locked')
+    ORDER BY due_date ASC
+    LIMIT 1
   `, [studentId]);
-  return !!invoice;
+
+  if (depositInvoice) {
+    return { level: 'deposit', depositUnpaid: true };
+  }
+
+  // Locked monthly installment = free courses only
+  const monthlyInvoice = await db.getOne(`
+    SELECT id, status FROM invoices
+    WHERE student_id = ? AND type = 'monthly' AND status = 'locked'
+    ORDER BY due_date ASC
+    LIMIT 1
+  `, [studentId]);
+
+  if (monthlyInvoice) {
+    return { level: 'monthly', monthlyLocked: true };
+  }
+
+  return { level: 'none' };
+}
+
+async function isStudentLocked(studentId) {
+  const state = await getStudentLockState(studentId);
+  return state.level !== 'none';
+}
+
+// Keeps the users.is_locked column in sync with the invoice-derived lock state
+async function syncUserLockFlag(studentId) {
+  const state = await getStudentLockState(studentId);
+  await db.query('UPDATE users SET is_locked = ? WHERE id = ?', [state.level !== 'none' ? 1 : 0, studentId]);
 }
 
 async function getStudentInvoices(studentId) {
@@ -164,7 +219,11 @@ async function getInvoiceById(invoiceId) {
 }
 
 async function markInvoicePaid(invoiceId, paymentData) {
-  const invoice = await db.getOne('SELECT * FROM invoices WHERE id = ?', [invoiceId]);
+  const invoice = await db.getOne(`
+    SELECT i.*, c.title as course_title FROM invoices i
+    JOIN courses c ON i.course_id = c.id
+    WHERE i.id = ?
+  `, [invoiceId]);
   if (!invoice) return;
 
   await db.update('invoices', invoiceId, {
@@ -182,14 +241,15 @@ async function markInvoicePaid(invoiceId, paymentData) {
     await generateMonthlyInvoices();
   }
 
-  const hasUnpaid = await db.getOne(`
-    SELECT id FROM invoices 
-    WHERE student_id = ? AND status IN ('pending', 'locked')
-  `, [studentId]);
+  NotificationController.createNotification(
+    studentId,
+    'Payment Received',
+    `KES ${parseFloat(invoice.amount).toLocaleString()} received for ${invoice.course_title || 'course'}`,
+    'success',
+    '/student-dashboard/payment.html'
+  );
 
-  if (!hasUnpaid) {
-    await db.query('UPDATE users SET is_locked = 0 WHERE id = ?', [studentId]);
-  }
+  await syncUserLockFlag(studentId);
 }
 
 async function createInvoice(data) {
@@ -211,6 +271,9 @@ async function markDepositAndMonthsPaid(invoiceId, monthsPaid, paymentData) {
   await markInvoicePaid(invoiceId, paymentData);
 
   if (monthsPaid > 0 && (invoice.type === 'initial' || invoice.type === 'deposit')) {
+    // Ensure enough monthly invoices exist for the prepaid months
+    await generateMonthlyInvoicesForStudent(invoice.student_id, invoice.course_id, monthsPaid);
+
     const monthlyInvoices = await db.query(`
       SELECT id FROM invoices 
       WHERE student_id = ? AND course_id = ? AND type = 'monthly' AND status = 'pending'
@@ -229,14 +292,96 @@ async function markDepositAndMonthsPaid(invoiceId, monthsPaid, paymentData) {
     }
   }
 
-  const hasUnpaid = await db.getOne(`
-    SELECT id FROM invoices 
-    WHERE student_id = ? AND status IN ('pending', 'locked')
-  `, [invoice.student_id]);
+  await syncUserLockFlag(invoice.student_id);
+}
 
-  if (!hasUnpaid) {
-    await db.query('UPDATE users SET is_locked = 0 WHERE id = ?', [invoice.student_id]);
+async function generateMonthlyInvoicesForStudent(studentId, courseId, targetCount) {
+  const settings = await getGlobalSettings();
+  const billingDay = settings.billingDay || 1;
+  const today = new Date();
+
+  const pricing = await db.getOne(`
+    SELECT cp.monthly_amount, cp.billing_duration, cp.is_active
+    FROM course_pricing cp
+    WHERE cp.course_id = ?
+  `, [courseId]);
+
+  if (!pricing || !pricing.is_active || !pricing.monthly_amount || pricing.monthly_amount <= 0) {
+    return;
   }
+
+  const billingDuration = pricing.billing_duration || 1;
+
+  const existingMonthly = await db.query(`
+    SELECT id, month_number FROM invoices 
+    WHERE student_id = ? AND course_id = ? AND type = 'monthly'
+    ORDER BY month_number ASC
+  `, [studentId, courseId]);
+
+  let nextMonthNumber = existingMonthly.length + 1;
+
+  while (existingMonthly.length < Math.min(targetCount, billingDuration)) {
+    let dueDate;
+    if (nextMonthNumber === 1) {
+      // First month is billed immediately after the deposit with the full grace period
+      dueDate = new Date();
+    } else {
+      dueDate = new Date(today.getFullYear(), today.getMonth(), billingDay);
+      if (today.getDate() > billingDay) {
+        dueDate = new Date(today.getFullYear(), today.getMonth() + 1, billingDay);
+      }
+    }
+
+    const gracePeriodEnd = new Date(dueDate);
+    gracePeriodEnd.setDate(gracePeriodEnd.getDate() + settings.gracePeriodDays);
+
+    await db.insert('invoices', {
+      student_id: studentId,
+      course_id: courseId,
+      type: 'monthly',
+      month_number: nextMonthNumber,
+      amount: pricing.monthly_amount,
+      status: 'pending',
+      due_date: dueDate,
+      grace_period_end: gracePeriodEnd,
+      last_billed_at: today
+    });
+
+    existingMonthly.push({ id: null, month_number: nextMonthNumber });
+    nextMonthNumber++;
+  }
+}
+
+async function markMonthlyMonthsPaid(invoiceId, monthsCount, paymentData) {
+  const invoice = await db.getOne('SELECT * FROM invoices WHERE id = ?', [invoiceId]);
+  if (!invoice) return;
+
+  const count = Math.max(1, parseInt(monthsCount) || 1);
+
+  await markInvoicePaid(invoiceId, paymentData);
+
+  if (count > 1) {
+    await generateMonthlyInvoicesForStudent(invoice.student_id, invoice.course_id, count);
+
+    const additional = await db.query(`
+      SELECT id FROM invoices 
+      WHERE student_id = ? AND course_id = ? AND type = 'monthly' AND status = 'pending'
+      ORDER BY month_number ASC
+      LIMIT ?
+    `, [invoice.student_id, invoice.course_id, count - 1]);
+
+    for (const mi of additional) {
+      await db.update('invoices', mi.id, {
+        status: 'paid',
+        paid_at: new Date(),
+        payment_method: paymentData.method || 'mpesa',
+        transaction_id: paymentData.transactionId || null,
+        mpesa_receipt: paymentData.receiptNumber || null
+      });
+    }
+  }
+
+  await syncUserLockFlag(invoice.student_id);
 }
 
 module.exports = {
@@ -244,10 +389,14 @@ module.exports = {
   generateInitialInvoices,
   checkAndUpdateInvoiceStatuses,
   generateMonthlyInvoices,
+  generateMonthlyInvoicesForStudent,
+  getStudentLockState,
   isStudentLocked,
+  syncUserLockFlag,
   getStudentInvoices,
   getInvoiceById,
   markInvoicePaid,
   markDepositAndMonthsPaid,
+  markMonthlyMonthsPaid,
   createInvoice
 };

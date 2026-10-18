@@ -4,7 +4,10 @@ async function getUpcomingSessions(req, res) {
   try {
     const studentId = req.user.userId;
     const sessions = await db.query(`
-      SELECT l.*, c.title as course_title
+      SELECT l.id, l.title, l.course_id, l.content, l.video_url, l.live_link, l.duration_minutes,
+             DATE_FORMAT(l.session_date, '%Y-%m-%d') AS session_date,
+             DATE_FORMAT(l.session_time, '%H:%i') AS session_time,
+             c.title AS course_title
       FROM lessons l
       JOIN courses c ON l.course_id = c.id
       JOIN enrollments e ON e.course_id = l.course_id AND e.student_id = ?
@@ -35,15 +38,20 @@ async function getUpcomingSessions(req, res) {
 
 function getTodayDate() {
   const d = new Date();
-  return d.toISOString().split('T')[0];
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 }
 
 function isWithinNextHour(timeStr) {
   if (!timeStr) return false;
   const now = new Date();
-  const [h, m] = timeStr.split(':').map(Number);
+  const parts = String(timeStr).split(':').map(Number);
+  const h = parts[0] || 0;
+  const m = parts[1] || 0;
   const sessionTime = new Date();
-  sessionTime.setHours(h, m, 0);
+  sessionTime.setHours(h, m, 0, 0);
   const diffMs = sessionTime - now;
   return diffMs > 0 && diffMs <= 3600000; // within next 60 minutes
 }
@@ -56,7 +64,10 @@ async function getCourseSessions(req, res) {
     }
 
     const sessions = await db.query(`
-      SELECT ls.*, l.title as lesson_title
+      SELECT ls.id, ls.course_id, ls.lesson_id, ls.title, ls.description, ls.meeting_link, ls.duration_minutes, ls.created_by,
+             DATE_FORMAT(ls.session_date, '%Y-%m-%d') AS session_date,
+             DATE_FORMAT(ls.session_time, '%H:%i') AS session_time,
+             l.title AS lesson_title
       FROM live_sessions ls
       LEFT JOIN lessons l ON ls.lesson_id = l.id
       WHERE ls.course_id = ?
@@ -128,7 +139,10 @@ async function getTutorSessions(req, res) {
   try {
     const tutorId = req.user.userId;
     const sessions = await db.query(`
-      SELECT ls.*, c.title as course_title
+      SELECT ls.id, ls.course_id, ls.lesson_id, ls.title, ls.description, ls.meeting_link, ls.duration_minutes, ls.created_by,
+             DATE_FORMAT(ls.session_date, '%Y-%m-%d') AS session_date,
+             DATE_FORMAT(ls.session_time, '%H:%i') AS session_time,
+             c.title AS course_title
       FROM live_sessions ls
       JOIN courses c ON ls.course_id = c.id
       WHERE ls.created_by = ? OR c.id IN (SELECT course_id FROM course_tutors WHERE tutor_id = ?)

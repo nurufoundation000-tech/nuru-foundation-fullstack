@@ -57,6 +57,36 @@
             line-height: 1.6;
         }
 
+        .assignment-desc-body {
+            margin-top: 10px;
+        }
+
+        .assignment-desc-body ul, .assignment-desc-body ol {
+            margin: 10px 0 10px 20px;
+        }
+
+        .assignment-desc-body pre {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 10px 0;
+        }
+
+        .assignment-desc-body blockquote {
+            border-left: 4px solid var(--primary-color, #3498db);
+            margin: 10px 0;
+            padding: 8px 15px;
+            background: #eef4fa;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .assignment-desc-body img {
+            max-width: 100%;
+            border-radius: 8px;
+        }
+
         .submission-section {
             background: white;
             border-radius: 15px;
@@ -96,6 +126,18 @@
         .code-editor:focus {
             outline: none;
             border-color: var(--primary-color);
+        }
+
+        .char-count {
+            font-size: 0.75rem;
+            color: #aaa;
+            text-align: right;
+            margin-top: 4px;
+        }
+
+        .char-count.near-limit {
+            color: #e67e22;
+            font-weight: 600;
         }
 
         .submit-btn {
@@ -200,9 +242,10 @@
                         class="code-editor"
                         id="codeSubmission"
                         name="codeSubmission"
-                        placeholder="Write your code solution here..."
+                        placeholder="Paste your code, GitHub link, project links, or any answer here..."
                         required
                     ></textarea>
+                    <div class="char-count" id="codeSubmissionCounter">0 / 200,000</div>
                 </div>
                 <button type="submit" class="submit-btn" id="submitBtn">Submit Assignment</button>
             </form>
@@ -214,6 +257,52 @@
     <div id="footerContainer"></div>
 
     <script>
+        const SUBMISSION_MAX_CHARS = 200000;
+
+        function setupSubmissionTextarea() {
+            const ta = document.getElementById('codeSubmission');
+            if (!ta || ta.dataset.robust) return;
+            ta.dataset.robust = '1';
+            const counter = document.getElementById('codeSubmissionCounter');
+
+            const updateCounter = () => {
+                if (!counter) return;
+                const len = ta.value.length;
+                counter.textContent = `${len.toLocaleString()} / ${SUBMISSION_MAX_CHARS.toLocaleString()}`;
+                counter.classList.toggle('near-limit', len >= SUBMISSION_MAX_CHARS * 0.9);
+            };
+
+            ta.addEventListener('input', updateCounter);
+            updateCounter();
+
+            ta.setAttribute('maxlength', String(SUBMISSION_MAX_CHARS));
+
+            ta.addEventListener('keydown', (e) => {
+                if (e.key !== 'Tab') return;
+                e.preventDefault();
+                const start = ta.selectionStart;
+                const end = ta.selectionEnd;
+                if (start !== end) {
+                    const selected = ta.value.slice(start, end);
+                    const indented = selected.split('\n').map(line => {
+                        if (e.shiftKey) {
+                            return line.startsWith('    ') ? line.slice(4) : line.startsWith('\t') ? line.slice(1) : line;
+                        }
+                        return '    ' + line;
+                    }).join('\n');
+                    ta.value = ta.value.slice(0, start) + indented + ta.value.slice(end);
+                    ta.selectionStart = start;
+                    ta.selectionEnd = start + indented.length;
+                } else {
+                    const insertion = e.shiftKey ? '' : '    ';
+                    ta.value = ta.value.slice(0, start) + insertion + ta.value.slice(end);
+                    ta.selectionStart = e.shiftKey ? start : start + insertion.length;
+                    ta.selectionEnd = ta.selectionStart;
+                }
+                updateCounter();
+            });
+        }
+
         document.addEventListener('DOMContentLoaded', async function() {
             // Load header and footer
             fetch('header.html')
@@ -240,6 +329,10 @@
                 window.location.href = '/courses.html';
                 return;
             }
+
+            setTimeout(() => {
+                setupSubmissionTextarea();
+            }, 0);
 
             try {
                 // Load assignments script
@@ -286,7 +379,7 @@
                 ${assignment.description ? `
                     <div class="assignment-description">
                         <h4>Description:</h4>
-                        <p>${assignment.description}</p>
+                        <div class="assignment-desc-body">${assignment.description}</div>
                     </div>
                 ` : ''}
                 ${submission && submission.feedback ? `

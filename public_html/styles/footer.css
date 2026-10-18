@@ -87,18 +87,30 @@
             color: var(--primary-color);
             font-size: 1.8rem;
             box-shadow: 0 8px 25px rgba(247, 183, 49, 0.3);
-            animation: float 3s ease-in-out infinite;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
         }
 
         .footer-logo-text {
-            font-family: var(--font-family-heading);
+            display: flex;
+            flex-direction: column;
+            line-height: 1;
+        }
+
+        .footer-logo-main {
+            font-family: 'Fredoka One', cursive;
             font-size: 2rem;
+            color: var(--secondary-color);
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .footer-logo-sub {
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.7rem;
             color: var(--text-light);
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-top: 2px;
         }
 
         .footer-tagline {
@@ -371,8 +383,12 @@
                 gap: 0.5rem;
             }
 
-            .footer-logo-text {
+            .footer-logo-main {
                 font-size: 1.5rem;
+            }
+
+            .footer-logo-sub {
+                font-size: 0.6rem;
             }
 
             .footer-section h3 {

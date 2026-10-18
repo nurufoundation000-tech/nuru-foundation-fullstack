@@ -208,6 +208,10 @@
             background: #f8d7da;
             color: #721c24;
         }
+        .status-badge.locked {
+            background: #f8d7da;
+            color: #721c24;
+        }
         .status-badge.paid {
             background: #d4edda;
             color: #155724;
@@ -226,6 +230,13 @@
         }
         .action-btn.unlock:hover {
             background: #219a52;
+        }
+        .action-btn.lock {
+            background: #e74c3c;
+            color: white;
+        }
+        .action-btn.lock:hover {
+            background: #c0392b;
         }
         .empty-state {
             text-align: center;
@@ -312,8 +323,8 @@
                                 <div class="value" id="pendingCount" style="color: #f39c12;">0</div>
                             </div>
                             <div class="stat-card">
-                                <h3>Overdue</h3>
-                                <div class="value" id="overdueCount" style="color: #e74c3c;">0</div>
+                                <h3>Locked</h3>
+                                <div class="value" id="lockedCount" style="color: #e74c3c;">0</div>
                             </div>
                             <div class="stat-card">
                                 <h3>Paid</h3>
@@ -326,7 +337,7 @@
                             <select class="filter-select" id="statusFilter">
                                 <option value="">All Status</option>
                                 <option value="pending">Pending</option>
-                                <option value="overdue">Overdue</option>
+                                <option value="locked">Locked</option>
                                 <option value="paid">Paid</option>
                             </select>
                             <select class="filter-select" id="typeFilter">
@@ -387,7 +398,7 @@
         function updateStats() {
             document.getElementById('totalCount').textContent = allInvoices.length;
             document.getElementById('pendingCount').textContent = allInvoices.filter(i => i.status === 'pending').length;
-            document.getElementById('overdueCount').textContent = allInvoices.filter(i => i.status === 'overdue').length;
+            document.getElementById('lockedCount').textContent = allInvoices.filter(i => i.status === 'locked' || i.status === 'overdue').length;
             document.getElementById('paidCount').textContent = allInvoices.filter(i => i.status === 'paid').length;
         }
 
@@ -429,7 +440,10 @@
                     <td><span class="status-badge ${inv.status}">${inv.status.toUpperCase()}</span></td>
                     <td>${new Date(inv.dueDate).toLocaleDateString()}</td>
                     <td>
-                        ${inv.status !== 'paid' ? `<button class="action-btn unlock" onclick="unlockStudent(${inv.id})"><i class="fas fa-unlock"></i> Unlock</button>` : '-'}
+                        ${inv.status !== 'paid' ? `
+                            ${inv.status === 'locked' || inv.status === 'overdue' ? `<button class="action-btn unlock" onclick="unlockStudent(${inv.id})"><i class="fas fa-unlock"></i> Unlock</button>` : ''}
+                            ${inv.status === 'pending' || inv.status === 'locked' || inv.status === 'overdue' ? `<button class="action-btn lock" onclick="lockStudent(${inv.id})"><i class="fas fa-lock"></i> Lock</button>` : ''}
+                        ` : '-'}
                     </td>
                 </tr>
             `).join('');
@@ -454,6 +468,28 @@
                 }
             } catch (error) {
                 alert('Failed to unlock student');
+            }
+        }
+
+        async function lockStudent(invoiceId) {
+            if (!confirm('Are you sure you want to lock this student? This will restrict their access to courses and notes.')) return;
+            
+            try {
+                const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+                const response = await fetch(`${API_URL}/admin/invoices/${invoiceId}/lock`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert('Student locked successfully!');
+                    await loadInvoices();
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            } catch (error) {
+                alert('Failed to lock student');
             }
         }
 

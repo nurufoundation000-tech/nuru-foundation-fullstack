@@ -9,6 +9,66 @@ const API_BASE = window.location.hostname === 'localhost'
     : '/api';
 
 // ==========================================
+// REAL-TIME NOTIFICATIONS (Socket.IO)
+// ==========================================
+
+let socket = null;
+
+function connectSocket() {
+    if (socket && socket.connected) return;
+    const token = sessionStorage.getItem('token');
+    if (!token) return;
+
+    // Dynamically load socket.io client library
+    const script = document.createElement('script');
+    script.src = 'https://cdn.socket.io/4.8.1/socket.io.min.js';
+    script.onload = () => {
+        if (typeof io !== 'undefined') {
+            socket = io(API_BASE.replace('/api', ''), {
+                auth: { token },
+                path: '/socket.io',
+                transports: ['websocket', 'polling']
+            });
+
+            socket.on('connect', () => {
+                console.log('[Socket] Connected');
+            });
+
+            socket.on('new-notification', (data) => {
+                console.log('[Socket] New notification:', data);
+                // Update badge if it exists
+                const badge = document.getElementById('notifBadge');
+                if (badge) {
+                    const current = parseInt(badge.textContent) || 0;
+                    badge.textContent = current + 1;
+                    badge.style.display = 'inline';
+                }
+                // Show a toast
+                if (typeof showToast === 'function') {
+                    showToast(data.title || 'New notification', 'info');
+                }
+            });
+
+            socket.on('disconnect', () => {
+                console.log('[Socket] Disconnected');
+            });
+
+            socket.on('connect_error', (err) => {
+                console.warn('[Socket] Connection error:', err.message);
+            });
+        }
+    };
+    document.head.appendChild(script);
+}
+
+function disconnectSocket() {
+    if (socket) {
+        socket.disconnect();
+        socket = null;
+    }
+}
+
+// ==========================================
 // UTILITY FUNCTIONS
 // ==========================================
 
@@ -183,6 +243,8 @@ async function loadFooter() {
         const response = await fetch('/footer.html');
         footerContainer.innerHTML = await response.text();
         
+        loadScript('/scripts/newsletter.js');
+
         if (typeof startCourseRotation === 'function') {
             startCourseRotation();
         }
@@ -207,9 +269,35 @@ function loadScript(src, callback) {
 // SIDEBAR - Custom Element
 // ==========================================
 
+let notifPollInterval = null;
+
+function startNotificationPolling() {
+    if (notifPollInterval) return;
+    const poll = async () => {
+        try {
+            const data = await fetchAPI('/notifications/unread-count');
+            const badge = document.getElementById('notifBadge');
+            if (badge) {
+                if (data.count > 0) {
+                    badge.textContent = data.count;
+                    badge.style.display = 'inline';
+                } else {
+                    badge.style.display = 'none';
+                }
+            }
+        } catch (e) {
+            // silent — user may not be authenticated on some pages
+        }
+    };
+    poll();
+    notifPollInterval = setInterval(poll, 30000);
+}
+
 class DashboardSidebar extends HTMLElement {
     connectedCallback() {
         this.render();
+        startNotificationPolling();
+        connectSocket();
     }
     
     render() {
@@ -238,6 +326,7 @@ class DashboardSidebar extends HTMLElement {
                             <a href="${item.href}">
                                 <i class="fas ${item.icon}"></i>
                                 <span>${item.label}</span>
+                                ${item.href.includes('notifications') ? '<span class="notif-badge" id="notifBadge" style="display:none;background:var(--primary-color);color:white;font-size:0.7rem;padding:1px 7px;border-radius:10px;margin-left:auto;"></span>' : ''}
                             </a>
                         </li>
                     `).join('')}
@@ -317,24 +406,53 @@ class PageHeader extends HTMLElement {
     static get observedAttributes() {
         return ['title', 'subtitle', 'icon'];
     }
-    
+
     connectedCallback() {
+        this.attachShadow({ mode: 'open' });
         this.render();
     }
-    
+
     attributeChangedCallback() {
-        this.render();
+        if (this.shadowRoot) {
+            this.render();
+        }
     }
-    
+
     render() {
         const title = this.getAttribute('title') || 'Dashboard';
         const subtitle = this.getAttribute('subtitle') || '';
         const icon = this.getAttribute('icon') || 'fa-tachometer-alt';
-        
-        this.innerHTML = `
+
+        this.shadowRoot.innerHTML = `
+            <style>
+                :host { display: block; }
+                .page-header {
+                    background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color-1) 100%);
+                    color: white;
+                    padding: 40px 25px;
+                    border-radius: var(--border-radius-lg);
+                    margin-bottom: 30px;
+                    text-align: center;
+                    position: relative;
+                }
+                .page-header h1 {
+                    margin: 0 0 10px 0;
+                    font-size: 2.2rem;
+                    font-weight: 700;
+                }
+                .page-header p {
+                    margin: 0;
+                    opacity: 0.9;
+                    font-size: 1rem;
+                }
+                ::slotted(*) {
+                    margin-top: 15px;
+                }
+            </style>
             <div class="page-header">
                 <h1><i class="fas ${icon}"></i> ${title}</h1>
                 ${subtitle ? `<p>${subtitle}</p>` : ''}
+                <slot></slot>
             </div>
         `;
     }
@@ -382,5 +500,8 @@ window.DashboardUtils = {
     loadHeader,
     loadFooter,
     loadScript,
-    escapeHtml
+    escapeHtml,
+    startNotificationPolling,
+    connectSocket,
+    disconnectSocket
 };

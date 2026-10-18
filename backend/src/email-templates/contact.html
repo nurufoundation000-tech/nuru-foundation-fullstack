@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><style>
+body{font-family:Arial,sans-serif;line-height:1.6;color:#333;max-width:600px;margin:0 auto;padding:20px;background:#f9f9f9}
+.container{background:white;border-radius:10px;padding:30px;box-shadow:0 2px 10px rgba(0,0,0,0.1)}
+.header{text-align:center;margin-bottom:30px;border-bottom:2px solid #27ae60;padding-bottom:15px}
+.header h1{color:#27ae60;margin:0;font-size:1.5rem}
+.badge{display:inline-block;background:#27ae60;color:white;padding:4px 12px;border-radius:12px;font-size:0.8rem;margin-top:5px}
+.field{margin:15px 0}
+.label{font-weight:bold;color:#6c757d;font-size:0.85rem;display:block;margin-bottom:3px}
+.value{color:#2c3e50;font-size:1rem}
+.message-box{background:#f8f9fa;border-left:4px solid #27ae60;padding:15px;border-radius:6px;margin:15px 0;white-space:pre-wrap}
+.footer{text-align:center;margin-top:30px;padding-top:15px;border-top:1px solid #dee2e6;color:#6c757d;font-size:0.85rem}
+</style></head>
+<body>
+<div class="container">
+<div class="header"><h1>New Contact Form Message</h1><span class="badge">{{siteUrl}}</span></div>
+<div class="field"><span class="label">Name</span><span class="value">{{name}}</span></div>
+<div class="field"><span class="label">Email</span><span class="value">{{email}}</span></div>
+<div class="field"><span class="label">Phone</span><span class="value">{{phone}}</span></div>
+<div class="field"><span class="label">Message</span><div class="message-box">{{message}}</div></div>
+<div class="footer"><p>This message was sent from the contact form on {{siteUrl}}</p></div>
+</div>
+</body>
+</html>

@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <script src="/scripts/auth-guard.js"></script>
+    <script src="/scripts/paywall.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Assignments - NURU FOUNDATION</title>
@@ -32,8 +33,8 @@
         .assignment-footer { display:flex; justify-content:space-between; align-items:center; padding-top:12px; border-top:1px solid #eee; }
         .empty-state { text-align:center; padding:60px 20px; background:white; border-radius:var(--border-radius-lg); }
         .empty-state i { font-size:3rem; color:#ccc; margin-bottom:15px; }
-        .modal { display:none; position:fixed; z-index:1000; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.5); }
-        .modal-content { background:white; margin:5% auto; padding:30px; border-radius:15px; width:90%; max-width:700px; position:relative; max-height:80vh; overflow-y:auto; }
+        .modal { display:none; position:fixed; z-index:1000; left:0; top:0; width:100%; height:100%; overflow-y:auto; background:rgba(0,0,0,0.5); justify-content:center; align-items:center; }
+        .modal-content { background:white; margin:auto; padding:30px; border-radius:15px; width:90%; max-width:700px; position:relative; max-height:90vh; overflow-y:auto; }
         .modal-close { position:absolute; top:15px; right:20px; font-size:1.5rem; cursor:pointer; color:#6c757d; }
         .modal h2 { color:#2c3e50; margin-bottom:5px; }
         .modal .subtitle { color:#888; font-size:0.9rem; margin-bottom:20px; }
@@ -41,6 +42,8 @@
         .form-group label { display:block; margin-bottom:5px; font-weight:500; color:#2c3e50; }
         .form-group textarea { width:100%; padding:12px; border:2px solid #e9ecef; border-radius:8px; font-size:0.9rem; min-height:150px; font-family:monospace; resize:vertical; }
         .form-group textarea:focus { outline:none; border-color:var(--primary-color); }
+        .char-count { font-size:0.75rem; color:#aaa; text-align:right; margin-top:4px; }
+        .char-count.near-limit { color:#e67e22; font-weight:600; }
         .submission-history { background:#f8f9fa; padding:15px; border-radius:8px; margin:15px 0; }
         .submission-history h4 { margin:0 0 10px; font-size:0.95rem; color:#2c3e50; }
         .submission-history pre { background:#2c3e50; color:#f8f9fa; padding:12px; border-radius:6px; font-size:0.8rem; overflow-x:auto; max-height:200px; }
@@ -91,9 +94,10 @@
             <div id="existingSubmission" style="display:none;"></div>
             
             <div id="submitForm">
-                <div class="form-group">
+<div class="form-group">
                     <label for="codeSubmission">Your Answer / Code</label>
-                    <textarea id="codeSubmission" placeholder="Write your answer or code here..."></textarea>
+                    <textarea id="codeSubmission" placeholder="Paste your code, GitHub link, project links, or any answer here..."></textarea>
+                    <div class="char-count" id="codeSubmissionCounter">0 / 200,000</div>
                 </div>
                 <button class="btn btn-primary" onclick="submitCurrentAssignment()">
                     <i class="fas fa-paper-plane"></i> Submit
@@ -105,8 +109,96 @@
     <script src="/scripts/config.js"></script>
     <script src="/scripts/dashboard.js"></script>
     <script>
-        let allAssignments = [];
+let allAssignments = [];
         let currentAssignmentId = null;
+        const SUBMISSION_MAX_CHARS = 200000;
+
+        function escapeHtml(value) {
+            const div = document.createElement('div');
+            div.textContent = String(value == null ? '' : value);
+            return div.innerHTML;
+        }
+
+        function linkify(text) {
+            const escaped = escapeHtml(text);
+            return escaped.replace(/(https?:\/\/[^\s<]+)/gi, (m, url) =>
+                `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`
+            );
+        }
+
+        async function copyText(text) {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                try { await navigator.clipboard.writeText(text); return true; } catch (e) {}
+            }
+            try {
+                const ta = document.createElement('textarea');
+                ta.value = text;
+                ta.style.position = 'fixed';
+                ta.style.opacity = '0';
+                document.body.appendChild(ta);
+                ta.select();
+                const ok = document.execCommand('copy');
+                document.body.removeChild(ta);
+                return ok;
+            } catch (e) {
+                return false;
+            }
+        }
+
+        async function copySubmission(targetId, btn) {
+            const el = document.getElementById(targetId);
+            if (!el) return;
+            const ok = await copyText(el.textContent);
+            if (btn) {
+                const original = btn.innerHTML;
+                btn.innerHTML = ok ? '<i class="fas fa-check"></i> Copied' : '<i class="fas fa-exclamation-triangle"></i> Failed';
+                setTimeout(() => { btn.innerHTML = original; }, 1500);
+            }
+        }
+
+        function setupSubmissionTextarea() {
+            const ta = document.getElementById('codeSubmission');
+            if (!ta || ta.dataset.robust) return;
+            ta.dataset.robust = '1';
+            const counter = document.getElementById('codeSubmissionCounter');
+
+            const updateCounter = () => {
+                if (!counter) return;
+                const len = ta.value.length;
+                counter.textContent = `${len.toLocaleString()} / ${SUBMISSION_MAX_CHARS.toLocaleString()}`;
+                counter.classList.toggle('near-limit', len >= SUBMISSION_MAX_CHARS * 0.9);
+            };
+
+            ta.addEventListener('input', updateCounter);
+            updateCounter();
+
+            ta.setAttribute('maxlength', String(SUBMISSION_MAX_CHARS));
+
+            ta.addEventListener('keydown', (e) => {
+                if (e.key !== 'Tab') return;
+                e.preventDefault();
+                const start = ta.selectionStart;
+                const end = ta.selectionEnd;
+                if (start !== end) {
+                    const selected = ta.value.slice(start, end);
+                    const indented = selected.split('\n').map(line => {
+                        if (e.shiftKey) {
+                            return line.startsWith('    ') ? line.slice(4) : line.startsWith('\t') ? line.slice(1) : line;
+                        }
+                        return '    ' + line;
+                    }).join('\n');
+                    ta.value = ta.value.slice(0, start) + indented + ta.value.slice(end);
+                    ta.selectionStart = start;
+                    ta.selectionEnd = start + indented.length;
+                } else {
+                    const insertion = e.shiftKey ? '' : '    ';
+                    ta.value = ta.value.slice(0, start) + insertion + ta.value.slice(end);
+                    ta.selectionStart = e.shiftKey ? start : start + insertion.length;
+                    ta.selectionEnd = ta.selectionStart;
+                }
+                updateCounter();
+            });
+        }
 
         document.addEventListener('DOMContentLoaded', async () => {
             await DashboardUtils.loadHeader();
@@ -207,9 +299,11 @@
             document.getElementById('modalCourse').textContent = a.courseTitle + (a.lessonTitle ? ' — ' + a.lessonTitle : '');
             document.getElementById('modalDesc').textContent = a.description || 'No description provided.';
 
-            const existingDiv = document.getElementById('existingSubmission');
+const existingDiv = document.getElementById('existingSubmission');
             const submitForm = document.getElementById('submitForm');
+            setupSubmissionTextarea();
             document.getElementById('codeSubmission').value = '';
+            document.getElementById('codeSubmission').dispatchEvent(new Event('input'));
 
             if (a.submission) {
                 const s = a.submission;
@@ -218,10 +312,11 @@
                     feedbackHtml = `<div class="feedback"><strong>Feedback:</strong> ${escapeHtml(s.feedback)}</div>`;
                 }
                 existingDiv.style.display = 'block';
-                existingDiv.innerHTML = `
+existingDiv.innerHTML = `
                     <div class="submission-history">
                         <h4>Your Submission</h4>
-                        <pre>${escapeHtml(s.codeSubmission || 'No code')}</pre>
+                        <pre id="yourSubmissionCode">${linkify(s.codeSubmission || 'No code')}</pre>
+                        <button class="btn btn-secondary btn-sm" onclick="copySubmission('yourSubmissionCode', this)"><i class="fas fa-copy"></i> Copy</button>
                         ${s.grade !== null ? `<p style="margin-top:8px;font-weight:600;color:#155724;">Grade: ${s.grade}/${a.maxScore}</p>` : ''}
                         ${feedbackHtml}
                         <small style="color:#888;">Submitted: ${new Date(s.submittedAt).toLocaleString()}</small>
@@ -237,7 +332,7 @@
                 submitForm.style.display = 'block';
             }
 
-            document.getElementById('submitModal').style.display = 'block';
+            document.getElementById('submitModal').style.display = 'flex';
         }
 
         function closeSubmitModal() {

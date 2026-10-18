@@ -1,16 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script src="/scripts/auth-guard.js"></script>
+    <script src="/scripts/paywall.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lesson Viewer - NURU FOUNDATION</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Fredoka+One&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link rel="stylesheet" href="../styles/root.css">
-    <link rel="stylesheet" href="../styles/header.css">
-    <link rel="stylesheet" href="../styles/footer.css">
-    <script src="../scripts/config.js"></script>
-    <script src="../scripts/dashboard.js"></script>
+    <link rel="stylesheet" href="/styles/root.css">
+    <link rel="stylesheet" href="/styles/header.css">
+    <link rel="stylesheet" href="/styles/footer.css">
+    <base href="/">
+    <script src="/scripts/config.js"></script>
+    <script src="/scripts/dashboard.js"></script>
     <style>
         body {
             font-family: 'Poppins', sans-serif;
@@ -131,14 +134,24 @@
             cursor: not-allowed;
         }
 
-        .lesson-video {
-            width: 100%;
-            max-width: 700px;
-            height: 394px;
-            border-radius: 12px;
+        .lesson-video-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--primary-color);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
             margin: 0 auto 30px;
-            display: block;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: background 0.3s;
+        }
+
+        .lesson-video-btn:hover {
+            background: var(--secondary-color);
+            color: white;
         }
 
         .lesson-text {
@@ -398,10 +411,6 @@
             .lesson-title {
                 font-size: 1.5rem;
             }
-
-            .lesson-video {
-                height: 250px;
-            }
         }
     </style>
 </head>
@@ -447,7 +456,7 @@
         </div>
     </div>
 
-    <script src="../scripts/footer.js"></script>
+    <script src="/scripts/footer.js"></script>
     <div id="footerContainer"></div>
 
     <script>
@@ -560,17 +569,15 @@
             const lessonBody = document.getElementById('lessonBody');
             lessonBody.innerHTML = '';
 
-            // Video content
+            // Video content - button to the reference video
             if (lesson.videoUrl) {
-                const videoContainer = document.createElement('div');
-                videoContainer.innerHTML = `
-                    <iframe class="lesson-video"
-                            src="${lesson.videoUrl.replace('watch?v=', 'embed/')}"
-                            frameborder="0"
-                            allowfullscreen>
-                    </iframe>
+                const videoBtn = document.createElement('div');
+                videoBtn.innerHTML = `
+                    <a class="lesson-video-btn" href="${escapeHtml(lesson.videoUrl)}" target="_blank" rel="noopener">
+                        <i class="fas fa-play-circle"></i> Watch Video
+                    </a>
                 `;
-                lessonBody.appendChild(videoContainer);
+                lessonBody.appendChild(videoBtn);
             }
 
             // Text content
@@ -619,6 +626,23 @@
             };
             lessonBody.appendChild(completeBtn);
 
+            // Linked notes section (shown even when lesson is complete - useful for revision)
+            if (lesson.linkedNotes && lesson.linkedNotes.length > 0) {
+                const notesDiv = document.createElement('div');
+                notesDiv.style.cssText = 'background:#f8f9fa;border-radius:10px;padding:20px;margin-top:20px;';
+                notesDiv.innerHTML = `
+                    <h4 style="margin:0 0 10px 0;color:var(--primary-color);"><i class="fas fa-sticky-note"></i> Linked Notes</h4>
+                    <div style="display:flex;flex-wrap:wrap;gap:8px;">
+                        ${lesson.linkedNotes.map(n => `
+                            <a href="reader.html?courseId=${lesson.course_id}" class="nav-btn" style="text-decoration:none;background:#eaf2fb;color:var(--primary-color);padding:6px 14px;border-radius:16px;font-size:0.85rem;">
+                                <i class="fas fa-file-alt"></i> ${escapeHtml(n.title)}
+                            </a>
+                        `).join('')}
+                    </div>
+                `;
+                lessonBody.appendChild(notesDiv);
+            }
+
             // Assignments section
             if (lesson.assignments && lesson.assignments.length > 0) {
                 const assignmentsDiv = document.createElement('div');
@@ -649,14 +673,14 @@
                         <div style="display:flex;align-items:center;gap:10px;color:#6c757d;">
                             <i class="fas fa-video-slash" style="font-size:1.2rem;"></i>
                             <span><strong>Session Ended</strong><br>
-                            <span style="font-size:0.85rem;">This live session was held on ${lesson.session_date ? new Date(lesson.session_date).toLocaleDateString() : ''}.</span></span>
+                            <span style="font-size:0.85rem;">This live session was held on ${lesson.session_date ? formatSessionDateDisplay(lesson.session_date) : ''}.</span></span>
                         </div>`;
                 } else {
                     liveDiv.innerHTML = `
                         <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
                             <div>
                                 <strong><i class="fas fa-video"></i> Live Session</strong>
-                                ${lesson.session_date ? `<br><span style="font-size:0.85rem;color:#666;">${new Date(lesson.session_date).toLocaleDateString()} ${lesson.session_time || ''}</span>` : ''}
+                                ${lesson.session_date ? `<br><span style="font-size:0.85rem;color:#666;">${formatSessionDateDisplay(lesson.session_date)} ${lesson.session_time || ''}</span>` : ''}
                             </div>
                             <a href="${lesson.live_link}" target="_blank" class="nav-btn" style="text-decoration:none;">
                                 <i class="fas fa-video"></i> Join Live Session
@@ -716,13 +740,38 @@
             document.getElementById('progressText').textContent = `${progressPercent}% Complete`;
         }
 
+        function formatSessionDate(value) {
+            if (value instanceof Date) {
+                const y = value.getFullYear();
+                const m = String(value.getMonth() + 1).padStart(2, '0');
+                const d = String(value.getDate()).padStart(2, '0');
+                return `${y}-${m}-${d}`;
+            }
+            if (typeof value === 'string' && value.indexOf('T') !== -1) {
+                const parsed = new Date(value);
+                if (!isNaN(parsed.getTime())) {
+                    const y = parsed.getFullYear();
+                    const m = String(parsed.getMonth() + 1).padStart(2, '0');
+                    const d = String(parsed.getDate()).padStart(2, '0');
+                    return `${y}-${m}-${d}`;
+                }
+            }
+            return String(value).split('T')[0].split(' ')[0];
+        }
+
+        function formatSessionDateDisplay(value) {
+            const datePart = formatSessionDate(value);
+            return new Date(datePart + 'T00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+        }
+
         async function loadCourseSessions() {
             try {
                 const token = sessionStorage.getItem('token');
                 const res = await fetch(`${API_BASE}/sessions/course/${courseId}`, { headers: { 'Authorization': `Bearer ${token}` } });
                 if (!res.ok) return;
                 const data = await res.json();
-                const sessions = (data.data || []).filter(s => s.session_date >= new Date().toISOString().split('T')[0]);
+                const todayStr = formatSessionDate(new Date());
+                const sessions = (data.data || []).filter(s => formatSessionDate(s.session_date) >= todayStr);
                 if (sessions.length === 0) return;
 
                 const section = document.getElementById('liveSessionsSection');
@@ -730,7 +779,7 @@
                 section.style.display = 'block';
 
                 list.innerHTML = sessions.slice(0, 3).map(s => {
-                    const dateStr = new Date(s.session_date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+                    const dateStr = s.session_date ? formatSessionDateDisplay(s.session_date) : '';
                     return `
                         <div style="background:#f8f9fa;border-radius:8px;padding:12px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;">
                             <div>

@@ -8,7 +8,7 @@ const {
   isMpesaConfigured,
   simulatePayment 
 } = require('../lib/mpesa.js');
-const { markInvoicePaid, markDepositAndMonthsPaid, getGlobalSettings } = require('../lib/invoices.js');
+const { markInvoicePaid, markDepositAndMonthsPaid, markMonthlyMonthsPaid, getGlobalSettings } = require('../lib/invoices.js');
 
 async function initiatePayment(req, res) {
   try {
@@ -64,6 +64,8 @@ async function initiatePayment(req, res) {
       };
       if (invoice.type === 'initial' || invoice.type === 'deposit') {
         await markDepositAndMonthsPaid(invoiceId, monthsCount, paymentData);
+      } else if (monthsCount > 1) {
+        await markMonthlyMonthsPaid(invoiceId, monthsCount, paymentData);
       } else {
         await markInvoicePaid(invoiceId, paymentData);
       }
@@ -90,7 +92,7 @@ async function initiatePayment(req, res) {
 
     await db.update('invoices', invoiceId, {
       checkout_request_id: result.checkoutRequestId,
-      months_count: (invoice.type === 'initial' || invoice.type === 'deposit') ? monthsCount : null
+      months_count: monthsCount
     });
 
     res.json({
@@ -134,8 +136,22 @@ async function handleCallback(req, res) {
       return res.status(404).json({ error: 'Invoice not found' });
     }
 
-    if ((invoice.type === 'initial' || invoice.type === 'deposit') && invoice.months_count > 0) {
-      await markDepositAndMonthsPaid(invoice.id, invoice.months_count, {
+    if (invoice.type === 'initial' || invoice.type === 'deposit') {
+      if (invoice.months_count > 0) {
+        await markDepositAndMonthsPaid(invoice.id, invoice.months_count, {
+          method: 'mpesa',
+          transactionId: parsed.checkoutRequestId,
+          receiptNumber: parsed.receiptNumber
+        });
+      } else {
+        await markInvoicePaid(invoice.id, {
+          method: 'mpesa',
+          transactionId: parsed.checkoutRequestId,
+          receiptNumber: parsed.receiptNumber
+        });
+      }
+    } else if (invoice.months_count > 1) {
+      await markMonthlyMonthsPaid(invoice.id, invoice.months_count, {
         method: 'mpesa',
         transactionId: parsed.checkoutRequestId,
         receiptNumber: parsed.receiptNumber
@@ -170,8 +186,22 @@ async function checkPaymentStatus(req, res) {
       if (invoiceId) {
         const invoice = await db.getOne('SELECT * FROM invoices WHERE id = ?', [invoiceId]);
         if (invoice && invoice.status !== 'paid') {
-          if ((invoice.type === 'initial' || invoice.type === 'deposit') && (invoice.months_count || 0) > 0) {
-            await markDepositAndMonthsPaid(invoiceId, invoice.months_count, {
+          if (invoice.type === 'initial' || invoice.type === 'deposit') {
+            if ((invoice.months_count || 0) > 0) {
+              await markDepositAndMonthsPaid(invoiceId, invoice.months_count, {
+                method: 'simulated',
+                transactionId: `SIM_${Date.now()}`,
+                receiptNumber: `SIM${Date.now()}`
+              });
+            } else {
+              await markInvoicePaid(invoiceId, {
+                method: 'simulated',
+                transactionId: `SIM_${Date.now()}`,
+                receiptNumber: `SIM${Date.now()}`
+              });
+            }
+          } else if ((invoice.months_count || 0) > 1) {
+            await markMonthlyMonthsPaid(invoiceId, invoice.months_count, {
               method: 'simulated',
               transactionId: `SIM_${Date.now()}`,
               receiptNumber: `SIM${Date.now()}`
@@ -212,8 +242,22 @@ async function checkPaymentStatus(req, res) {
       `, [checkoutRequestId]);
 
       if (invoice) {
-        if ((invoice.type === 'initial' || invoice.type === 'deposit') && (invoice.months_count || 0) > 0) {
-          await markDepositAndMonthsPaid(invoice.id, invoice.months_count, {
+        if (invoice.type === 'initial' || invoice.type === 'deposit') {
+          if ((invoice.months_count || 0) > 0) {
+            await markDepositAndMonthsPaid(invoice.id, invoice.months_count, {
+              method: 'mpesa',
+              transactionId: checkoutRequestId,
+              receiptNumber: result.mpesaReceiptNumber
+            });
+          } else {
+            await markInvoicePaid(invoice.id, {
+              method: 'mpesa',
+              transactionId: checkoutRequestId,
+              receiptNumber: result.mpesaReceiptNumber
+            });
+          }
+        } else if ((invoice.months_count || 0) > 1) {
+          await markMonthlyMonthsPaid(invoice.id, invoice.months_count, {
             method: 'mpesa',
             transactionId: checkoutRequestId,
             receiptNumber: result.mpesaReceiptNumber

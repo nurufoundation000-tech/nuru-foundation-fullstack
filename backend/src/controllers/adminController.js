@@ -1,5 +1,6 @@
 // controllers/adminController.js - Admin Dashboard Controller (CommonJS)
 const bcrypt = require('bcryptjs');
+const crypto = require('crypto');
 const db = require('../config/database.js');
 const { sendWelcomeEmail } = require('../lib/email.js');
 
@@ -97,6 +98,7 @@ async function getCourses(req, res) {
       category: c.category,
       level: c.level,
       isPublished: !!c.is_published,
+      isFree: !!c.is_free,
       thumbnailUrl: c.thumbnail_url,
       tutorIds: (tutorMap[c.id] || []).map(t => t.id),
       tutors: tutorMap[c.id] || [],
@@ -120,7 +122,7 @@ async function getCourses(req, res) {
 
 async function createCourse(req, res) {
   try {
-    const { title, description, category, level, thumbnailUrl, isPublished, pricing, tutorIds } = req.body;
+    const { title, description, category, level, thumbnailUrl, isPublished, isFree, pricing, tutorIds } = req.body;
 
     if (!title || !description) {
       return res.status(400).json({ error: 'Title and description are required' });
@@ -138,6 +140,7 @@ async function createCourse(req, res) {
       }
     }
 
+    const isFreeCourse = !!isFree;
     const courseId = await db.insert('courses', {
       title,
       description,
@@ -145,6 +148,7 @@ async function createCourse(req, res) {
       level: level || 'Beginner',
       thumbnail_url: thumbnailUrl || '',
       is_published: isPublished || false,
+      is_free: isFreeCourse,
       tutor_id: tutorIds[0],
       created_at: new Date()
     });
@@ -158,7 +162,7 @@ async function createCourse(req, res) {
       });
     }
 
-    if (pricing && (pricing.initialPayment > 0 || pricing.monthlyAmount > 0)) {
+    if (!isFreeCourse && pricing && (pricing.initialPayment > 0 || pricing.monthlyAmount > 0)) {
       await db.insert('course_pricing', {
         course_id: courseId,
         initial_payment: pricing.initialPayment,
@@ -180,7 +184,7 @@ async function createCourse(req, res) {
 async function updateCourse(req, res) {
   try {
     const courseId = parseInt(req.params.id);
-    const { title, description, category, level, thumbnailUrl, isPublished, pricing, tutorIds } = req.body;
+    const { title, description, category, level, thumbnailUrl, isPublished, isFree, pricing, tutorIds } = req.body;
 
     const existingCourse = await db.getOne('SELECT id FROM courses WHERE id = ?', [courseId]);
     if (!existingCourse) {
@@ -206,6 +210,7 @@ async function updateCourse(req, res) {
     if (level) updateData.level = level;
     if (thumbnailUrl !== undefined) updateData.thumbnail_url = thumbnailUrl;
     if (isPublished !== undefined) updateData.is_published = isPublished;
+    if (isFree !== undefined) updateData.is_free = !!isFree;
 
     await db.update('courses', courseId, updateData);
 
@@ -220,7 +225,12 @@ async function updateCourse(req, res) {
       }
     }
 
-    if (pricing) {
+    if (isFree !== undefined && isFree) {
+      const existingPricing = await db.getOne('SELECT id FROM course_pricing WHERE course_id = ?', [courseId]);
+      if (existingPricing) {
+        await db.query('DELETE FROM course_pricing WHERE course_id = ?', [courseId]);
+      }
+    } else if (pricing) {
       const existingPricing = await db.getOne('SELECT id FROM course_pricing WHERE course_id = ?', [courseId]);
       if (existingPricing) {
         await db.update('course_pricing', existingPricing.id, {
@@ -495,30 +505,48 @@ async function createUser(req, res) {
     userWithoutPassword.mustChangePassword = !!userWithoutPassword.must_change_password;
     userWithoutPassword.role = userWithoutPassword.role_name;
 
-    // Send welcome email
-    let emailStatus = { sent: false, error: null, generatedPassword: null };
-    try {
-      const emailResult = await sendWelcomeEmail(email, username, generatedPassword);
-      emailStatus = {
-        sent: emailResult.success,
-        error: emailResult.error || null,
-        generatedPassword: emailResult.success ? null : generatedPassword
-      };
-      console.log('[Admin] Welcome email sent to:', email, 'Success:', emailResult.success);
-      if (!emailResult.success && emailResult.error) {
-        console.error('[Admin] Email error details:', emailResult.error);
+    // Generate a reset token for welcome email (no plaintext password)
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
+    await db.query('UPDATE password_reset_tokens SET used = 1 WHERE email = ? AND used = 0', [email.toLowerCase()]);
+    await db.insert('password_reset_tokens', {
+      email: email.toLowerCase(),
+      token: resetToken,
+      expires_at: expiresAt,
+      used: 0
+    });
+    const resetLink = `${process.env.FRONTEND_URL || 'https://nurufoundations.com'}/reset-password.html?token=${resetToken}&email=${encodeURIComponent(email.toLowerCase())}`;
+
+    // Send welcome email (check setting first)
+    let emailStatus = { sent: false, error: null };
+    const welcomeSetting = await db.getOne("SELECT setting_value FROM settings WHERE setting_key = 'welcomeEmail'");
+    const welcomeEnabled = welcomeSetting ? welcomeSetting.setting_value !== 'false' : true;
+    if (welcomeEnabled) {
+      try {
+        const emailResult = await sendWelcomeEmail(email, username, resetLink);
+        emailStatus = {
+          sent: emailResult.success,
+          error: emailResult.error || null
+        };
+        console.log('[Admin] Welcome email sent to:', email, 'Success:', emailResult.success);
+        if (!emailResult.success && emailResult.error) {
+          console.error('[Admin] Email error details:', emailResult.error);
+        }
+      } catch (emailError) {
+        console.error('[Admin] Failed to send welcome email:', emailError.message);
+        console.error('[Admin] Full error:', emailError);
+        emailStatus = { sent: false, error: emailError.message };
       }
-    } catch (emailError) {
-      console.error('[Admin] Failed to send welcome email:', emailError.message);
-      console.error('[Admin] Full error:', emailError);
-      emailStatus = { sent: false, error: emailError.message, generatedPassword: generatedPassword };
+    } else {
+      console.log('[Admin] Welcome email disabled by setting — skipping for:', email);
+      emailStatus = { sent: false, error: 'Welcome email disabled in settings' };
     }
 
     res.status(201).json({
       success: true,
       data: userWithoutPassword,
       emailStatus: emailStatus,
-      message: `User created! Credentials - Username: ${username}, Password: ${generatedPassword}`
+      message: `User created! Username: ${username}. A welcome email with a password reset link has been sent.`
     });
 
   } catch (error) {
@@ -616,9 +644,9 @@ async function deleteUser(req, res) {
 
     const role = await db.getOne('SELECT name FROM roles WHERE id = ?', [user.role_id]);
 
-    // If tutor: disassociate from courses so courses remain assignable
+    // If tutor: preserve course_tutors links for history, clear legacy tutor_id field
     if (role?.name === 'tutor') {
-      await db.query('DELETE FROM course_tutors WHERE tutor_id = ?', [userId]);
+      await db.query('UPDATE courses SET tutor_id = NULL WHERE tutor_id = ?', [userId]);
     }
 
     // Soft-delete: deactivate + anonymize. Row stays so all FK references resolve.
@@ -888,10 +916,11 @@ async function updateGlobalSettings(req, res) {
     const settingsPath = './global-billing.json';
     const existing = fs.existsSync(settingsPath)
       ? JSON.parse(fs.readFileSync(settingsPath, 'utf8'))
-      : { billingDay: 1, gracePeriodDays: 2, mpesa_paybill: '', mpesa_till_number: '' };
+      : { billingDay: 1, gracePeriodDays: 7, depositGraceDays: 1, mpesa_paybill: '', mpesa_till_number: '' };
 
     if (req.body.billingDay !== undefined) existing.billingDay = req.body.billingDay;
     if (req.body.gracePeriodDays !== undefined) existing.gracePeriodDays = req.body.gracePeriodDays;
+    if (req.body.depositGraceDays !== undefined) existing.depositGraceDays = req.body.depositGraceDays;
     if (req.body.mpesa_paybill !== undefined) existing.mpesa_paybill = req.body.mpesa_paybill;
     if (req.body.mpesa_till_number !== undefined) existing.mpesa_till_number = req.body.mpesa_till_number;
 
@@ -1000,6 +1029,37 @@ async function unlockInvoice(req, res) {
   } catch (error) {
     console.error('Unlock invoice error:', error);
     res.status(500).json({ error: 'Failed to unlock invoice' });
+  }
+}
+
+async function lockInvoice(req, res) {
+  try {
+    const invoiceId = parseInt(req.params.id);
+
+    if (isNaN(invoiceId)) {
+      return res.status(400).json({ error: 'Invalid invoice ID' });
+    }
+
+    const invoice = await db.getOne('SELECT * FROM invoices WHERE id = ?', [invoiceId]);
+    if (!invoice) {
+      return res.status(404).json({ error: 'Invoice not found' });
+    }
+
+    if (invoice.status === 'paid') {
+      return res.status(400).json({ error: 'Cannot lock a paid invoice' });
+    }
+
+    await db.update('invoices', invoiceId, {
+      status: 'locked',
+      locked_at: new Date()
+    });
+
+    await db.query('UPDATE users SET is_locked = 1 WHERE id = ?', [invoice.student_id]);
+
+    res.json({ success: true, message: 'Invoice locked and student access restricted' });
+  } catch (error) {
+    console.error('Lock invoice error:', error);
+    res.status(500).json({ error: 'Failed to lock invoice' });
   }
 }
 
@@ -1243,6 +1303,7 @@ module.exports = {
   getAdminTransactions,
   getAdminInvoices,
   unlockInvoice,
+  lockInvoice,
   updateEnrollment,
   adminDeleteEnrollment,
   getInstallmentSchedule,
