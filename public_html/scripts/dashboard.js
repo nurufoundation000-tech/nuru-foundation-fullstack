@@ -242,8 +242,11 @@ async function loadFooter() {
     try {
         const response = await fetch('/footer.html');
         footerContainer.innerHTML = await response.text();
-        
-        loadScript('/scripts/newsletter.js');
+
+        if (!document.querySelector('script[data-nuru-newsletter]') &&
+            !document.querySelector('script[src$="scripts/newsletter.js"]')) {
+            loadScript('/scripts/newsletter.js');
+        }
 
         if (typeof startCourseRotation === 'function') {
             startCourseRotation();

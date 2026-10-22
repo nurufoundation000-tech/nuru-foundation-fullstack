@@ -64,3 +64,18 @@ function startCourseRotation() {
    
     setInterval(renderCourses, ROTATION_INTERVAL);
 }
+
+(function loadNewsletterScript() {
+    var alreadyLoaded = Array.prototype.some.call(document.scripts, function (script) {
+        return /scripts\/newsletter\.js(?:\?|$)/.test(script.src);
+    });
+    if (alreadyLoaded) return;
+
+    var footerScript = document.currentScript;
+    var script = document.createElement('script');
+    script.src = footerScript && footerScript.src
+        ? new URL('newsletter.js', footerScript.src).href
+        : '/scripts/newsletter.js';
+    script.setAttribute('data-nuru-newsletter', 'true');
+    document.head.appendChild(script);
+})();
