@@ -35,6 +35,52 @@ async function submitContact(req, res) {
   }
 }
 
+async function getContactMessages(req, res) {
+  try {
+    const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
+    const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 20, 1), 100);
+    const offset = (page - 1) * limit;
+    const search = typeof req.query.search === 'string' ? req.query.search.trim() : '';
+
+    let whereClause = '';
+    const params = [];
+    if (search) {
+      whereClause = 'WHERE name LIKE ? OR email LIKE ? OR phone LIKE ? OR message LIKE ?';
+      const term = `%${search}%`;
+      params.push(term, term, term, term);
+    }
+
+    const countResult = await db.getOne(
+      `SELECT COUNT(*) AS total FROM contact_messages ${whereClause}`,
+      params
+    );
+    const total = Number(countResult?.total) || 0;
+
+    const messages = await db.query(
+      `SELECT id, name, email, phone, message, created_at AS createdAt
+       FROM contact_messages
+       ${whereClause}
+       ORDER BY created_at DESC, id DESC
+       LIMIT ? OFFSET ?`,
+      [...params, limit, offset]
+    );
+
+    res.json({
+      success: true,
+      data: messages,
+      pagination: {
+        page,
+        limit,
+        pages: Math.max(Math.ceil(total / limit), 1),
+        total
+      }
+    });
+  } catch (error) {
+    console.error('Get contact messages error:', error);
+    res.status(500).json({ error: 'Failed to load contact messages' });
+  }
+}
+
 async function subscribeNewsletter(req, res) {
   try {
     const { email } = req.body;
@@ -85,4 +131,4 @@ async function subscribeNewsletter(req, res) {
   }
 }
 
-module.exports = { submitContact, subscribeNewsletter };
+module.exports = { submitContact, getContactMessages, subscribeNewsletter };

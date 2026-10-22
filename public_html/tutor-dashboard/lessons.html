@@ -14,7 +14,6 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Poppins', sans-serif; background: #f8f9fa; color: #333; }
@@ -71,13 +70,24 @@
         .btn-delete { background: #e74c3c; color: white; }
         .btn-delete:hover { background: #c0392b; }
 
-        .order-actions-bar { display: none; align-items: center; gap: 15px; background: #fff8e1; border: 1px solid #f9a825; padding: 12px 20px; border-radius: 10px; margin-bottom: 20px; font-size: 0.9rem; color: #6d5b0f; }
-        .drag-handle { cursor: grab; color: rgba(255,255,255,0.7); font-size: 1rem; }
-        .drag-handle:hover { color: white; }
+        .order-actions-bar { display: none; align-items: center; gap: 15px; background: #fff8e1; border: 1px solid #f9a825; padding: 12px 20px; border-radius: 10px; margin-bottom: 20px; font-size: 0.9rem; color: #6d5b0f; flex-wrap: wrap; }
         .note-order-badge { display: inline-flex; align-items: center; justify-content: center; min-width: 26px; height: 26px; padding: 0 6px; background: #3498db; color: white; border-radius: 50%; font-size: 0.75rem; font-weight: 700; }
-        .sortable-ghost { opacity: 0.4; box-shadow: 0 0 0 2px #3498db; }
-        .dragging { opacity: 0.8; }
         .btn-sm { padding: 6px 12px; font-size: 0.8rem; }
+        .order-hint { background: #fff8e1; border: 1px solid #f9a825; padding: 12px 20px; border-radius: 10px; margin-bottom: 20px; font-size: 0.9rem; color: #6d5b0f; }
+        .order-group { margin-bottom: 30px; }
+        .order-group h3 { color: #27ae60; font-size: 1.1rem; margin-bottom: 10px; }
+        .order-table-wrap { background: #fff; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); overflow-x: auto; }
+        .order-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        .order-table th, .order-table td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #ecf0f1; vertical-align: middle; }
+        .order-table th { background: #f8f9fa; color: #6c757d; font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.03em; }
+        .order-table tr:last-child td { border-bottom: none; }
+        .order-table tbody tr:hover { background: #f5faff; }
+        .order-table .order-input { width: 70px; padding: 8px 10px; border: 2px solid #e9ecef; border-radius: 8px; font-size: 0.9rem; text-align: center; }
+        .order-table .order-input:focus { outline: none; border-color: var(--primary-color); }
+        .order-table .order-input.invalid { border-color: #e74c3c; background: #fdf0ef; }
+        .order-table .order-title { font-weight: 600; color: #2c3e50; }
+        .order-table .order-meta { color: #95a5a6; white-space: nowrap; }
+        .order-saved { color: #1e7e34; font-weight: 600; }
 
         .pagination { display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: 30px; }
         .pagination-btn { padding: 10px 15px; border: 2px solid #e9ecef; background: white; color: #6c757d; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; }
@@ -195,9 +205,9 @@
                 </div>
 
                 <div class="order-actions-bar" id="orderActionsBar">
-                    <i class="fas fa-arrows-alt"></i>
-                    <span>Drag lessons or use the up/down buttons to arrange them. Each course keeps its own order.</span>
-                    <button class="btn btn-success btn-sm" onclick="saveLessonOrder()" style="margin-left:auto;">
+                    <i class="fas fa-sort-numeric-up"></i>
+                    <span id="orderBarMessage">Enter a position for each lesson (1 = first). Each course has its own order.</span>
+                    <button class="btn btn-success btn-sm" onclick="saveLessonOrder()" id="saveOrderBtn" style="margin-left:auto;">
                         <i class="fas fa-save"></i> Save Order
                     </button>
                     <button class="btn btn-secondary btn-sm" onclick="discardLessonOrder()">
@@ -728,7 +738,7 @@
                 (a.orderIndex || 0) - (b.orderIndex || 0) ||
                 new Date(a.createdAt) - new Date(b.createdAt)
             );
-            renderOrderGrid(lessons);
+            renderOrderTable(lessons);
         } catch (error) {
             console.error('Error loading lessons for ordering:', error);
             container.innerHTML = `
@@ -740,7 +750,7 @@
         }
     }
 
-    function renderOrderGrid(lessons) {
+    function renderOrderTable(lessons) {
         const container = document.getElementById('lessonsContainer');
         const groups = {};
         lessons.forEach(lesson => {
@@ -760,122 +770,131 @@
             return;
         }
 
+        courseIds.forEach(cid => {
+            groups[cid].items.sort((a, b) =>
+                (a.orderIndex || 0) - (b.orderIndex || 0) ||
+                new Date(a.createdAt || 0) - new Date(b.createdAt || 0)
+            );
+        });
+
         container.innerHTML = `
-            <div style="background:#fff8e1;border:1px solid #f9a825;padding:12px 20px;border-radius:10px;margin-bottom:20px;font-size:0.9rem;color:#6d5b0f;">
-                <i class="fas fa-arrows-alt"></i> Use the <b>&#9650; / &#9660;</b> buttons or drag a card to arrange lessons. Each course keeps its own order. Click <b>Save Order</b> when done.
+            <div class="order-hint">
+                <i class="fas fa-sort-numeric-up"></i> Enter a position for each lesson (1 = first). Each course has its own order. Click <b>Save Order</b> when done.
             </div>
             ${courseIds.map(cid => {
                 const g = groups[cid];
                 return `
-                <div class="order-group" style="margin-bottom:30px;">
-                    <h3 style="color:#27ae60;font-size:1.1rem;margin-bottom:10px;"><i class="fas fa-book"></i> ${escapeHtml(g.course?.title || 'Course ' + cid)}</h3>
-                    <div class="lessons-grid" id="sortableLessons-${cid}" style="grid-template-columns:1fr;">
-                        ${g.items.map((lesson, i) => `
-                            <div class="lesson-card" data-id="${lesson.id}" data-order="${i}">
-                                <div class="lesson-header">
-                                    <span class="note-order-badge">${i + 1}</span>
-                                    <div class="lesson-icon"><i class="fas fa-chalkboard-teacher"></i></div>
-                                    <div class="lesson-title-info" style="flex:1;">
-                                        <h3>${escapeHtml(lesson.title)}</h3>
-                                        <p class="lesson-course">${escapeHtml(lesson.course?.title || '')}</p>
-                                    </div>
-                                    <span class="drag-handle"><i class="fas fa-grip-vertical"></i></span>
-                                </div>
-                                <div class="lesson-content">
-                                    <div class="lesson-meta">
-                                        <span class="stat-item"><i class="fas fa-sort-numeric-up"></i> ${lesson.orderIndex || 'N/A'}</span>
-                                        <small>${new Date(lesson.createdAt).toLocaleDateString()}</small>
-                                    </div>
-                                    <div class="lesson-actions">
-                                        <button class="action-btn btn-edit" onclick="moveLesson(${lesson.id}, -1, ${cid})" title="Move up"><i class="fas fa-chevron-up"></i> Up</button>
-                                        <button class="action-btn btn-view" onclick="moveLesson(${lesson.id}, 1, ${cid})" title="Move down"><i class="fas fa-chevron-down"></i> Down</button>
-                                    </div>
-                                </div>
-                            </div>
-                        `).join('')}
+                <div class="order-group">
+                    <h3><i class="fas fa-book"></i> ${escapeHtml(g.course?.title || 'Course ' + cid)}</h3>
+                    <div class="order-table-wrap">
+                        <table class="order-table" data-course-id="${cid}">
+                            <thead>
+                                <tr>
+                                    <th style="width:90px;">Order</th>
+                                    <th>Lesson</th>
+                                    <th style="width:160px;">Session Date</th>
+                                    <th style="width:120px;">Duration</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${g.items.map((lesson, i) => `
+                                    <tr>
+                                        <td><input type="number" class="order-input" min="1" step="1" value="${i + 1}" data-id="${lesson.id}"></td>
+                                        <td><span class="order-title">${escapeHtml(lesson.title)}</span></td>
+                                        <td class="order-meta">${lesson.sessionDate ? new Date(lesson.sessionDate + 'T00:00').toLocaleDateString() : '&mdash;'}</td>
+                                        <td class="order-meta">${lesson.durationMinutes ? lesson.durationMinutes + ' min' : '&mdash;'}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
                     </div>
                 </div>`;
             }).join('')}`;
 
-        document.querySelectorAll('.lessons-grid[id^="sortableLessons-"]').forEach(el => {
-            Sortable.create(el, {
-                handle: '.drag-handle',
-                animation: 150,
-                ghostClass: 'sortable-ghost',
-                dragClass: 'dragging',
-                onEnd: function() {
-                    document.getElementById('orderActionsBar').style.display = 'flex';
+        const message = document.getElementById('orderBarMessage');
+        if (message) {
+            message.textContent = 'Enter a position for each lesson (1 = first). Each course has its own order.';
+            message.className = '';
+        }
+        document.getElementById('orderActionsBar').style.display = 'flex';
+    }
+
+    async function saveLessonOrder() {
+        const saveBtn = document.getElementById('saveOrderBtn');
+        const message = document.getElementById('orderBarMessage');
+        const items = [];
+        const invalidInputs = [];
+
+        document.querySelectorAll('.order-table').forEach(table => {
+            const rows = Array.from(table.querySelectorAll('tbody tr')).map((tr, domIndex) => {
+                const input = tr.querySelector('.order-input');
+                input.classList.remove('invalid');
+                const position = parseInt(input.value, 10);
+                return { id: parseInt(input.dataset.id, 10), position, domIndex, input };
+            });
+
+            rows.forEach(row => {
+                if (!Number.isInteger(row.position) || row.position < 1) {
+                    row.input.classList.add('invalid');
+                    invalidInputs.push(row.input);
                 }
             });
+
+            rows
+                .slice()
+                .sort((a, b) => a.position - b.position || a.domIndex - b.domIndex)
+                .forEach((row, index) => items.push({ id: row.id, orderIndex: index }));
         });
 
-        document.getElementById('orderActionsBar').style.display = 'flex';
-    }
-
-    function moveLesson(lessonId, dir, courseId) {
-        const el = document.getElementById('sortableLessons-' + courseId);
-        if (!el) return;
-        const cards = Array.from(el.querySelectorAll('.lesson-card'));
-        const idx = cards.findIndex(c => parseInt(c.dataset.id) === lessonId);
-        if (idx === -1) return;
-        const target = idx + dir;
-        if (target < 0 || target >= cards.length) return;
-
-        if (dir < 0) {
-            el.insertBefore(cards[idx], cards[target]);
-        } else {
-            cards[target].insertAdjacentElement('afterend', cards[idx]);
+        if (invalidInputs.length > 0) {
+            invalidInputs[0].focus();
+            alert('Please enter a valid position number (1 or greater) for every lesson.');
+            return;
         }
-
-        updateOrderBadges(el);
-        document.getElementById('orderActionsBar').style.display = 'flex';
-    }
-
-    function updateOrderBadges(el) {
-        el.querySelectorAll('.lesson-card').forEach((card, i) => {
-            const badge = card.querySelector('.note-order-badge');
-            if (badge) badge.textContent = i + 1;
-        });
-    }
-
-    function saveLessonOrder() {
-        const items = [];
-        document.querySelectorAll('.lessons-grid[id^="sortableLessons-"]').forEach(el => {
-            Array.from(el.querySelectorAll('.lesson-card')).forEach((card, index) => {
-                items.push({ id: parseInt(card.dataset.id), orderIndex: index });
-            });
-        });
 
         if (items.length === 0) {
             hideOrderBar();
             return;
         }
 
-        fetch(`${API_BASE_URL}/tutor/lessons/reorder`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${sessionStorage.getItem('token')}`
-            },
-            body: JSON.stringify({ items })
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                hideOrderBar();
-                allLessons.forEach(lesson => {
-                    const item = items.find(it => it.id === lesson.id);
-                    if (item) lesson.orderIndex = item.orderIndex;
-                });
-                document.querySelectorAll('.lessons-grid[id^="sortableLessons-"]').forEach(el => updateOrderBadges(el));
-            } else {
-                alert('Failed to save order: ' + (data.error || 'Unknown error'));
+        if (saveBtn) saveBtn.disabled = true;
+        if (message) {
+            message.textContent = 'Saving order...';
+            message.className = '';
+        }
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/tutor/lessons/reorder`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${sessionStorage.getItem('token')}`
+                },
+                body: JSON.stringify({ items })
+            });
+            const data = await response.json().catch(() => ({}));
+
+            if (!response.ok || !data.success) {
+                throw new Error(data.error || `HTTP ${response.status}`);
             }
-        })
-        .catch(err => {
-            console.error('Save order error:', err);
-            alert('Failed to save order. Please try again.');
-        });
+
+            await loadAllLessonsForOrder();
+
+            const savedMessage = document.getElementById('orderBarMessage');
+            if (savedMessage) {
+                savedMessage.textContent = 'Order saved successfully.';
+                savedMessage.className = 'order-saved';
+            }
+        } catch (error) {
+            console.error('Save order error:', error);
+            if (message) {
+                message.textContent = 'Enter a position for each lesson (1 = first). Each course has its own order.';
+                message.className = '';
+            }
+            alert('Failed to save order: ' + error.message);
+        } finally {
+            if (saveBtn) saveBtn.disabled = false;
+        }
     }
 
     function discardLessonOrder() {

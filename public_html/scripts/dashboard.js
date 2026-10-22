@@ -368,6 +368,7 @@ class DashboardSidebar extends HTMLElement {
                 { href: '/admin-dashboard/invoices.html', icon: 'fa-file-invoice', label: 'Invoices' },
                 { href: '/admin-dashboard/student-payments.html', icon: 'fa-money-check', label: 'Student Payments' },
                 { href: '/admin-dashboard/payment-confirmations.html', icon: 'fa-check-double', label: 'Payment Confirmations' },
+                { href: '/admin-dashboard/contact-messages.html', icon: 'fa-envelope-open-text', label: 'Contact Messages' },
                 { href: '/admin-dashboard/cohorts.html', icon: 'fa-users', label: 'Cohorts' },
                 { href: '/admin-dashboard/settings.html', icon: 'fa-cog', label: 'Settings' }
             ]

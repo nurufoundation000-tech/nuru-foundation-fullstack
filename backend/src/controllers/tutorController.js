@@ -1032,6 +1032,7 @@ async function reorderNotes(req, res) {
     const placeholders = courseIds.map(() => '?').join(', ');
 
     for (const item of items) {
+      if (!Number.isInteger(item.id) || !Number.isInteger(item.orderIndex)) continue;
       const note = await db.getOne(
         `SELECT id FROM course_notes WHERE id = ? AND course_id IN (${placeholders})`,
         [item.id, ...courseIds]
@@ -1067,6 +1068,7 @@ async function reorderLessons(req, res) {
     const placeholders = courseIds.map(() => '?').join(', ');
 
     for (const item of items) {
+      if (!Number.isInteger(item.id) || !Number.isInteger(item.orderIndex)) continue;
       const lesson = await db.getOne(
         `SELECT id FROM lessons WHERE id = ? AND course_id IN (${placeholders})`,
         [item.id, ...courseIds]

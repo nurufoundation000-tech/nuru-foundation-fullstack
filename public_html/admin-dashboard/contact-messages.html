@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="/scripts/auth-guard.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Messages - NURU Admin</title>
+    <link rel="icon" href="/logo.jpg" type="image/jpeg">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="../styles/root.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f8f9fa;
+            color: #333;
+        }
+
+        .admin-container { display: flex; min-height: 100vh; }
+
+        .admin-sidebar {
+            width: 260px;
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: white;
+            padding: 20px 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .admin-brand {
+            padding: 0 20px 20px;
+            border-bottom: 1px solid #4a6278;
+            margin-bottom: 20px;
+        }
+
+        .admin-brand h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 5px; }
+        .admin-brand p { font-size: 0.9rem; opacity: 0.8; }
+
+        .admin-nav { list-style: none; padding: 0 10px; }
+        .admin-nav li { margin-bottom: 5px; }
+
+        .admin-nav a {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            color: #ecf0f1;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .admin-nav a:hover, .admin-nav a.active { background: rgba(255,255,255,0.1); color: white; }
+        .admin-nav i { width: 20px; margin-right: 10px; }
+
+        .admin-main { flex: 1; margin-left: 260px; padding: 20px; }
+
+        .admin-header {
+            background: white;
+            padding: 25px 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .admin-header h1 { color: #2c3e50; font-size: 2rem; margin-bottom: 6px; }
+        .admin-header p { color: #7f8c8d; font-size: 0.95rem; }
+
+        .header-actions { display: flex; gap: 15px; }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-family: inherit;
+            font-size: 0.9rem;
+        }
+
+        .btn-primary { background: var(--primary-color); color: white; }
+        .btn-primary:hover { background: var(--secondary-color); transform: translateY(-2px); }
+        .btn-secondary { background: #6c757d; color: white; }
+        .btn-secondary:hover { background: #5a6268; }
+        .btn-view { background: #17a2b8; color: white; }
+        .btn-view:hover { background: #138496; }
+
+        .filters {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: flex-end;
+        }
+
+        .filter-group { display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 240px; }
+        .filter-label { font-size: 0.9rem; color: #666; font-weight: 500; }
+
+        .filter-input {
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-family: inherit;
+            width: 100%;
+        }
+
+        .filter-input:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.15); }
+
+        .table-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .table-header {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .table-header h2 { color: #2c3e50; font-size: 1.3rem; }
+
+        .messages-table { width: 100%; border-collapse: collapse; }
+
+        .messages-table th, .messages-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+            vertical-align: top;
+        }
+
+        .messages-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #2c3e50;
+            white-space: nowrap;
+        }
+
+        .messages-table tbody tr:hover { background: #f8f9fa; }
+
+        .sender-name { font-weight: 600; color: #2c3e50; }
+
+        .message-preview {
+            max-width: 360px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: #555;
+        }
+
+        .message-date { white-space: nowrap; color: #666; font-size: 0.85rem; }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 0.8rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-family: inherit;
+        }
+
+        .loading { text-align: center; padding: 50px 20px; color: #7f8c8d; }
+        .loading i { font-size: 1.6rem; margin-bottom: 10px; }
+
+        .empty-state { text-align: center; padding: 50px 20px; color: #666; }
+        .empty-state i { font-size: 3rem; margin-bottom: 15px; opacity: 0.45; display: block; }
+        .empty-state h3 { margin-bottom: 8px; color: #2c3e50; }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px;
+            text-align: center;
+        }
+
+        .pagination {
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid #eee;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .pagination-info { color: #666; font-size: 0.9rem; }
+        .pagination-controls { display: flex; gap: 8px; flex-wrap: wrap; }
+
+        .page-btn {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .page-btn:hover:not(:disabled) { background: #f8f9fa; }
+        .page-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .page-btn.active { background: var(--primary-color); color: white; border-color: var(--primary-color); }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow-y: auto;
+            background-color: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background-color: white;
+            border-radius: 15px;
+            padding: 0;
+            max-width: 720px;
+            width: 100%;
+            max-height: 88vh;
+            overflow-y: auto;
+            animation: modalSlideIn 0.25s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from { transform: translateY(-40px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-header {
+            padding: 20px 25px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 { color: #2c3e50; }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #666;
+            line-height: 1;
+        }
+
+        .modal-body { padding: 25px; }
+
+        .modal-footer {
+            padding: 20px 25px;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .message-details { display: grid; gap: 12px; margin-bottom: 20px; }
+        .message-details p { color: #333; }
+        .message-details strong { color: #2c3e50; }
+        .message-details a { color: var(--primary-color); text-decoration: none; }
+        .message-details a:hover { text-decoration: underline; }
+
+        .message-box {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 18px;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+            line-height: 1.7;
+            color: #333;
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            z-index: 10000;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.3s ease;
+            max-width: 400px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .toast.show { opacity: 1; transform: translateX(0); }
+        .toast-success { background: #28a745; }
+        .toast-error { background: #dc3545; }
+        .toast-info { background: #17a2b8; }
+
+        @media (max-width: 900px) {
+            .message-preview { max-width: 220px; }
+        }
+
+        @media (max-width: 768px) {
+            .admin-container { flex-direction: column; }
+            .admin-sidebar { width: 100%; height: auto; position: relative; }
+            .admin-main { margin-left: 0; }
+            .admin-header { flex-direction: column; align-items: flex-start; }
+            .filters { flex-direction: column; align-items: stretch; }
+            .messages-table { font-size: 0.88rem; }
+            .messages-table th, .messages-table td { padding: 10px 8px; }
+            .message-preview { max-width: 160px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <nav class="admin-sidebar">
+            <div class="admin-brand">
+                <h1>NURU Admin</h1>
+                <p>Administration Panel</p>
+            </div>
+            <ul class="admin-nav">
+                <li><a href="index.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                <li><a href="users.html"><i class="fas fa-users"></i> User Management</a></li>
+                <li><a href="courses.html"><i class="fas fa-book"></i> Course Management</a></li>
+                <li><a href="enrollments.html"><i class="fas fa-clipboard-list"></i> Enrollments</a></li>
+                <li><a href="analytics.html"><i class="fas fa-chart-bar"></i> Analytics</a></li>
+                <li><a href="transactions.html"><i class="fas fa-credit-card"></i> Transactions</a></li>
+                <li><a href="invoices.html"><i class="fas fa-file-invoice"></i> Invoices</a></li>
+                <li><a href="student-payments.html"><i class="fas fa-money-check"></i> Student Payments</a></li>
+                <li><a href="payment-confirmations.html"><i class="fas fa-check-double"></i> Payment Confirmations</a></li>
+                <li><a href="contact-messages.html" class="active"><i class="fas fa-envelope-open-text"></i> Contact Messages</a></li>
+                <li><a href="settings.html"><i class="fas fa-cog"></i> System Settings</a></li>
+                <li><a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </nav>
+
+        <main class="admin-main">
+            <div class="admin-header">
+                <div>
+                    <h1>Contact Messages</h1>
+                    <p>Read submissions from the public contact form</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-secondary" onclick="loadMessages(currentPage)">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                </div>
+            </div>
+
+            <div class="filters">
+                <div class="filter-group">
+                    <label class="filter-label" for="searchInput">Search</label>
+                    <input
+                        type="text"
+                        id="searchInput"
+                        class="filter-input"
+                        placeholder="Search by name, email, phone, or message..."
+                        oninput="scheduleSearch()"
+                    >
+                </div>
+            </div>
+
+            <div class="table-container">
+                <div class="table-header">
+                    <h2>Messages</h2>
+                </div>
+
+                <div id="messagesTableContainer">
+                    <div class="loading"><i class="fas fa-spinner fa-spin"></i><br>Loading messages...</div>
+                </div>
+
+                <div class="pagination">
+                    <div class="pagination-info" id="paginationInfo">Showing 0 of 0 messages</div>
+                    <div class="pagination-controls" id="paginationControls"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div class="modal" id="messageModal">
+        <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="messageModalTitle">
+            <div class="modal-header">
+                <h3 id="messageModalTitle">Contact Message</h3>
+                <button class="close-modal" onclick="closeMessageModal()" aria-label="Close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="message-details">
+                    <p><strong>From:</strong> <span id="detailName"></span></p>
+                    <p><strong>Email:</strong> <a id="detailEmail" href="#"></a></p>
+                    <p><strong>Phone:</strong> <a id="detailPhone" href="#"></a></p>
+                    <p><strong>Received:</strong> <span id="detailDate"></span></p>
+                </div>
+                <div class="message-box" id="detailMessage"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeMessageModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toastContainer"></div>
+
+    <script>
+        const API_BASE_URL = '/api';
+        const ITEMS_PER_PAGE = 20;
+
+        let currentPage = 1;
+        let totalPages = 1;
+        let totalMessages = 0;
+        let currentMessages = [];
+        let searchTimer = null;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(checkAdminAccess, 100);
+        });
+
+        function checkAdminAccess() {
+            const token = sessionStorage.getItem('token');
+            const userData = sessionStorage.getItem('user');
+
+            if (!token || !userData) {
+                window.location.href = '/login.html';
+                return;
+            }
+
+            try {
+                const user = JSON.parse(userData);
+                const role = user.role?.name || user.role;
+
+                if (role !== 'admin') {
+                    if (role === 'student') {
+                        window.location.href = '/student-dashboard/index.html';
+                    } else if (role === 'tutor') {
+                        window.location.href = '/tutor-dashboard/index.html';
+                    } else {
+                        window.location.href = '/dashboard.html';
+                    }
+                    return;
+                }
+
+                loadMessages(1);
+            } catch (error) {
+                console.error('Error parsing user data:', error);
+                window.location.href = '/login.html';
+            }
+        }
+
+        function scheduleSearch() {
+            clearTimeout(searchTimer);
+            searchTimer = setTimeout(() => loadMessages(1), 350);
+        }
+
+        async function loadMessages(page = 1) {
+            const container = document.getElementById('messagesTableContainer');
+            container.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i><br>Loading messages...</div>';
+
+            const search = document.getElementById('searchInput').value.trim();
+            const params = new URLSearchParams({
+                page: String(page),
+                limit: String(ITEMS_PER_PAGE)
+            });
+            if (search) params.set('search', search);
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/admin/contact-messages?${params.toString()}`, {
+                    headers: {
+                        'Authorization': `Bearer ${sessionStorage.getItem('token')}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json().catch(() => ({}));
+
+                if (!response.ok || !data.success) {
+                    throw new Error(data.error || `HTTP ${response.status}`);
+                }
+
+                currentPage = data.pagination?.page || page;
+                totalPages = data.pagination?.pages || 1;
+                totalMessages = Number(data.pagination?.total) || 0;
+                currentMessages = data.data || [];
+
+                displayMessages(currentMessages);
+                updatePagination();
+            } catch (error) {
+                console.error('Error loading contact messages:', error);
+                container.innerHTML = `
+                    <div class="error">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        Failed to load contact messages: ${escapeHtml(error.message)}
+                        <br>
+                        <button class="btn btn-secondary" style="margin-top: 12px;" onclick="loadMessages(${page})">
+                            <i class="fas fa-sync-alt"></i> Try Again
+                        </button>
+                    </div>
+                `;
+                document.getElementById('paginationInfo').textContent = 'Unable to load messages';
+                document.getElementById('paginationControls').innerHTML = '';
+                showToast(error.message, 'error');
+            }
+        }
+
+        function displayMessages(messages) {
+            const container = document.getElementById('messagesTableContainer');
+
+            if (!messages.length) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-envelope-open-text"></i>
+                        <h3>No contact messages yet</h3>
+                        <p>Submissions from the public contact form will appear here.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = `
+                <table class="messages-table">
+                    <thead>
+                        <tr>
+                            <th>Received</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Message</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${messages.map(message => `
+                            <tr>
+                                <td class="message-date">${escapeHtml(formatDate(message.createdAt))}</td>
+                                <td><span class="sender-name">${escapeHtml(message.name || '')}</span></td>
+                                <td><a href="mailto:${escapeAttribute(message.email || '')}">${escapeHtml(message.email || '—')}</a></td>
+                                <td>${message.phone ? `<a href="tel:${escapeAttribute(message.phone)}">${escapeHtml(message.phone)}</a>` : '—'}</td>
+                                <td><div class="message-preview">${escapeHtml(truncateText(message.message, 130))}</div></td>
+                                <td>
+                                    <button class="btn-sm btn-view" onclick="openMessageModal(${Number(message.id)})">
+                                        <i class="fas fa-eye"></i> View
+                                    </button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        function updatePagination() {
+            const info = document.getElementById('paginationInfo');
+            const controls = document.getElementById('paginationControls');
+
+            if (totalMessages === 0) {
+                info.textContent = 'Showing 0 of 0 messages';
+                controls.innerHTML = '';
+                return;
+            }
+
+            const startItem = (currentPage - 1) * ITEMS_PER_PAGE + 1;
+            const endItem = Math.min(currentPage * ITEMS_PER_PAGE, totalMessages);
+            info.textContent = `Showing ${startItem}-${endItem} of ${totalMessages} messages`;
+
+            let html = `
+                <button class="page-btn" ${currentPage === 1 ? 'disabled' : ''} onclick="changePage(${currentPage - 1})">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+            `;
+
+            for (let i = 1; i <= totalPages; i++) {
+                if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
+                    html += `
+                        <button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">
+                            ${i}
+                        </button>
+                    `;
+                } else if (i === currentPage - 2 || i === currentPage + 2) {
+                    html += '<span class="page-btn" style="border: none;">...</span>';
+                }
+            }
+
+            html += `
+                <button class="page-btn" ${currentPage === totalPages ? 'disabled' : ''} onclick="changePage(${currentPage + 1})">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            `;
+
+            controls.innerHTML = html;
+        }
+
+        function changePage(page) {
+            if (page < 1 || page > totalPages || page === currentPage) return;
+            loadMessages(page);
+        }
+
+        function openMessageModal(id) {
+            const message = currentMessages.find(item => Number(item.id) === Number(id));
+            if (!message) return;
+
+            document.getElementById('detailName').textContent = message.name || '—';
+            document.getElementById('detailDate').textContent = formatDate(message.createdAt);
+
+            const emailLink = document.getElementById('detailEmail');
+            emailLink.textContent = message.email || '—';
+            if (message.email) {
+                emailLink.href = `mailto:${message.email}`;
+            } else {
+                emailLink.removeAttribute('href');
+            }
+
+            const phoneLink = document.getElementById('detailPhone');
+            phoneLink.textContent = message.phone || '—';
+            if (message.phone) {
+                phoneLink.href = `tel:${message.phone}`;
+            } else {
+                phoneLink.removeAttribute('href');
+            }
+
+            document.getElementById('detailMessage').textContent = message.message || '';
+
+            document.getElementById('messageModal').style.display = 'flex';
+        }
+
+        function closeMessageModal() {
+            document.getElementById('messageModal').style.display = 'none';
+        }
+
+        document.getElementById('messageModal').addEventListener('click', function(event) {
+            if (event.target === this) closeMessageModal();
+        });
+
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') closeMessageModal();
+        });
+
+        function truncateText(text, maxLength) {
+            const value = String(text || '').replace(/\s+/g, ' ').trim();
+            if (value.length <= maxLength) return value;
+            return value.slice(0, maxLength) + '...';
+        }
+
+        function formatDate(value) {
+            if (!value) return '—';
+            const date = new Date(value);
+            if (isNaN(date.getTime())) return String(value);
+            return date.toLocaleString();
+        }
+
+        function escapeHtml(value) {
+            return String(value ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function escapeAttribute(value) {
+            return escapeHtml(value);
+        }
+
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.textContent = message;
+
+            container.appendChild(toast);
+            setTimeout(() => toast.classList.add('show'), 10);
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, 5000);
+        }
+    </script>
+    <script>function logout(){localStorage.clear();sessionStorage.clear();location.replace('/login.html')}</script>
+</body>
+</html>

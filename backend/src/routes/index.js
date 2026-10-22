@@ -81,9 +81,9 @@ router.get('/tutor/transactions', authenticateToken, requireTutor, TutorControll
 // Tutor Lesson Management
 router.get('/tutor/lessons', authenticateToken, requireTutor, TutorController.getTutorLessons);
 router.post('/tutor/lessons', authenticateToken, requireTutor, TutorController.createTutorLesson);
+router.put('/tutor/lessons/reorder', authenticateToken, requireTutor, TutorController.reorderLessons);
 router.put('/tutor/lessons/:id', authenticateToken, requireTutor, TutorController.updateTutorLesson);
 router.delete('/tutor/lessons/:id', authenticateToken, requireTutor, TutorController.deleteTutorLesson);
-router.put('/tutor/lessons/reorder', authenticateToken, requireTutor, TutorController.reorderLessons);
 
 // Tutor Assignment Management
 router.get('/tutor/assignments', authenticateToken, requireTutor, TutorController.getTutorAssignments);
@@ -98,9 +98,9 @@ router.put('/tutor/submissions/:id/grade', authenticateToken, requireTutor, Tuto
 // Tutor Notes Management
 router.get('/tutor/notes', authenticateToken, requireTutor, TutorController.getTutorNotes);
 router.post('/tutor/notes', authenticateToken, requireTutor, TutorController.createTutorNote);
+router.put('/tutor/notes/reorder', authenticateToken, requireTutor, TutorController.reorderNotes);
 router.put('/tutor/notes/:id', authenticateToken, requireTutor, TutorController.updateTutorNote);
 router.delete('/tutor/notes/:id', authenticateToken, requireTutor, TutorController.deleteTutorNote);
-router.put('/tutor/notes/reorder', authenticateToken, requireTutor, TutorController.reorderNotes);
 
 // Tutor Enrollment Management
 router.get('/tutor/enrollments', authenticateToken, requireTutor, TutorController.getTutorEnrollments);
@@ -124,6 +124,9 @@ router.get('/admin/users', authenticateToken, requireAdmin, AdminController.getU
 router.post('/admin/users', authenticateToken, requireAdmin, AdminController.createUser);
 router.put('/admin/users/:id', authenticateToken, requireAdmin, AdminController.updateUser);
 router.delete('/admin/users/:id', authenticateToken, requireAdmin, AdminController.deleteUser);
+
+// Admin Contact Messages
+router.get('/admin/contact-messages', authenticateToken, requireAdmin, ContactController.getContactMessages);
 
 // Admin Analytics
 router.get('/admin/analytics', authenticateToken, requireAdmin, AdminController.getAnalytics);
