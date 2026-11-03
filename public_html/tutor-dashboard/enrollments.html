@@ -484,6 +484,83 @@
             border-color: var(--primary-color);
         }
 
+        /* Student Search Combobox */
+        .student-combobox {
+            position: relative;
+        }
+
+        .student-combobox input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            background: white;
+        }
+
+        .student-combobox input[type="text"]:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .student-dropdown {
+            display: none;
+            position: absolute;
+            top: calc(100% + 4px);
+            left: 0;
+            right: 0;
+            z-index: 20;
+            max-height: 240px;
+            overflow-y: auto;
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+        }
+
+        .student-dropdown.open {
+            display: block;
+        }
+
+        .student-option {
+            padding: 10px 12px;
+            cursor: pointer;
+            border-bottom: 1px solid #f1f3f5;
+        }
+
+        .student-option:last-child {
+            border-bottom: none;
+        }
+
+        .student-option:hover,
+        .student-option.active {
+            background: #f1f6ff;
+        }
+
+        .student-option .option-name {
+            font-weight: 500;
+            color: #2c3e50;
+        }
+
+        .student-option .option-email {
+            font-size: 0.85rem;
+            color: #6c757d;
+        }
+
+        .student-dropdown-message {
+            padding: 12px;
+            color: #6c757d;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        .student-hint {
+            display: block;
+            margin-top: 6px;
+            color: #6c757d;
+            font-size: 0.85rem;
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .tutor-container {
@@ -570,10 +647,10 @@
             <div class="filters-section">
                 <div class="filters-row">
                     <div class="search-box">
-                        <input type="text" id="searchInput" placeholder="Search by student name, email, or course..." onkeyup="filterEnrollments()">
+                        <input type="text" id="searchInput" placeholder="Search by student name, email, or course..." oninput="handleEnrollmentSearch()" autocomplete="off">
                         <i class="fas fa-search"></i>
                     </div>
-                    <select class="filter-select" id="courseFilter" onchange="filterEnrollments()">
+                    <select class="filter-select" id="courseFilter" onchange="loadEnrollments(1)">
                         <option value="">All Courses</option>
                     </select>
                 </div>
@@ -621,10 +698,13 @@
             <h2>Enroll Student in Course</h2>
             <form id="addEnrollmentForm">
                 <div class="form-group">
-                    <label for="studentSelect">Select Student *</label>
-                    <select id="studentSelect" required>
-                        <option value="">Loading students...</option>
-                    </select>
+                    <label for="studentSearch">Search Student *</label>
+                    <div class="student-combobox">
+                        <input type="text" id="studentSearch" placeholder="Type a student's name or email..." autocomplete="off" required>
+                        <input type="hidden" id="studentSelect">
+                        <div id="studentDropdown" class="student-dropdown"></div>
+                    </div>
+                    <small id="studentHint" class="student-hint"></small>
                 </div>
                 <div class="form-group">
                     <label for="courseSelect">Select Course *</label>
@@ -650,7 +730,7 @@
     let allEnrollments = [];
     let filteredEnrollments = [];
     let courses = [];
-    let allStudents = [];
+    let enrollmentSearchTimer = null;
 
     document.addEventListener('DOMContentLoaded', function() {
         initializeEnrollmentsPage();
@@ -727,41 +807,159 @@
         });
     }
 
-    // Load students for the enrollment form
-    async function loadStudents() {
+    // Searchable student combobox (server-side search)
+    let studentSearchTimer = null;
+    let studentRequestSeq = 0;
+    let studentResults = [];
+    let activeStudentIndex = -1;
+
+    async function loadStudents(query = '') {
+        const dropdown = document.getElementById('studentDropdown');
+        const hint = document.getElementById('studentHint');
+        const requestId = ++studentRequestSeq;
+
+        dropdown.innerHTML = '<div class="student-dropdown-message"><i class="fas fa-spinner fa-spin"></i> Searching students...</div>';
+        dropdown.classList.add('open');
+        if (hint) hint.textContent = '';
+
         try {
             const token = sessionStorage.getItem('token');
-            const response = await fetch(`${API_BASE_URL}/tutor/students`, {
+            const url = `${API_BASE_URL}/tutor/students${query ? `?search=${encodeURIComponent(query)}` : ''}`;
+            const response = await fetch(url, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
                 }
             });
 
-            if (response.ok) {
-                const data = await response.json();
-                allStudents = data.data || [];
-                populateStudentSelect();
-            } else {
+            if (!response.ok) {
                 throw new Error('Failed to load students');
             }
+
+            const data = await response.json();
+
+            // Ignore responses from outdated requests
+            if (requestId !== studentRequestSeq) return;
+
+            studentResults = data.data || [];
+            renderStudentOptions();
         } catch (error) {
+            if (requestId !== studentRequestSeq) return;
             console.error('Error loading students:', error);
-            document.getElementById('studentSelect').innerHTML = '<option value="">Error loading students</option>';
+            studentResults = [];
+            dropdown.innerHTML = '<div class="student-dropdown-message">Error loading students</div>';
+            dropdown.classList.add('open');
         }
     }
 
-    function populateStudentSelect() {
-        const studentSelect = document.getElementById('studentSelect');
-        studentSelect.innerHTML = '<option value="">Select a student</option>';
-        
-        allStudents.forEach(student => {
-            const option = document.createElement('option');
-            option.value = student.id;
-            option.textContent = `${student.fullName} (${student.email})`;
-            studentSelect.appendChild(option);
+    function renderStudentOptions() {
+        const dropdown = document.getElementById('studentDropdown');
+        activeStudentIndex = -1;
+
+        if (!studentResults.length) {
+            dropdown.innerHTML = '<div class="student-dropdown-message">No students found</div>';
+            dropdown.classList.add('open');
+            return;
+        }
+
+        dropdown.innerHTML = studentResults.map((student, index) => `
+            <div class="student-option" data-index="${index}" data-id="${student.id}">
+                <div class="option-name">${escapeHtml(student.fullName || student.username || 'Unknown student')}</div>
+                <div class="option-email">${escapeHtml(student.email || '')}</div>
+            </div>
+        `).join('');
+
+        dropdown.querySelectorAll('.student-option').forEach(option => {
+            option.addEventListener('mousedown', function(e) {
+                e.preventDefault();
+                selectStudent(Number(this.dataset.id));
+            });
         });
+
+        dropdown.classList.add('open');
     }
+
+    function selectStudent(studentId) {
+        const student = studentResults.find(s => Number(s.id) === studentId);
+        if (!student) return;
+
+        document.getElementById('studentSelect').value = student.id;
+        document.getElementById('studentSearch').value = `${student.fullName || student.username} (${student.email || ''})`;
+        document.getElementById('studentHint').textContent = 'Student selected';
+        closeStudentDropdown();
+    }
+
+    function closeStudentDropdown() {
+        const dropdown = document.getElementById('studentDropdown');
+        dropdown.classList.remove('open');
+        dropdown.querySelectorAll('.student-option.active').forEach(el => el.classList.remove('active'));
+        activeStudentIndex = -1;
+    }
+
+    function escapeHtml(value) {
+        return String(value)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
+
+    document.getElementById('studentSearch').addEventListener('input', function() {
+        document.getElementById('studentSelect').value = '';
+        document.getElementById('studentHint').textContent = '';
+
+        const query = this.value.trim();
+        clearTimeout(studentSearchTimer);
+        studentSearchTimer = setTimeout(() => loadStudents(query), 300);
+    });
+
+    document.getElementById('studentSearch').addEventListener('focus', function() {
+        const dropdown = document.getElementById('studentDropdown');
+        if (!dropdown.classList.contains('open')) {
+            loadStudents(this.value.trim());
+        }
+    });
+
+    document.getElementById('studentSearch').addEventListener('keydown', function(e) {
+        const dropdown = document.getElementById('studentDropdown');
+        const options = dropdown.querySelectorAll('.student-option');
+
+        if (e.key === 'Escape') {
+            closeStudentDropdown();
+            return;
+        }
+
+        if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+            if (!dropdown.classList.contains('open')) {
+                loadStudents(this.value.trim());
+                return;
+            }
+            if (!options.length) return;
+
+            e.preventDefault();
+            activeStudentIndex = e.key === 'ArrowDown'
+                ? (activeStudentIndex + 1) % options.length
+                : (activeStudentIndex - 1 + options.length) % options.length;
+
+            options.forEach((option, index) => {
+                option.classList.toggle('active', index === activeStudentIndex);
+            });
+            options[activeStudentIndex].scrollIntoView({ block: 'nearest' });
+            return;
+        }
+
+        if (e.key === 'Enter' && activeStudentIndex >= 0 && options[activeStudentIndex]) {
+            e.preventDefault();
+            selectStudent(Number(options[activeStudentIndex].dataset.id));
+        }
+    });
+
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.student-combobox')) {
+            closeStudentDropdown();
+        }
+    });
 
     function populateCourseSelect() {
         const courseSelect = document.getElementById('courseSelect');
@@ -945,22 +1143,9 @@
         loadEnrollments(page);
     }
 
-    function filterEnrollments() {
-        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-        const courseFilter = document.getElementById('courseFilter').value;
-
-        filteredEnrollments = allEnrollments.filter(enrollment => {
-            const matchesSearch =
-                enrollment.student.fullName.toLowerCase().includes(searchTerm) ||
-                enrollment.student.email.toLowerCase().includes(searchTerm) ||
-                enrollment.course.title.toLowerCase().includes(searchTerm);
-
-            const matchesCourse = courseFilter === '' || enrollment.course.id.toString() === courseFilter;
-
-            return matchesSearch && matchesCourse;
-        });
-
-        displayEnrollments(filteredEnrollments);
+    function handleEnrollmentSearch() {
+        clearTimeout(enrollmentSearchTimer);
+        enrollmentSearchTimer = setTimeout(() => loadEnrollments(1), 300);
     }
 
     function refreshEnrollments() {
@@ -968,7 +1153,10 @@
     }
 
     function openAddEnrollmentModal() {
-        loadStudents();
+        document.getElementById('addEnrollmentForm').reset();
+        document.getElementById('studentHint').textContent = '';
+        closeStudentDropdown();
+        loadStudents('');
         populateCourseSelect();
         document.getElementById('addEnrollmentModal').style.display = 'flex';
     }
@@ -976,6 +1164,9 @@
     function closeAddModal() {
         document.getElementById('addEnrollmentModal').style.display = 'none';
         document.getElementById('addEnrollmentForm').reset();
+        document.getElementById('studentHint').textContent = '';
+        clearTimeout(studentSearchTimer);
+        closeStudentDropdown();
     }
 
     async function viewEnrollment(enrollmentId) {

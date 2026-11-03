@@ -850,14 +850,33 @@ async function deleteTutorNote(req, res) {
 
 async function getTutorStudents(req, res) {
   try {
-    const students = await db.query(`
+    const search = (req.query.search || '').trim();
+
+    let query = `
       SELECT id, full_name, username, email, created_at
       FROM users
       WHERE role_id = (SELECT id FROM roles WHERE name = 'student')
-      ORDER BY full_name ASC
-    `);
+    `;
+    const params = [];
 
-    res.json({ success: true, data: students });
+    if (search) {
+      query += ' AND (full_name LIKE ? OR email LIKE ? OR username LIKE ?)';
+      const term = `%${search}%`;
+      params.push(term, term, term);
+    }
+
+    query += ' ORDER BY full_name ASC LIMIT 20';
+
+    const students = await db.query(query, params);
+
+    const transformed = students.map(s => ({
+      id: s.id,
+      fullName: s.full_name,
+      username: s.username,
+      email: s.email
+    }));
+
+    res.json({ success: true, data: transformed });
   } catch (error) {
     console.error('Get tutor students error:', error);
     res.status(500).json({ error: 'Failed to load students' });
@@ -877,27 +896,46 @@ async function getTutorEnrollments(req, res) {
     }
 
     const placeholders = courseIds.map(() => '?').join(', ');
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 20;
+    const page = Math.max(parseInt(req.query.page) || 1, 1);
+    const limit = Math.min(Math.max(parseInt(req.query.limit) || 20, 1), 100);
     const offset = (page - 1) * limit;
-    const courseId = req.query.courseId;
+    const courseId = req.query.courseId ? parseInt(req.query.courseId, 10) : null;
+    const search = (req.query.search || '').trim();
 
-    let query = `SELECT e.*, u.full_name, u.email, u.username, c.title as course_title, c.id as course_id
-                  FROM enrollments e
-                  JOIN users u ON e.student_id = u.id
-                  JOIN courses c ON e.course_id = c.id
-                  WHERE e.course_id IN (${placeholders})`;
+    let where = `e.course_id IN (${placeholders})`;
     const params = [...courseIds];
 
     if (courseId) {
-      query += ' AND e.course_id = ?';
+      where += ' AND e.course_id = ?';
       params.push(courseId);
     }
 
-    query += ' ORDER BY e.enrolled_at DESC LIMIT ? OFFSET ?';
-    params.push(limit, offset);
+    if (search) {
+      where += ' AND (u.full_name LIKE ? OR u.email LIKE ? OR u.username LIKE ? OR c.title LIKE ?)';
+      const term = `%${search}%`;
+      params.push(term, term, term, term);
+    }
 
-    const enrollments = await db.query(query, params);
+    const countRow = await db.getOne(
+      `SELECT COUNT(*) as total
+       FROM enrollments e
+       JOIN users u ON e.student_id = u.id
+       JOIN courses c ON e.course_id = c.id
+       WHERE ${where}`,
+      params
+    );
+    const total = countRow?.total || 0;
+
+    const enrollments = await db.query(
+      `SELECT e.*, u.full_name, u.email, u.username, c.title as course_title, c.id as course_id
+       FROM enrollments e
+       JOIN users u ON e.student_id = u.id
+       JOIN courses c ON e.course_id = c.id
+       WHERE ${where}
+       ORDER BY e.enrolled_at DESC
+       LIMIT ? OFFSET ?`,
+      [...params, limit, offset]
+    );
 
     // Transform to nested structure expected by frontend
     const transformedEnrollments = enrollments.map(e => ({
@@ -920,8 +958,8 @@ async function getTutorEnrollments(req, res) {
       data: transformedEnrollments,
       pagination: {
         page,
-        pages: 1, // Simplified
-        total: enrollments.length
+        pages: Math.max(1, Math.ceil(total / limit)),
+        total
       }
     });
   } catch (error) {
